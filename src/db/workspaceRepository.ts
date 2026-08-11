@@ -1,11 +1,21 @@
 import { db } from './database'
 import { createDemoWorkspace } from '../models/demo'
 import { WORKSPACE_APPLICATION, WORKSPACE_SCHEMA_VERSION } from '../models/domain'
-import type { EntityMetadata, WorkspaceData } from '../models/domain'
+import type {
+  Claim,
+  ClaimQuestionLink,
+  EntityMetadata,
+  ResearchProject,
+  ResearchQuestion,
+  WorkspaceData,
+} from '../models/domain'
 import { validateWorkspace, WorkspaceValidationError } from '../utils/workspace-transfer'
 
 export const WORKSPACE_COLLECTIONS = [
   'projects',
+  'researchQuestions',
+  'claims',
+  'claimQuestionLinks',
   'tasks',
   'literature',
   'fieldSites',
@@ -52,6 +62,9 @@ export class WorkspaceConflictError extends Error {
 const allTables = [
   db.workspaces,
   db.projects,
+  db.researchQuestions,
+  db.claims,
+  db.claimQuestionLinks,
   db.tasks,
   db.literature,
   db.fieldSites,
@@ -69,6 +82,9 @@ const allTables = [
 function emptyMergeCounts(): WorkspaceMergeCounts {
   return {
     projects: 0,
+    researchQuestions: 0,
+    claims: 0,
+    claimQuestionLinks: 0,
     tasks: 0,
     literature: 0,
     fieldSites: 0,
@@ -87,6 +103,9 @@ function emptyMergeCounts(): WorkspaceMergeCounts {
 function snapshotCollectionCounts(snapshot: WorkspaceData): WorkspaceMergeCounts {
   return {
     projects: snapshot.projects.length,
+    researchQuestions: snapshot.researchQuestions.length,
+    claims: snapshot.claims.length,
+    claimQuestionLinks: snapshot.claimQuestionLinks.length,
     tasks: snapshot.tasks.length,
     literature: snapshot.literature.length,
     fieldSites: snapshot.fieldSites.length,
@@ -110,6 +129,9 @@ async function writeSnapshot(snapshot: WorkspaceData): Promise<void> {
   await db.workspaces.put(snapshot.workspace)
   await Promise.all([
     db.projects.bulkPut(snapshot.projects),
+    db.researchQuestions.bulkPut(snapshot.researchQuestions),
+    db.claims.bulkPut(snapshot.claims),
+    db.claimQuestionLinks.bulkPut(snapshot.claimQuestionLinks),
     db.tasks.bulkPut(snapshot.tasks),
     db.literature.bulkPut(snapshot.literature),
     db.fieldSites.bulkPut(snapshot.fieldSites),
@@ -146,6 +168,97 @@ function mergeRecords<T extends EntityMetadata>(
   }
 }
 
+function graphIdentityIssues<T extends EntityMetadata>(
+  collection: 'researchQuestions' | 'claims' | 'claimQuestionLinks',
+  localRecords: T[],
+  incomingRecords: T[],
+  identity: (record: T) => string,
+): WorkspaceValidationError['issues'] {
+  const localById = new Map(localRecords.map((record) => [record.id, record]))
+  const issues: WorkspaceValidationError['issues'] = []
+  incomingRecords.forEach((record, index) => {
+    const local = localById.get(record.id)
+    if (local && identity(local) !== identity(record)) {
+      issues.push({
+        path: [collection, index, 'id'],
+        message: `ID "${record.id}" collides with a different local research-graph object.`,
+      })
+    }
+  })
+  return issues
+}
+
+/** Prevent imported links from silently attaching to different local graph parents. */
+function assertGraphMergeCollisionsSafe(
+  current: WorkspaceData,
+  incoming: WorkspaceData,
+): void {
+  const localProjectById = new Map(current.projects.map((project) => [project.id, project]))
+  const localQuestionIds = new Set(current.researchQuestions.map((question) => question.id))
+  const localClaimIds = new Set(current.claims.map((claim) => claim.id))
+  const localLinkIds = new Set(current.claimQuestionLinks.map((link) => link.id))
+  const projectIdentity = (project: ResearchProject) =>
+    JSON.stringify([
+      project.title,
+      project.shortTitle,
+      project.topic,
+      project.method,
+      project.startDate,
+    ])
+  const projectIssues: WorkspaceValidationError['issues'] = []
+  incoming.projects.forEach((project, index) => {
+    const local = localProjectById.get(project.id)
+    if (!local || projectIdentity(local) === projectIdentity(project)) {
+      return
+    }
+    const hasNewGraphChild =
+      incoming.researchQuestions.some(
+        (question) => question.projectId === project.id && !localQuestionIds.has(question.id),
+      ) ||
+      incoming.claims.some(
+        (claim) => claim.projectId === project.id && !localClaimIds.has(claim.id),
+      ) ||
+      incoming.claimQuestionLinks.some(
+        (link) => link.projectId === project.id && !localLinkIds.has(link.id),
+      )
+    if (hasNewGraphChild) {
+      projectIssues.push({
+        path: ['projects', index, 'id'],
+        message: `Project ID "${project.id}" collides with a different local project while adding research-graph children.`,
+      })
+    }
+  })
+
+  const issues = [
+    ...projectIssues,
+    ...graphIdentityIssues<ResearchQuestion>(
+      'researchQuestions',
+      current.researchQuestions,
+      incoming.researchQuestions,
+      (question) => JSON.stringify([question.projectId, question.text]),
+    ),
+    ...graphIdentityIssues<Claim>(
+      'claims',
+      current.claims,
+      incoming.claims,
+      (claim) => JSON.stringify([claim.projectId, claim.text]),
+    ),
+    ...graphIdentityIssues<ClaimQuestionLink>(
+      'claimQuestionLinks',
+      current.claimQuestionLinks,
+      incoming.claimQuestionLinks,
+      (link) =>
+        JSON.stringify([link.projectId, link.claimId, link.researchQuestionId]),
+    ),
+  ]
+  if (issues.length > 0) {
+    throw new WorkspaceValidationError(
+      'The workspace merge contains conflicting research-graph IDs.',
+      issues,
+    )
+  }
+}
+
 async function readWorkspaceSnapshot(): Promise<WorkspaceData | null> {
   const workspace = await db.workspaces.toCollection().first()
   if (!workspace) {
@@ -154,6 +267,9 @@ async function readWorkspaceSnapshot(): Promise<WorkspaceData | null> {
 
   const [
     projects,
+    researchQuestions,
+    claims,
+    claimQuestionLinks,
     tasks,
     literature,
     fieldSites,
@@ -168,6 +284,9 @@ async function readWorkspaceSnapshot(): Promise<WorkspaceData | null> {
     reviewerComments,
   ] = await Promise.all([
     db.projects.toArray(),
+    db.researchQuestions.toArray(),
+    db.claims.toArray(),
+    db.claimQuestionLinks.toArray(),
     db.tasks.toArray(),
     db.literature.toArray(),
     db.fieldSites.toArray(),
@@ -188,6 +307,9 @@ async function readWorkspaceSnapshot(): Promise<WorkspaceData | null> {
     exportedAt: new Date().toISOString(),
     workspace,
     projects,
+    researchQuestions,
+    claims,
+    claimQuestionLinks,
     tasks,
     literature,
     fieldSites,
@@ -298,7 +420,18 @@ export async function mergeWorkspace(snapshot: WorkspaceData): Promise<MergeWork
       }
     }
 
+    assertGraphMergeCollisionsSafe(current, validatedIncoming)
+
     const projects = mergeRecords(current.projects, validatedIncoming.projects)
+    const researchQuestions = mergeRecords(
+      current.researchQuestions,
+      validatedIncoming.researchQuestions,
+    )
+    const claims = mergeRecords(current.claims, validatedIncoming.claims)
+    const claimQuestionLinks = mergeRecords(
+      current.claimQuestionLinks,
+      validatedIncoming.claimQuestionLinks,
+    )
     const tasks = mergeRecords(current.tasks, validatedIncoming.tasks)
     const literature = mergeRecords(current.literature, validatedIncoming.literature)
     const fieldSites = mergeRecords(current.fieldSites, validatedIncoming.fieldSites)
@@ -326,6 +459,9 @@ export async function mergeWorkspace(snapshot: WorkspaceData): Promise<MergeWork
           updatedAt: new Date().toISOString(),
         },
         projects: projects.records,
+        researchQuestions: researchQuestions.records,
+        claims: claims.records,
+        claimQuestionLinks: claimQuestionLinks.records,
         tasks: tasks.records,
         literature: literature.records,
         fieldSites: fieldSites.records,
@@ -348,6 +484,9 @@ export async function mergeWorkspace(snapshot: WorkspaceData): Promise<MergeWork
     return {
       added: {
         projects: projects.added,
+        researchQuestions: researchQuestions.added,
+        claims: claims.added,
+        claimQuestionLinks: claimQuestionLinks.added,
         tasks: tasks.added,
         literature: literature.added,
         fieldSites: fieldSites.added,
@@ -363,6 +502,9 @@ export async function mergeWorkspace(snapshot: WorkspaceData): Promise<MergeWork
       },
       skipped: {
         projects: projects.skipped,
+        researchQuestions: researchQuestions.skipped,
+        claims: claims.skipped,
+        claimQuestionLinks: claimQuestionLinks.skipped,
         tasks: tasks.skipped,
         literature: literature.skipped,
         fieldSites: fieldSites.skipped,

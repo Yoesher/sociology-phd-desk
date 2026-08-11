@@ -2,6 +2,7 @@ import { z } from 'zod'
 import {
   ANALYSIS_RUN_STATUSES,
   ANALYSIS_SOFTWARE,
+  CLAIM_STATUSES,
   EVIDENCE_TYPES,
   FIELD_SITE_STATUSES,
   INTERVIEW_STATUSES,
@@ -9,6 +10,7 @@ import {
   MANUSCRIPT_STATUSES,
   PRIORITIES,
   PROJECT_STATUSES,
+  RESEARCH_QUESTION_STATUSES,
   RESEARCH_METHODS,
   REVIEW_COMMENT_SEVERITIES,
   REVIEW_COMMENT_STATUSES,
@@ -20,7 +22,12 @@ import {
   WORKSPACE_APPLICATION,
   WORKSPACE_SCHEMA_VERSION,
 } from '../models/domain'
-import type { EntityMetadata, WorkspaceData } from '../models/domain'
+import type {
+  Claim,
+  EntityMetadata,
+  ResearchQuestion,
+  WorkspaceData,
+} from '../models/domain'
 
 export interface WorkspaceValidationIssue {
   path: (string | number)[]
@@ -68,6 +75,10 @@ function isHttpUrl(value: string): boolean {
 const idSchema = z.string().trim().min(1).max(240)
 const titleSchema = z.string().trim().min(1).max(1_000)
 const textSchema = z.string().max(250_000)
+const researchObjectTextSchema = textSchema.refine(
+  (value) => value.trim().length > 0,
+  'Research object text cannot be blank.',
+)
 const shortTextSchema = z.string().max(5_000)
 const isoDateSchema = z.string().refine(isIsoDate, 'Expected an ISO date in YYYY-MM-DD format.')
 const isoDateTimeSchema = z.string().refine(isIsoDateTime, 'Expected an ISO 8601 date-time with a timezone.')
@@ -96,13 +107,38 @@ const projectSchema = entityMetadataSchema
   .extend({
     title: titleSchema,
     shortTitle: titleSchema,
-    researchQuestion: textSchema,
     topic: shortTextSchema,
     method: z.enum(RESEARCH_METHODS),
     status: z.enum(PROJECT_STATUSES),
     startDate: isoDateSchema,
     targetDate: isoDateSchema.optional(),
     notes: textSchema,
+  })
+  .strict()
+
+const researchQuestionSchema = entityMetadataSchema
+  .extend({
+    projectId: idSchema,
+    text: researchObjectTextSchema,
+    status: z.enum(RESEARCH_QUESTION_STATUSES),
+    notes: textSchema,
+  })
+  .strict()
+
+const claimSchema = entityMetadataSchema
+  .extend({
+    projectId: idSchema,
+    text: researchObjectTextSchema,
+    status: z.enum(CLAIM_STATUSES),
+    notes: textSchema,
+  })
+  .strict()
+
+const claimQuestionLinkSchema = entityMetadataSchema
+  .extend({
+    projectId: idSchema,
+    claimId: idSchema,
+    researchQuestionId: idSchema,
   })
   .strict()
 
@@ -269,6 +305,9 @@ const workspaceDataSchema = z
     exportedAt: isoDateTimeSchema,
     workspace: workspaceMetaSchema,
     projects: z.array(projectSchema),
+    researchQuestions: z.array(researchQuestionSchema),
+    claims: z.array(claimSchema),
+    claimQuestionLinks: z.array(claimQuestionLinkSchema),
     tasks: z.array(taskSchema),
     literature: z.array(literatureSchema),
     fieldSites: z.array(fieldSiteSchema),
@@ -307,6 +346,10 @@ function duplicateIdIssues(
 function relationshipIssues(data: WorkspaceData): WorkspaceValidationIssue[] {
   const issues: WorkspaceValidationIssue[] = []
   const projectIds = new Set(data.projects.map((project) => project.id))
+  const researchQuestionById = new Map(
+    data.researchQuestions.map((question) => [question.id, question]),
+  )
+  const claimById = new Map(data.claims.map((claim) => [claim.id, claim]))
   const fieldSiteById = new Map(data.fieldSites.map((site) => [site.id, site]))
   const datasetById = new Map(data.datasets.map((dataset) => [dataset.id, dataset]))
   const manuscriptById = new Map(data.manuscripts.map((manuscript) => [manuscript.id, manuscript]))
@@ -329,12 +372,56 @@ function relationshipIssues(data: WorkspaceData): WorkspaceValidationIssue[] {
   }
 
   data.tasks.forEach((record, index) => requireProject('tasks', index, record.projectId))
+  data.researchQuestions.forEach((record, index) =>
+    requireProject('researchQuestions', index, record.projectId),
+  )
+  data.claims.forEach((record, index) => requireProject('claims', index, record.projectId))
   data.literature.forEach((record, index) => requireProject('literature', index, record.projectId))
   data.fieldSites.forEach((record, index) => requireProject('fieldSites', index, record.projectId))
   data.datasets.forEach((record, index) => requireProject('datasets', index, record.projectId))
   data.evidence.forEach((record, index) => requireProject('evidence', index, record.projectId))
   data.researchLogs.forEach((record, index) => requireProject('researchLogs', index, record.projectId))
   data.manuscripts.forEach((record, index) => requireProject('manuscripts', index, record.projectId))
+
+  const linkedPairs = new Set<string>()
+  data.claimQuestionLinks.forEach((record, index) => {
+    requireProject('claimQuestionLinks', index, record.projectId)
+
+    const claim = claimById.get(record.claimId)
+    if (!claim) {
+      issues.push({
+        path: ['claimQuestionLinks', index, 'claimId'],
+        message: `Unknown claim ID "${record.claimId}".`,
+      })
+    } else if (claim.projectId !== record.projectId) {
+      issues.push({
+        path: ['claimQuestionLinks', index, 'claimId'],
+        message: 'The claim link and its claim belong to different projects.',
+      })
+    }
+
+    const question = researchQuestionById.get(record.researchQuestionId)
+    if (!question) {
+      issues.push({
+        path: ['claimQuestionLinks', index, 'researchQuestionId'],
+        message: `Unknown research-question ID "${record.researchQuestionId}".`,
+      })
+    } else if (question.projectId !== record.projectId) {
+      issues.push({
+        path: ['claimQuestionLinks', index, 'researchQuestionId'],
+        message: 'The claim link and its research question belong to different projects.',
+      })
+    }
+
+    const pairKey = `${record.projectId}\u0000${record.claimId}\u0000${record.researchQuestionId}`
+    if (linkedPairs.has(pairKey)) {
+      issues.push({
+        path: ['claimQuestionLinks', index, 'researchQuestionId'],
+        message: 'This claim is already linked to this research question.',
+      })
+    }
+    linkedPairs.add(pairKey)
+  })
 
   data.interviews.forEach((record, index) => {
     requireProject('interviews', index, record.projectId)
@@ -429,12 +516,223 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+interface MigrationMetadata {
+  id: string
+  createdAt: string
+  updatedAt: string
+  isDemo: boolean
+}
+
+export interface V2ResearchGraphMigration {
+  projects: unknown[]
+  researchQuestions: ResearchQuestion[]
+  claims: Claim[]
+  claimQuestionLinks: []
+}
+
+function hasMigrationMetadata(record: Record<string, unknown>): record is Record<string, unknown> & MigrationMetadata {
+  return (
+    typeof record['id'] === 'string' &&
+    typeof record['createdAt'] === 'string' &&
+    typeof record['updatedAt'] === 'string' &&
+    typeof record['isDemo'] === 'boolean'
+  )
+}
+
+function legacyProjectResearchQuestionIssue(
+  projectInput: unknown[],
+): WorkspaceValidationIssue | null {
+  for (let index = 0; index < projectInput.length; index += 1) {
+    const project = projectInput[index]
+    if (
+      !isRecord(project) ||
+      !Object.prototype.hasOwnProperty.call(project, 'researchQuestion') ||
+      typeof project['researchQuestion'] !== 'string'
+    ) {
+      return {
+        path: ['projects', index, 'researchQuestion'],
+        message: 'Legacy workspace v2 projects require a string researchQuestion field.',
+      }
+    }
+  }
+  return null
+}
+
+/** A compact deterministic hash for migration IDs; collision suffixes are resolved below. */
+function stableMigrationHash(value: string): string {
+  let first = 0x811c9dc5
+  let second = 0x9e3779b9
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index)
+    first = Math.imul(first ^ code, 0x01000193)
+    second = Math.imul(second ^ (code + index), 0x85ebca6b)
+  }
+  return `${(first >>> 0).toString(16).padStart(8, '0')}${(second >>> 0)
+    .toString(16)
+    .padStart(8, '0')}`
+}
+
+function allocateMigrationId(
+  kind: 'question' | 'claim',
+  signature: string,
+  allocated: Map<string, string>,
+): string {
+  const base = `migrated-${kind}-${stableMigrationHash(signature)}`
+  let candidate = base
+  let suffix = 2
+  while (allocated.has(candidate) && allocated.get(candidate) !== signature) {
+    candidate = `${base}-${suffix}`
+    suffix += 1
+  }
+  allocated.set(candidate, signature)
+  return candidate
+}
+
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0
+}
+
+/**
+ * Converts the two legacy text locations into first-class graph objects.
+ *
+ * Evidence.claim remains untouched as source context. Claims are deduplicated
+ * only when their trimmed text is exactly equal inside the same project. No
+ * question links are inferred, and records from different projects never merge.
+ */
+export function migrateV2ResearchGraphCollections(
+  projectInput: unknown[],
+  evidenceInput: unknown[],
+): V2ResearchGraphMigration {
+  const legacyProjectIssue = legacyProjectResearchQuestionIssue(projectInput)
+  if (legacyProjectIssue) {
+    throw new WorkspaceValidationError(
+      'The legacy workspace cannot be migrated without losing project research-question data.',
+      [legacyProjectIssue],
+    )
+  }
+
+  const questionCandidates: Array<{
+    signature: string
+    projectId: string
+    text: string
+    metadata: MigrationMetadata
+  }> = []
+
+  const projects = projectInput.map((value) => {
+    if (!isRecord(value)) {
+      return value
+    }
+
+    const { researchQuestion, ...project } = value
+    const normalizedText = typeof researchQuestion === 'string' ? researchQuestion.trim() : ''
+    if (
+      normalizedText.length > 0 &&
+      hasMigrationMetadata(value) &&
+      typeof value['id'] === 'string'
+    ) {
+      questionCandidates.push({
+        signature: JSON.stringify([value['id'], normalizedText]),
+        projectId: value['id'],
+        text: normalizedText,
+        metadata: {
+          id: value['id'],
+          createdAt: value['createdAt'],
+          updatedAt: value['updatedAt'],
+          isDemo: value['isDemo'],
+        },
+      })
+    }
+    return project
+  })
+
+  const allocatedQuestionIds = new Map<string, string>()
+  const researchQuestions = questionCandidates
+    .sort((left, right) => compareText(left.signature, right.signature))
+    .map<ResearchQuestion>((candidate) => ({
+      id: allocateMigrationId('question', candidate.signature, allocatedQuestionIds),
+      projectId: candidate.projectId,
+      text: candidate.text,
+      status: 'active',
+      notes: '',
+      createdAt: candidate.metadata.createdAt,
+      updatedAt: candidate.metadata.updatedAt,
+      isDemo: candidate.metadata.isDemo,
+    }))
+
+  const groupedClaimSources = new Map<
+    string,
+    {
+      signature: string
+      projectId: string
+      text: string
+      sources: MigrationMetadata[]
+    }
+  >()
+  evidenceInput.forEach((value) => {
+    if (
+      !isRecord(value) ||
+      !hasMigrationMetadata(value) ||
+      typeof value['projectId'] !== 'string' ||
+      typeof value['claim'] !== 'string'
+    ) {
+      return
+    }
+    const normalizedText = value['claim'].trim()
+    if (normalizedText.length === 0) {
+      return
+    }
+    const signature = JSON.stringify([value['projectId'], normalizedText])
+    const source: MigrationMetadata = {
+      id: value['id'],
+      createdAt: value['createdAt'],
+      updatedAt: value['updatedAt'],
+      isDemo: value['isDemo'],
+    }
+    const existing = groupedClaimSources.get(signature)
+    if (existing) {
+      existing.sources.push(source)
+    } else {
+      groupedClaimSources.set(signature, {
+        signature,
+        projectId: value['projectId'],
+        text: normalizedText,
+        sources: [source],
+      })
+    }
+  })
+
+  const allocatedClaimIds = new Map<string, string>()
+  const claims = [...groupedClaimSources.values()]
+    .sort((left, right) => compareText(left.signature, right.signature))
+    .map<Claim>((candidate) => {
+      const sortedSources = [...candidate.sources].sort((left, right) =>
+        compareText(left.id, right.id),
+      )
+      const representative = sortedSources[0]
+      if (!representative) {
+        throw new Error('Claim migration candidate has no source records.')
+      }
+      return {
+        id: allocateMigrationId('claim', candidate.signature, allocatedClaimIds),
+        projectId: candidate.projectId,
+        text: candidate.text,
+        status: 'draft',
+        notes: '',
+        createdAt: representative.createdAt,
+        updatedAt: representative.updatedAt,
+        isDemo: sortedSources.every((source) => source.isDemo),
+      }
+    })
+
+  return { projects, researchQuestions, claims, claimQuestionLinks: [] }
+}
+
 /**
  * v1 predates the application discriminator and optimistic revision token.
  * Preserve every legacy property so current strict validation still catches
  * unknown fields instead of silently dropping them during migration.
  */
-function migrateLegacyWorkspace(input: unknown): unknown {
+export function migrateWorkspaceV1ToV2(input: unknown): unknown {
   if (!isRecord(input) || input['version'] !== 1) {
     return input
   }
@@ -444,7 +742,7 @@ function migrateLegacyWorkspace(input: unknown): unknown {
     ...input,
     application:
       input['application'] === undefined ? WORKSPACE_APPLICATION : input['application'],
-    version: WORKSPACE_SCHEMA_VERSION,
+    version: 2,
     workspace: isRecord(workspace)
       ? {
           ...workspace,
@@ -452,6 +750,50 @@ function migrateLegacyWorkspace(input: unknown): unknown {
         }
       : workspace,
   }
+}
+
+/** v2 introduces revisions; v3 introduces the first-class research graph. */
+export function migrateWorkspaceV2ToV3(input: unknown): unknown {
+  if (!isRecord(input) || input['version'] !== 2) {
+    return input
+  }
+
+  // These names were not part of v2. Refuse an ambiguous/tampered v2 envelope
+  // instead of silently replacing graph-shaped data during migration.
+  if (
+    ['researchQuestions', 'claims', 'claimQuestionLinks'].some((key) =>
+      Object.prototype.hasOwnProperty.call(input, key),
+    )
+  ) {
+    return input
+  }
+
+  const projects = input['projects']
+  const evidence = input['evidence']
+  if (!Array.isArray(projects) || !Array.isArray(evidence)) {
+    return { ...input, version: WORKSPACE_SCHEMA_VERSION }
+  }
+
+  // A v2 project always carried this required field. Keep a malformed legacy
+  // envelope at v2 so strict validation rejects it instead of deleting an
+  // unexpected/missing value while manufacturing a seemingly valid v3 file.
+  if (legacyProjectResearchQuestionIssue(projects)) {
+    return input
+  }
+
+  const graph = migrateV2ResearchGraphCollections(projects, evidence)
+  return {
+    ...input,
+    version: WORKSPACE_SCHEMA_VERSION,
+    projects: graph.projects,
+    researchQuestions: graph.researchQuestions,
+    claims: graph.claims,
+    claimQuestionLinks: graph.claimQuestionLinks,
+  }
+}
+
+function migrateLegacyWorkspace(input: unknown): unknown {
+  return migrateWorkspaceV2ToV3(migrateWorkspaceV1ToV2(input))
 }
 
 /**
@@ -476,6 +818,9 @@ export function validateWorkspace(input: unknown): WorkspaceValidationResult {
   const data = parsed.data as WorkspaceData
   const duplicateIssues = [
     ...duplicateIdIssues('projects', data.projects),
+    ...duplicateIdIssues('researchQuestions', data.researchQuestions),
+    ...duplicateIdIssues('claims', data.claims),
+    ...duplicateIdIssues('claimQuestionLinks', data.claimQuestionLinks),
     ...duplicateIdIssues('tasks', data.tasks),
     ...duplicateIdIssues('literature', data.literature),
     ...duplicateIdIssues('fieldSites', data.fieldSites),

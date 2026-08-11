@@ -11,6 +11,7 @@ describe('createDemoWorkspace', () => {
 
     expect(validation.success).toBe(true)
     expect(demo.application).toBe('sociology-phd-desk')
+    expect(demo.version).toBe(3)
     expect(demo.workspace.revision).toBe(0)
     expect(demo.workspace.todayGoals).toHaveLength(3)
     expect(demo.projects[0]?.method).toBe('Mixed Methods')
@@ -18,12 +19,41 @@ describe('createDemoWorkspace', () => {
     expect(demo.interviews).toHaveLength(2)
     expect(demo.datasets).toHaveLength(1)
     expect(demo.manuscripts).toHaveLength(1)
+    expect(demo.researchQuestions).toHaveLength(1)
+    expect(demo.claims).toHaveLength(2)
+    expect(demo.claimQuestionLinks).toHaveLength(2)
+    expect('researchQuestion' in (demo.projects[0] ?? {})).toBe(false)
+  })
+
+  it('ships an explicit same-project graph without inferring evidence links', () => {
+    const demo = createDemoWorkspace(anchor)
+    const question = demo.researchQuestions[0]
+
+    expect(question?.status).toBe('active')
+    expect(demo.claims.every((claim) => claim.status === 'draft')).toBe(true)
+    expect(demo.claimQuestionLinks.every((link) => link.projectId === question?.projectId)).toBe(true)
+    expect(
+      demo.claimQuestionLinks.every((link) =>
+        demo.claims.some(
+          (claim) => claim.id === link.claimId && claim.projectId === link.projectId,
+        ),
+      ),
+    ).toBe(true)
+    expect(
+      demo.claimQuestionLinks.every((link) => link.researchQuestionId === question?.id),
+    ).toBe(true)
+    expect(demo.evidence.map((item) => item.claim)).toEqual(
+      expect.arrayContaining(demo.claims.map((claim) => claim.text)),
+    )
   })
 
   it('labels every bundled record as synthetic and includes no invented DOI', () => {
     const demo = createDemoWorkspace(anchor)
     const collections = [
       demo.projects,
+      demo.researchQuestions,
+      demo.claims,
+      demo.claimQuestionLinks,
       demo.tasks,
       demo.literature,
       demo.fieldSites,

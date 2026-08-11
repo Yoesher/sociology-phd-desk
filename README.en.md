@@ -50,6 +50,19 @@ The product is desktop-first, responsive, theme-aware, offline-friendly, and des
 
 In `0.1.0`, Projects, Evidence, and Fieldwork provide create, inspect, edit, and protected-delete flows. Literature, Quantitative, Research Log, Manuscripts, Submissions, and Today provide focused registry, creation, filtering, and status workflows; complete edit/delete parity for every object is future work.
 
+### Phase 3B development candidate (not merged or released)
+
+The current feature branch is promoting research questions and analytical claims to first-class, project-scoped research objects:
+
+- `ResearchQuestion`, `Claim`, and `ClaimQuestionLink` use stable IDs; text is never a foreign key.
+- Research questions and analytical claims use explicit, same-project many-to-many links. Missing endpoints, cross-project relationships, and duplicate relationships are rejected.
+- The project detail view provides complete Chinese and English Research Questions, Claims, and Research Graph interfaces for creating, inspecting, editing, linking, and deleting unreferenced objects.
+- A question or claim must be explicitly unlinked before deletion. Project deletion does not silently cascade-delete these research records.
+- The candidate advances IndexedDB and the portable workspace to v3 and composes migration explicitly as v1 → v2 → v3. Legacy `Project.researchQuestion` text becomes a research-question object; each original `Evidence.claim` string remains present while same-project exact-trimmed text is used for deterministic claim creation.
+- Migration performs no semantic or fuzzy merge, automatic rewrite, or inference that a claim answers a particular research question.
+
+This is not a release claim: the Phase 3B Pull Request, remote CI, merge, `main` CI, and Pages verification remain pending. The explicit Evidence↔Claim relationship in Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) is not part of this candidate, and v3 does not add an evidence `claimId`.
+
 ## Why sociology-specific?
 
 The product is for sociology doctoral researchers first: quantitative, qualitative, mixed-methods, and theoretical work, including population, labour, family, organizational, and youth research. Adjacent empirical researchers may find it useful, but the product will not trade away its sociology identity for generic productivity features.
@@ -125,15 +138,17 @@ These commands are also the required CI sequence. A command is not considered pa
 
 Use the in-app JSON export action and inspect the destination before sharing the file. On import, validate the preview and choose the intended merge behavior. Replacement must be an explicit action; it must never happen silently.
 
+The Phase 3B development candidate exports portable v3 and continues to accept supported v1 and v2 files by applying the explicit v1 → v2 → v3 transformation before the same strict validation. See [data portability](docs/data-portability.md) for migration details and the research-graph boundary.
+
 ## Architecture
 
-The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith.
+The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith. The Phase 3B candidate adds research questions, analytical claims, and their explicit links within this boundary while preserving project scope and protected deletion.
 
 See [architecture overview](docs/architecture/overview.md), [data model](docs/architecture/data-model.md), and [decisions](DECISIONS.md).
 
 ## Roadmap
 
-The `0.1` line establishes the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure. Phase 3 proceeds in sequence through a Chinese-first bilingual foundation, the Research Question–Claim graph, and a China Research Map that cannot be implemented until its data source and legal use have been verified.
+The `0.1` line establishes the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure. Phase 3 follows a gated sequence: 3A Chinese-first bilingual foundation, 3B Research Question–Claim graph, 3C private local workspaces, 3D China Research Map, 3E hierarchical navigation and information architecture, and 3F stabilization plus the v0.2.0 release. Work does not advance while an earlier gate remains incomplete.
 
 See [ROADMAP.md](ROADMAP.md). Roadmap entries are intentions, not delivery promises.
 

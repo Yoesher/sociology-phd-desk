@@ -18,6 +18,25 @@ These rules apply to every Codex agent or automated contributor working in this 
 12. Never fabricate passing tests merely to “complete” a task. Record the exact command and failure when a check cannot pass.
 13. Never fabricate Stars, users, downloads, issues, contributors, releases, external mentions, or project adoption.
 
+## Permanent product principles
+
+1. Sociology PhD Desk is a sociology research workstation, not a general-purpose Todo application.
+2. Simplified Chinese is the default user language. Every substantial new UI feature must provide both `zh-CN` and `en` in the same change.
+3. Primary navigation represents domains of research work.
+4. Secondary navigation represents research workflows or smart views within a domain.
+5. Secondary navigation is normally a derived view or smart filter and must not be tightly coupled to database enums.
+6. Never add a database status merely to implement a menu label.
+7. The main sidebar has at most two navigation levels.
+8. Do not build an indefinitely nested third- or fourth-level navigation tree.
+9. Drill into concrete projects, manuscripts, interviews, regions, and other research objects within the content area rather than the main sidebar.
+10. Never translate user-authored research content as a side effect of changing the UI language.
+11. A private local workspace is not a network account.
+12. The default remains local-first, with no account and no required cloud service.
+13. Claim that data is encrypted only when real data encryption is implemented; hiding or locking the UI alone is not encryption.
+14. The China Research Map is a primary, first-class module.
+15. Geographic research management stops at county level by default and does not descend to township, subdistrict, or village levels.
+16. Never upload map notes, fieldwork material, or other user data to GitHub Pages or a map service.
+
 ## Operating constraints
 
 - Ask whether a feature solves a sociology-specific research workflow problem before expanding scope.
