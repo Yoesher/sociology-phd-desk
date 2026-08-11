@@ -1,33 +1,34 @@
 # Screenshot Register
 
-No release screenshot is registered yet.
-
-Screenshots will be captured from the final verified `0.1.0` build after route, responsive-layout, theme, accessibility, demo-label, and privacy checks in the current development round. This is a release-process placeholder, not a claim that the associated workflows are absent.
-
-## Required first set
-
-- Today / research dashboard
-- Projects and project lifecycle
-- Literature queue
-- Fieldwork and interview registry with privacy warning visible
-- Quantitative analysis registry
-- Evidence ledger
-- Research log
-- Manuscript and submission/revision views
-- Workspace import/export safety flow
-- Light and dark theme overview
+These captures document the locally verified `0.1.0` pre-release candidate. They are screenshots of the running application, not design mockups.
 
 ## Capture rules
 
 - Use only the explicitly synthetic demo workspace.
 - Verify that every visible record is marked or unmistakably identified as demo.
 - Do not show names, email addresses, local user paths, browser profile details, credentials, notifications, or real research material.
-- Capture the actual release candidate, not a design mockup presented as implemented software.
-- Use descriptive lowercase filenames and add alt text to both READMEs.
-- Record the application revision and capture date in this file.
+- Capture the actual release candidate and record the privacy review here.
 
 ## Registered captures
 
-| File | View | Theme / viewport | Revision | Captured | Privacy review |
-| --- | --- | --- | --- | --- | --- |
-| _Pending_ | — | — | — | — | — |
+- Application version: `0.1.0`
+- Capture date: 2026-08-11
+- Browser review width: 1280 CSS pixels
+
+| File | View | Theme | Privacy review |
+| --- | --- | --- | --- |
+| [`today-light.png`](today-light.png) | Today dashboard and synthetic research plan | Light | PASS — bundled demo only |
+| [`evidence-dark.png`](evidence-dark.png) | Evidence ledger, provenance fields, and DEMO warnings | Dark | PASS — no real citation, result, or source material |
+| [`workspace-data-light.png`](workspace-data-light.png) | Backup/import controls and explicit demo-reset entry point | Light | PASS — no exported content, path, or notification shown |
+
+## Browser checks recorded with the captures
+
+- All nine routes opened and rendered their expected page heading.
+- Light/dark theme state persisted across a reload.
+- A synthetic QA project persisted through reload and was then deleted through the protected confirmation flow.
+- JSON export produced the application success status with a versioned filename.
+- Demo reset opened a separate destructive confirmation and was cancelled.
+- The Workspace modal was verified after being portalled to the document body; its backdrop covered the full 1280 × 720 viewport.
+- The application console contained no warning or error entries after the final browser pass.
+
+Responsive behavior at 390 × 844 was also reviewed during implementation. Automated multi-viewport browser coverage remains a next-phase task.

@@ -6,7 +6,7 @@
 
 [English](README.md) · [路线图](ROADMAP.md) · [贡献指南](CONTRIBUTING.md) · [项目状态](PROJECT_STATE.md)
 
-> **预发布软件：** 本地 `0.1.0` 版本仍在主动验证中。请勿把不可替代的研究材料只保存在本软件中。经过核验的状态以 [PROJECT_STATE.md](PROJECT_STATE.md) 为准；仓库本身不代表已经公开发布或获得真实采用。
+> **预发布软件：** 本地 `0.1.0` 版本已经通过当前本地质量门禁，但尚未公开发布，也没有经过外部研究者测试。请勿把不可替代的研究材料只保存在本软件中。经过核验的状态以 [PROJECT_STATE.md](PROJECT_STATE.md) 为准；仓库本身不代表已经公开发布或获得真实采用。
 
 ## 为什么需要 Sociology PhD Desk？
 
@@ -46,6 +46,8 @@
 
 产品优先服务桌面研究，支持响应式布局和明暗主题，并以离线友好为目标；核心工作流不要求账号或应用服务器。
 
+`0.1.0` 中，研究项目、证据台账与田野模块提供创建、查看、编辑和受保护删除流程；文献、定量分析、研究日志、论文、投稿与今日工作台提供聚焦的登记、新增、筛选和状态工作流。让每一种对象都具备完整编辑/删除能力属于后续工作。
+
 ## 为什么是社会学专用？
 
 产品首先服务于社会学博士研究者，包括定量、质性、混合方法和理论研究，以及人口、劳动、家庭、组织与青年研究等领域。相邻经验学科的研究者也可能受益，但产品不会为了泛化而放弃社会学身份。
@@ -66,7 +68,13 @@
 
 ## 截图
 
-本轮开发完成最终视觉与隐私检查后，将从通过验证的 `0.1.0` 构建中截取发布截图并放入 [`docs/screenshots/`](docs/screenshots/README.md)。此处暂留占位是为了遵守发布验证流程，并不表示相应产品工作流不存在。
+以下截图只显示明确标注的合成演示记录。拍摄信息与隐私检查详见[截图登记](docs/screenshots/README.md)。
+
+![浅色主题下的今日研究工作台](docs/screenshots/today-light.png)
+
+![深色主题下的证据台账](docs/screenshots/evidence-dark.png)
+
+![工作区备份、导入与演示数据重置对话框](docs/screenshots/workspace-data-light.png)
 
 ## 开始使用
 
@@ -77,11 +85,18 @@
 
 ### 本地运行
 
+在已有代码检出目录中运行：
+
+```bash
+npm ci
+npm run dev
+```
+
+计划公开地址为 `https://github.com/Yoesher/sociology-phd-desk`，但本次引导会话没有可用的认证推送通道。仓库公开并经过独立核验后，新检出可使用：
+
 ```bash
 git clone https://github.com/Yoesher/sociology-phd-desk.git
 cd sociology-phd-desk
-npm ci
-npm run dev
 ```
 
 打开 Vite 在终端中显示的本地地址。同一浏览器配置文件中的数据不会自动出现在其他配置文件或设备上。

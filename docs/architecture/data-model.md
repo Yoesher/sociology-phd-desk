@@ -26,7 +26,7 @@ The project is the primary coordination boundary for tasks, literature, fieldwor
 
 ### Task and Today planning
 
-A research task records title, date/deadline, completion state, category, priority, and optional project link. Categories distinguish reading, writing, analysis, fieldwork/interview, submission, and other research work. Today's goals are a short prioritized focus, not a second unbounded task database.
+A research task records title, date/deadline, completion state, category, priority, and a required project link. Categories distinguish reading, writing, analysis, fieldwork/interview, submission, and other research work. Today's goals are a short prioritized focus, not a second unbounded task database.
 
 ### Literature item
 

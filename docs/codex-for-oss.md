@@ -46,7 +46,9 @@ Do not publish identities, affiliations, or research topics without explicit per
 
 ## Maintainer activity
 
-As of 2026-08-11, verified activity consists of a local Phase 0 environment audit and Phase 1 bootstrap work in progress. A durable public commit, issue-triage, review, and release history was not yet available for verification.
+As of 2026-08-11, verified activity consists of a local Phase 0 audit followed by a durable local Git history for the Phase 1 application, data-integrity hardening, documentation, browser QA, and release checks. The final local tree passes clean install, lint, type checking, 22 automated tests, production build, and a nine-route browser review. This is maintainer self-verification, not an external test or adoption signal.
+
+No public commit, issue-triage, review, remote CI, or release history was available for verification because the environment had neither GitHub CLI nor an authenticated write path. Local activity must remain separate from public repository activity until the pushed commit is independently confirmed.
 
 Future snapshots should use GitHub's repository, traffic/release, issue, and pull-request data when an authenticated or public source is available. Record the source and collection date. Keep local maintenance claims separate from public repository activity.
 

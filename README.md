@@ -6,7 +6,7 @@ Manage the full research lifecycle—from literature and fieldwork to quantitati
 
 [简体中文](README.zh-CN.md) · [Roadmap](ROADMAP.md) · [Contributing](CONTRIBUTING.md) · [Project state](PROJECT_STATE.md)
 
-> **Pre-release software:** the local `0.1.0` build is under active validation. Do not use it as the only copy of irreplaceable research material. See [PROJECT_STATE.md](PROJECT_STATE.md) for the verified status; no public release or adoption is implied by this repository.
+> **Pre-release software:** the local `0.1.0` build has passed its current local quality gates, but it has not been published or tested by external researchers. Do not use it as the only copy of irreplaceable research material. See [PROJECT_STATE.md](PROJECT_STATE.md) for the verified status; no public release or adoption is implied by this repository.
 
 ## Why Sociology PhD Desk?
 
@@ -46,6 +46,8 @@ The `0.1.x` workspace is organized around sociology-specific research objects:
 
 The product is desktop-first, responsive, theme-aware, offline-friendly, and designed to keep its core workflow usable without an account or application server.
 
+In `0.1.0`, Projects, Evidence, and Fieldwork provide create, inspect, edit, and protected-delete flows. Literature, Quantitative, Research Log, Manuscripts, Submissions, and Today provide focused registry, creation, filtering, and status workflows; complete edit/delete parity for every object is future work.
+
 ## Why sociology-specific?
 
 The product is for sociology doctoral researchers first: quantitative, qualitative, mixed-methods, and theoretical work, including population, labour, family, organizational, and youth research. Adjacent empirical researchers may find it useful, but the product will not trade away its sociology identity for generic productivity features.
@@ -66,7 +68,13 @@ Read [Security](SECURITY.md) and the [research ethics guidance](docs/research-wo
 
 ## Screenshots
 
-Release screenshots will be captured from the verified `0.1.0` build and added under [`docs/screenshots/`](docs/screenshots/README.md) after final visual and privacy checks in this development round. This placeholder is about release verification; it is not a statement that the corresponding product workflows are absent.
+All visible records below come from the explicitly synthetic demo workspace. See the [screenshot register](docs/screenshots/README.md) for capture and privacy details.
+
+![Today research desk in the light theme](docs/screenshots/today-light.png)
+
+![Evidence ledger in the dark theme](docs/screenshots/evidence-dark.png)
+
+![Workspace backup, import, and demo-reset dialog](docs/screenshots/workspace-data-light.png)
 
 ## Getting started
 
@@ -77,11 +85,18 @@ Release screenshots will be captured from the verified `0.1.0` build and added u
 
 ### Run locally
 
+From an existing checkout:
+
+```bash
+npm ci
+npm run dev
+```
+
+The intended public URL is `https://github.com/Yoesher/sociology-phd-desk`. It was not reachable through an authenticated push path during this bootstrap session. Once the repository is published and independently verified, a new checkout can use:
+
 ```bash
 git clone https://github.com/Yoesher/sociology-phd-desk.git
 cd sociology-phd-desk
-npm ci
-npm run dev
 ```
 
 Open the local URL printed by Vite. Data created in one browser profile is not automatically available in another profile or device.
