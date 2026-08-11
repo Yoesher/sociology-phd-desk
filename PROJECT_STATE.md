@@ -1,7 +1,7 @@
 # Project State
 
 > Last updated: 2026-08-11  
-> Status: Phase 0, Phase 1, and Phase 2 complete; Phase 3A bilingual candidate is locally verified on `feat/bilingual-localization` and awaits Pull Request gates; `v0.1.0` remains the verified public release
+> Status: Phase 0, Phase 1, and Phase 2 complete; Phase 3A bilingual candidate is locally verified in Draft Pull Request [#9](https://github.com/Yoesher/sociology-phd-desk/pull/9) and awaits remote gates; `v0.1.0` remains the verified public release
 > Canonical local project path: `D:\phddesk`
 
 This file is the factual handoff record for maintainers and future Codex sessions. Update it at the end of every development session. Never infer passing checks, repository activity, users, or releases.
@@ -69,6 +69,7 @@ Recorded on 2026-08-11. The Phase 3A candidate was verified locally after the fi
 | Tests | `npm test` | PASS — 11 files, 37 tests |
 | Build | `npm run build` | PASS — Vite 8.2.1, 1,927 modules, largest `vendor` chunk 402.70 kB / 125.99 kB gzip; no oversized-chunk warning |
 | Phase 3A local browser smoke | `http://127.0.0.1:41739/` | PASS — all nine routes in both languages; Chinese fresh default; immediate switch and reload persistence; stable route/theme/demo content; Chinese/English validation; workspace/reset dialogs; fieldwork privacy; 1280, 1025, and 390 × 844 layouts; mobile status labels; zero console warnings/errors; no horizontal overflow. JSON export showed its versioned success state, while the in-app browser did not expose a download event. |
+| Phase 3A Pull Request | [Draft PR #9](https://github.com/Yoesher/sociology-phd-desk/pull/9) | OPEN on `feat/bilingual-localization`; exact final-head CI and maintainer self-review remain required before ready-for-review or merge |
 | `v0.1.0` deployed browser smoke | `https://yoesher.github.io/sociology-phd-desk/` | PASS — nine hash routes, light/dark, synthetic demo, task persistence across reload, confirmed demo restore, and zero application console errors at the release revision |
 | `v0.1.0` remote CI | [CI run 31483003952](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31483003952) | PASS on release SHA `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994` — install, lint, typecheck, 25 tests, and production build |
 | `v0.1.0` Pages | [Pages run 31483003953](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31483003953) | PASS on the same release SHA; deployed URL verified as `https://yoesher.github.io/sociology-phd-desk/` |
@@ -96,7 +97,7 @@ A later audit added the generation-poison write queue and nested modal stack. Bo
 - Default branch: `main`, verified after the first push.
 - GitHub CLI/authentication: Phase 0 was blocked because `gh` was not installed; Phase 2 installed the official GitHub CLI and verified the authenticated account as `Yoesher`.
 - Connector lookup: target repository not discovered during Phase 0.
-- Local Git status: `feat/bilingual-localization` contains the unmerged Phase 3A candidate; `main` remains the durable deployed history at the start of this work. The `v0.1.0` tag is unchanged.
+- Local Git status: `feat/bilingual-localization` contains the unmerged Phase 3A candidate in Draft PR [#9](https://github.com/Yoesher/sociology-phd-desk/pull/9); `main` remains the durable deployed history at the start of this work. The `v0.1.0` tag is unchanged.
 - Remote status: `origin` is restored to `https://github.com/Yoesher/sociology-phd-desk.git`. Phase 2 temporarily used a repository-scoped deploy key over GitHub's official SSH-over-443 transport because direct `github.com` Git HTTPS timed out; the key lived only under `.git`, was never tracked, and was revoked after the final status push.
 - Push status: PASS for release SHA `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994`; local Git, `git ls-remote`, and GitHub API returned the same SHA before tagging.
 
@@ -106,7 +107,7 @@ A later audit added the generation-poison write queue and nested modal stack. Bo
 - Published: `2026-08-11T10:42:22Z`; public, not a draft, and not a prerelease.
 - Annotated tag: `v0.1.0`; local and remote tag object `06a81e2b10a20cc71440a3027544345cef6a04a5` dereferences to release SHA `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994`.
 - Release assets: no custom binary assets; GitHub provides generated source archives.
-- Public project state before the Phase 3A Pull Request: 0 Stars, 0 Forks, 8 open Issues, 0 open Pull Requests, and 1 published Release. Issue [#7](https://github.com/Yoesher/sociology-phd-desk/issues/7) tracks bilingual localization; [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8) records the later, source-gated China Research Map.
+- Public project state after opening Draft PR #9: 0 Stars, 0 Forks, 8 open Issues, 1 open Pull Request, 0 merged Pull Requests, and 1 published Release. Issue [#7](https://github.com/Yoesher/sociology-phd-desk/issues/7) tracks bilingual localization; [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8) records the later, source-gated China Research Map.
 - External users/testers: 0 verified. Institutional adoption: none known.
 
 ## Next version objective

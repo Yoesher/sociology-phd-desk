@@ -7,7 +7,8 @@
 - [x] Create and scope bilingual foundation Issue [#7](https://github.com/Yoesher/sociology-phd-desk/issues/7), separate from the research graph and China Research Map.
 - [x] Work on the dedicated `feat/bilingual-localization` branch without changing the `v0.1.0` release.
 - [x] Verify the final Chinese-first implementation with a clean install, lint, typecheck, 11 files / 37 tests, production build, and desktop/mobile browser smoke in both languages.
-- [ ] Open a scoped Pull Request that closes #7; wait for exact-revision PR CI and complete a maintainer self-review.
+- [x] Open scoped Draft Pull Request [#9](https://github.com/Yoesher/sociology-phd-desk/pull/9) with `Closes #7`, the data-boundary statement, exact local checks, and browser evidence.
+- [ ] Wait for exact-final-head PR CI, complete maintainer self-review, and mark PR #9 ready only when both pass.
 - [ ] Squash merge only after every PR gate passes, then verify exact-`main` CI and GitHub Pages in Chinese and English.
 - [ ] Update this handoff and `PROJECT_STATE.md` with the final PR, commit, CI, Pages, and metric evidence.
 - [ ] Do not begin Phase 3B or Phase 3C while any Phase 3A item above remains incomplete.

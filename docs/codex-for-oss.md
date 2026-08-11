@@ -13,9 +13,9 @@ Sociology PhD Desk may consider applying to an OpenAI open-source support progra
 | Maintainer | `Yoesher` | Repository owner and current maintainer. This does not imply an external contributor community. |
 | Stars | 0 | GitHub repository API query on 2026-08-11. |
 | Forks | 0 | GitHub repository API query on 2026-08-11. |
-| Open issues | 6 | GitHub Issues API query after creating six substantive roadmap issues on 2026-08-11. |
+| Open issues | 8 | GitHub Issues API/CLI query after creating the bilingual and China Research Map issues on 2026-08-11. |
 | Closed issues | 0 | GitHub Issues API query on 2026-08-11. |
-| Open pull requests | 0 | GitHub Pull Requests API query on 2026-08-11. |
+| Open pull requests | 1 | Draft Phase 3A localization PR [#9](https://github.com/Yoesher/sociology-phd-desk/pull/9), verified through GitHub CLI on 2026-08-11. |
 | Merged pull requests | 0 | GitHub Pull Requests API query on 2026-08-11. |
 | Published releases | 1 | GitHub Releases API and `gh release view v0.1.0` on 2026-08-11. |
 | Downloads | No verified count | The release has no custom binary assets. GitHub-generated source archives do not provide an asset download count through the release-assets API. |
@@ -49,7 +49,7 @@ Do not publish identities, affiliations, or research topics without explicit per
 
 ## Maintainer activity
 
-As of 2026-08-11, verified activity consists of the Phase 0 audit; a durable public `main` history for the Phase 1 application, data-integrity hardening, documentation, and Pages infrastructure; passing remote CI; a deployed browser-local demo; and six substantive roadmap issues. Local and remote checks cover clean install, lint, type checking, 25 automated tests, production build, and a nine-route deployed browser review. This is maintainer self-verification, not an external test or adoption signal.
+As of 2026-08-11, verified activity consists of the Phase 0 audit; a durable public `main` history for the Phase 1 application, data-integrity hardening, documentation, and Pages infrastructure; passing remote CI; a deployed browser-local demo; eight substantive roadmap issues; and Draft Phase 3A PR [#9](https://github.com/Yoesher/sociology-phd-desk/pull/9). The unmerged Phase 3A candidate passed a clean install, lint, type checking, 37 automated tests, production build, and nine-route Chinese/English desktop/mobile browser review. This is maintainer self-verification, not an external test or adoption signal.
 
 Release SHA `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994` was independently matched through local Git, Git transport, and the GitHub commits API. [CI run 31483003952](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31483003952) passed, [Pages run 31483003953](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31483003953) deployed `https://yoesher.github.io/sociology-phd-desk/`, and the annotated tag was published as [Sociology PhD Desk v0.1.0](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0). Public activity remains maintainer-originated; no external PR, review, tester, user, or adoption evidence is verified.
 
@@ -76,3 +76,4 @@ Never buy Stars, fabricate accounts, users, downloads, contributors, issues, pul
 | 2026-08-11 | Initial evidence register; most repository metrics unavailable, zero verified external users/testers, zero verified releases | Local Phase 0 audit and project records |
 | 2026-08-11 | Public repository, CI, Pages, six roadmap issues, and zero-valued repository metrics independently verified; no external users/testers or published release yet | GitHub repository, Issues, Pull Requests, Releases, Actions, and Pages APIs |
 | 2026-08-11 | `v0.1.0` published; 0 Stars, 0 Forks, 6 open Issues, 0 PRs, 1 Release, 0 verified external users/testers, and no known institutional adoption | GitHub repository, Issues, Pull Requests, Releases, Actions, and Pages APIs plus local tag verification |
+| 2026-08-11 | Phase 3A candidate opened as Draft PR #9; 0 Stars, 0 Forks, 8 open Issues, 1 open PR, 0 merged PRs, and 1 Release | GitHub repository, Issues, Pull Requests, Actions, and local final-candidate verification |
