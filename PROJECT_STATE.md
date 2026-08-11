@@ -1,7 +1,7 @@
 # Project State
 
 > Last updated: 2026-08-11  
-> Status: Phase 0 and Phase 1 complete locally; Phase 2 public-release verification in progress
+> Status: Phase 0 and Phase 1 complete; Phase 2 public repository, remote CI, and Pages verified, with the `v0.1.0` tag and Release still pending
 > Canonical local project path: `D:\phddesk`
 
 This file is the factual handoff record for maintainers and future Codex sessions. Update it at the end of every development session. Never infer passing checks, repository activity, users, or releases.
@@ -9,8 +9,8 @@ This file is the factual handoff record for maintainers and future Codex session
 ## Current version
 
 - Package version: `0.1.0`
-- Release status: locally verified pre-release; public repository provisioned, with remote CI, Pages, tag, and Release still awaiting verification
-- Next release target: publish the already runnable, tested, and documented `v0.1.0` only after remote CI succeeds
+- Release status: public release candidate; repository, remote CI, Pages, and deployed browser smoke verified; tag and GitHub Release not yet created
+- Next release target: publish `v0.1.0` only after the final documentation revision passes the complete local gate and remote CI
 
 ## Phase 0 audit
 
@@ -57,27 +57,29 @@ Projects, Evidence, and Fieldwork are the deepest CRUD modules in this release. 
 
 ## Validation status
 
-Recorded against the final local shared tree on 2026-08-11:
+Recorded on 2026-08-11. Local checks were most recently run after the Pages workflow change; remote checks below identify the exact tested revision.
 
 | Check | Command | Current recorded result |
 | --- | --- | --- |
-| Install | `npm ci --registry=https://registry.npmjs.org --prefer-offline` | PASS — 126 packages installed, 127 audited, 0 vulnerabilities |
+| Install | `npm ci` | PASS — 126 packages installed from the lockfile |
 | Lint | `npm run lint` | PASS — Oxlint exited 0 with no findings |
 | Type check | `npm run typecheck` | PASS — TypeScript build check exited 0 |
 | Tests | `npm test` | PASS — 6 files, 25 tests |
 | Build | `npm run build` | PASS — Vite 8.2.1, 1,907 modules, main chunk 450.31 kB / 140.43 kB gzip |
-| Manual UI review | `npm run dev` plus route review | PASS — nine routes, 1280 px desktop, prior 390 × 844 responsive pass, light/dark, persistence, export, confirmations, and console review |
+| Deployed browser smoke | `https://yoesher.github.io/sociology-phd-desk/` | PASS — nine hash routes, light/dark, synthetic demo, task persistence across reload, confirmed demo restore, and zero application console errors; the export control was exercised but the in-app browser did not expose its download event |
+| Remote CI | [CI run 31479384463](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31479384463) | PASS on `56b08b2f46bbdcee1a69f7b75dbf9afb76f57179` — install, lint, typecheck, 25 tests, and production build |
+| Pages | [Pages run 31479384392](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31479384392) | PASS after Pages was enabled for GitHub Actions; deployed URL verified as `https://yoesher.github.io/sociology-phd-desk/` |
 
 The browser pass created a clearly synthetic QA project, reloaded the page to prove IndexedDB and theme persistence, then deleted the record through its confirmation flow. JSON export displayed its versioned success filename. Demo reset opened a separate destructive confirmation and was cancelled. A Workspace modal positioning defect discovered during this pass was fixed with a document-body portal and re-verified at 1280 × 720. The browser console contained no warnings or errors at that revision.
 
-A later audit added the generation-poison write queue and nested modal stack. Both are covered by dedicated automated regression tests. A fresh nested-modal desktop smoke attempt could not run because the in-app browser connector reported no available browser instance; the temporary Vite server was stopped, and no browser result was inferred or fabricated.
+A later audit added the generation-poison write queue and nested modal stack. Both are covered by dedicated automated regression tests. The deployed Phase 2 smoke exercised the nested demo-reset confirmation, but complete keyboard Escape/focus lifecycle coverage remains an automated-browser roadmap item.
 
 ## Known issues and technical debt
 
 - Browser-local data still requires an explicit user backup practice; IndexedDB is not a substitute for encrypted backups.
 - Complete edit/delete parity is not yet implemented for Today, Literature, Quantitative, Research Log, Manuscripts, Submissions, and Reviewer Comments.
 - Automated tests cover domain, portable-data, repository, conflict, migration, the optimistic context queue, and nested modal lifecycle. They do not yet automate complete browser route workflows; multi-viewport end-to-end coverage is still needed.
-- Repeat the nested Workspace/confirmation Escape, scroll-lock, focus-restoration, and console smoke in a real browser when an interactive browser connector is available.
+- Expand nested Workspace/confirmation Escape, scroll-lock, and focus-restoration coverage from the existing component test to automated browser tests.
 - The current database and portable JSON formats each include a tested v1-to-v2 migration. Long-term compatibility will require retained fixtures and upgrade tests from every supported prior version.
 - JSON import has schema/relationship limits but no separate file-size or collection-count guard for extremely large files.
 - Accessibility, keyboard navigation, and cross-browser behavior need a dedicated audit.
@@ -86,23 +88,23 @@ A later audit added the generation-poison write queue and nested modal stack. Bo
 ## Git and GitHub state
 
 - Initial directory state: no Git repository.
-- Target remote: `https://github.com/Yoesher/sociology-phd-desk`.
-- Intended visibility: public.
-- Intended default branch: `main`.
+- Repository: `https://github.com/Yoesher/sociology-phd-desk`.
+- Visibility: public, verified through the GitHub API.
+- Default branch: `main`, verified after the first push.
 - GitHub CLI/authentication: Phase 0 was blocked because `gh` was not installed; Phase 2 installed the official GitHub CLI and verified the authenticated account as `Yoesher`.
 - Connector lookup: target repository not discovered during Phase 0.
-- Local Git status: `main` contains durable bootstrap, application, and documentation commits; Phase 2 publication changes are being verified before push.
-- Remote status: `origin` is configured for the sole target repository, `Yoesher/sociology-phd-desk`.
-- Push status: no remote `main` SHA was verified at the time of this pre-push snapshot; the final Phase 2 record must independently compare local Git, Git transport, and GitHub API SHAs.
+- Local Git status: `main` contains the durable application, documentation, and Pages deployment history; the final release-documentation revision is pending commit and gate verification.
+- Remote status: `origin` targets the sole repository, `Yoesher/sociology-phd-desk`; Phase 2 temporarily used GitHub's official SSH-over-443 transport because direct `github.com` Git HTTPS timed out in the execution environment.
+- Push status: PASS for publication-infrastructure baseline `56b08b2f46bbdcee1a69f7b75dbf9afb76f57179`; local Git, `git ls-remote`, and GitHub API returned the same SHA. The later release SHA must be recorded after its own three-way check.
 
 ## Release state
 
 - Current GitHub release: none verified.
 - Current tag: none verified.
-- The local release gates pass, but `v0.1.0` remains unpublished until an authenticated public repository exists, the pushed commit is verified, and remote CI passes.
+- `v0.1.0` remains unpublished until the final documentation commit passes local and remote gates and the annotated tag is independently verified.
 
 ## Next version objective
 
-Establish and verify the public GitHub repository when authenticated access becomes available, run remote CI on the exact pushed revision, then publish `v0.1.0` with its privacy model and known limitations. After publication, gather consented feedback from real sociology researchers before claiming adoption.
+Complete the final `v0.1.0` release gate and publish the annotated tag and GitHub Release. After publication, maintain the six substantive roadmap issues and gather consented feedback from real sociology researchers before claiming adoption.
 
 See [NEXT_TASKS.md](NEXT_TASKS.md) for the prioritized queue.

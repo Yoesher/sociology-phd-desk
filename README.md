@@ -6,7 +6,9 @@ Manage the full research lifecycle—from literature and fieldwork to quantitati
 
 [简体中文](README.zh-CN.md) · [Roadmap](ROADMAP.md) · [Contributing](CONTRIBUTING.md) · [Project state](PROJECT_STATE.md)
 
-> **Pre-release software:** the local `0.1.0` build has passed its current local quality gates, but it has not been published or tested by external researchers. Do not use it as the only copy of irreplaceable research material. See [PROJECT_STATE.md](PROJECT_STATE.md) for the verified status; no public release or adoption is implied by this repository.
+**Live demo:** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
+
+> **Early public software:** the `0.1.0` codebase, public repository, remote CI, and hosted demo have passed the verification recorded in [PROJECT_STATE.md](PROJECT_STATE.md), but the project has not yet been tested by external researchers. Do not use it as the only copy of irreplaceable research material. Public availability does not imply adoption.
 
 ## Why Sociology PhD Desk?
 
@@ -92,7 +94,7 @@ npm ci
 npm run dev
 ```
 
-The intended public URL is `https://github.com/Yoesher/sociology-phd-desk`. It was not reachable through an authenticated push path during this bootstrap session. Once the repository is published and independently verified, a new checkout can use:
+The public repository is [Yoesher/sociology-phd-desk](https://github.com/Yoesher/sociology-phd-desk). A new checkout can use:
 
 ```bash
 git clone https://github.com/Yoesher/sociology-phd-desk.git
@@ -124,7 +126,7 @@ See [architecture overview](docs/architecture/overview.md), [data model](docs/ar
 
 ## Roadmap
 
-The immediate goal is a stable, honest `0.1.0` release with the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure. Later work deepens evidence provenance, qualitative traceability, reproducibility metadata, and carefully scoped integrations.
+The `0.1` line establishes the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure. Next work deepens evidence provenance, qualitative traceability, reproducibility metadata, browser-level coverage, and carefully scoped integrations.
 
 See [ROADMAP.md](ROADMAP.md). Roadmap entries are intentions, not delivery promises.
 

@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-08-11
+
 ### Added
 
 - Responsive, theme-aware application shell with nine lazy-loaded sociology research modules.
@@ -17,6 +19,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - English and Simplified Chinese project documentation.
 - Contributor, conduct, security, roadmap, architecture-decision, state, and handoff documentation.
 - GitHub issue forms and continuous-integration configuration.
+- GitHub Pages production deployment with the public browser-local demo.
+- Six substantive roadmap issues covering research objects, provenance, reproducibility, qualitative traceability, import safeguards, and browser coverage.
 - Sanitized light/dark product screenshots and browser QA register.
 
 ### Changed
@@ -41,7 +45,3 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Public-repository exclusions for secrets, machine-local configuration, private field material, transcripts, and common research-data formats.
 - Explicit guidance against storing directly identifying participant information.
 - Central schema and relationship validation before persistence or export.
-
-## Releases
-
-No version has been publicly released as of 2026-08-11. Do not add a release section until the corresponding tag and release can be verified.

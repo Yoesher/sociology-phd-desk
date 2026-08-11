@@ -1,6 +1,6 @@
 # Screenshot Register
 
-These captures document the locally verified `0.1.0` pre-release candidate. They are screenshots of the running application, not design mockups.
+These captures document the `0.1.0` application interface. They are screenshots of the running application, not design mockups, and their privacy review was repeated before public release.
 
 ## Capture rules
 
@@ -31,6 +31,8 @@ These captures document the locally verified `0.1.0` pre-release candidate. They
 - The Workspace modal was verified after being portalled to the document body; its backdrop covered the full 1280 × 720 viewport.
 - The application console contained no warning or error entries after the final browser pass.
 
-After these captures, a nested-modal stack added top-layer-only Escape handling, persistent scroll lock, and layer-by-layer focus restoration. A dedicated Testing Library regression test passes for that lifecycle. A fresh connector-driven browser smoke was attempted but not claimed because the desktop browser service reported no available browser instance.
+After these captures, a nested-modal stack added top-layer-only Escape handling, persistent scroll lock, and layer-by-layer focus restoration. A dedicated Testing Library regression test passes for that lifecycle.
+
+The deployed application at `https://yoesher.github.io/sociology-phd-desk/` received a fresh browser smoke on 2026-08-11 after that change. All nine hash routes rendered their route-specific controls; light/dark switching worked; a clearly synthetic task survived reload; the demo workspace was restored through its destructive confirmation; and the application console contained no errors. The JSON export control was exercised, but the in-app browser did not expose a download event, so the downloaded file itself was not re-inspected in that deployment pass. Automated export round-trip coverage remained green.
 
 Responsive behavior at 390 × 844 was also reviewed during implementation. Automated multi-viewport browser coverage remains a next-phase task.

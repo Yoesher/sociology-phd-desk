@@ -6,7 +6,9 @@
 
 [English](README.md) · [路线图](ROADMAP.md) · [贡献指南](CONTRIBUTING.md) · [项目状态](PROJECT_STATE.md)
 
-> **预发布软件：** 本地 `0.1.0` 版本已经通过当前本地质量门禁，但尚未公开发布，也没有经过外部研究者测试。请勿把不可替代的研究材料只保存在本软件中。经过核验的状态以 [PROJECT_STATE.md](PROJECT_STATE.md) 为准；仓库本身不代表已经公开发布或获得真实采用。
+**在线演示：** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
+
+> **早期公开软件：** `0.1.0` 代码、公开仓库、远程 CI 与在线演示已经通过 [PROJECT_STATE.md](PROJECT_STATE.md) 记录的核验，但项目尚未经过外部研究者测试。请勿把不可替代的研究材料只保存在本软件中；公开可用不代表已经获得真实采用。
 
 ## 为什么需要 Sociology PhD Desk？
 
@@ -92,7 +94,7 @@ npm ci
 npm run dev
 ```
 
-计划公开地址为 `https://github.com/Yoesher/sociology-phd-desk`，但本次引导会话没有可用的认证推送通道。仓库公开并经过独立核验后，新检出可使用：
+公开仓库为 [Yoesher/sociology-phd-desk](https://github.com/Yoesher/sociology-phd-desk)。新检出可使用：
 
 ```bash
 git clone https://github.com/Yoesher/sociology-phd-desk.git
@@ -124,7 +126,7 @@ CI 也执行这组命令。只有在当前修订上实际成功运行后，才�
 
 ## 路线图
 
-当前目标是形成诚实、稳定的 `0.1.0`：覆盖核心研究生命周期、安全导入导出、质量门禁和公开维护基础。后续将深化证据溯源、质性追踪、可复现元数据和边界清楚的集成。
+`0.1` 系列建立核心研究生命周期、安全导入导出、质量门禁和公开维护基础。下一阶段将深化证据溯源、质性追踪、可复现元数据、浏览器级覆盖和边界清楚的集成。
 
 详见 [ROADMAP.md](ROADMAP.md)。路线图是方向，不是交付承诺。
 
