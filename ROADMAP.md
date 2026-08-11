@@ -23,7 +23,7 @@ The product remains sociology-specific and complements, rather than replaces, sp
 
 ## Phase 3 — Chinese-first research platform expansion
 
-Phase 3 is planned as three gated increments. Each increment must be implemented, tested, reviewed, and verified in production before work advances to the next one. Listing an increment here does not mean it has shipped; verified status remains in [PROJECT_STATE.md](PROJECT_STATE.md).
+Phase 3 is planned as six gated increments. Each increment must be implemented, tested, reviewed, and verified in production before work advances to the next one. Listing an increment here does not mean it has shipped; verified status remains in [PROJECT_STATE.md](PROJECT_STATE.md).
 
 Every Phase 3 increment follows the same evidence chain: scoped Issue → dedicated feature branch → implementation and tests → Pull Request → passing PR CI → maintainer self-review → squash merge → passing `main` CI → GitHub Pages verification. A later increment must not begin while any earlier gate is incomplete.
 
@@ -37,17 +37,40 @@ Every Phase 3 increment follows the same evidence chain: scoped Issue → dedica
 ### Phase 3B — Research Question and Claim graph
 
 - Promote Research Question and Claim to first-class, versioned domain objects rather than storing them only as incidental text.
-- Represent explicit, inspectable links among questions, literature, fieldwork or datasets, analyses, evidence, claims, manuscripts, and revisions.
+- Represent the explicit, inspectable many-to-many relationship between research questions and analytical claims with stable IDs and same-project integrity.
 - Introduce schema version 3 only with migration, import/export compatibility, graph-integrity, and protected-delete tests.
+- Preserve legacy question and claim text through deterministic migration without semantic matching, automatic rewriting, or inferred claim-to-question links.
 - Keep this work focused on research traceability; it is not a generic visual knowledge-graph editor.
 
-### Phase 3C — China Research Map
+### Phase 3C — Private Local Workspace
+
+- Make multiple private local workspaces explicit and strictly isolated without turning them into network accounts or requiring cloud storage.
+- Separate the synthetic demo workspace from user research and migrate the existing singleton workspace non-destructively.
+- Distinguish browser isolation, a local screen lock, and genuine encrypted storage in both implementation and user-facing claims.
+- If encrypted workspaces ship, use reviewed standard browser cryptography, retain keys only for the unlocked runtime, detect authentication failure, and provide a genuinely encrypted versioned backup format.
+- Document threat-model limits, password-loss consequences, lock behavior, migration safety, and backup semantics in both Chinese and English.
+
+### Phase 3D — China Research Map
 
 - Provide a first-class research map for organizing regional sociology notes and comparing research coverage through province, prefecture, and county levels.
 - Stop the hierarchy at county level. Do not collect, infer, display, or export exact participant locations, precise households, interview coordinates, or other re-identifying spatial detail.
 - Gate implementation on documented verification of an authoritative, legally usable public China map source, including provenance, permitted use, attribution, version, and update path.
 - Do not use an arbitrary third-party boundary file as a temporary substitute. If the source and legal conditions cannot be verified, the map remains planned rather than shipped.
-- Preserve local-first operation and provide a useful non-map fallback for linked regional research notes.
+- Preserve local-first operation, never transmit user notes or fieldwork data to GitHub Pages or a map service, and provide a useful non-map fallback for linked regional research notes.
+
+### Phase 3E — Hierarchical navigation and information architecture
+
+- Organize primary navigation around research-work domains and secondary navigation around workflows or derived smart views within those domains.
+- Keep the main sidebar to at most two levels; concrete projects, manuscripts, interviews, regions, and other objects continue their drill-down in the content area.
+- Treat secondary navigation as presentation and filtering by default. Do not add persisted enum values merely to mirror menu labels.
+- Preserve routes, deep links, keyboard and screen-reader semantics, responsive access, both languages, and unchanged user-authored content through the navigation migration.
+
+### Phase 3F — Stabilization and v0.2.0 release
+
+- Integrate and audit the Phase 3B–3E data, privacy, map, navigation, accessibility, responsive, and bilingual boundaries as a whole.
+- Run migration paths, import/export, protected deletion, local workspace isolation and encryption checks where implemented, production builds, browser smoke tests, and the complete CI and Pages release gate.
+- Reconcile bilingual documentation, architecture decisions, privacy and map-source records, changelog, project state, screenshots, and release notes with the verified revision.
+- Create the v0.2.0 tag and formal release only after every earlier Phase 3 gate passes; do not move the existing v0.1.0 tag.
 
 ## `0.1.0` — usable local foundation
 
@@ -66,7 +89,7 @@ Release criteria:
 
 ## `0.2.x` — traceability depth
 
-- First-class Research Question, Claim, Variable, Model, Code, Memo, and Revision Task objects.
+- Complete and stabilize the first-class Research Question, Claim, and `ClaimQuestionLink` foundation; add Variable, Model, Code, Memo, and Revision Task only through separately scoped work.
 - Bidirectional evidence-to-claim and claim-to-manuscript navigation.
 - Stronger project overview across literature, fieldwork/data, evidence, manuscript, and submission stages.
 - Conflict and contradiction review in the evidence ledger.

@@ -1,6 +1,6 @@
 # Data Model
 
-This document describes the `0.1.x` conceptual model. Types and migrations in the code are authoritative for a particular revision; reconcile this document whenever the stored schema changes.
+This document describes the conceptual model on the Phase 3B development branch targeting the portable workspace v3 format. Types and migrations in the code are authoritative for a particular revision; reconcile this document whenever the stored schema changes. The latest formal release remains v0.1.0 until the complete v0.2.0 release gate passes.
 
 ## Shared conventions
 
@@ -16,13 +16,37 @@ This document describes the `0.1.x` conceptual model. Types and migrations in th
 
 ### Research Project
 
-Fields include project ID, title, short title, research question, topic, method, status, start date, target date, and notes.
+Fields include project ID, title, short title, topic, method, status, start date, target date, and notes. In portable v3, research questions are separate objects rather than a `Project.researchQuestion` string.
 
 Methods: Quantitative, Qualitative, Mixed Methods, Theoretical.
 
 Statuses: Idea, Design, Data / Fieldwork, Analysis, Writing, Submission, Revision, Published, Archived.
 
 The project is the primary coordination boundary for tasks, literature, fieldwork, datasets, analysis runs, evidence, logs, manuscripts, and submissions.
+
+### Research question
+
+Fields include stable question ID, project ID, text, status, notes, creation time, update time, and the shared synthetic/demo marker.
+
+Persisted statuses: `draft`, `active`, `addressed`, `retired`.
+
+A question's ID remains stable when its wording, notes, or status changes. Text is authored research content, not a key and not a locale resource. Every question belongs to exactly one project.
+
+### Analytical claim
+
+Fields include stable claim ID, project ID, text, status, notes, creation time, update time, and the shared synthetic/demo marker.
+
+Persisted statuses: `draft`, `active`, `superseded`, `retired`.
+
+An analytical claim is a judgment formed and revised during research. Its status does not mean that the claim has been proven, nor does it represent statistical significance. A claim's ID remains stable as the analysis changes, and every claim belongs to exactly one project.
+
+The interface explains this boundary as: “分析主张是研究过程中形成和修订的分析判断。其状态不代表该主张已经被证实，也不代表统计显著性。” / “Analytical claims are interpretive judgments formed and revised during the research process. Their status does not indicate that they have been substantiated, nor does it indicate statistical significance.”
+
+### Claim–question link
+
+`ClaimQuestionLink` represents the explicit many-to-many relationship between claims and research questions. It contains stable entity metadata plus `projectId`, `researchQuestionId`, and `claimId`.
+
+Both endpoints must exist and must share the link's project. Cross-project links, missing endpoints, and duplicate claim–question pairs are invalid. The relationship uses stable IDs rather than text, and no relationship is inferred from matching or similar prose.
 
 ### Task and Today planning
 
@@ -64,13 +88,15 @@ Future versions should add model specification, robustness checks, sample restri
 
 ### Evidence item
 
-Fields include evidence ID, project link, claim text or future claim ID, evidence type, source, locator, finding, support level, limitations, and manuscript location.
+Fields include evidence ID, project link, legacy/source-context claim text, evidence type, source, locator, finding, support level, limitations, and manuscript location.
 
 Evidence types: Literature, Quantitative Result, Interview, Fieldnote, Policy / Document, Other.
 
 Support levels: Strong, Moderate, Weak, Contradictory, Unclear.
 
 A support level is a researcher's documented judgment. It is not an automated truth score. Locator and limitations are essential provenance fields.
+
+Portable v3 retains the existing `Evidence.claim` text so migration cannot discard or rewrite source context. Phase 3B does not add an evidence `claimId` or an Evidence↔Claim relationship; that remains separate Issue #2 work. Claim–question links must never be inferred from evidence text.
 
 ### Research log entry
 
@@ -100,22 +126,22 @@ The target graph is:
 
 ```text
 Project
- ├─ Research Question
- ├─ Literature ─────────────┐
- ├─ Dataset → Analysis Run ─┼→ Evidence → Claim → Manuscript
- ├─ Interview / Field Visit ┘                         ↓
- ├─ Research Log                                  Submission
- └─ Task                                              ↓
-                                              Reviewer Comment
-                                                       ↓
-                                                Revision Task
+ ├─ Research Question ← ClaimQuestionLink → Claim
+ ├─ Literature
+ ├─ Dataset → Analysis Run → Evidence
+ ├─ Interview / Field Visit
+ ├─ Research Log
+ ├─ Task
+ └─ Manuscript → Submission → Reviewer Comment → Revision Task
 ```
 
-Some nodes are future first-class objects. Until then, free-text fields must not be presented as equivalent to a stable bidirectional relationship.
+Research questions, claims, and their explicit many-to-many links are first-class Phase 3B objects. Evidence↔Claim remains a future explicit relationship; the retained `Evidence.claim` string must not be presented as equivalent to one.
 
 ## Deletion and archiving
 
 Prefer archival states for research history. Before deleting an object, identify incoming links and explain the effect. Cascading deletion of research records is unsafe unless the relationship and recovery behavior are explicit and tested.
+
+Research questions and claims use protected deletion: a record with an incoming `ClaimQuestionLink` cannot be deleted until the user explicitly removes that link. Deleting a project is blocked while its questions, claims, or claim–question links remain; these records are not silently cascade-deleted.
 
 ## Schema evolution
 
@@ -124,3 +150,12 @@ Prefer archival states for research history. Before deleting an object, identify
 - Test upgrades from every supported prior schema.
 - Update portable format versions independently when export semantics change.
 - Record durable changes in `DECISIONS.md` and current limitations in `PROJECT_STATE.md`.
+
+### Portable workspace v3 migration
+
+- Compose supported upgrades deterministically as v1 → v2 → v3 rather than skipping version-specific semantics.
+- Migrate each non-empty legacy `Project.researchQuestion` into a first-class `ResearchQuestion` under the same project, then omit the legacy project field from v3.
+- Preserve every legacy `Evidence.claim` string as source-context text in v3.
+- Create first-class claims from non-empty legacy evidence claim text deterministically within each project. Grouping is allowed only for byte-for-byte equal values after trimming; do not perform semantic or fuzzy merging and do not rewrite the text.
+- Do not infer that any migrated claim answers any research question. Legacy migration produces no `ClaimQuestionLink` records.
+- Validate all migrated endpoint and project invariants before writing.

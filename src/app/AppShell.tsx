@@ -26,6 +26,9 @@ export function AppShell() {
   const primaryMobile = navigationItems.slice(0, 4)
   const hasDemoRecords = Boolean(data && [
     data.projects,
+    data.researchQuestions,
+    data.claims,
+    data.claimQuestionLinks,
     data.tasks,
     data.literature,
     data.fieldSites,

@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- First-class `ResearchQuestion`, `Claim`, and `ClaimQuestionLink` records with stable IDs, project-scoped many-to-many relationships, and locale-neutral status values.
+- Bilingual Research Questions, Claims, and Research Graph workflows in project detail for creating, inspecting, editing, explicitly linking, and safely deleting graph objects.
+- IndexedDB v3 stores and portable workspace v3 collections for research questions, claims, and their explicit links.
+- Regression coverage for deterministic v1 → v2 → v3 migration, graph integrity, cross-project and duplicate-link rejection, protected deletion, repository collision safety, and bilingual research-graph workflows.
 - Chinese-first application interface with a complete English alternative across all nine research modules, global workspace tools, forms, dialogs, validation, empty states, navigation, and responsive table labels.
 - Visible language control with an explicit `zh-CN` or `en` preference that applies immediately and persists locally with the existing theme preference.
 - Typed, namespace-based localization resources; locale-aware date and number formatting; and exhaustive display labels for persisted domain enums.
@@ -16,12 +20,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- Portable import now composes supported legacy migration explicitly as v1 → v2 → v3. Legacy `Project.researchQuestion` text becomes a first-class research question; same-project exact-trimmed legacy `Evidence.claim` text produces deterministic claim objects while the original evidence text remains unchanged.
+- Research-graph migration performs no semantic or fuzzy merge, automatic rewriting, or inferred Claim↔ResearchQuestion linking. Explicit Evidence↔Claim linking remains outside this change under Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2); v3 does not add an evidence `claimId`.
+- Project deletion now treats research questions, claims, and claim–question links as dependent research records, while linked questions and claims must be explicitly unlinked before deletion.
 - Simplified Chinese is now the default for a fresh installation even when the browser language is English.
 - Application settings are stored separately from IndexedDB research data and portable workspace JSON; switching language does not change research records, revisions, demo markers, or schema values.
 - User-facing dates, numbers, system errors, accessible names, and document metadata now follow the selected application locale.
 
 ### Security
 
+- Reject missing graph endpoints, cross-project claim–question relationships, duplicate relationship pairs, and deletes that would orphan explicit research links.
+- Preserve legacy `Evidence.claim` source-context text during migration rather than silently rewriting or discarding it.
 - Preserved user-authored research content exactly during language changes; no automatic translation is performed.
 - Recorded a permanent compliance gate requiring authoritative, legally usable provenance before any public China Research Map boundary asset can ship.
 

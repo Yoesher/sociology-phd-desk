@@ -1,6 +1,8 @@
 import { WORKSPACE_APPLICATION, WORKSPACE_SCHEMA_VERSION } from './domain'
 import type {
   AnalysisRun,
+  Claim,
+  ClaimQuestionLink,
   Dataset,
   EvidenceItem,
   FieldSite,
@@ -10,6 +12,7 @@ import type {
   Manuscript,
   ResearchLogEntry,
   ResearchProject,
+  ResearchQuestion,
   ResearchTask,
   ReviewerComment,
   Submission,
@@ -17,6 +20,9 @@ import type {
 } from './domain'
 
 const DEMO_PROJECT_ID = 'demo-project-employment-mobility'
+const DEMO_RESEARCH_QUESTION_ID = 'demo-question-employment-mobility'
+const DEMO_LITERATURE_CLAIM_ID = 'demo-claim-literature-proposition'
+const DEMO_QUANTITATIVE_CLAIM_ID = 'demo-claim-quantitative-expectation'
 const DEMO_SITE_ID = 'demo-field-site-a'
 const DEMO_DATASET_ID = 'demo-dataset-national-panel'
 const DEMO_MANUSCRIPT_ID = 'demo-manuscript-employment-mobility'
@@ -52,8 +58,6 @@ export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {
       id: DEMO_PROJECT_ID,
       title: 'Employment Mobility among Young Adults [DEMO]',
       shortTitle: 'Youth mobility — DEMO',
-      researchQuestion:
-        'DEMO question: How might occupational mismatch shape employment mobility among young adults?',
       topic: 'Employment, mobility, and occupational mismatch — synthetic example',
       method: 'Mixed Methods',
       status: 'Analysis',
@@ -61,6 +65,53 @@ export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {
       targetDate: offsetDate(now, 150),
       notes:
         'Synthetic orientation project. It contains no real participants, citations, research data, or findings.',
+    },
+  ]
+
+  const researchQuestions: ResearchQuestion[] = [
+    {
+      ...entityMetadata,
+      id: DEMO_RESEARCH_QUESTION_ID,
+      projectId: DEMO_PROJECT_ID,
+      text: 'DEMO question: How might occupational mismatch shape employment mobility among young adults?',
+      status: 'active',
+      notes: 'Synthetic research question for product orientation; it does not describe a completed study.',
+    },
+  ]
+
+  const claims: Claim[] = [
+    {
+      ...entityMetadata,
+      id: DEMO_LITERATURE_CLAIM_ID,
+      projectId: DEMO_PROJECT_ID,
+      text: 'DEMO proposition to investigate; not an established finding.',
+      status: 'draft',
+      notes: 'Synthetic analytical proposition. Its status does not imply evidentiary support.',
+    },
+    {
+      ...entityMetadata,
+      id: DEMO_QUANTITATIVE_CLAIM_ID,
+      projectId: DEMO_PROJECT_ID,
+      text: 'DEMO quantitative expectation to test; not a statistical conclusion.',
+      status: 'draft',
+      notes: 'Synthetic analytical expectation. No analysis has been run.',
+    },
+  ]
+
+  const claimQuestionLinks: ClaimQuestionLink[] = [
+    {
+      ...entityMetadata,
+      id: 'demo-link-literature-claim-question',
+      projectId: DEMO_PROJECT_ID,
+      claimId: DEMO_LITERATURE_CLAIM_ID,
+      researchQuestionId: DEMO_RESEARCH_QUESTION_ID,
+    },
+    {
+      ...entityMetadata,
+      id: 'demo-link-quantitative-claim-question',
+      projectId: DEMO_PROJECT_ID,
+      claimId: DEMO_QUANTITATIVE_CLAIM_ID,
+      researchQuestionId: DEMO_RESEARCH_QUESTION_ID,
     },
   ]
 
@@ -364,6 +415,9 @@ export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {
       ],
     },
     projects,
+    researchQuestions,
+    claims,
+    claimQuestionLinks,
     tasks,
     literature,
     fieldSites,

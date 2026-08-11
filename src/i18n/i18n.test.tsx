@@ -7,6 +7,7 @@ import { LanguageControl } from '../components/LanguageControl'
 import {
   ANALYSIS_RUN_STATUSES,
   ANALYSIS_SOFTWARE,
+  CLAIM_STATUSES,
   EVIDENCE_TYPES,
   FIELD_SITE_STATUSES,
   INTERVIEW_STATUSES,
@@ -15,6 +16,7 @@ import {
   PRIORITIES,
   PROJECT_STATUSES,
   RESEARCH_METHODS,
+  RESEARCH_QUESTION_STATUSES,
   REVIEW_COMMENT_SEVERITIES,
   REVIEW_COMMENT_STATUSES,
   SUBMISSION_STATUSES,
@@ -32,6 +34,8 @@ import { APP_SETTINGS_STORAGE_KEY } from './settings'
 
 const allDomainValues = [
   ...RESEARCH_METHODS,
+  ...RESEARCH_QUESTION_STATUSES,
+  ...CLAIM_STATUSES,
   ...PROJECT_STATUSES,
   ...TASK_CATEGORIES,
   ...TASK_STATUSES,
@@ -73,7 +77,7 @@ function LocaleProbe() {
       <output data-testid="number">{formatNumber(1234567)}</output>
       <output data-testid="enum">{labelEnum('Active')}</output>
       <input data-testid="required-field" required />
-      <output data-testid="research-content">{demo.projects[0]?.researchQuestion}</output>
+      <output data-testid="research-content">{demo.researchQuestions[0]?.text}</output>
       <output data-testid="export">{localeIndependentExport(demo)}</output>
     </>
   )

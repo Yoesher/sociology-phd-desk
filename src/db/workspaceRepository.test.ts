@@ -93,6 +93,25 @@ describe('workspace repository', () => {
     expect(persisted?.tasks).toEqual(current.tasks)
   })
 
+  it('atomically protects a linked graph parent from full-snapshot deletion', async () => {
+    const current = await initializeWorkspace(createDemoWorkspace(firstAnchor))
+    const invalid = structuredClone(current)
+    const linkedClaimId = invalid.claimQuestionLinks[0]?.claimId
+    if (!linkedClaimId) {
+      throw new Error('Expected a linked demo claim.')
+    }
+    invalid.claims = invalid.claims.filter((claim) => claim.id !== linkedClaimId)
+
+    await expect(replaceWorkspace(invalid, current.workspace.revision)).rejects.toBeInstanceOf(
+      WorkspaceValidationError,
+    )
+
+    const persisted = await getWorkspaceSnapshot()
+    expect(persisted?.workspace.revision).toBe(current.workspace.revision)
+    expect(persisted?.claims).toEqual(current.claims)
+    expect(persisted?.claimQuestionLinks).toEqual(current.claimQuestionLinks)
+  })
+
   it('merges new IDs while retaining colliding local records', async () => {
     const current = await initializeWorkspace(createDemoWorkspace(firstAnchor))
     const originalProject = current.projects[0]
@@ -126,6 +145,79 @@ describe('workspace repository', () => {
     expect(persisted?.workspace.revision).toBe(current.workspace.revision + 1)
   })
 
+  it('atomically rejects a colliding claim ID with different semantic text', async () => {
+    const current = await initializeWorkspace(createDemoWorkspace(firstAnchor))
+    const incoming = structuredClone(current)
+    const claim = incoming.claims[0]
+    if (!claim) {
+      throw new Error('Expected a demo claim.')
+    }
+    claim.text = 'A semantically different incoming claim with the same ID.'
+    incoming.researchQuestions.push({
+      ...incoming.researchQuestions[0]!,
+      id: 'incoming-question-that-must-not-commit',
+      text: 'A new incoming question that must be rolled back.',
+    })
+    expect(validateWorkspace(incoming).success).toBe(true)
+
+    await expect(mergeWorkspace(incoming)).rejects.toBeInstanceOf(WorkspaceValidationError)
+
+    const persisted = await getWorkspaceSnapshot()
+    expect(persisted?.claims).toEqual(current.claims)
+    expect(
+      persisted?.researchQuestions.some(
+        (question) => question.id === 'incoming-question-that-must-not-commit',
+      ),
+    ).toBe(false)
+    expect(persisted?.workspace.revision).toBe(current.workspace.revision)
+  })
+
+  it('atomically rejects a colliding research-question ID with different semantic text', async () => {
+    const current = await initializeWorkspace(createDemoWorkspace(firstAnchor))
+    const incoming = structuredClone(current)
+    const question = incoming.researchQuestions[0]
+    if (!question) {
+      throw new Error('Expected a demo research question.')
+    }
+    question.text = 'A different incoming research question with the same ID.'
+    expect(validateWorkspace(incoming).success).toBe(true)
+
+    await expect(mergeWorkspace(incoming)).rejects.toBeInstanceOf(WorkspaceValidationError)
+
+    const persisted = await getWorkspaceSnapshot()
+    expect(persisted?.researchQuestions).toEqual(current.researchQuestions)
+    expect(persisted?.claimQuestionLinks).toEqual(current.claimQuestionLinks)
+    expect(persisted?.workspace.revision).toBe(current.workspace.revision)
+  })
+
+  it('rejects new graph children under a semantically different colliding project ID', async () => {
+    const current = await initializeWorkspace(createDemoWorkspace(firstAnchor))
+    const incoming = structuredClone(current)
+    const project = incoming.projects[0]
+    const question = incoming.researchQuestions[0]
+    if (!project || !question) {
+      throw new Error('Expected demo project graph records.')
+    }
+    project.title = 'A different imported project reusing the local ID'
+    incoming.researchQuestions.push({
+      ...question,
+      id: 'misdirected-incoming-question',
+      text: 'This must not attach to the local project after its parent collision is skipped.',
+    })
+    expect(validateWorkspace(incoming).success).toBe(true)
+
+    await expect(mergeWorkspace(incoming)).rejects.toBeInstanceOf(WorkspaceValidationError)
+
+    const persisted = await getWorkspaceSnapshot()
+    expect(persisted?.projects).toEqual(current.projects)
+    expect(
+      persisted?.researchQuestions.some(
+        (item) => item.id === 'misdirected-incoming-question',
+      ),
+    ).toBe(false)
+    expect(persisted?.workspace.revision).toBe(current.workspace.revision)
+  })
+
   it('atomically rejects a merge whose parent-ID collision breaks project ownership', async () => {
     const current = await initializeWorkspace(createDemoWorkspace(firstAnchor))
     const incoming = createDemoWorkspace(new Date(laterTimestamp))
@@ -146,6 +238,9 @@ describe('workspace repository', () => {
         shortTitle: 'Project B',
       },
     ]
+    incoming.researchQuestions = []
+    incoming.claims = []
+    incoming.claimQuestionLinks = []
     incoming.tasks = []
     incoming.literature = []
     incoming.fieldSites = [{ ...collidingSite, projectId: incomingProjectId }]

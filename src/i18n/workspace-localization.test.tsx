@@ -110,6 +110,9 @@ describe('workspace localization boundaries', () => {
       method: 'Mixed Methods',
       status: 'Analysis',
     })
+    expect(before.researchQuestions[0]).toMatchObject({ isDemo: true, status: 'active' })
+    expect(before.claims[0]).toMatchObject({ isDemo: true, status: 'draft' })
+    expect(before.claimQuestionLinks[0]).toMatchObject({ isDemo: true })
     expect(before.analysisRuns[0]).toMatchObject({ software: 'Stata', status: 'Planned' })
 
     await user.click(screen.getByRole('button', { name: 'English' }))
@@ -118,6 +121,9 @@ describe('workspace localization boundaries', () => {
     expect(getLatestWorkspace()).toEqual(before)
     expect(getLatestWorkspace().workspace.revision).toBe(37)
     expect(getLatestWorkspace().projects[0]?.method).toBe('Mixed Methods')
+    expect(getLatestWorkspace().researchQuestions).toEqual(before.researchQuestions)
+    expect(getLatestWorkspace().claims).toEqual(before.claims)
+    expect(getLatestWorkspace().claimQuestionLinks).toEqual(before.claimQuestionLinks)
     expect(getLatestWorkspace().analysisRuns[0]?.software).toBe('Stata')
     expect(normalizedExport(getLatestWorkspace())).toEqual(beforeExport)
     expect(beforeExport).not.toHaveProperty('language')

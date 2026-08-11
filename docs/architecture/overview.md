@@ -44,19 +44,21 @@ Application settings are not part of `WorkspaceData`, IndexedDB domain tables, o
 
 ### Feature modules
 
-Own workflows for Today, Projects, Literature, Fieldwork, Quantitative, Evidence, Research Log, Manuscripts, and Submissions. A feature may compose objects from several stores, but persistent writes should pass through domain/repository functions.
+Own workflows for Today, Projects, Literature, Fieldwork, Quantitative, Evidence, Research Log, Manuscripts, and Submissions. Project detail also owns the bilingual Research Questions, Claims, and Research Graph workspace in the Phase 3B candidate. A feature may compose objects from several stores, but persistent writes should pass through domain/repository functions.
 
 ### Domain model and services
 
 Own entity types, allowed states, relationships, ID generation, dates, validation, and cross-object rules. They should remain testable without rendering a route.
 
+The Phase 3B candidate makes `ResearchQuestion`, `Claim`, and `ClaimQuestionLink` first-class objects. Questions and claims retain stable identity when their authored text or state changes. Their explicit many-to-many link is valid only when both endpoints and the link itself share one project; text is not an identifier. Linked parents and projects with graph dependents use protected deletion rather than silent cascading.
+
 ### Persistence
 
-Owns Dexie schema versions, transactions, indexes, migrations, and repository methods. UI code should not scatter direct table operations.
+Owns Dexie schema versions, transactions, indexes, migrations, and repository methods. UI code should not scatter direct table operations. IndexedDB schema v3 adds indexed stores for questions, claims, and claim–question links and migrates the v2 project/evidence text deterministically through the same research-graph migration semantics used at the portable boundary.
 
 ### Portability boundary
 
-Owns export envelopes, schema versions, validation, import previews, collision detection, merge, and explicit replacement. External JSON is untrusted input even when it came from an earlier export.
+Owns export envelopes, schema versions, validation, import previews, collision detection, merge, and explicit replacement. External JSON is untrusted input even when it came from an earlier export. Portable v3 import composes v1 → v2 → v3, preserves legacy `Evidence.claim` source-context text, and never infers a Claim↔ResearchQuestion link. Evidence↔Claim linking remains future Issue #2 work rather than an implicit consequence of migration.
 
 ## Data flow
 
@@ -104,7 +106,8 @@ Every release revision must run lint, type checking, tests, and production build
 
 ## Planned extension points
 
-- Additional domain objects such as Research Question, Claim, Variable, Model, Code, Memo, and Revision Task.
+- Additional domain objects such as Variable, Model, Code, Memo, and Revision Task.
+- Explicit Evidence↔Claim and Claim↔manuscript-location navigation only after its separate schema, provenance, migration, and deletion semantics are implemented; retained free text is not such a relationship.
 - Adapters for Zotero and analysis-tool metadata after API/license/privacy review.
 - Document and reproducibility exports.
 - Optional AI suggestion services isolated from source evidence and the offline core.

@@ -8,7 +8,7 @@ export type EntityId = string
 export type ISODate = string
 export type ISODateTime = string
 
-export const WORKSPACE_SCHEMA_VERSION = 2 as const
+export const WORKSPACE_SCHEMA_VERSION = 3 as const
 export const WORKSPACE_APPLICATION = 'sociology-phd-desk' as const
 
 export const RESEARCH_METHODS = [
@@ -31,6 +31,12 @@ export const PROJECT_STATUSES = [
   'Archived',
 ] as const
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number]
+
+export const RESEARCH_QUESTION_STATUSES = ['draft', 'active', 'addressed', 'retired'] as const
+export type ResearchQuestionStatus = (typeof RESEARCH_QUESTION_STATUSES)[number]
+
+export const CLAIM_STATUSES = ['draft', 'active', 'superseded', 'retired'] as const
+export type ClaimStatus = (typeof CLAIM_STATUSES)[number]
 
 export const TASK_CATEGORIES = [
   'Reading',
@@ -146,13 +152,32 @@ export interface WorkspaceMeta extends EntityMetadata {
 export interface ResearchProject extends EntityMetadata {
   title: string
   shortTitle: string
-  researchQuestion: string
   topic: string
   method: ResearchMethod
   status: ProjectStatus
   startDate: ISODate
   targetDate?: ISODate
   notes: string
+}
+
+export interface ResearchQuestion extends EntityMetadata {
+  projectId: EntityId
+  text: string
+  status: ResearchQuestionStatus
+  notes: string
+}
+
+export interface Claim extends EntityMetadata {
+  projectId: EntityId
+  text: string
+  status: ClaimStatus
+  notes: string
+}
+
+export interface ClaimQuestionLink extends EntityMetadata {
+  projectId: EntityId
+  claimId: EntityId
+  researchQuestionId: EntityId
 }
 
 export interface ResearchTask extends EntityMetadata {
@@ -297,6 +322,9 @@ export interface WorkspaceData {
   exportedAt: ISODateTime
   workspace: WorkspaceMeta
   projects: ResearchProject[]
+  researchQuestions: ResearchQuestion[]
+  claims: Claim[]
+  claimQuestionLinks: ClaimQuestionLink[]
   tasks: ResearchTask[]
   literature: LiteratureItem[]
   fieldSites: FieldSite[]

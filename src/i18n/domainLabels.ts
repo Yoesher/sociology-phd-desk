@@ -2,6 +2,7 @@ import type { MessageKey } from './messages'
 import type {
   AnalysisRunStatus,
   AnalysisSoftware,
+  ClaimStatus,
   EvidenceType,
   FieldSiteStatus,
   InterviewStatus,
@@ -10,6 +11,7 @@ import type {
   Priority,
   ProjectStatus,
   ResearchMethod,
+  ResearchQuestionStatus,
   ReviewCommentSeverity,
   ReviewCommentStatus,
   SubmissionStatus,
@@ -21,6 +23,8 @@ import type {
 
 export type LocalizedDomainValue =
   | ResearchMethod
+  | ResearchQuestionStatus
+  | ClaimStatus
   | ProjectStatus
   | TaskCategory
   | TaskStatus
@@ -43,6 +47,11 @@ export const domainLabelKeys = {
   'Qualitative': 'enum.qualitative',
   'Mixed Methods': 'enum.mixedMethods',
   'Theoretical': 'enum.theoretical',
+  'draft': 'enum.graphDraft',
+  'active': 'enum.graphActive',
+  'addressed': 'enum.graphAddressed',
+  'retired': 'enum.graphRetired',
+  'superseded': 'enum.graphSuperseded',
   'Idea': 'enum.idea',
   'Design': 'enum.design',
   'Data / Fieldwork': 'enum.dataFieldwork',

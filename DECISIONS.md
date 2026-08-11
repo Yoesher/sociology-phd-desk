@@ -91,3 +91,37 @@ This file records durable product and architecture choices. Each decision includ
 - **Rationale:** Place and administrative context matter to comparative, population, labour, family, organizational, migration, and fieldwork research in China. At the same time, incorrect boundaries, unclear licensing, and overly precise participant geography create legal, maintenance, research-integrity, and re-identification risks. A decorative map without source discipline would weaken rather than strengthen the workstation.
 - **Alternatives:** Omit geographic organization; use any convenient open boundary file; support point coordinates and street-level participant mapping; embed a mandatory commercial map service; implement a generic global map first.
 - **Consequences:** Phase 3C remains blocked until source and legal verification passes. The feature must retain local-first operation, document attribution, support a useful non-map fallback, and model regions independently from translated display labels. Tests and review must cover administrative hierarchy, incomplete or changing codes, privacy boundaries, import/export behavior, accessibility, and graceful source failure. Exact household, interview, or participant coordinates are outside the product scope even when a researcher could technically provide them.
+
+## ADR-011 — Sociology-specific product structure and honest privacy boundaries
+
+- **Date:** 2026-08-11
+- **Status:** Accepted
+- **Decision:** Adopt the following permanent product principles:
+  1. Sociology PhD Desk is a sociology research workstation, not a general-purpose Todo application.
+  2. Simplified Chinese is the default user language, and every substantial new UI feature must provide both `zh-CN` and `en` in the same change.
+  3. Primary navigation represents domains of research work.
+  4. Secondary navigation represents research workflows or smart views within a domain.
+  5. Secondary navigation is normally a derived view or smart filter and must not be tightly coupled to database enums.
+  6. A menu label is never, by itself, justification for adding a database status.
+  7. The main sidebar has at most two navigation levels.
+  8. The product must not grow an indefinitely nested third- or fourth-level navigation tree.
+  9. Concrete projects, manuscripts, interviews, regions, and other research objects are explored further in the content area rather than by adding sidebar levels.
+  10. UI language switching must never translate user-authored research content.
+  11. A private local workspace is not a network account.
+  12. The default remains local-first, with no account and no required cloud service.
+  13. The product may claim that data is encrypted only when real data encryption is implemented; hiding or locking the UI alone is not encryption.
+  14. The China Research Map is a primary, first-class module.
+  15. Geographic research management stops at county level by default and does not descend to township, subdistrict, or village levels.
+  16. Map notes, fieldwork material, and other user data must never be uploaded to GitHub Pages or a map service.
+- **Rationale:** A durable information architecture must express sociology research work rather than reproduce a task manager's categories. Derived navigation lets researchers see useful workflow slices without making presentation labels part of the stored domain model. Clear local-workspace and encryption language prevents a browser-local application from implying accounts, cloud protection, or security properties it does not provide. The map is valuable only when it preserves administrative scope, data provenance, and the confidentiality of user research.
+- **Alternatives:** Model the product as a generic Todo tool; map every navigation label to a persisted enum; allow arbitrary sidebar depth; treat a local lock screen as encryption; require accounts or cloud storage; send notes to a hosted map service; present the China map as a secondary visualization.
+- **Consequences:** Feature proposals must identify the sociology workflow they support. Navigation changes require a derived-view assessment before any schema change, and drill-down belongs in page content after two sidebar levels. New interface work must remain bilingual and data-neutral. Private-workspace UX must not imply an online identity, and encryption wording requires actual, reviewed cryptography. The public static application may load approved map geometry but must not transmit user workspace data. For clarity, the China Research Map implementation phase is Phase 3D; the Phase 3C reference in ADR-010's consequences is a phase-label error, not a change to ADR-010's compliance gate.
+
+## ADR-012 — Stable first-class research questions and analytical claims
+
+- **Date:** 2026-08-11
+- **Status:** Accepted
+- **Decision:** Introduce `ResearchQuestion`, `Claim`, and `ClaimQuestionLink` as first-class portable and persisted research objects. `ResearchQuestion` and `Claim` each inherit stable entity metadata (`id`, `createdAt`, `updatedAt`, and `isDemo`) and store `projectId`, `text`, `status`, and `notes`. Research-question statuses are `draft`, `active`, `addressed`, and `retired`; claim statuses are `draft`, `active`, `superseded`, and `retired`. `ClaimQuestionLink` inherits the same stable entity metadata and stores `projectId`, `researchQuestionId`, and `claimId`. Link endpoints must exist and all three records must belong to the same project; text is never a foreign key. A question or claim with incoming links cannot be deleted until those links are explicitly removed, and project deletion remains blocked while these dependent records exist.
+- **Rationale:** Research questions and analytical claims evolve independently and have a many-to-many relationship. Stable IDs preserve identity while wording and status change, allow explicit links to be audited, and avoid treating prose equality as research meaning. Project scoping prevents accidental relationships between unrelated studies, while protected deletion preserves the interpretive trail.
+- **Alternatives:** Keep questions and claims only as free text; use text as a key; infer links from semantic similarity; permit cross-project links; cascade-delete questions, claims, or links; postpone first-class objects until evidence linking is implemented.
+- **Consequences:** The portable workspace format advances to v3 and migrations must compose deterministically as v1 → v2 → v3. v3 removes `Project.researchQuestion` after creating a `ResearchQuestion` in that project. During v2 → v3, each non-empty legacy `Evidence.claim` contributes to deterministic same-project claim creation; only byte-for-byte equality after trimming may be used for grouping, and the source-context `Evidence.claim` text remains present and is never semantically merged, fuzzily matched, or rewritten. Migration must not infer which research question a claim answers, so `claimQuestionLinks` starts empty for legacy data. Issue #2 remains responsible for any future explicit Evidence↔Claim relationship; v3 does not add an evidence `claimId`. Import validation and repository writes must reject missing endpoints, cross-project links, duplicate link pairs, and deletion that would orphan links. UI copy must explain that a claim is an evolving analytical judgment, not proof or statistical significance.

@@ -2,6 +2,8 @@ import Dexie from 'dexie'
 import type { Table } from 'dexie'
 import type {
   AnalysisRun,
+  Claim,
+  ClaimQuestionLink,
   Dataset,
   EvidenceItem,
   FieldSite,
@@ -11,11 +13,15 @@ import type {
   Manuscript,
   ResearchLogEntry,
   ResearchProject,
+  ResearchQuestion,
   ResearchTask,
   ReviewerComment,
   Submission,
   WorkspaceMeta,
 } from '../models/domain'
+import { migrateV2ResearchGraphCollections } from '../utils/workspace-transfer'
+
+export const DATABASE_SCHEMA_VERSION = 3 as const
 
 const databaseStoresV1 = {
   workspaces: '&id, updatedAt',
@@ -34,9 +40,24 @@ const databaseStoresV1 = {
   reviewerComments: '&id, submissionId, status, severity',
 }
 
+const databaseStoresV2 = {
+  ...databaseStoresV1,
+  workspaces: '&id, revision, updatedAt',
+}
+
+const databaseStoresV3 = {
+  ...databaseStoresV2,
+  researchQuestions: '&id, projectId, status, updatedAt',
+  claims: '&id, projectId, status, updatedAt',
+  claimQuestionLinks: '&id, projectId, claimId, researchQuestionId, updatedAt',
+}
+
 export class SociologyPhdDeskDatabase extends Dexie {
   workspaces!: Table<WorkspaceMeta, string>
   projects!: Table<ResearchProject, string>
+  researchQuestions!: Table<ResearchQuestion, string>
+  claims!: Table<Claim, string>
+  claimQuestionLinks!: Table<ClaimQuestionLink, string>
   tasks!: Table<ResearchTask, string>
   literature!: Table<LiteratureItem, string>
   fieldSites!: Table<FieldSite, string>
@@ -55,10 +76,7 @@ export class SociologyPhdDeskDatabase extends Dexie {
 
     this.version(1).stores(databaseStoresV1)
     this.version(2)
-      .stores({
-        ...databaseStoresV1,
-        workspaces: '&id, revision, updatedAt',
-      })
+      .stores(databaseStoresV2)
       .upgrade(async (transaction) => {
         await transaction
           .table<WorkspaceMeta, string>('workspaces')
@@ -68,6 +86,27 @@ export class SociologyPhdDeskDatabase extends Dexie {
               workspace.revision = 0
             }
           })
+      })
+    this.version(DATABASE_SCHEMA_VERSION)
+      .stores(databaseStoresV3)
+      .upgrade(async (transaction) => {
+        const projectTable = transaction.table('projects')
+        const evidenceTable = transaction.table('evidence')
+        const [projects, evidence] = await Promise.all([
+          projectTable.toArray(),
+          evidenceTable.toArray(),
+        ])
+        const graph = migrateV2ResearchGraphCollections(projects, evidence)
+
+        if (graph.projects.length > 0) {
+          await projectTable.bulkPut(graph.projects)
+        }
+        if (graph.researchQuestions.length > 0) {
+          await transaction.table('researchQuestions').bulkPut(graph.researchQuestions)
+        }
+        if (graph.claims.length > 0) {
+          await transaction.table('claims').bulkPut(graph.claims)
+        }
       })
   }
 }

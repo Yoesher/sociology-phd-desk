@@ -23,11 +23,11 @@ import {
   TableActions,
   type Tone,
 } from '../../components/ui'
+import { ResearchGraphWorkspace } from './ResearchGraphWorkspace'
 
 interface ProjectDraft {
   title: string
   shortTitle: string
-  researchQuestion: string
   topic: string
   method: ResearchProject['method']
   status: ResearchProject['status']
@@ -39,7 +39,6 @@ interface ProjectDraft {
 const emptyDraft = (): ProjectDraft => ({
   title: '',
   shortTitle: '',
-  researchQuestion: '',
   topic: '',
   method: 'Qualitative',
   status: 'Idea',
@@ -74,14 +73,21 @@ export function ProjectsPage() {
       data?.projects.filter((project) => {
         const matchesQuery =
           !query ||
-          [project.title, project.shortTitle, project.researchQuestion, project.topic]
+          [
+            project.title,
+            project.shortTitle,
+            project.topic,
+            ...(data?.researchQuestions
+              .filter((question) => question.projectId === project.id)
+              .map((question) => question.text) ?? []),
+          ]
             .join(' ')
             .toLowerCase()
             .includes(query)
         return matchesQuery && (!statusFilter || project.status === statusFilter) && (!methodFilter || project.method === methodFilter)
       }) ?? []
     )
-  }, [data?.projects, methodFilter, search, statusFilter])
+  }, [data?.projects, data?.researchQuestions, methodFilter, search, statusFilter])
 
   if (!data) return null
 
@@ -96,7 +102,6 @@ export function ProjectsPage() {
     setDraft({
       title: project.title,
       shortTitle: project.shortTitle,
-      researchQuestion: project.researchQuestion,
       topic: project.topic,
       method: project.method,
       status: project.status,
@@ -114,7 +119,6 @@ export function ProjectsPage() {
       ...draft,
       title: draft.title.trim(),
       shortTitle: draft.shortTitle.trim() || draft.title.trim().slice(0, 36),
-      researchQuestion: draft.researchQuestion.trim(),
       topic: draft.topic.trim(),
       notes: draft.notes.trim(),
     }
@@ -153,7 +157,10 @@ export function ProjectsPage() {
       data.evidence.filter((item) => item.projectId === id).length +
       data.researchLogs.filter((item) => item.projectId === id).length +
       data.manuscripts.filter((item) => item.projectId === id).length +
-      data.submissions.filter((item) => item.projectId === id).length
+      data.submissions.filter((item) => item.projectId === id).length +
+      data.researchQuestions.filter((item) => item.projectId === id).length +
+      data.claims.filter((item) => item.projectId === id).length +
+      data.claimQuestionLinks.filter((item) => item.projectId === id).length
     if (dependencyCount > 0) return
     await updateData((current) => ({
       ...current,
@@ -185,7 +192,10 @@ export function ProjectsPage() {
       data.evidence.filter((item) => item.projectId === deleting.id).length +
       data.researchLogs.filter((item) => item.projectId === deleting.id).length +
       data.manuscripts.filter((item) => item.projectId === deleting.id).length +
-      data.submissions.filter((item) => item.projectId === deleting.id).length
+      data.submissions.filter((item) => item.projectId === deleting.id).length +
+      data.researchQuestions.filter((item) => item.projectId === deleting.id).length +
+      data.claims.filter((item) => item.projectId === deleting.id).length +
+      data.claimQuestionLinks.filter((item) => item.projectId === deleting.id).length
     : 0
 
   const linked = detail
@@ -202,6 +212,8 @@ export function ProjectsPage() {
         evidence: data.evidence.filter((item) => item.projectId === detail.id),
         manuscripts: data.manuscripts.filter((item) => item.projectId === detail.id),
         submissions: data.submissions.filter((item) => item.projectId === detail.id),
+        questions: data.researchQuestions.filter((item) => item.projectId === detail.id),
+        claims: data.claims.filter((item) => item.projectId === detail.id),
       }
     : null
 
@@ -253,12 +265,13 @@ export function ProjectsPage() {
               <tbody>
                 {filtered.map((project) => {
                   const days = daysUntil(project.targetDate)
+                  const leadQuestion = data.researchQuestions.find((question) => question.projectId === project.id)
                   return (
                     <tr key={project.id}>
                       <td data-label={t('projects.table.project')}>
                         <button type="button" className="record-title" onClick={() => setDetail(project)}>
                           <strong>{project.title}</strong>
-                          <span>{truncate(project.researchQuestion, 94)}</span>
+                          <span>{truncate(leadQuestion?.text || project.topic, 94)}</span>
                         </button>
                       </td>
                       <td data-label={t('projects.table.stage')}><Badge tone={statusTone(project.status)}>{labelEnum(project.status)}</Badge></td>
@@ -314,9 +327,6 @@ export function ProjectsPage() {
           <Field label={t('projects.form.topic')} required>
             <input required value={draft.topic} onChange={(event) => setDraft({ ...draft, topic: event.target.value })} placeholder={t('projects.form.topicPlaceholder')} />
           </Field>
-          <Field label={t('projects.form.question')} required className="form-span-2">
-            <textarea required rows={3} value={draft.researchQuestion} onChange={(event) => setDraft({ ...draft, researchQuestion: event.target.value })} placeholder={t('projects.form.questionPlaceholder')} />
-          </Field>
           <Field label={t('projects.form.method')} required>
             <select value={draft.method} onChange={(event) => setDraft({ ...draft, method: event.target.value as ResearchProject['method'] })}>
               {RESEARCH_METHODS.map((method) => <option key={method} value={method}>{labelEnum(method)}</option>)}
@@ -343,7 +353,7 @@ export function ProjectsPage() {
         <Modal
           open
           title={detail.title}
-          description={detail.researchQuestion}
+          description={linked.questions[0]?.text || detail.topic}
           onClose={() => setDetail(null)}
           size="xl"
           footer={
@@ -373,6 +383,8 @@ export function ProjectsPage() {
                   [t('projects.detail.evidence'), formatNumber(linked.evidence.length)],
                   [t('projects.detail.manuscripts'), formatNumber(linked.manuscripts.length)],
                   [t('projects.detail.submissions'), formatNumber(linked.submissions.length)],
+                  [t('projects.graph.questions.title'), formatNumber(linked.questions.length)],
+                  [t('projects.graph.claims.title'), formatNumber(linked.claims.length)],
                 ].map(([label, count]) => (
                   <div key={label}><span>{label}</span><strong>{count}</strong></div>
                 ))}
@@ -405,6 +417,7 @@ export function ProjectsPage() {
                   </div>
                 ) : <p className="quiet-copy">{t('projects.detail.noEvidence')}</p>}
               </section>
+              <ResearchGraphWorkspace projectId={detail.id} />
             </div>
           </div>
         </Modal>
