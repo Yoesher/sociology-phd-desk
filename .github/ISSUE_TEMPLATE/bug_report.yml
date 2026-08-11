@@ -1,0 +1,101 @@
+name: Bug report
+description: Report a reproducible problem using synthetic or redacted information only.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a problem. Do not attach real participant information, transcripts, fieldnotes, restricted datasets, credentials, or confidential manuscripts. Use the demo workspace or a minimal synthetic example.
+
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Use the displayed version, tag, or commit hash. Write “unknown” if unavailable.
+      placeholder: 0.1.0 / commit hash
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected workflow
+      options:
+        - Today
+        - Projects
+        - Literature
+        - Fieldwork
+        - Quantitative
+        - Evidence
+        - Research Log
+        - Manuscripts
+        - Submissions
+        - Import / export
+        - Theme / responsive layout
+        - Build / developer tooling
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Browser and operating system
+      placeholder: Firefox 141 on Windows 11
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Provide the smallest sequence that reproduces the bug with synthetic data.
+      placeholder: |
+        1. Open …
+        2. Create a DEMO …
+        3. Select …
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include exact error text when safe. Redact local paths and private information.
+    validations:
+      required: true
+
+  - type: textarea
+    id: data_effect
+    attributes:
+      label: Data impact and recovery
+      description: Did records disappear, duplicate, fail to save, or import incorrectly? Were you able to recover from an export?
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Add a sanitized screenshot or console excerpt only if it contains no private data, secrets, or identifying paths.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety confirmation
+      options:
+        - label: I used only synthetic or fully redacted information and included no secrets or identifiable research material.
+          required: true
+        - label: I searched existing issues for this problem.
+          required: true

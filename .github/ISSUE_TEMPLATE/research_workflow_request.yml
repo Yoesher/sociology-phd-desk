@@ -1,0 +1,98 @@
+name: Research workflow request
+description: Explain a sociology workflow that the current research-object model cannot represent.
+title: "[Workflow]: "
+labels:
+  - research-workflow
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form when “my research workflow cannot be represented by the current version” is the problem. Describe a synthetic pattern, never a real participant, site, dataset extract, interview passage, manuscript, or confidential review.
+
+  - type: input
+    id: workflow_name
+    attributes:
+      label: Workflow name
+      placeholder: Theoretical sampling and saturation review
+    validations:
+      required: true
+
+  - type: dropdown
+    id: method
+    attributes:
+      label: Methodological context
+      multiple: true
+      options:
+        - Quantitative
+        - Qualitative
+        - Mixed Methods
+        - Theoretical
+    validations:
+      required: true
+
+  - type: textarea
+    id: objects
+    attributes:
+      label: Research objects involved
+      description: Name the projects, questions, datasets, variables, models, interviews, field visits, codes, memos, evidence, claims, manuscripts, submissions, or revision tasks involved.
+    validations:
+      required: true
+
+  - type: textarea
+    id: sequence
+    attributes:
+      label: Actual sequence of work
+      description: In what order do objects and decisions change? Where does the workflow loop or branch?
+      placeholder: Use a synthetic example with DEMO labels.
+    validations:
+      required: true
+
+  - type: textarea
+    id: gap
+    attributes:
+      label: Where the current model fails
+      description: What relationship, state, provenance, or handoff cannot be represented without losing meaning?
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Current workaround
+      description: Which tools or manual steps do you combine today, and what gets lost?
+    validations:
+      required: true
+
+  - type: textarea
+    id: traceability
+    attributes:
+      label: Traceability or reproducibility need
+      description: What should a researcher be able to trace backward or forward after support is added?
+    validations:
+      required: true
+
+  - type: textarea
+    id: ethics
+    attributes:
+      label: Ethics and privacy constraints
+      description: What data should explicitly not be captured? What minimization or consent boundary applies?
+    validations:
+      required: true
+
+  - type: textarea
+    id: minimum
+    attributes:
+      label: Smallest useful support
+      description: Define the minimal objects, fields, relationships, and outcome; avoid requesting an entire new platform.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Confirmation
+      options:
+        - label: I used a synthetic, non-identifying example and included no confidential research material.
+          required: true
+        - label: I understand that submitting a workflow request is not evidence of project adoption or a delivery commitment.
+          required: true

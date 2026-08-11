@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security policy
+    url: https://github.com/Yoesher/sociology-phd-desk/security/policy
+    about: Do not disclose vulnerabilities or sensitive research material in a public issue.

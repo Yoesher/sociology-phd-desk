@@ -1,0 +1,81 @@
+name: Feature request
+description: Propose a focused improvement to an existing sociology research workflow.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Sociology PhD Desk prioritizes research objects and traceability over generic productivity features. Describe the research problem, not only the interface you imagine. Never include real research data or participant details.
+
+  - type: input
+    id: summary
+    attributes:
+      label: One-sentence proposal
+      placeholder: Allow evidence items to link to a specific manuscript section.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: method
+    attributes:
+      label: Primary research context
+      options:
+        - Quantitative sociology
+        - Qualitative sociology
+        - Mixed-methods sociology
+        - Theoretical sociology
+        - Cross-method / general sociology
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Research workflow problem
+      description: What research object, decision, transition, or traceability gap is difficult today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe inputs, outputs, links to other objects, and the smallest useful version.
+    validations:
+      required: true
+
+  - type: textarea
+    id: boundary
+    attributes:
+      label: Tool boundary and alternatives
+      description: Explain why this belongs here rather than in Zotero, Word, Stata/R/Python, NVivo/MAXQDA, or a general task manager. Include current workarounds.
+    validations:
+      required: true
+
+  - type: textarea
+    id: risk
+    attributes:
+      label: Privacy, ethics, migration, or reproducibility risks
+      description: What could expose data, overwrite records, confuse evidence, or make work less reproducible?
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: List observable outcomes using a synthetic example.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Confirmation
+      options:
+        - label: This request contains no real participant information, restricted data, credentials, or confidential research material.
+          required: true
+        - label: I searched the roadmap and existing issues first.
+          required: true
