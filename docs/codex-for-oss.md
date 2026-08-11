@@ -21,7 +21,7 @@ Sociology PhD Desk may consider applying to an OpenAI open-source support progra
 | Downloads | No verified count | The release has no custom binary assets. GitHub-generated source archives do not provide an asset download count through the release-assets API. |
 | Real external users | 0 verified | No user evidence has been collected or supplied. This is not an estimate of interest. |
 | Real external testers | 0 verified | The bootstrap session did not document an external tester. Maintainer self-testing must not be relabeled as an external tester. |
-| External contributors | 0 verified | Public commits are maintainer-originated and the Pull Requests API returned zero open or merged PRs. |
+| External contributors | 0 verified | Public commits are maintainer-originated; the sole open Pull Request is maintainer-authored Draft PR #9, and no external or merged Pull Request is verified. |
 | External mentions | 0 verified in project records | No external mention was supplied or documented. This is not a comprehensive web-wide search result. |
 | Institutional adoption | None known | No institution has supplied evidence of use or adoption. |
 
