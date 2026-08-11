@@ -11,17 +11,17 @@ Sociology PhD Desk may consider applying to an OpenAI open-source support progra
 | Public repository | [Yoesher/sociology-phd-desk](https://github.com/Yoesher/sociology-phd-desk), public | GitHub API verified the owner, repository name, public visibility, `main` default branch, and description `社会学博士研究工作站｜A local-first ResearchOps workstation for sociology researchers.` on 2026-08-11. |
 | Version | [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0) | GitHub Release and annotated tag verified on 2026-08-11; tag dereferences to `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994`. |
 | Maintainer | `Yoesher` | Repository owner and current maintainer. This does not imply an external contributor community. |
-| Stars | 0 | GitHub repository API query on 2026-08-11. |
+| Stars | 1 | GitHub repository API/CLI query on 2026-08-11. A Star is repository activity, not evidence of a user, tester, endorsement, or adoption. |
 | Forks | 0 | GitHub repository API query on 2026-08-11. |
-| Open issues | 7 | GitHub Issues API/CLI query after Phase 3A merged on 2026-08-11. |
-| Closed issues | 1 | Issue [#7](https://github.com/Yoesher/sociology-phd-desk/issues/7) was closed as completed by the Phase 3A merge. |
-| Open pull requests | 0 | GitHub Pull Requests API/CLI query after Phase 3A merged on 2026-08-11. |
-| Merged pull requests | 1 | Maintainer-authored Phase 3A PR [#9](https://github.com/Yoesher/sociology-phd-desk/pull/9), squash-merged on 2026-08-11. |
+| Open issues | 6 | GitHub Issues API/CLI query after Phase 3B merged on 2026-08-11; Issue #2 remains open. |
+| Closed issues | 2 | Issues [#7](https://github.com/Yoesher/sociology-phd-desk/issues/7) and [#1](https://github.com/Yoesher/sociology-phd-desk/issues/1) were closed by the Phase 3A and Phase 3B merges respectively. |
+| Open pull requests | 0 | GitHub Pull Requests API/CLI query after Phase 3B merged on 2026-08-11. |
+| Merged pull requests | 3 | Maintainer-authored PRs [#9](https://github.com/Yoesher/sociology-phd-desk/pull/9), [#10](https://github.com/Yoesher/sociology-phd-desk/pull/10), and [#11](https://github.com/Yoesher/sociology-phd-desk/pull/11), all squash-merged on 2026-08-11. |
 | Published releases | 1 | GitHub Releases API and `gh release view v0.1.0` on 2026-08-11. |
 | Downloads | No verified count | The release has no custom binary assets. GitHub-generated source archives do not provide an asset download count through the release-assets API. |
-| Real external users | 0 verified | No user evidence has been collected or supplied. This is not an estimate of interest. |
-| Real external testers | 0 verified | The bootstrap session did not document an external tester. Maintainer self-testing must not be relabeled as an external tester. |
-| External contributors | 0 verified | Public commits and the sole merged Pull Request, maintainer-authored PR #9, are maintainer-originated; no external contributor or external Pull Request is verified. |
+| Real external users | 0 verified; actual count unknown | No user evidence has been collected or supplied. One Star must not be converted into a user count or interest estimate. |
+| Real external testers | 0 verified; actual count unknown | No external tester is documented. Maintainer self-testing and CI must not be relabeled as external testing. |
+| External contributors | 0 verified | Public commits and all three merged Pull Requests are maintainer-originated; no external contributor or external Pull Request is verified. |
 | External mentions | 0 verified in project records | No external mention was supplied or documented. This is not a comprehensive web-wide search result. |
 | Institutional adoption | None known | No institution has supplied evidence of use or adoption. |
 
@@ -35,7 +35,7 @@ That potential is a rationale for building and testing the project, not evidence
 
 ## Real users and testers
 
-No real external user or tester is verified as of 2026-08-11.
+No real external user or tester is verified as of 2026-08-11; the actual number is unknown. The single Star is not user or tester evidence.
 
 Future entries must record only consented, supportable information such as:
 
@@ -49,7 +49,7 @@ Do not publish identities, affiliations, or research topics without explicit per
 
 ## Maintainer activity
 
-As of 2026-08-11, verified activity consists of the Phase 0 audit; a durable public `main` history for the Phase 1 application, data-integrity hardening, documentation, Pages infrastructure, and merged Phase 3A bilingual implementation; passing remote CI; a deployed browser-local demo; eight substantive roadmap issues; and maintainer-authored PR [#9](https://github.com/Yoesher/sociology-phd-desk/pull/9), squash-merged as [`bad788f`](https://github.com/Yoesher/sociology-phd-desk/commit/bad788fac457950dfe311dc1b539cec5e74bf65a). The Phase 3A final candidate passed a clean install, lint, type checking, 37 automated tests, production build, and nine-route Chinese/English desktop/mobile browser review. Exact-`main` [CI run 31491968689](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31491968689) and [Pages run 31491968688](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31491968688) then passed, and the public deployment was re-verified in both languages at desktop and mobile sizes. This remains maintainer self-verification, not an external test or adoption signal.
+As of 2026-08-11, verified activity consists of the Phase 0 audit; a durable public `main` history for the Phase 1 application, data-integrity hardening, documentation, Pages infrastructure, merged Phase 3A bilingual implementation, and merged Phase 3B research-graph foundation; passing remote CI; a deployed browser-local demo; eight substantive Issues; and three maintainer-authored merged Pull Requests. Phase 3B PR [#11](https://github.com/Yoesher/sociology-phd-desk/pull/11) advanced exact feature head `2c12911c82678077cf9f3687c9308473f2832bf9` to squash-merge SHA [`a51a10f`](https://github.com/Yoesher/sociology-phd-desk/commit/a51a10febfb3e186aa1774c0110c27fdceec9f0e). Its [maintainer self-review](https://github.com/Yoesher/sociology-phd-desk/pull/11#issuecomment-5255455230) recorded P0 = 0 and P1 = 0; exact-`main` [CI run 31508962634](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31508962634) and [Pages run 31508962638](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31508962638) succeeded. The public URL returned HTTP 200 and deployed asset names/hashes matched the final local build. Real public interaction smoke was not run because browser control returned `instances=[]`; this limitation is not a passing interaction result. All of this remains maintainer self-verification, not external testing or adoption evidence.
 
 Release SHA `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994` was independently matched through local Git, Git transport, and the GitHub commits API. [CI run 31483003952](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31483003952) passed, [Pages run 31483003953](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31483003953) deployed `https://yoesher.github.io/sociology-phd-desk/`, and the annotated tag was published as [Sociology PhD Desk v0.1.0](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0). Public activity remains maintainer-originated; no external PR, review, tester, user, or adoption evidence is verified.
 
@@ -78,3 +78,4 @@ Never buy Stars, fabricate accounts, users, downloads, contributors, issues, pul
 | 2026-08-11 | `v0.1.0` published; 0 Stars, 0 Forks, 6 open Issues, 0 PRs, 1 Release, 0 verified external users/testers, and no known institutional adoption | GitHub repository, Issues, Pull Requests, Releases, Actions, and Pages APIs plus local tag verification |
 | 2026-08-11 | Phase 3A candidate opened as Draft PR #9; 0 Stars, 0 Forks, 8 open Issues, 1 open PR, 0 merged PRs, and 1 Release | GitHub repository, Issues, Pull Requests, Actions, and local final-candidate verification |
 | 2026-08-11 | Phase 3A PR #9 merged as `bad788f`; Issue #7 closed; 0 Stars, 0 Forks, 7 open Issues, 1 closed Issue, 0 open PRs, 1 merged PR, and 1 unchanged Release; exact-`main` CI, Pages, and public bilingual browser verification passed | GitHub repository, Issues, Pull Requests, Actions, Pages, and public deployment verification |
+| 2026-08-11 | Phase 3B PR #11 merged as `a51a10f`; Issue #1 closed while Issue #2 remained open; 1 Star, 0 Forks, 6 open Issues, 2 closed Issues, 0 open PRs, 3 merged PRs, and 1 unchanged Release; exact-`main` CI and Pages passed; public HTTP/asset verification passed, while real public interaction smoke was NOT RUN because browser control returned `instances=[]` | GitHub repository, Issues, Pull Requests, Actions, Pages, static deployment verification, and the recorded browser-control limitation |

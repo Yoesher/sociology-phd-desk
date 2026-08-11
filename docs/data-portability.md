@@ -46,7 +46,7 @@ Replace is a separate destructive operation. It must:
 
 Database schema and portable format versions solve different problems. An internal IndexedDB migration need not change the portable format if its meaning is unchanged; an export semantic change may require a new portable version even without a database migration.
 
-The Phase 3B development candidate uses IndexedDB schema v3 and portable workspace v3. These numbers happen to advance together for the research-graph change but remain independent version axes. The published v0.1.0 release evidence is unchanged, and this candidate is not a new release.
+The Phase 3B implementation merged into `main` uses IndexedDB schema v3 and portable workspace v3. These numbers happened to advance together for the research-graph change but remain independent version axes. Phase 3B is still `Unreleased`: the published v0.1.0 release evidence and tag are unchanged.
 
 Portable import composes supported migration explicitly as v1 → v2 → v3:
 

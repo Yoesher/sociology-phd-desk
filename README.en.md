@@ -8,7 +8,7 @@ Manage the full research lifecycle—from literature and fieldwork to quantitati
 
 **Live demo:** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
 
-> **Early public software:** the `0.1.0` codebase, public repository, remote CI, and hosted demo have passed the verification recorded in [PROJECT_STATE.md](PROJECT_STATE.md), but the project has not yet been tested by external researchers. Do not use it as the only copy of irreplaceable research material. Public availability does not imply adoption.
+> **Early public software:** the latest formal release remains `v0.1.0`; `main` and the live demo also contain merged but unreleased Phase 3A / 3B work, with evidence and limitations recorded in [PROJECT_STATE.md](PROJECT_STATE.md). The project has not yet been tested by external researchers. Do not use it as the only copy of irreplaceable research material. Public availability or a Star does not imply adoption.
 
 ## Why Sociology PhD Desk?
 
@@ -50,18 +50,18 @@ The product is desktop-first, responsive, theme-aware, offline-friendly, and des
 
 In `0.1.0`, Projects, Evidence, and Fieldwork provide create, inspect, edit, and protected-delete flows. Literature, Quantitative, Research Log, Manuscripts, Submissions, and Today provide focused registry, creation, filtering, and status workflows; complete edit/delete parity for every object is future work.
 
-### Phase 3B development candidate (not merged or released)
+### Phase 3B merged (not yet released)
 
-The current feature branch is promoting research questions and analytical claims to first-class, project-scoped research objects:
+Phase 3B was merged into `main` through [PR #11](https://github.com/Yoesher/sociology-phd-desk/pull/11), promoting research questions and analytical claims to first-class, project-scoped research objects:
 
 - `ResearchQuestion`, `Claim`, and `ClaimQuestionLink` use stable IDs; text is never a foreign key.
 - Research questions and analytical claims use explicit, same-project many-to-many links. Missing endpoints, cross-project relationships, and duplicate relationships are rejected.
 - The project detail view provides complete Chinese and English Research Questions, Claims, and Research Graph interfaces for creating, inspecting, editing, linking, and deleting unreferenced objects.
 - A question or claim must be explicitly unlinked before deletion. Project deletion does not silently cascade-delete these research records.
-- The candidate advances IndexedDB and the portable workspace to v3 and composes migration explicitly as v1 → v2 → v3. Legacy `Project.researchQuestion` text becomes a research-question object; each original `Evidence.claim` string remains present while same-project exact-trimmed text is used for deterministic claim creation.
+- The merged implementation advances IndexedDB and the portable workspace to v3 and composes migration explicitly as v1 → v2 → v3. Legacy `Project.researchQuestion` text becomes a research-question object; each original `Evidence.claim` string remains present while same-project exact-trimmed text is used for deterministic claim creation.
 - Migration performs no semantic or fuzzy merge, automatic rewrite, or inference that a claim answers a particular research question.
 
-This is not a release claim: the Phase 3B Pull Request, remote CI, merge, `main` CI, and Pages verification remain pending. The explicit Evidence↔Claim relationship in Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) is not part of this candidate, and v3 does not add an evidence `claimId`.
+This is not a new-version release claim: Phase 3B is merged and deployed but remains `Unreleased`; the formal release and package version remain `v0.1.0` / `0.1.0`. Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) remains OPEN. Its explicit Evidence↔Claim relationship is not part of Phase 3B, and v3 does not add an evidence `claimId`. The public URL returned HTTP 200 and its deployed asset names/hashes matched the final local build; real public interaction smoke was not run because browser control returned `instances=[]`, so that check is not reported as passing. See [PROJECT_STATE.md](PROJECT_STATE.md) for the evidence record.
 
 ## Why sociology-specific?
 
@@ -138,11 +138,11 @@ These commands are also the required CI sequence. A command is not considered pa
 
 Use the in-app JSON export action and inspect the destination before sharing the file. On import, validate the preview and choose the intended merge behavior. Replacement must be an explicit action; it must never happen silently.
 
-The Phase 3B development candidate exports portable v3 and continues to accept supported v1 and v2 files by applying the explicit v1 → v2 → v3 transformation before the same strict validation. See [data portability](docs/data-portability.md) for migration details and the research-graph boundary.
+The current merged implementation exports portable v3 and continues to accept supported v1 and v2 files by applying the explicit v1 → v2 → v3 transformation before the same strict validation. See [data portability](docs/data-portability.md) for migration details and the research-graph boundary.
 
 ## Architecture
 
-The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith. The Phase 3B candidate adds research questions, analytical claims, and their explicit links within this boundary while preserving project scope and protected deletion.
+The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith. Merged Phase 3B adds research questions, analytical claims, and their explicit links within this boundary while preserving project scope and protected deletion.
 
 See [architecture overview](docs/architecture/overview.md), [data model](docs/architecture/data-model.md), and [decisions](DECISIONS.md).
 
