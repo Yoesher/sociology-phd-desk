@@ -8,7 +8,7 @@
 
 **在线演示：** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
 
-> **早期公开软件：** `0.1.0` 代码、公开仓库、远程 CI 与在线演示已经通过 [PROJECT_STATE.md](PROJECT_STATE.md) 记录的核验，但项目尚未经过外部研究者测试。请勿把不可替代的研究材料只保存在本软件中；公开可用不代表已经获得真实采用。
+> **早期公开软件：** 当前正式 Release 仍是 `v0.1.0`；`main` 与在线演示还包含已经合并但尚未发布的 Phase 3A / 3B 功能，核验证据与限制记录在 [PROJECT_STATE.md](PROJECT_STATE.md)。项目尚未经过外部研究者测试。请勿把不可替代的研究材料只保存在本软件中；公开可用或获得 Star 不代表已经获得真实采用。
 
 ## 为什么需要 Sociology PhD Desk？
 
@@ -50,18 +50,18 @@
 
 在 `0.1.0` 中，研究项目、证据台账与田野模块提供创建、查看、编辑和受保护删除流程；文献、定量分析、研究日志、论文、投稿与今日工作台提供聚焦的登记、新增、筛选和状态工作流。让每一种对象都具备完整编辑与删除能力属于后续工作。
 
-### Phase 3B 开发候选（尚未合并或发布）
+### Phase 3B 已合并（尚未发布）
 
-当前功能分支正在把研究问题和分析主张提升为项目内的一等研究对象：
+Phase 3B 已通过 [PR #11](https://github.com/Yoesher/sociology-phd-desk/pull/11) 合并到 `main`，把研究问题和分析主张提升为项目内的一等研究对象：
 
 - `ResearchQuestion`、`Claim` 与 `ClaimQuestionLink` 使用稳定 ID；文本不是外键。
 - 研究问题与分析主张通过显式的项目内多对多关系连接，缺失端点、跨项目关系与重复关系会被拒绝。
 - 项目详情提供完整中英文的研究问题、分析主张与研究图谱界面，可创建、查看、编辑、连接和删除未被引用的对象。
 - 删除研究问题或主张前必须先明确移除其关系；删除项目也不会静默级联删除这些研究记录。
-- 开发候选把 IndexedDB 与 portable workspace 升级到 v3，并显式执行 v1 → v2 → v3 迁移。旧 `Project.researchQuestion` 迁移为研究问题；旧 `Evidence.claim` 原文继续保留，并只在同一项目内按 exact-trimmed 文本确定性生成主张。
+- 已合并实现把 IndexedDB 与 portable workspace 升级到 v3，并显式执行 v1 → v2 → v3 迁移。旧 `Project.researchQuestion` 迁移为研究问题；旧 `Evidence.claim` 原文继续保留，并只在同一项目内按 exact-trimmed 文本确定性生成主张。
 - 迁移不会执行语义或模糊合并、自动改写，也不会推断某个主张回答哪个研究问题。
 
-这不是发布声明：Phase 3B 的 Pull Request、远程 CI、合并、`main` CI 与 Pages 验证仍须完成。Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) 中的 Evidence↔Claim 显式关系不属于本次候选，当前 v3 没有新增 evidence `claimId`。
+这不是新版本发布声明：Phase 3B 已合并并部署，但仍属于 `Unreleased`，正式 Release 与包版本仍是 `v0.1.0` / `0.1.0`。Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) 仍为 OPEN；Evidence↔Claim 显式关系不属于 Phase 3B，当前 v3 没有新增 evidence `claimId`。公开 URL 已返回 HTTP 200，且部署资产名称/哈希与最终本地构建一致；由于浏览器控制当时返回 `instances=[]`，没有执行真实公共页面交互 smoke，不能把该项写成 PASS。完整证据见 [PROJECT_STATE.md](PROJECT_STATE.md)。
 
 ## 为什么是社会学专用？
 
@@ -138,11 +138,11 @@ CI 也执行这组命令。只有在当前修订上实际成功运行后，才�
 
 使用应用内 JSON 导出，并在分享前检查目标文件。导入时请核对预览并选择预期的合并方式。替换必须是明确操作，绝不能静默发生。
 
-Phase 3B 开发候选导出 portable v3，并继续接受受支持的 v1、v2 文件，通过显式 v1 → v2 → v3 转换后再执行同一套严格验证。迁移细节与研究图谱边界见[数据迁移说明](docs/data-portability.md)。
+当前已合并实现导出 portable v3，并继续接受受支持的 v1、v2 文件，通过显式 v1 → v2 → v3 转换后再执行同一套严格验证。迁移细节与研究图谱边界见[数据迁移说明](docs/data-portability.md)。
 
 ## 架构
 
-当前基础采用 React、TypeScript 和 Vite。Dexie 提供 IndexedDB 数据层，Zod 验证可迁移数据，Vitest 覆盖可测试的应用逻辑。持久化与领域逻辑和页面组件保持分离，使研究对象能够演进，而不把应用外壳变成单体组件。Phase 3B 候选在这一边界内增加研究问题、分析主张及其显式关系，并维持项目范围与保护性删除约束。
+当前基础采用 React、TypeScript 和 Vite。Dexie 提供 IndexedDB 数据层，Zod 验证可迁移数据，Vitest 覆盖可测试的应用逻辑。持久化与领域逻辑和页面组件保持分离，使研究对象能够演进，而不把应用外壳变成单体组件。已合并的 Phase 3B 在这一边界内增加研究问题、分析主张及其显式关系，并维持项目范围与保护性删除约束。
 
 参阅[架构概览](docs/architecture/overview.md)、[数据模型](docs/architecture/data-model.md)和[架构决策](DECISIONS.md)。
 

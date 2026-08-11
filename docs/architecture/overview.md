@@ -44,13 +44,13 @@ Application settings are not part of `WorkspaceData`, IndexedDB domain tables, o
 
 ### Feature modules
 
-Own workflows for Today, Projects, Literature, Fieldwork, Quantitative, Evidence, Research Log, Manuscripts, and Submissions. Project detail also owns the bilingual Research Questions, Claims, and Research Graph workspace in the Phase 3B candidate. A feature may compose objects from several stores, but persistent writes should pass through domain/repository functions.
+Own workflows for Today, Projects, Literature, Fieldwork, Quantitative, Evidence, Research Log, Manuscripts, and Submissions. Project detail also owns the bilingual Research Questions, Claims, and Research Graph workspace merged in Phase 3B. A feature may compose objects from several stores, but persistent writes should pass through domain/repository functions.
 
 ### Domain model and services
 
 Own entity types, allowed states, relationships, ID generation, dates, validation, and cross-object rules. They should remain testable without rendering a route.
 
-The Phase 3B candidate makes `ResearchQuestion`, `Claim`, and `ClaimQuestionLink` first-class objects. Questions and claims retain stable identity when their authored text or state changes. Their explicit many-to-many link is valid only when both endpoints and the link itself share one project; text is not an identifier. Linked parents and projects with graph dependents use protected deletion rather than silent cascading.
+Phase 3B makes `ResearchQuestion`, `Claim`, and `ClaimQuestionLink` first-class objects. Questions and claims retain stable identity when their authored text or state changes. Their explicit many-to-many link is valid only when both endpoints and the link itself share one project; text is not an identifier. Linked parents and projects with graph dependents use protected deletion rather than silent cascading.
 
 ### Persistence
 

@@ -1,6 +1,6 @@
 # Data Model
 
-This document describes the conceptual model on the Phase 3B development branch targeting the portable workspace v3 format. Types and migrations in the code are authoritative for a particular revision; reconcile this document whenever the stored schema changes. The latest formal release remains v0.1.0 until the complete v0.2.0 release gate passes.
+This document describes the Phase 3B conceptual model merged into `main`, including portable workspace v3. Types and migrations in the code are authoritative for a particular revision; reconcile this document whenever the stored schema changes. Phase 3B remains unreleased: the latest formal release is still v0.1.0 until the complete v0.2.0 release gate passes.
 
 ## Shared conventions
 

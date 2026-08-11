@@ -11,7 +11,7 @@
 - [x] Pass exact-final-head [PR CI](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31491692818), complete maintainer self-review, and mark PR #9 ready only after both gates pass.
 - [x] Squash-merge PR #9 as [`bad788f`](https://github.com/Yoesher/sociology-phd-desk/commit/bad788fac457950dfe311dc1b539cec5e74bf65a), then pass exact-`main` [CI](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31491968689), [Pages deployment](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31491968688), and public desktop/mobile browser smoke in Chinese and English.
 - [x] Update this handoff, `PROJECT_STATE.md`, and the open-source evidence register with the final PR, commit, CI, Pages, repository description, and metric evidence.
-- [x] Keep Phase 3B and Phase 3C blocked until every Phase 3A gate passes; that prerequisite is now satisfied for Phase 3B only.
+- [x] Keep Phase 3B blocked until every Phase 3A gate passes; that prerequisite was satisfied before Phase 3B began, and Phase 3B has since completed its own gate.
 
 ## P0 — first authenticated publication (complete)
 
@@ -24,7 +24,7 @@
 - [x] Publish [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0) only after remote CI passes; include supported workflows, narrower CRUD scope, privacy/backup model, known limitations, and roadmap in the release notes.
 - [x] Update `PROJECT_STATE.md` and `docs/codex-for-oss.md` with source-backed repository, commit, CI, tag, release, Pages, Issues, and real metric evidence.
 
-## P0 — Phase 3B Research Question / Claim graph (local gates passed; remote gates pending)
+## P0 — Phase 3B Research Question / Claim graph (complete; merged and unreleased)
 
 - [x] Implement the local Issue [#1](https://github.com/Yoesher/sociology-phd-desk/issues/1) candidate with first-class `ResearchQuestion`, `Claim`, and `ClaimQuestionLink` objects, stable IDs, same-project integrity, and protected deletion.
 - [x] Add bilingual project-detail Research Questions, Claims, and Research Graph workflows without translating user-authored text.
@@ -32,11 +32,12 @@
 - [x] Add focused automated tests for migration, graph validation, collision safety, protected deletion, demo integrity, and bilingual UI behavior.
 - [x] Run the complete final shared-revision local gate: clean install, lint, typecheck, 11 files / 55 tests, production build, diff check, Markdown links, and secret/private-data scan; record only actual results.
 - [x] Complete Chinese and English desktop/mobile browser smoke for create, view, edit, link, unlink, protected delete, reload persistence, v3 export/import status, responsive layout, themes, keyboard basics, and zero application console errors; remove synthetic QA records and restore the clean v3 demo afterward.
-- [ ] Open the scoped Phase 3B Pull Request with Issue #1 closure semantics only after the final candidate is stable; do not include Issue #2 work.
-- [ ] Pass exact-head PR CI, complete maintainer self-review, squash-merge, synchronize local `main`, pass exact-`main` CI and Pages, verify the deployed public app, and only then confirm Issue #1 is closed.
-- [ ] Keep Phase 3C blocked until every Phase 3B gate above passes. Do not create or move a v0.2.0 tag.
+- [x] Open scoped [PR #11](https://github.com/Yoesher/sociology-phd-desk/pull/11) from exact feature head `2c12911c82678077cf9f3687c9308473f2832bf9` with Issue #1 closure semantics and no Issue #2 implementation.
+- [x] Pass both exact-feature-head [push](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31508742035/job/93836866829) and [Pull Request](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31508792720/job/93837034735) check jobs; complete [maintainer self-review](https://github.com/Yoesher/sociology-phd-desk/pull/11#issuecomment-5255455230) with P0 = 0 and P1 = 0; squash-merge PR #11 as [`a51a10f`](https://github.com/Yoesher/sociology-phd-desk/commit/a51a10febfb3e186aa1774c0110c27fdceec9f0e); pass exact-`main` [CI 31508962634](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31508962634) and [Pages 31508962638](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31508962638); confirm Issue #1 is CLOSED while Issue #2 remains OPEN. GitHub's outer Pull Request workflow record remained anomalously `in_progress` even though its sole check job was completed and passing.
+- [x] Verify the public URL returns HTTP 200 and its deployed asset names/hashes match the final local build. Real public interaction smoke was NOT RUN because browser control returned `instances=[]`; retain this limitation rather than calling it a pass.
+- [x] Unlock Phase 3C only after the Phase 3B merge and exact-`main` remote gates completed. Keep Phase 3B in `Unreleased`; do not create or move a v0.2.0 tag.
 
-## P1 — Phase 3C Private Local Workspace, only after Phase 3B passes
+## P1 — Phase 3C Private Local Workspace (next; unlocked after Phase 3B)
 
 - [ ] Search existing Issues by title before creating or selecting the scoped private-local-workspace task; do not assume an Issue number.
 - [ ] Implement isolated local workspaces, non-destructive singleton migration, explicit demo separation, lock UX, privacy center, and bilingual threat-model documentation without describing the feature as a network account.
@@ -73,6 +74,7 @@
 
 ## P2 — ecosystem work after a stable core
 
+- [ ] Repeat a real public Phase 3B interaction smoke when browser control exposes a usable instance; preserve the current `instances=[]` NOT RUN record until then.
 - [ ] Upgrade GitHub Actions dependencies away from the runner's Node 20 deprecation annotations in a separate maintenance PR, then re-run CI and Pages; do not mix this maintenance with Phase 3B product changes.
 - [ ] Evaluate Zotero integration against its official API and license while preserving the product boundary.
 - [ ] Evaluate Crossref, OpenAlex, and ORCID metadata workflows with explicit network/privacy behavior.
