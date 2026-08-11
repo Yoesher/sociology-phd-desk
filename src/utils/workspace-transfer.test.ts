@@ -22,6 +22,25 @@ describe('workspace JSON transfer', () => {
     expect(new Date(imported.exportedAt).toString()).not.toBe('Invalid Date')
   })
 
+  it('imports a legacy v1 envelope by adding the v2 application and revision fields', () => {
+    const legacy = structuredClone(createDemoWorkspace(anchor)) as unknown as Record<
+      string,
+      unknown
+    >
+    legacy['version'] = 1
+    delete legacy['application']
+    const legacyWorkspace = legacy['workspace'] as Record<string, unknown>
+    delete legacyWorkspace['revision']
+
+    const imported = importWorkspaceJson(JSON.stringify(legacy))
+
+    expect(imported.version).toBe(2)
+    expect(imported.application).toBe('sociology-phd-desk')
+    expect(imported.workspace.revision).toBe(0)
+    expect(imported.projects).toHaveLength(1)
+    expect(imported.interviews).toHaveLength(2)
+  })
+
   it('returns actionable syntax errors without writing data', () => {
     expect(() => importWorkspaceJson('{not-json')).toThrow(WorkspaceValidationError)
 

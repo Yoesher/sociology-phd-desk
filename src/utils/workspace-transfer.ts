@@ -425,12 +425,42 @@ function relationshipIssues(data: WorkspaceData): WorkspaceValidationIssue[] {
   return issues
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+/**
+ * v1 predates the application discriminator and optimistic revision token.
+ * Preserve every legacy property so current strict validation still catches
+ * unknown fields instead of silently dropping them during migration.
+ */
+function migrateLegacyWorkspace(input: unknown): unknown {
+  if (!isRecord(input) || input['version'] !== 1) {
+    return input
+  }
+
+  const workspace = input['workspace']
+  return {
+    ...input,
+    application:
+      input['application'] === undefined ? WORKSPACE_APPLICATION : input['application'],
+    version: WORKSPACE_SCHEMA_VERSION,
+    workspace: isRecord(workspace)
+      ? {
+          ...workspace,
+          revision: workspace['revision'] === undefined ? 0 : workspace['revision'],
+        }
+      : workspace,
+  }
+}
+
 /**
  * Validates both the JSON shape and the referential integrity of its research
- * graph. Unknown properties are rejected to catch unsupported schema versions.
+ * graph. Legacy v1 envelopes are upgraded in memory before the same strict
+ * validation; unknown properties remain rejected.
  */
 export function validateWorkspace(input: unknown): WorkspaceValidationResult {
-  const parsed = workspaceDataSchema.safeParse(input)
+  const parsed = workspaceDataSchema.safeParse(migrateLegacyWorkspace(input))
   if (!parsed.success) {
     return {
       success: false,

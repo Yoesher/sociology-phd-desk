@@ -20,6 +20,13 @@ import { WorkspaceContext, type WorkspaceContextValue } from './workspace-contex
 const errorMessage = (error: unknown) =>
   error instanceof Error ? error.message : 'The local workspace could not be updated.'
 
+class OptimisticWriteCancelledError extends Error {
+  constructor() {
+    super('This save was cancelled because an earlier write in the same optimistic chain failed.')
+    this.name = 'OptimisticWriteCancelledError'
+  }
+}
+
 function markEditedRecords<T extends EntityMetadata>(before: T[], after: T[]): T[] {
   const previousById = new Map(before.map((record) => [record.id, record]))
   return after.map((record) => {
@@ -55,6 +62,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null)
   const dataRef = useRef<WorkspaceData | null>(null)
   const saveQueue = useRef(Promise.resolve())
+  const saveGeneration = useRef(0)
+  const queuePoisoned = useRef(false)
+  const recoveryPromise = useRef<Promise<void> | null>(null)
   const pendingWrites = useRef(0)
   const syncChannel = useRef<BroadcastChannel | null>(null)
 
@@ -70,15 +80,62 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   }, [setSnapshot])
 
   const queueWrite = useCallback(<T,>(write: () => Promise<T>): Promise<T> => {
+    const generation = saveGeneration.current
+    const invalidAtEnqueue = queuePoisoned.current
     pendingWrites.current += 1
     setSaving(true)
-    const operation = saveQueue.current.then(write)
+    const operation = saveQueue.current.then(async () => {
+      if (
+        invalidAtEnqueue ||
+        queuePoisoned.current ||
+        generation !== saveGeneration.current
+      ) {
+        throw new OptimisticWriteCancelledError()
+      }
+
+      try {
+        return await write()
+      } catch (writeError) {
+        if (generation === saveGeneration.current) {
+          saveGeneration.current += 1
+          queuePoisoned.current = true
+        }
+        throw writeError
+      }
+    })
     saveQueue.current = operation.then(() => undefined, () => undefined)
     return operation.finally(() => {
       pendingWrites.current = Math.max(0, pendingWrites.current - 1)
       setSaving(pendingWrites.current > 0)
     })
   }, [])
+
+  const recoverWriteQueue = useCallback(async (): Promise<void> => {
+    if (recoveryPromise.current) {
+      return recoveryPromise.current
+    }
+
+    const recoveryGeneration = saveGeneration.current
+    const recovery = refresh().then(
+      () => {
+        if (saveGeneration.current === recoveryGeneration) {
+          queuePoisoned.current = false
+        }
+      },
+      (refreshError: unknown) => {
+        throw refreshError
+      },
+    )
+    recoveryPromise.current = recovery
+
+    try {
+      await recovery
+    } finally {
+      if (recoveryPromise.current === recovery) {
+        recoveryPromise.current = null
+      }
+    }
+  }, [refresh])
 
   const announceWorkspaceChange = useCallback(() => {
     syncChannel.current?.postMessage({ type: 'workspace-changed' })
@@ -138,12 +195,18 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         setError(null)
         announceWorkspaceChange()
       } catch (saveError) {
-        setError(errorMessage(saveError))
-        await refresh()
+        if (!(saveError instanceof OptimisticWriteCancelledError)) {
+          setError(errorMessage(saveError))
+        }
+        try {
+          await recoverWriteQueue()
+        } catch (refreshError) {
+          setError(errorMessage(refreshError))
+        }
         throw saveError
       }
     },
-    [announceWorkspaceChange, queueWrite, refresh, setSnapshot],
+    [announceWorkspaceChange, queueWrite, recoverWriteQueue, setSnapshot],
   )
 
   const replaceWith = useCallback(
@@ -164,11 +227,18 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         setError(null)
         announceWorkspaceChange()
       } catch (replaceError) {
-        setError(errorMessage(replaceError))
+        if (!(replaceError instanceof OptimisticWriteCancelledError)) {
+          setError(errorMessage(replaceError))
+        }
+        try {
+          await recoverWriteQueue()
+        } catch (refreshError) {
+          setError(errorMessage(refreshError))
+        }
         throw replaceError
       }
     },
-    [announceWorkspaceChange, queueWrite, refresh],
+    [announceWorkspaceChange, queueWrite, recoverWriteQueue, refresh],
   )
 
   const mergeWith = useCallback(
@@ -180,11 +250,18 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         announceWorkspaceChange()
         return result
       } catch (mergeError) {
-        setError(errorMessage(mergeError))
+        if (!(mergeError instanceof OptimisticWriteCancelledError)) {
+          setError(errorMessage(mergeError))
+        }
+        try {
+          await recoverWriteQueue()
+        } catch (refreshError) {
+          setError(errorMessage(refreshError))
+        }
         throw mergeError
       }
     },
-    [announceWorkspaceChange, queueWrite, refresh],
+    [announceWorkspaceChange, queueWrite, recoverWriteQueue, refresh],
   )
 
   const resetDemo = useCallback(async () => {

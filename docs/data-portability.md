@@ -46,6 +46,8 @@ Replace is a separate destructive operation. It must:
 
 Database schema and portable format versions solve different problems. An internal IndexedDB migration need not change the portable format if its meaning is unchanged; an export semantic change may require a new portable version even without a database migration.
 
+The current portable envelope is version 2. Import accepts the pre-release version 1 envelope, supplies the application discriminator and initial revision that v1 did not contain, then applies the same strict v2 field, unknown-property, duplicate-ID, and relationship validation. Unsupported future versions fail validation rather than being guessed or partially imported.
+
 Unsupported future versions should fail safely with an actionable message. Old supported formats should migrate through tested transformations.
 
 ## Required tests

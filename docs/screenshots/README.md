@@ -31,4 +31,6 @@ These captures document the locally verified `0.1.0` pre-release candidate. They
 - The Workspace modal was verified after being portalled to the document body; its backdrop covered the full 1280 × 720 viewport.
 - The application console contained no warning or error entries after the final browser pass.
 
+After these captures, a nested-modal stack added top-layer-only Escape handling, persistent scroll lock, and layer-by-layer focus restoration. A dedicated Testing Library regression test passes for that lifecycle. A fresh connector-driven browser smoke was attempted but not claimed because the desktop browser service reported no available browser instance.
+
 Responsive behavior at 390 × 844 was also reviewed during implementation. Automated multi-viewport browser coverage remains a next-phase task.

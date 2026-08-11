@@ -48,8 +48,8 @@ The local `0.1.0` vertical slice is implemented and exercised:
 - full create, inspect, edit, and protected-delete flows for Projects, Evidence, Field Sites, Interviews, and Field Visits;
 - focused creation, filtering, status, and registry workflows for Today tasks, Literature, Datasets/Analysis Runs, Research Log, Manuscripts, Submissions, and Reviewer Comments;
 - a fully synthetic bundled demo workspace with visible demo state and no fabricated DOI, statistical result, source publication, participant narrative, or real place;
-- browser-local IndexedDB persistence with a v1-to-v2 migration, whole-workspace validation, queued writes, optimistic revision checks, stale-tab conflict rejection, and same-origin refresh broadcasts;
-- validated, versioned JSON export/import with preview, merge collision counts, explicit replacement, and destructive reset confirmation;
+- browser-local IndexedDB persistence with a tested database v1-to-v2 migration, whole-workspace validation, generation-aware queued writes, optimistic revision checks, stale-tab/dependent-write cancellation, and same-origin refresh broadcasts;
+- validated portable JSON v2 export/import, tested legacy v1-to-v2 migration, preview, merge collision counts, explicit replacement, and destructive reset confirmation;
 - fieldwork privacy warnings and cross-project relationship guards;
 - English/Chinese documentation, contributor/security infrastructure, issue forms, CI, and sanitized screenshots.
 
@@ -64,18 +64,21 @@ Recorded against the final local shared tree on 2026-08-11:
 | Install | `npm ci --registry=https://registry.npmjs.org --prefer-offline` | PASS — 126 packages installed, 127 audited, 0 vulnerabilities |
 | Lint | `npm run lint` | PASS — Oxlint exited 0 with no findings |
 | Type check | `npm run typecheck` | PASS — TypeScript build check exited 0 |
-| Tests | `npm test` | PASS — 4 files, 22 tests |
-| Build | `npm run build` | PASS — Vite 8.2.1, 1,907 modules, main chunk 448.08 kB / 139.66 kB gzip |
+| Tests | `npm test` | PASS — 6 files, 25 tests |
+| Build | `npm run build` | PASS — Vite 8.2.1, 1,907 modules, main chunk 450.31 kB / 140.43 kB gzip |
 | Manual UI review | `npm run dev` plus route review | PASS — nine routes, 1280 px desktop, prior 390 × 844 responsive pass, light/dark, persistence, export, confirmations, and console review |
 
-The browser pass created a clearly synthetic QA project, reloaded the page to prove IndexedDB and theme persistence, then deleted the record through its confirmation flow. JSON export displayed its versioned success filename. Demo reset opened a separate destructive confirmation and was cancelled. A Workspace modal positioning defect discovered during this pass was fixed with a document-body portal and re-verified at 1280 × 720. The final browser console contained no warnings or errors.
+The browser pass created a clearly synthetic QA project, reloaded the page to prove IndexedDB and theme persistence, then deleted the record through its confirmation flow. JSON export displayed its versioned success filename. Demo reset opened a separate destructive confirmation and was cancelled. A Workspace modal positioning defect discovered during this pass was fixed with a document-body portal and re-verified at 1280 × 720. The browser console contained no warnings or errors at that revision.
+
+A later audit added the generation-poison write queue and nested modal stack. Both are covered by dedicated automated regression tests. A fresh nested-modal desktop smoke attempt could not run because the in-app browser connector reported no available browser instance; the temporary Vite server was stopped, and no browser result was inferred or fabricated.
 
 ## Known issues and technical debt
 
 - Browser-local data still requires an explicit user backup practice; IndexedDB is not a substitute for encrypted backups.
 - Complete edit/delete parity is not yet implemented for Today, Literature, Quantitative, Research Log, Manuscripts, Submissions, and Reviewer Comments.
-- Automated tests cover domain, portable-data, repository, conflict, and migration behavior, but not browser UI/route flows; multi-viewport end-to-end coverage is still needed.
-- The current database includes one tested v1-to-v2 migration. Long-term compatibility will require migrations from every supported prior schema and fixture-based upgrade testing.
+- Automated tests cover domain, portable-data, repository, conflict, migration, the optimistic context queue, and nested modal lifecycle. They do not yet automate complete browser route workflows; multi-viewport end-to-end coverage is still needed.
+- Repeat the nested Workspace/confirmation Escape, scroll-lock, focus-restoration, and console smoke in a real browser when an interactive browser connector is available.
+- The current database and portable JSON formats each include a tested v1-to-v2 migration. Long-term compatibility will require retained fixtures and upgrade tests from every supported prior version.
 - JSON import has schema/relationship limits but no separate file-size or collection-count guard for extremely large files.
 - Accessibility, keyboard navigation, and cross-browser behavior need a dedicated audit.
 - Integration plans are unimplemented and require API/license/privacy review.

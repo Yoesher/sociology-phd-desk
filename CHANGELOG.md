@@ -24,14 +24,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Repository writes now validate the entire workspace and relationship graph before an atomic replacement or merge.
 - User edits remove synthetic-demo status from the affected record and workspace while keeping untouched bundled examples visibly marked.
 - The dependency lockfile now resolves packages from the official npm registry; the unused `dexie-react-hooks` dependency was removed.
+- The portable workspace envelope is now version 2; legacy pre-release v1 exports migrate in memory before strict validation.
 
 ### Fixed
 
 - Prevented stale browser tabs from silently overwriting a newer full workspace snapshot.
+- Cancelled every dependent optimistic write after an earlier queued write conflicts, closing a revision-number collision that could otherwise reintroduce a stale snapshot.
 - Prevented imported children from attaching to semantically different parents after an ID collision.
 - Prevented cross-project Field Site, Interview, and Field Visit relationships.
 - Added guards for required short titles and duplicate reviewer comment IDs.
 - Portalled global dialogs to `document.body` so the topbar backdrop filter cannot clip the Workspace backup/import modal.
+- Added a global modal stack so only the top layer handles Escape/backdrop close, scroll locking survives nested confirmations, and focus restores one layer at a time.
 
 ### Security
 

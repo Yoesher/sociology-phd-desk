@@ -8,7 +8,7 @@ export type EntityId = string
 export type ISODate = string
 export type ISODateTime = string
 
-export const WORKSPACE_SCHEMA_VERSION = 1 as const
+export const WORKSPACE_SCHEMA_VERSION = 2 as const
 export const WORKSPACE_APPLICATION = 'sociology-phd-desk' as const
 
 export const RESEARCH_METHODS = [

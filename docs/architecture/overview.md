@@ -12,7 +12,7 @@ Sociology PhD Desk is a local-first browser application that coordinates researc
 - **React Router** maps stable feature routes.
 - **IndexedDB**, accessed through **Dexie**, persists local research records.
 - **Zod** validates imported portable data and other untrusted boundaries.
-- **Vitest** and `fake-indexeddb` test domain, portable-data, migration, conflict, and persistence behavior. Testing Library is available for the browser-facing test suite planned after `0.1.0`; the current automated suite does not claim UI coverage.
+- **Vitest**, Testing Library, and `fake-indexeddb` test domain, portable-data, migration, conflict, persistence, queued context writes, and nested modal lifecycle. Full route and multi-viewport browser automation remains planned after `0.1.0`.
 - **Oxlint** and the TypeScript compiler provide static quality gates.
 
 Package versions and executable scripts are authoritative in `package.json`; this document describes responsibilities rather than pinning duplicate version numbers.
@@ -59,6 +59,8 @@ Owns export envelopes, schema versions, validation, import previews, collision d
 4. The context refreshes the current snapshot after a successful write and broadcasts a refresh signal to other same-origin tabs.
 5. Export reads a coherent snapshot and creates a versioned JSON envelope.
 6. Import parses and validates the entire envelope before any write, then applies the chosen safe mode transactionally.
+
+If one optimistic write fails, its queue generation is poisoned immediately. Dependent writes captured from that optimistic chain are cancelled before reaching the repository, and the UI refreshes from IndexedDB before a new generation can proceed.
 
 ## Local-first boundary
 

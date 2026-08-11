@@ -1,4 +1,4 @@
-import { useEffect, useId, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { useEffect, useId, useRef, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import {
   AlertTriangle,
@@ -13,6 +13,91 @@ import {
 } from 'lucide-react'
 
 export type Tone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger' | 'violet' | 'blue'
+
+const focusableSelector = [
+  'button:not([disabled])',
+  '[href]',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+  '[contenteditable="true"]',
+].join(',')
+
+interface ModalStackEntry {
+  id: string
+  dialog: HTMLElement
+  onClose: () => void
+  restoreTargets: HTMLElement[]
+}
+
+const modalStack: ModalStackEntry[] = []
+let modalKeydownAttached = false
+
+function focusFirstInteractive(dialog: HTMLElement) {
+  const target = Array.from(dialog.querySelectorAll<HTMLElement>(focusableSelector)).find(
+    (element) => element.getAttribute('aria-hidden') !== 'true' && !element.hidden,
+  )
+  ;(target ?? dialog).focus({ preventScroll: true })
+}
+
+function handleModalKeyDown(event: KeyboardEvent) {
+  if (event.key !== 'Escape') return
+  const topmostModal = modalStack.at(-1)
+  if (!topmostModal) return
+  event.preventDefault()
+  event.stopPropagation()
+  topmostModal.onClose()
+}
+
+function syncModalEnvironment() {
+  const hasOpenModal = modalStack.length > 0
+  document.body.classList.toggle('modal-open', hasOpenModal)
+
+  if (hasOpenModal && !modalKeydownAttached) {
+    document.addEventListener('keydown', handleModalKeyDown)
+    modalKeydownAttached = true
+  } else if (!hasOpenModal && modalKeydownAttached) {
+    document.removeEventListener('keydown', handleModalKeyDown)
+    modalKeydownAttached = false
+  }
+}
+
+function registerModal(entry: Omit<ModalStackEntry, 'restoreTargets'>) {
+  const activeElement = document.activeElement
+  const currentTop = modalStack.at(-1)
+  const restoreTargets = [
+    ...(activeElement instanceof HTMLElement && activeElement !== document.body ? [activeElement] : []),
+    ...(currentTop?.restoreTargets ?? []),
+  ].filter((element, index, elements) => elements.indexOf(element) === index)
+
+  modalStack.push({ ...entry, restoreTargets })
+  syncModalEnvironment()
+  focusFirstInteractive(entry.dialog)
+}
+
+function unregisterModal(id: string) {
+  const index = modalStack.findIndex((entry) => entry.id === id)
+  if (index === -1) return
+
+  const wasTopmost = index === modalStack.length - 1
+  const [entry] = modalStack.splice(index, 1)
+  syncModalEnvironment()
+
+  if (!wasTopmost) return
+  const restoreTarget = entry.restoreTargets.find((element) => element.isConnected)
+  if (restoreTarget) {
+    restoreTarget.focus({ preventScroll: true })
+    return
+  }
+
+  const nextTopmost = modalStack.at(-1)
+  if (nextTopmost) focusFirstInteractive(nextTopmost.dialog)
+}
+
+function isTopmostModal(id: string) {
+  return modalStack.at(-1)?.id === id
+}
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
@@ -149,38 +234,45 @@ export function Modal({
   size?: 'sm' | 'md' | 'lg' | 'xl'
 }) {
   const titleId = useId()
+  const descriptionId = useId()
+  const stackId = useId()
+  const dialogRef = useRef<HTMLElement>(null)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
 
   useEffect(() => {
-    if (!open) return
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', handleKeyDown)
-    document.body.classList.add('modal-open')
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-      document.body.classList.remove('modal-open')
-    }
-  }, [onClose, open])
+    const dialog = dialogRef.current
+    if (!open || !dialog) return
+
+    registerModal({ id: stackId, dialog, onClose: () => onCloseRef.current() })
+    return () => unregisterModal(stackId)
+  }, [open, stackId])
 
   if (!open) return null
 
+  const requestClose = () => {
+    if (isTopmostModal(stackId)) onCloseRef.current()
+  }
+
   return createPortal(
-    <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
+    <div className="modal-backdrop" role="presentation" onMouseDown={requestClose}>
       <section
+        ref={dialogRef}
         className={`modal modal--${size}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
+        aria-describedby={description ? descriptionId : undefined}
+        tabIndex={-1}
         onMouseDown={(event) => event.stopPropagation()}
       >
         <header className="modal__header">
           <div>
             <p className="eyebrow">Workspace record</p>
             <h2 id={titleId}>{title}</h2>
-            {description && <p>{description}</p>}
+            {description && <p id={descriptionId}>{description}</p>}
           </div>
-          <IconButton label="Close dialog" onClick={onClose}>
+          <IconButton label="Close dialog" onClick={requestClose}>
             <X size={18} />
           </IconButton>
         </header>

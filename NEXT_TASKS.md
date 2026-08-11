@@ -7,7 +7,7 @@
 - [ ] Install or otherwise provide an authenticated GitHub write path; do not place a token in project files, shell history, or documentation.
 - [ ] Recheck whether `Yoesher/sociology-phd-desk` exists before creating anything; if absent, create exactly one **public** repository under `Yoesher`.
 - [ ] Add the verified repository as `origin`, push local `main`, and compare the remote commit SHA with the intended local revision.
-- [ ] Confirm the GitHub Actions workflow passes `npm ci`, lint, typecheck, 22 tests, and build on the pushed revision.
+- [ ] Confirm the GitHub Actions workflow passes `npm ci`, lint, typecheck, 25 tests, and build on the pushed revision.
 - [ ] Re-run the public secret/data review and verify README image rendering from GitHub.
 - [ ] Publish `v0.1.0` only after remote CI passes; include supported workflows, narrower CRUD scope, privacy/backup model, known limitations, and roadmap in the release notes.
 - [ ] Update `PROJECT_STATE.md` and `docs/codex-for-oss.md` with source-backed repository, commit, CI, tag, and release URLs.
@@ -19,7 +19,7 @@
 - [ ] Add evidence contradiction and limitation review without collapsing uncertainty into a score.
 - [ ] Add variable, model, sample-restriction, robustness-check, code-version, and output metadata to analysis runs.
 - [ ] Deepen Interview → transcript reference → code → memo → claim traceability while retaining privacy warnings.
-- [ ] Add schema migration tests and a human-readable import preview/conflict report.
+- [ ] Retain fixture-based database and portable JSON migration coverage for every supported prior version; deepen the human-readable import preview/conflict report.
 - [ ] Add browser-level tests for route rendering, persistence, import/export, cross-tab conflicts, modal layering, and destructive confirmation paths at desktop and mobile viewports.
 - [ ] Complete accessibility and cross-browser audits.
 - [ ] Gather real, consented feedback from sociology researchers through issues or documented testing; do not infer adoption from page views or informal interest.
