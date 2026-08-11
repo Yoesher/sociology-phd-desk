@@ -2,7 +2,7 @@
 
 All notable user-visible changes to Sociology PhD Desk will be documented here.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project intends to follow [Semantic Versioning](https://semver.org/) after its first release.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and public releases follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
@@ -45,3 +45,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Public-repository exclusions for secrets, machine-local configuration, private field material, transcripts, and common research-data formats.
 - Explicit guidance against storing directly identifying participant information.
 - Central schema and relationship validation before persistence or export.
+
+[Unreleased]: https://github.com/Yoesher/sociology-phd-desk/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0

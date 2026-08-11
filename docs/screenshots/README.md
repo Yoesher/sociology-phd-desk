@@ -12,6 +12,7 @@ These captures document the `0.1.0` application interface. They are screenshots 
 ## Registered captures
 
 - Application version: `0.1.0`
+- Release reference: [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0), commit `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994`
 - Capture date: 2026-08-11
 - Browser review width: 1280 CSS pixels
 

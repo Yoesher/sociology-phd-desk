@@ -1,7 +1,7 @@
 # Project State
 
 > Last updated: 2026-08-11  
-> Status: Phase 0 and Phase 1 complete; Phase 2 public repository, remote CI, and Pages verified, with the `v0.1.0` tag and Release still pending
+> Status: Phase 0, Phase 1, and Phase 2 complete; `v0.1.0` is a verified public release
 > Canonical local project path: `D:\phddesk`
 
 This file is the factual handoff record for maintainers and future Codex sessions. Update it at the end of every development session. Never infer passing checks, repository activity, users, or releases.
@@ -9,8 +9,8 @@ This file is the factual handoff record for maintainers and future Codex session
 ## Current version
 
 - Package version: `0.1.0`
-- Release status: public release candidate; repository, remote CI, Pages, and deployed browser smoke verified; tag and GitHub Release not yet created
-- Next release target: publish `v0.1.0` only after the final documentation revision passes the complete local gate and remote CI
+- Release status: [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0) published and verified
+- Next release target: evidence-driven `0.1.x` maintenance fixes or a scoped `0.2.0`; no date is promised
 
 ## Phase 0 audit
 
@@ -67,8 +67,8 @@ Recorded on 2026-08-11. Local checks were most recently run after the Pages work
 | Tests | `npm test` | PASS — 6 files, 25 tests |
 | Build | `npm run build` | PASS — Vite 8.2.1, 1,907 modules, main chunk 450.31 kB / 140.43 kB gzip |
 | Deployed browser smoke | `https://yoesher.github.io/sociology-phd-desk/` | PASS — nine hash routes, light/dark, synthetic demo, task persistence across reload, confirmed demo restore, and zero application console errors; the export control was exercised but the in-app browser did not expose its download event |
-| Remote CI | [CI run 31479384463](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31479384463) | PASS on `56b08b2f46bbdcee1a69f7b75dbf9afb76f57179` — install, lint, typecheck, 25 tests, and production build |
-| Pages | [Pages run 31479384392](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31479384392) | PASS after Pages was enabled for GitHub Actions; deployed URL verified as `https://yoesher.github.io/sociology-phd-desk/` |
+| Remote CI | [CI run 31483003952](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31483003952) | PASS on release SHA `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994` — install, lint, typecheck, 25 tests, and production build |
+| Pages | [Pages run 31483003953](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31483003953) | PASS on the same release SHA; deployed URL verified as `https://yoesher.github.io/sociology-phd-desk/` |
 
 The browser pass created a clearly synthetic QA project, reloaded the page to prove IndexedDB and theme persistence, then deleted the record through its confirmation flow. JSON export displayed its versioned success filename. Demo reset opened a separate destructive confirmation and was cancelled. A Workspace modal positioning defect discovered during this pass was fixed with a document-body portal and re-verified at 1280 × 720. The browser console contained no warnings or errors at that revision.
 
@@ -93,18 +93,21 @@ A later audit added the generation-poison write queue and nested modal stack. Bo
 - Default branch: `main`, verified after the first push.
 - GitHub CLI/authentication: Phase 0 was blocked because `gh` was not installed; Phase 2 installed the official GitHub CLI and verified the authenticated account as `Yoesher`.
 - Connector lookup: target repository not discovered during Phase 0.
-- Local Git status: `main` contains the durable application, documentation, and Pages deployment history; the final release-documentation revision is pending commit and gate verification.
-- Remote status: `origin` targets the sole repository, `Yoesher/sociology-phd-desk`; Phase 2 temporarily used GitHub's official SSH-over-443 transport because direct `github.com` Git HTTPS timed out in the execution environment.
-- Push status: PASS for publication-infrastructure baseline `56b08b2f46bbdcee1a69f7b75dbf9afb76f57179`; local Git, `git ls-remote`, and GitHub API returned the same SHA. The later release SHA must be recorded after its own three-way check.
+- Local Git status: `main` contains the durable application, documentation, Pages deployment, and release history. This post-release state update intentionally follows the tagged release commit and does not move the tag.
+- Remote status: `origin` is restored to `https://github.com/Yoesher/sociology-phd-desk.git`. Phase 2 temporarily used a repository-scoped deploy key over GitHub's official SSH-over-443 transport because direct `github.com` Git HTTPS timed out; the key lived only under `.git`, was never tracked, and was revoked after the final status push.
+- Push status: PASS for release SHA `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994`; local Git, `git ls-remote`, and GitHub API returned the same SHA before tagging.
 
 ## Release state
 
-- Current GitHub release: none verified.
-- Current tag: none verified.
-- `v0.1.0` remains unpublished until the final documentation commit passes local and remote gates and the annotated tag is independently verified.
+- Current GitHub release: [Sociology PhD Desk v0.1.0](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0).
+- Published: `2026-08-11T10:42:22Z`; public, not a draft, and not a prerelease.
+- Annotated tag: `v0.1.0`; local and remote tag object `06a81e2b10a20cc71440a3027544345cef6a04a5` dereferences to release SHA `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994`.
+- Release assets: no custom binary assets; GitHub provides generated source archives.
+- Public project state at verification: 0 Stars, 0 Forks, 6 open Issues, 0 open Pull Requests, and 1 published Release.
+- External users/testers: 0 verified. Institutional adoption: none known.
 
 ## Next version objective
 
-Complete the final `v0.1.0` release gate and publish the annotated tag and GitHub Release. After publication, maintain the six substantive roadmap issues and gather consented feedback from real sociology researchers before claiming adoption.
+Maintain the six substantive roadmap issues, prioritize data portability and browser coverage, and gather consented feedback from real sociology researchers before claiming adoption. Do not start external-program applications until evidence exceeds maintainer self-verification.
 
 See [NEXT_TASKS.md](NEXT_TASKS.md) for the prioritized queue.

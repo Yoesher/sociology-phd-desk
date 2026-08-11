@@ -1,17 +1,17 @@
 # Next Tasks
 
-> Verified handoff queue for the public `0.1.0` release candidate. Checked items have independent evidence; unchecked items remain release or future work.
+> Verified handoff queue after the public [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0) release. Checked items have independent evidence; unchecked items remain future work.
 
-## P0 — first authenticated publication
+## P0 — first authenticated publication (complete)
 
 - [x] Install the official GitHub CLI and verify the authenticated account as `Yoesher` without placing a token in project files, shell history, or documentation.
 - [x] Confirm the target did not exist, then create exactly one public repository: [Yoesher/sociology-phd-desk](https://github.com/Yoesher/sociology-phd-desk).
-- [x] Add the verified repository as `origin`, push local `main`, and match the publication-infrastructure baseline through local Git, Git transport, and the GitHub API.
-- [x] Confirm [remote CI](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31479384463) passes `npm ci`, lint, typecheck, 25 tests, and build on the pushed baseline.
-- [x] Enable GitHub Pages through Actions, verify the [deployment run](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31479384392), and smoke-test the [deployed demo](https://yoesher.github.io/sociology-phd-desk/).
-- [ ] Re-run the public secret/data review and verify README image rendering from GitHub.
-- [ ] Publish `v0.1.0` only after remote CI passes; include supported workflows, narrower CRUD scope, privacy/backup model, known limitations, and roadmap in the release notes.
-- [ ] Update `PROJECT_STATE.md` and `docs/codex-for-oss.md` with source-backed repository, commit, CI, tag, and release URLs.
+- [x] Add the verified repository as `origin`, push local `main`, and match the release SHA through local Git, Git transport, and the GitHub API.
+- [x] Confirm [remote CI](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31483003952) passes `npm ci`, lint, typecheck, 25 tests, and build on the release SHA.
+- [x] Enable GitHub Pages through Actions, verify the [release deployment run](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31483003953), and smoke-test the [deployed demo](https://yoesher.github.io/sociology-phd-desk/).
+- [x] Re-run the public secret/data review and verify the README plus all three screenshot URLs through GitHub's rendering and Contents APIs.
+- [x] Publish [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0) only after remote CI passes; include supported workflows, narrower CRUD scope, privacy/backup model, known limitations, and roadmap in the release notes.
+- [x] Update `PROJECT_STATE.md` and `docs/codex-for-oss.md` with source-backed repository, commit, CI, tag, release, Pages, Issues, and real metric evidence.
 
 ## P1 — strengthen the research workflow
 
