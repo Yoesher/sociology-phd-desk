@@ -21,6 +21,34 @@ Research question
 
 The product remains sociology-specific and complements, rather than replaces, specialist tools.
 
+## Phase 3 — Chinese-first research platform expansion
+
+Phase 3 is planned as three gated increments. Each increment must be implemented, tested, reviewed, and verified in production before work advances to the next one. Listing an increment here does not mean it has shipped; verified status remains in [PROJECT_STATE.md](PROJECT_STATE.md).
+
+Every Phase 3 increment follows the same evidence chain: scoped Issue → dedicated feature branch → implementation and tests → Pull Request → passing PR CI → maintainer self-review → squash merge → passing `main` CI → GitHub Pages verification. A later increment must not begin while any earlier gate is incomplete.
+
+### Phase 3A — Chinese-first bilingual foundation
+
+- Make Simplified Chinese the default interface language while preserving a complete, user-selectable English interface.
+- Centralize typed interface messages, locale-aware dates and numbers, and persistent language preference without coupling language to workspace data.
+- Keep schema values and portable JSON locale-neutral, and never translate user-authored research content during a language switch.
+- Verify all nine research routes, dialogs, forms, validation, responsive table labels, keyboard access, narrow layouts, themes, persistence, and reload behavior in both languages.
+
+### Phase 3B — Research Question and Claim graph
+
+- Promote Research Question and Claim to first-class, versioned domain objects rather than storing them only as incidental text.
+- Represent explicit, inspectable links among questions, literature, fieldwork or datasets, analyses, evidence, claims, manuscripts, and revisions.
+- Introduce schema version 3 only with migration, import/export compatibility, graph-integrity, and protected-delete tests.
+- Keep this work focused on research traceability; it is not a generic visual knowledge-graph editor.
+
+### Phase 3C — China Research Map
+
+- Provide a first-class research map for organizing regional sociology notes and comparing research coverage through province, prefecture, and county levels.
+- Stop the hierarchy at county level. Do not collect, infer, display, or export exact participant locations, precise households, interview coordinates, or other re-identifying spatial detail.
+- Gate implementation on documented verification of an authoritative, legally usable public China map source, including provenance, permitted use, attribution, version, and update path.
+- Do not use an arbitrary third-party boundary file as a temporary substitute. If the source and legal conditions cannot be verified, the map remains planned rather than shipped.
+- Preserve local-first operation and provide a useful non-map fallback for linked regional research notes.
+
 ## `0.1.0` — usable local foundation
 
 Release criteria:

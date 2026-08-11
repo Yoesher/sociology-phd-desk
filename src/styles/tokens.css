@@ -1,6 +1,6 @@
 :root {
-  --font-sans: Inter, Aptos, 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
-  --font-serif: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+  --font-sans: Inter, Aptos, 'Segoe UI Variable', 'Segoe UI', 'Microsoft YaHei UI', 'PingFang SC', 'Noto Sans CJK SC', system-ui, sans-serif;
+  --font-serif: 'Iowan Old Style', 'Noto Serif CJK SC', 'Songti SC', SimSun, 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
   --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
 
   --canvas: #f2f1ec;

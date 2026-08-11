@@ -9,7 +9,8 @@ import {
   type Interview,
 } from '../../models/domain'
 import { useWorkspace } from '../../hooks/useWorkspace'
-import { entityMeta, formatDate, projectLabel, todayIso, truncate } from '../../app/format'
+import { useI18n, type MessageKey } from '../../i18n'
+import { entityMeta, todayIso, truncate } from '../../app/format'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
   AddButton,
@@ -59,6 +60,7 @@ const workTone = (status: Interview['transcriptStatus']) => {
 
 export function FieldworkPage() {
   const { data, updateData } = useWorkspace()
+  const { t, formatDate, formatNumber, labelEnum } = useI18n()
   const [tab, setTab] = useState<RegistryTab>('sites')
   const [search, setSearch] = useState('')
   const [projectFilter, setProjectFilter] = useState('')
@@ -68,6 +70,7 @@ export function FieldworkPage() {
   const [site, setSite] = useState(siteDraft)
   const [interview, setInterview] = useState(interviewDraft)
   const [visit, setVisit] = useState(visitDraft)
+  const [validationMessageKey, setValidationMessageKey] = useState<MessageKey | null>(null)
 
   const query = search.trim().toLowerCase()
   const filteredSites = useMemo(
@@ -100,8 +103,14 @@ export function FieldworkPage() {
 
   if (!data) return null
 
+  const closeForm = () => {
+    setFormKind(null)
+    setValidationMessageKey(null)
+  }
+
   const openCreate = (kind: RecordKind) => {
     setEditingId(null)
+    setValidationMessageKey(null)
     const activeProjectId = data.workspace.activeProjectId || ''
     if (kind === 'site') setSite({ ...siteDraft(), projectId: activeProjectId })
     if (kind === 'interview') setInterview({ ...interviewDraft(), projectId: activeProjectId })
@@ -111,12 +120,14 @@ export function FieldworkPage() {
 
   const editSite = (item: FieldSite) => {
     setEditingId(item.id)
+    setValidationMessageKey(null)
     setSite({ nameOrAlias: item.nameOrAlias, projectId: item.projectId, status: item.status, notes: item.notes })
     setFormKind('site')
   }
 
   const editInterview = (item: Interview) => {
     setEditingId(item.id)
+    setValidationMessageKey(null)
     setInterview({
       participantAlias: item.participantAlias,
       projectId: item.projectId,
@@ -133,6 +144,7 @@ export function FieldworkPage() {
 
   const editVisit = (item: FieldVisit) => {
     setEditingId(item.id)
+    setValidationMessageKey(null)
     setVisit({
       date: item.date,
       projectId: item.projectId,
@@ -147,12 +159,17 @@ export function FieldworkPage() {
 
   const saveSite = async (event: FormEvent) => {
     event.preventDefault()
+    setValidationMessageKey(null)
+    const projectExists = data.projects.some((item) => item.id === site.projectId)
     if (editingId) {
       const original = data.fieldSites.find((item) => item.id === editingId)
       const hasLinkedRecords =
         data.interviews.some((item) => item.fieldSiteId === editingId) ||
         data.fieldVisits.some((item) => item.fieldSiteId === editingId)
-      if (!original || (hasLinkedRecords && original.projectId !== site.projectId)) return
+      if (!projectExists || !original || (hasLinkedRecords && original.projectId !== site.projectId)) {
+        setValidationMessageKey('fieldwork.validation.siteProject')
+        return
+      }
       await updateData((current) => ({
         ...current,
         fieldSites: current.fieldSites.map((item) =>
@@ -160,19 +177,27 @@ export function FieldworkPage() {
         ),
       }))
     } else {
+      if (!projectExists) {
+        setValidationMessageKey('fieldwork.validation.siteProject')
+        return
+      }
       const record: FieldSite = { ...entityMeta('site'), ...site }
       await updateData((current) => ({ ...current, fieldSites: [record, ...current.fieldSites] }))
     }
-    setFormKind(null)
+    closeForm()
   }
 
   const saveInterview = async (event: FormEvent) => {
     event.preventDefault()
+    setValidationMessageKey(null)
     const projectExists = data.projects.some((item) => item.id === interview.projectId)
     const selectedSite = interview.fieldSiteId
       ? data.fieldSites.find((item) => item.id === interview.fieldSiteId)
       : undefined
-    if (!projectExists || (interview.fieldSiteId && selectedSite?.projectId !== interview.projectId)) return
+    if (!projectExists || (interview.fieldSiteId && selectedSite?.projectId !== interview.projectId)) {
+      setValidationMessageKey('fieldwork.validation.interviewProject')
+      return
+    }
     const values = { ...interview, fieldSiteId: interview.fieldSiteId || undefined, interviewDate: interview.interviewDate || undefined }
     if (editingId) {
       await updateData((current) => ({
@@ -185,14 +210,18 @@ export function FieldworkPage() {
       const record: Interview = { ...entityMeta('interview'), ...values }
       await updateData((current) => ({ ...current, interviews: [record, ...current.interviews] }))
     }
-    setFormKind(null)
+    closeForm()
   }
 
   const saveVisit = async (event: FormEvent) => {
     event.preventDefault()
+    setValidationMessageKey(null)
     const projectExists = data.projects.some((item) => item.id === visit.projectId)
     const selectedSite = data.fieldSites.find((item) => item.id === visit.fieldSiteId)
-    if (!projectExists || !selectedSite || selectedSite.projectId !== visit.projectId) return
+    if (!projectExists || !selectedSite || selectedSite.projectId !== visit.projectId) {
+      setValidationMessageKey('fieldwork.validation.visitProject')
+      return
+    }
     if (editingId) {
       await updateData((current) => ({
         ...current,
@@ -204,7 +233,7 @@ export function FieldworkPage() {
       const record: FieldVisit = { ...entityMeta('visit'), ...visit }
       await updateData((current) => ({ ...current, fieldVisits: [record, ...current.fieldVisits] }))
     }
-    setFormKind(null)
+    closeForm()
   }
 
   const deleteRecord = async () => {
@@ -231,7 +260,11 @@ export function FieldworkPage() {
     setDeleteTarget(null)
   }
 
-  const siteLabel = (siteId?: string) => data.fieldSites.find((item) => item.id === siteId)?.nameOrAlias || 'No site linked'
+  const siteLabel = (siteId?: string) => data.fieldSites.find((item) => item.id === siteId)?.nameOrAlias || t('fieldwork.fallback.noSite')
+  const localizedProjectLabel = (projectId?: string) => {
+    const project = data.projects.find((item) => item.id === projectId)
+    return project?.shortTitle || project?.title || t('common.unassigned')
+  }
   const completedInterviews = data.interviews.filter((item) => item.status === 'Completed').length
   const uncoded = data.interviews.filter((item) => item.status === 'Completed' && item.codingStatus !== 'Complete').length
   const activeSites = data.fieldSites.filter((item) => item.status === 'Active').length
@@ -248,75 +281,75 @@ export function FieldworkPage() {
     <div className="page">
       <PageHeader
         index="04"
-        eyebrow="Qualitative traceability"
-        title="Fieldwork & interviews"
-        description="Keep sites, anonymized interviews, visits, and analytical work products linked without collecting direct identifiers."
-        actions={<AddButton onClick={() => openCreate(tab === 'sites' ? 'site' : tab === 'interviews' ? 'interview' : 'visit')}>Add {tab === 'sites' ? 'site' : tab === 'interviews' ? 'interview' : 'visit'}</AddButton>}
+        eyebrow={t('fieldwork.header.eyebrow')}
+        title={t('fieldwork.header.title')}
+        description={t('fieldwork.header.description')}
+        actions={<AddButton onClick={() => openCreate(tab === 'sites' ? 'site' : tab === 'interviews' ? 'interview' : 'visit')}>{t(tab === 'sites' ? 'fieldwork.actions.addSite' : tab === 'interviews' ? 'fieldwork.actions.addInterview' : 'fieldwork.actions.addVisit')}</AddButton>}
       />
 
       <PrivacyNotice />
 
       <div className="stats-grid stats-grid--four">
-        <StatCard label="Active sites" value={activeSites} detail={`${data.fieldSites.length} registered`} tone="blue" />
-        <StatCard label="Interviews complete" value={completedInterviews} detail={`${data.interviews.length} total interviews`} tone="success" />
-        <StatCard label="Awaiting coding" value={uncoded} detail="completed but not fully coded" tone={uncoded ? 'warning' : 'neutral'} />
-        <StatCard label="Field visits" value={data.fieldVisits.length} detail="observational records" tone="violet" />
+        <StatCard label={t('fieldwork.stats.activeSites')} value={formatNumber(activeSites)} detail={t('fieldwork.stats.registeredSites', { count: formatNumber(data.fieldSites.length) })} tone="blue" />
+        <StatCard label={t('fieldwork.stats.completedInterviews')} value={formatNumber(completedInterviews)} detail={t('fieldwork.stats.totalInterviews', { count: formatNumber(data.interviews.length) })} tone="success" />
+        <StatCard label={t('fieldwork.stats.awaitingCoding')} value={formatNumber(uncoded)} detail={t('fieldwork.stats.awaitingCodingDetail')} tone={uncoded ? 'warning' : 'neutral'} />
+        <StatCard label={t('fieldwork.stats.visits')} value={formatNumber(data.fieldVisits.length)} detail={t('fieldwork.stats.visitsDetail')} tone="violet" />
       </div>
 
       <section className="panel">
-        <div className="segmented-tabs" role="tablist" aria-label="Fieldwork registry">
-          <button type="button" className={tab === 'sites' ? 'active' : ''} onClick={() => setTab('sites')}>
-            <MapPinned size={15} /> Sites <span>{data.fieldSites.length}</span>
+        <div className="segmented-tabs" role="tablist" aria-label={t('fieldwork.tabs.aria')}>
+          <button type="button" role="tab" aria-selected={tab === 'sites'} className={tab === 'sites' ? 'active' : ''} onClick={() => setTab('sites')}>
+            <MapPinned size={15} /> {t('fieldwork.tabs.sites')} <span>{formatNumber(data.fieldSites.length)}</span>
           </button>
-          <button type="button" className={tab === 'interviews' ? 'active' : ''} onClick={() => setTab('interviews')}>
-            <MessageSquareText size={15} /> Interviews <span>{data.interviews.length}</span>
+          <button type="button" role="tab" aria-selected={tab === 'interviews'} className={tab === 'interviews' ? 'active' : ''} onClick={() => setTab('interviews')}>
+            <MessageSquareText size={15} /> {t('fieldwork.tabs.interviews')} <span>{formatNumber(data.interviews.length)}</span>
           </button>
-          <button type="button" className={tab === 'visits' ? 'active' : ''} onClick={() => setTab('visits')}>
-            <NotebookTabs size={15} /> Field visits <span>{data.fieldVisits.length}</span>
+          <button type="button" role="tab" aria-selected={tab === 'visits'} className={tab === 'visits' ? 'active' : ''} onClick={() => setTab('visits')}>
+            <NotebookTabs size={15} /> {t('fieldwork.tabs.visits')} <span>{formatNumber(data.fieldVisits.length)}</span>
           </button>
         </div>
         <div className="toolbar toolbar--under-tabs">
-          <SearchField value={search} onChange={setSearch} placeholder={`Search ${tab}`} />
+          <SearchField value={search} onChange={setSearch} placeholder={t(tab === 'sites' ? 'fieldwork.search.sites' : tab === 'interviews' ? 'fieldwork.search.interviews' : 'fieldwork.search.visits')} />
           <ProjectSelect projects={data.projects} value={projectFilter} onChange={setProjectFilter} includeAll />
           <Button size="sm" variant="ghost" onClick={() => openCreate(tab === 'sites' ? 'site' : tab === 'interviews' ? 'interview' : 'visit')}>
-            Add record
+            {t('fieldwork.actions.addRecord')}
           </Button>
         </div>
 
         {tab === 'sites' && (filteredSites.length ? (
           <div className="data-table-wrap">
             <table className="data-table">
-              <thead><tr><th>Site alias</th><th>Project</th><th>Status</th><th>Notes</th><th><span className="sr-only">Actions</span></th></tr></thead>
+              <thead><tr><th>{t('fieldwork.table.siteAlias')}</th><th>{t('fieldwork.table.project')}</th><th>{t('fieldwork.table.status')}</th><th>{t('fieldwork.table.notes')}</th><th><span className="sr-only">{t('fieldwork.table.actions')}</span></th></tr></thead>
               <tbody>
                 {filteredSites.map((item) => (
                   <tr key={item.id}>
-                    <td data-label="Site alias"><span className="record-title"><strong>{item.nameOrAlias}</strong><span className="mono-id">{item.id}</span></span></td>
-                    <td data-label="Project">{projectLabel(data.projects, item.projectId)}</td>
-                    <td data-label="Status"><Badge tone={item.status === 'Active' ? 'success' : 'neutral'}>{item.status}</Badge></td>
-                    <td data-label="Notes">{truncate(item.notes || 'No notes', 70)}</td>
+                    <td data-label={t('fieldwork.table.siteAlias')}><span className="record-title"><strong>{item.nameOrAlias}</strong><span className="mono-id">{item.id}</span></span></td>
+                    <td data-label={t('fieldwork.table.project')}>{localizedProjectLabel(item.projectId)}</td>
+                    <td data-label={t('fieldwork.table.status')}><Badge tone={item.status === 'Active' ? 'success' : 'neutral'}>{labelEnum(item.status)}</Badge></td>
+                    <td data-label={t('fieldwork.table.notes')}>{truncate(item.notes || t('fieldwork.fallback.noNotes'), 70)}</td>
                     <td><TableActions onEdit={() => editSite(item)} onDelete={() => setDeleteTarget({ kind: 'site', id: item.id, label: item.nameOrAlias })} /></td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        ) : <EmptyState title="No field sites found" description="Register an anonymized site or clear the active filters." action={<AddButton onClick={() => openCreate('site')}>Add field site</AddButton>} />)}
+        ) : <EmptyState title={t('fieldwork.empty.sitesTitle')} description={t('fieldwork.empty.sitesDescription')} action={<AddButton onClick={() => openCreate('site')}>{t('fieldwork.empty.sitesAction')}</AddButton>} />)}
 
         {tab === 'interviews' && (filteredInterviews.length ? (
           <div className="data-table-wrap">
             <table className="data-table">
-              <thead><tr><th>Participant alias</th><th>Site / date</th><th>Status</th><th>Work products</th><th><span className="sr-only">Actions</span></th></tr></thead>
+              <thead><tr><th>{t('fieldwork.table.participantAlias')}</th><th>{t('fieldwork.table.siteDate')}</th><th>{t('fieldwork.table.status')}</th><th>{t('fieldwork.table.workProducts')}</th><th><span className="sr-only">{t('fieldwork.table.actions')}</span></th></tr></thead>
               <tbody>
                 {filteredInterviews.map((item) => (
                   <tr key={item.id}>
-                    <td data-label="Participant alias"><span className="record-title"><strong>{item.participantAlias}</strong><span>{projectLabel(data.projects, item.projectId)}</span></span></td>
-                    <td data-label="Site / date"><span className="date-cell">{siteLabel(item.fieldSiteId)}<small>{formatDate(item.interviewDate)}</small></span></td>
-                    <td data-label="Status"><Badge tone={item.status === 'Completed' ? 'success' : item.status === 'Cancelled' ? 'danger' : 'blue'}>{item.status}</Badge></td>
-                    <td data-label="Work products">
+                    <td data-label={t('fieldwork.table.participantAlias')}><span className="record-title"><strong>{item.participantAlias}</strong><span>{localizedProjectLabel(item.projectId)}</span></span></td>
+                    <td data-label={t('fieldwork.table.siteDate')}><span className="date-cell">{siteLabel(item.fieldSiteId)}<small>{formatDate(item.interviewDate)}</small></span></td>
+                    <td data-label={t('fieldwork.table.status')}><Badge tone={item.status === 'Completed' ? 'success' : item.status === 'Cancelled' ? 'danger' : 'blue'}>{labelEnum(item.status)}</Badge></td>
+                    <td data-label={t('fieldwork.table.workProducts')}>
                       <div className="work-product-stack">
-                        <Badge tone={workTone(item.transcriptStatus)}>Transcript: {item.transcriptStatus}</Badge>
-                        <Badge tone={workTone(item.codingStatus)}>Coding: {item.codingStatus}</Badge>
-                        <Badge tone={workTone(item.memoStatus)}>Memo: {item.memoStatus}</Badge>
+                        <Badge tone={workTone(item.transcriptStatus)}>{t('fieldwork.workProduct.transcript', { status: labelEnum(item.transcriptStatus) })}</Badge>
+                        <Badge tone={workTone(item.codingStatus)}>{t('fieldwork.workProduct.coding', { status: labelEnum(item.codingStatus) })}</Badge>
+                        <Badge tone={workTone(item.memoStatus)}>{t('fieldwork.workProduct.memo', { status: labelEnum(item.memoStatus) })}</Badge>
                       </div>
                     </td>
                     <td><TableActions onEdit={() => editInterview(item)} onDelete={() => setDeleteTarget({ kind: 'interview', id: item.id, label: item.participantAlias })} /></td>
@@ -325,7 +358,7 @@ export function FieldworkPage() {
               </tbody>
             </table>
           </div>
-        ) : <EmptyState title="No interviews found" description="Add an anonymous participant alias or clear the active filters." action={<AddButton onClick={() => openCreate('interview')}>Add interview</AddButton>} />)}
+        ) : <EmptyState title={t('fieldwork.empty.interviewsTitle')} description={t('fieldwork.empty.interviewsDescription')} action={<AddButton onClick={() => openCreate('interview')}>{t('fieldwork.empty.interviewsAction')}</AddButton>} />)}
 
         {tab === 'visits' && (filteredVisits.length ? (
           <div className="field-visit-grid">
@@ -335,32 +368,33 @@ export function FieldworkPage() {
                   <div><p className="eyebrow">{formatDate(item.date)}</p><h3>{item.purpose}</h3></div>
                   <Badge tone="blue">{siteLabel(item.fieldSiteId)}</Badge>
                 </header>
-                <p>{truncate(item.observations || 'No observations recorded.', 180)}</p>
+                <p>{truncate(item.observations || t('fieldwork.fallback.noObservations'), 180)}</p>
                 <dl>
-                  <div><dt>Project</dt><dd>{projectLabel(data.projects, item.projectId)}</dd></div>
-                  <div><dt>Follow-up</dt><dd>{truncate(item.followUp || 'None recorded', 72)}</dd></div>
+                  <div><dt>{t('fieldwork.visit.project')}</dt><dd>{localizedProjectLabel(item.projectId)}</dd></div>
+                  <div><dt>{t('fieldwork.visit.followUp')}</dt><dd>{truncate(item.followUp || t('fieldwork.fallback.noFollowUp'), 72)}</dd></div>
                 </dl>
                 <TableActions onEdit={() => editVisit(item)} onDelete={() => setDeleteTarget({ kind: 'visit', id: item.id, label: item.purpose })} />
               </article>
             ))}
           </div>
-        ) : <EmptyState title="No field visits found" description="Document an observation session, purpose, follow-up, and memo." action={<AddButton onClick={() => openCreate('visit')}>Add field visit</AddButton>} />)}
+        ) : <EmptyState title={t('fieldwork.empty.visitsTitle')} description={t('fieldwork.empty.visitsDescription')} action={<AddButton onClick={() => openCreate('visit')}>{t('fieldwork.empty.visitsAction')}</AddButton>} />)}
       </section>
 
       <Modal
         open={formKind === 'site'}
-        title={editingId ? 'Edit field site' : 'Add field site'}
-        description="Use a site alias. Do not enter a precise private address or identifiable organization unless ethically cleared."
-        onClose={() => setFormKind(null)}
-        footer={<><Button onClick={() => setFormKind(null)}>Cancel</Button><Button type="submit" form="site-form" variant="primary">{editingId ? 'Save changes' : 'Add site'}</Button></>}
+        title={editingId ? t('fieldwork.siteForm.editTitle') : t('fieldwork.siteForm.addTitle')}
+        description={t('fieldwork.siteForm.description')}
+        onClose={closeForm}
+        footer={<><Button onClick={closeForm}>{t('common.cancel')}</Button><Button type="submit" form="site-form" variant="primary">{editingId ? t('fieldwork.siteForm.save') : t('fieldwork.siteForm.add')}</Button></>}
       >
         <PrivacyNotice compact />
         <form id="site-form" className="form-grid form-grid--spaced" onSubmit={(event) => void saveSite(event)}>
-          <Field label="Site name or alias" required className="form-span-2"><input autoFocus required value={site.nameOrAlias} onChange={(event) => setSite({ ...site, nameOrAlias: event.target.value })} placeholder="e.g. Site North-02" /></Field>
+          {validationMessageKey && <p className="text-danger form-span-2" role="alert">{t(validationMessageKey)}</p>}
+          <Field label={t('fieldwork.siteForm.name')} required className="form-span-2"><input autoFocus required value={site.nameOrAlias} onChange={(event) => setSite({ ...site, nameOrAlias: event.target.value })} placeholder={t('fieldwork.siteForm.namePlaceholder')} /></Field>
           <Field
-            label="Project"
+            label={t('fieldwork.siteForm.project')}
             required
-            hint={editingSiteLinks ? `${editingSiteLinks} linked records protect this project relationship.` : undefined}
+            hint={editingSiteLinks ? t('fieldwork.siteForm.linkedHint', { count: formatNumber(editingSiteLinks) }) : undefined}
           >
             <ProjectSelect
               required
@@ -370,72 +404,74 @@ export function FieldworkPage() {
               onChange={(projectId) => setSite({ ...site, projectId })}
             />
           </Field>
-          <Field label="Status"><select value={site.status} onChange={(event) => setSite({ ...site, status: event.target.value as FieldSite['status'] })}>{FIELD_SITE_STATUSES.map((status) => <option key={status}>{status}</option>)}</select></Field>
-          <Field label="Notes" className="form-span-2"><textarea rows={4} value={site.notes} onChange={(event) => setSite({ ...site, notes: event.target.value })} placeholder="Access conditions, sampling relevance, or non-identifying context" /></Field>
+          <Field label={t('fieldwork.siteForm.status')}><select value={site.status} onChange={(event) => setSite({ ...site, status: event.target.value as FieldSite['status'] })}>{FIELD_SITE_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
+          <Field label={t('fieldwork.siteForm.notes')} className="form-span-2"><textarea rows={4} value={site.notes} onChange={(event) => setSite({ ...site, notes: event.target.value })} placeholder={t('fieldwork.siteForm.notesPlaceholder')} /></Field>
         </form>
       </Modal>
 
       <Modal
         open={formKind === 'interview'}
-        title={editingId ? 'Edit interview record' : 'Add interview'}
-        description="This registry tracks workflow, not identity. Use an anonymous participant alias only."
-        onClose={() => setFormKind(null)}
+        title={editingId ? t('fieldwork.interviewForm.editTitle') : t('fieldwork.interviewForm.addTitle')}
+        description={t('fieldwork.interviewForm.description')}
+        onClose={closeForm}
         size="lg"
-        footer={<><Button onClick={() => setFormKind(null)}>Cancel</Button><Button type="submit" form="interview-form" variant="primary">{editingId ? 'Save changes' : 'Add interview'}</Button></>}
+        footer={<><Button onClick={closeForm}>{t('common.cancel')}</Button><Button type="submit" form="interview-form" variant="primary">{editingId ? t('fieldwork.interviewForm.save') : t('fieldwork.interviewForm.add')}</Button></>}
       >
         <PrivacyNotice compact />
         <form id="interview-form" className="form-grid form-grid--spaced" onSubmit={(event) => void saveInterview(event)}>
-          <Field label="Participant alias" required><input autoFocus required value={interview.participantAlias} onChange={(event) => setInterview({ ...interview, participantAlias: event.target.value })} placeholder="e.g. P-017" /></Field>
-          <Field label="Project" required><ProjectSelect required projects={data.projects} value={interview.projectId} onChange={(projectId) => setInterview({ ...interview, projectId, fieldSiteId: '' })} /></Field>
-          <Field label="Field site"><select value={interview.fieldSiteId} onChange={(event) => setInterview({ ...interview, fieldSiteId: event.target.value })}><option value="">No site linked</option>{data.fieldSites.filter((item) => item.projectId === interview.projectId).map((item) => <option key={item.id} value={item.id}>{item.nameOrAlias}</option>)}</select></Field>
-          <Field label="Interview date"><input type="date" value={interview.interviewDate} onChange={(event) => setInterview({ ...interview, interviewDate: event.target.value })} /></Field>
-          <Field label="Interview status"><select value={interview.status} onChange={(event) => setInterview({ ...interview, status: event.target.value as Interview['status'] })}>{INTERVIEW_STATUSES.map((status) => <option key={status}>{status}</option>)}</select></Field>
-          <Field label="Transcript"><select value={interview.transcriptStatus} onChange={(event) => setInterview({ ...interview, transcriptStatus: event.target.value as Interview['transcriptStatus'] })}>{WORK_PRODUCT_STATUSES.map((status) => <option key={status}>{status}</option>)}</select></Field>
-          <Field label="Coding"><select value={interview.codingStatus} onChange={(event) => setInterview({ ...interview, codingStatus: event.target.value as Interview['codingStatus'] })}>{WORK_PRODUCT_STATUSES.map((status) => <option key={status}>{status}</option>)}</select></Field>
-          <Field label="Memo"><select value={interview.memoStatus} onChange={(event) => setInterview({ ...interview, memoStatus: event.target.value as Interview['memoStatus'] })}>{WORK_PRODUCT_STATUSES.map((status) => <option key={status}>{status}</option>)}</select></Field>
-          <Field label="Non-identifying notes" className="form-span-2"><textarea rows={4} value={interview.notes} onChange={(event) => setInterview({ ...interview, notes: event.target.value })} /></Field>
+          {validationMessageKey && <p className="text-danger form-span-2" role="alert">{t(validationMessageKey)}</p>}
+          <Field label={t('fieldwork.interviewForm.alias')} required><input autoFocus required value={interview.participantAlias} onChange={(event) => setInterview({ ...interview, participantAlias: event.target.value })} placeholder={t('fieldwork.interviewForm.aliasPlaceholder')} /></Field>
+          <Field label={t('fieldwork.interviewForm.project')} required><ProjectSelect required projects={data.projects} value={interview.projectId} onChange={(projectId) => setInterview({ ...interview, projectId, fieldSiteId: '' })} /></Field>
+          <Field label={t('fieldwork.interviewForm.site')}><select value={interview.fieldSiteId} onChange={(event) => setInterview({ ...interview, fieldSiteId: event.target.value })}><option value="">{t('fieldwork.interviewForm.noSite')}</option>{data.fieldSites.filter((item) => item.projectId === interview.projectId).map((item) => <option key={item.id} value={item.id}>{item.nameOrAlias}</option>)}</select></Field>
+          <Field label={t('fieldwork.interviewForm.date')}><input type="date" value={interview.interviewDate} onChange={(event) => setInterview({ ...interview, interviewDate: event.target.value })} /></Field>
+          <Field label={t('fieldwork.interviewForm.status')}><select value={interview.status} onChange={(event) => setInterview({ ...interview, status: event.target.value as Interview['status'] })}>{INTERVIEW_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
+          <Field label={t('fieldwork.interviewForm.transcript')}><select value={interview.transcriptStatus} onChange={(event) => setInterview({ ...interview, transcriptStatus: event.target.value as Interview['transcriptStatus'] })}>{WORK_PRODUCT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
+          <Field label={t('fieldwork.interviewForm.coding')}><select value={interview.codingStatus} onChange={(event) => setInterview({ ...interview, codingStatus: event.target.value as Interview['codingStatus'] })}>{WORK_PRODUCT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
+          <Field label={t('fieldwork.interviewForm.memo')}><select value={interview.memoStatus} onChange={(event) => setInterview({ ...interview, memoStatus: event.target.value as Interview['memoStatus'] })}>{WORK_PRODUCT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
+          <Field label={t('fieldwork.interviewForm.notes')} className="form-span-2"><textarea rows={4} value={interview.notes} onChange={(event) => setInterview({ ...interview, notes: event.target.value })} /></Field>
         </form>
       </Modal>
 
       <Modal
         open={formKind === 'visit'}
-        title={editingId ? 'Edit field visit' : 'Add field visit'}
-        description="Record what the visit changed analytically and what must happen next."
-        onClose={() => setFormKind(null)}
+        title={editingId ? t('fieldwork.visitForm.editTitle') : t('fieldwork.visitForm.addTitle')}
+        description={t('fieldwork.visitForm.description')}
+        onClose={closeForm}
         size="lg"
-        footer={<><Button onClick={() => setFormKind(null)}>Cancel</Button><Button type="submit" form="visit-form" variant="primary">{editingId ? 'Save changes' : 'Add visit'}</Button></>}
+        footer={<><Button onClick={closeForm}>{t('common.cancel')}</Button><Button type="submit" form="visit-form" variant="primary">{editingId ? t('fieldwork.visitForm.save') : t('fieldwork.visitForm.add')}</Button></>}
       >
         <PrivacyNotice compact />
         <form id="visit-form" className="form-grid form-grid--spaced" onSubmit={(event) => void saveVisit(event)}>
-          <Field label="Date" required><input required type="date" value={visit.date} onChange={(event) => setVisit({ ...visit, date: event.target.value })} /></Field>
-          <Field label="Project" required><ProjectSelect required projects={data.projects} value={visit.projectId} onChange={(projectId) => setVisit({ ...visit, projectId, fieldSiteId: '' })} /></Field>
-          <Field label="Field site" required className="form-span-2"><select required value={visit.fieldSiteId} onChange={(event) => setVisit({ ...visit, fieldSiteId: event.target.value })}><option value="">Select a registered site</option>{data.fieldSites.filter((item) => item.projectId === visit.projectId).map((item) => <option key={item.id} value={item.id}>{item.nameOrAlias}</option>)}</select></Field>
-          <Field label="Purpose" required className="form-span-2"><input autoFocus required value={visit.purpose} onChange={(event) => setVisit({ ...visit, purpose: event.target.value })} /></Field>
-          <Field label="Observations"><textarea rows={5} value={visit.observations} onChange={(event) => setVisit({ ...visit, observations: event.target.value })} /></Field>
-          <Field label="Follow-up"><textarea rows={5} value={visit.followUp} onChange={(event) => setVisit({ ...visit, followUp: event.target.value })} /></Field>
-          <Field label="Analytical memo" className="form-span-2"><textarea rows={4} value={visit.memo} onChange={(event) => setVisit({ ...visit, memo: event.target.value })} /></Field>
+          {validationMessageKey && <p className="text-danger form-span-2" role="alert">{t(validationMessageKey)}</p>}
+          <Field label={t('fieldwork.visitForm.date')} required><input required type="date" value={visit.date} onChange={(event) => setVisit({ ...visit, date: event.target.value })} /></Field>
+          <Field label={t('fieldwork.visitForm.project')} required><ProjectSelect required projects={data.projects} value={visit.projectId} onChange={(projectId) => setVisit({ ...visit, projectId, fieldSiteId: '' })} /></Field>
+          <Field label={t('fieldwork.visitForm.site')} required className="form-span-2"><select required value={visit.fieldSiteId} onChange={(event) => setVisit({ ...visit, fieldSiteId: event.target.value })}><option value="">{t('fieldwork.visitForm.selectSite')}</option>{data.fieldSites.filter((item) => item.projectId === visit.projectId).map((item) => <option key={item.id} value={item.id}>{item.nameOrAlias}</option>)}</select></Field>
+          <Field label={t('fieldwork.visitForm.purpose')} required className="form-span-2"><input autoFocus required value={visit.purpose} onChange={(event) => setVisit({ ...visit, purpose: event.target.value })} /></Field>
+          <Field label={t('fieldwork.visitForm.observations')}><textarea rows={5} value={visit.observations} onChange={(event) => setVisit({ ...visit, observations: event.target.value })} /></Field>
+          <Field label={t('fieldwork.visitForm.followUp')}><textarea rows={5} value={visit.followUp} onChange={(event) => setVisit({ ...visit, followUp: event.target.value })} /></Field>
+          <Field label={t('fieldwork.visitForm.memo')} className="form-span-2"><textarea rows={4} value={visit.memo} onChange={(event) => setVisit({ ...visit, memo: event.target.value })} /></Field>
         </form>
       </Modal>
 
       <ConfirmDialog
         open={Boolean(deleteTarget) && blockingSiteVisits === 0}
-        title={`Delete “${deleteTarget?.label || 'record'}”?`}
-        description={deleteTarget?.kind === 'site' ? 'The site will be deleted. Any interview records are preserved and their optional site link is cleared.' : 'This registry record will be permanently removed from the local workspace.'}
-        confirmLabel="Delete record"
+        title={t('fieldwork.delete.title', { name: deleteTarget?.label || t('fieldwork.delete.fallbackName') })}
+        description={deleteTarget?.kind === 'site' ? t('fieldwork.delete.siteDescription') : t('fieldwork.delete.recordDescription')}
+        confirmLabel={t('fieldwork.delete.confirm')}
         onCancel={() => setDeleteTarget(null)}
         onConfirm={deleteRecord}
       />
       <Modal
         open={Boolean(deleteTarget) && blockingSiteVisits > 0}
-        title="Field site still has visit records"
-        description="A required provenance link cannot be cleared automatically. Move or delete the linked visits before removing this site."
+        title={t('fieldwork.delete.blockedTitle')}
+        description={t('fieldwork.delete.blockedDescription')}
         onClose={() => setDeleteTarget(null)}
         size="sm"
-        footer={<Button variant="primary" onClick={() => setDeleteTarget(null)}>Keep field site</Button>}
+        footer={<Button variant="primary" onClick={() => setDeleteTarget(null)}>{t('fieldwork.delete.keep')}</Button>}
       >
         <div className="confirm-panel confirm-panel--primary">
           <MapPinned size={20} />
-          <p>{blockingSiteVisits} linked field {blockingSiteVisits === 1 ? 'visit is' : 'visits are'} protecting this site from deletion.</p>
+          <p>{t(blockingSiteVisits === 1 ? 'fieldwork.delete.blockedOne' : 'fieldwork.delete.blockedMany', { count: formatNumber(blockingSiteVisits) })}</p>
         </div>
       </Modal>
     </div>

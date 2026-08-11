@@ -2,6 +2,17 @@
 
 > Verified handoff queue after the public [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0) release. Checked items have independent evidence; unchecked items remain future work.
 
+## P0 — Phase 3A bilingual gate (in progress)
+
+- [x] Create and scope bilingual foundation Issue [#7](https://github.com/Yoesher/sociology-phd-desk/issues/7), separate from the research graph and China Research Map.
+- [x] Work on the dedicated `feat/bilingual-localization` branch without changing the `v0.1.0` release.
+- [x] Verify the final Chinese-first implementation with a clean install, lint, typecheck, 11 files / 37 tests, production build, and desktop/mobile browser smoke in both languages.
+- [x] Open scoped Draft Pull Request [#9](https://github.com/Yoesher/sociology-phd-desk/pull/9) with `Closes #7`, the data-boundary statement, exact local checks, and browser evidence.
+- [ ] Wait for exact-final-head PR CI, complete maintainer self-review, and mark PR #9 ready only when both pass.
+- [ ] Squash merge only after every PR gate passes, then verify exact-`main` CI and GitHub Pages in Chinese and English.
+- [ ] Update this handoff and `PROJECT_STATE.md` with the final PR, commit, CI, Pages, and metric evidence.
+- [ ] Do not begin Phase 3B or Phase 3C while any Phase 3A item above remains incomplete.
+
 ## P0 — first authenticated publication (complete)
 
 - [x] Install the official GitHub CLI and verify the authenticated account as `Yoesher` without placing a token in project files, shell history, or documentation.
@@ -13,7 +24,7 @@
 - [x] Publish [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0) only after remote CI passes; include supported workflows, narrower CRUD scope, privacy/backup model, known limitations, and roadmap in the release notes.
 - [x] Update `PROJECT_STATE.md` and `docs/codex-for-oss.md` with source-backed repository, commit, CI, tag, release, Pages, Issues, and real metric evidence.
 
-## P1 — strengthen the research workflow
+## P1 — Phase 3B research graph, only after Phase 3A passes
 
 - [ ] Promote Research Question and Claim to first-class objects with stable links to projects ([#1](https://github.com/Yoesher/sociology-phd-desk/issues/1)).
 - [ ] Add bidirectional Claim ↔ Evidence ↔ Manuscript-location navigation and contradiction/limitation review without collapsing uncertainty into a score ([#2](https://github.com/Yoesher/sociology-phd-desk/issues/2)).
@@ -23,6 +34,12 @@
 - [ ] Add browser-level tests for route rendering, persistence, import/export, cross-tab conflicts, modal layering, and destructive confirmation paths at desktop and mobile viewports ([#6](https://github.com/Yoesher/sociology-phd-desk/issues/6)).
 - [ ] Complete accessibility and cross-browser audits.
 - [ ] Gather real, consented feedback from sociology researchers through issues or documented testing; do not infer adoption from page views or informal interest.
+
+## P1 — Phase 3C China Research Map, only after Phase 3B passes
+
+- [ ] Execute the first-class, bilingual China Research Map Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8) on its own branch.
+- [ ] Verify authoritative/legal map provenance, license, approval metadata, and national-map completeness before committing or publicly deploying any boundary asset; keep the feature blocked if the evidence is incomplete.
+- [ ] Stop geographic organization at county level and never require or expose participant coordinates or exact locations.
 
 ## P2 — ecosystem work after a stable core
 

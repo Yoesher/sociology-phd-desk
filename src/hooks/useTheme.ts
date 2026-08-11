@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
+import { readStoredTheme, storeTheme, type AppTheme } from '../i18n/settings'
 
-export type Theme = 'light' | 'dark'
+export type Theme = AppTheme
 
 const getInitialTheme = (): Theme => {
-  const saved = window.localStorage.getItem('phd-desk-theme')
-  if (saved === 'light' || saved === 'dark') return saved
+  const saved = readStoredTheme()
+  if (saved) return saved
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
@@ -14,7 +15,7 @@ export function useTheme() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme
     document.documentElement.style.colorScheme = theme
-    window.localStorage.setItem('phd-desk-theme', theme)
+    storeTheme(theme)
   }, [theme])
 
   return {

@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { ConfirmDialog, Modal } from './ui'
+import { I18nProvider } from '../i18n'
+import { APP_SETTINGS_STORAGE_KEY } from '../i18n/settings'
 
 function NestedModalHarness() {
   const [workspaceOpen, setWorkspaceOpen] = useState(false)
@@ -36,9 +38,13 @@ function NestedModalHarness() {
 }
 
 describe('Modal stack', () => {
+  beforeEach(() => {
+    window.localStorage.setItem(APP_SETTINGS_STORAGE_KEY, JSON.stringify({ language: 'en' }))
+  })
+
   it('closes only the topmost dialog, preserves scroll lock, and restores focus by layer', async () => {
     const user = userEvent.setup()
-    render(<NestedModalHarness />)
+    render(<I18nProvider><NestedModalHarness /></I18nProvider>)
 
     const workspaceTrigger = screen.getByRole('button', { name: 'Open workspace tools' })
     await user.click(workspaceTrigger)

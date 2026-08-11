@@ -4,6 +4,7 @@ import { BookMarked } from 'lucide-react'
 import { AppShell } from './app/AppShell'
 import { WorkspaceProvider } from './app/WorkspaceContext'
 import { useWorkspace } from './hooks/useWorkspace'
+import { I18nProvider, useI18n } from './i18n'
 
 const TodayPage = lazy(() => import('./features/today/TodayPage').then((module) => ({ default: module.TodayPage })))
 const ProjectsPage = lazy(() => import('./features/projects/ProjectsPage').then((module) => ({ default: module.ProjectsPage })))
@@ -16,10 +17,11 @@ const ManuscriptsPage = lazy(() => import('./features/manuscripts/ManuscriptsPag
 const SubmissionsPage = lazy(() => import('./features/submissions/SubmissionsPage').then((module) => ({ default: module.SubmissionsPage })))
 
 function RouteBoundary({ children }: { children: ReactNode }) {
+  const { t } = useI18n()
   return (
     <Suspense
       fallback={
-        <div className="route-loading" aria-label="Opening module">
+        <div className="route-loading" aria-label={t('route.openingModule')}>
           <div className="route-loading__title" />
           <div className="route-loading__summary" />
           <div className="route-loading__grid"><i /><i /><i /><i /></div>
@@ -33,15 +35,16 @@ function RouteBoundary({ children }: { children: ReactNode }) {
 }
 
 function WorkspaceGate() {
-  const { loading, data, error } = useWorkspace()
+  const { loading, data } = useWorkspace()
+  const { t } = useI18n()
 
   if (loading) {
     return (
       <div className="boot-screen">
         <span className="boot-screen__mark"><BookMarked size={25} /></span>
         <p className="eyebrow">Sociology PhD Desk</p>
-        <h1>Opening the local workspace</h1>
-        <span className="boot-screen__progress" aria-label="Loading"><i /></span>
+        <h1>{t('boot.opening.title')}</h1>
+        <span className="boot-screen__progress" aria-label={t('boot.opening.aria')}><i /></span>
       </div>
     )
   }
@@ -50,11 +53,11 @@ function WorkspaceGate() {
     return (
       <div className="boot-screen boot-screen--error">
         <span className="boot-screen__mark"><BookMarked size={25} /></span>
-        <p className="eyebrow">Local workspace unavailable</p>
-        <h1>Research data could not be opened</h1>
-        <p>{error || 'Reload the page to try initializing the browser database again.'}</p>
+        <p className="eyebrow">{t('boot.error.eyebrow')}</p>
+        <h1>{t('boot.error.title')}</h1>
+        <p>{t('boot.error.description')}</p>
         <button className="button button--primary button--md" type="button" onClick={() => window.location.reload()}>
-          <span>Reload workspace</span>
+          <span>{t('boot.reload')}</span>
         </button>
       </div>
     )
@@ -82,9 +85,11 @@ function WorkspaceGate() {
 
 function App() {
   return (
-    <WorkspaceProvider>
-      <WorkspaceGate />
-    </WorkspaceProvider>
+    <I18nProvider>
+      <WorkspaceProvider>
+        <WorkspaceGate />
+      </WorkspaceProvider>
+    </I18nProvider>
   )
 }
 

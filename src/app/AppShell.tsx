@@ -6,9 +6,12 @@ import { useTheme } from '../hooks/useTheme'
 import { IconButton } from '../components/ui'
 import { WorkspaceTools } from './WorkspaceTools'
 import { useWorkspace } from '../hooks/useWorkspace'
+import { useI18n } from '../i18n'
+import { LanguageControl } from '../components/LanguageControl'
 
 export function AppShell() {
   const { theme, toggleTheme } = useTheme()
+  const { t } = useI18n()
   const { data, saving, error, clearError } = useWorkspace()
   const [sidebarCompact, setSidebarCompact] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -38,13 +41,20 @@ export function AppShell() {
   ].some((records) => records.some((record) => record.isDemo)))
 
   const nav = (
-    <nav className="primary-nav" aria-label="Research workspace">
+    <nav className="primary-nav" aria-label={t('navigation.aria')}>
       {navigationItems.map((item) => {
         const Icon = item.icon
         return (
-          <NavLink key={item.path} to={item.path} end={item.path === '/'} className="primary-nav__item">
+          <NavLink
+            key={item.path}
+            to={item.path}
+            end={item.path === '/'}
+            className="primary-nav__item"
+            aria-label={t(item.labelKey)}
+            title={sidebarCompact ? t(item.labelKey) : undefined}
+          >
             <span className="primary-nav__icon"><Icon size={17} strokeWidth={1.8} /></span>
-            <span className="primary-nav__label">{item.label}</span>
+            <span className="primary-nav__label">{t(item.labelKey)}</span>
             <span className="primary-nav__index">{item.index}</span>
           </NavLink>
         )
@@ -68,12 +78,12 @@ export function AppShell() {
           <div className="local-status">
             <span className={`local-status__dot ${saving ? 'local-status__dot--saving' : ''}`} />
             <div>
-              <strong>{saving ? 'Saving locally' : 'Local workspace'}</strong>
-              <span>{data?.workspace.name || 'Loading…'}</span>
+              <strong>{saving ? t('shell.savingLocally') : t('shell.localWorkspace')}</strong>
+              <span>{data?.workspace.name || t('common.loading')}</span>
             </div>
           </div>
           <IconButton
-            label={sidebarCompact ? 'Expand sidebar' : 'Compact sidebar'}
+            label={sidebarCompact ? t('navigation.expandSidebar') : t('navigation.compactSidebar')}
             onClick={() => setSidebarCompact((value) => !value)}
           >
             <PanelLeftClose size={17} />
@@ -84,13 +94,14 @@ export function AppShell() {
       <header className="mobile-header">
         <div className="brand brand--mobile">
           <span className="brand__mark"><BookMarked size={18} /></span>
-          <div className="brand__copy"><strong>PhD Desk</strong><span>{current.label}</span></div>
+          <div className="brand__copy"><strong>PhD Desk</strong><span>{t(current.labelKey)}</span></div>
         </div>
         <div className="mobile-header__actions">
-          <IconButton label="Toggle color theme" onClick={toggleTheme}>
+          <LanguageControl compact />
+          <IconButton label={t('theme.toggle')} onClick={toggleTheme}>
             {theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}
           </IconButton>
-          <IconButton label="Open navigation" onClick={() => setMobileMenuOpen(true)}>
+          <IconButton label={t('navigation.open')} onClick={() => setMobileMenuOpen(true)}>
             <Menu size={19} />
           </IconButton>
         </div>
@@ -99,13 +110,14 @@ export function AppShell() {
       <div className="topbar">
         <div className="topbar__context">
           <span>{current.index}</span>
-          <strong>{current.label}</strong>
+          <strong>{t(current.labelKey)}</strong>
         </div>
         <div className="topbar__actions">
-          {hasDemoRecords && <span className="badge badge--warning">Synthetic demo records</span>}
-          <span className="privacy-chip">Private by default</span>
+          {hasDemoRecords && <span className="badge badge--warning">{t('shell.syntheticDemo')}</span>}
+          <span className="privacy-chip">{t('shell.privateByDefault')}</span>
+          <LanguageControl />
           <WorkspaceTools />
-          <IconButton label={`Use ${theme === 'light' ? 'dark' : 'light'} theme`} onClick={toggleTheme}>
+          <IconButton label={theme === 'light' ? t('theme.useDark') : t('theme.useLight')} onClick={toggleTheme}>
             {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
           </IconButton>
         </div>
@@ -114,20 +126,20 @@ export function AppShell() {
       <main className="app-main">
         {error && (
           <div className="app-error" role="alert">
-            <span>{error}</span>
-            <button type="button" onClick={clearError}>Dismiss</button>
+            <span>{t('shell.workspaceError')}</span>
+            <button type="button" onClick={clearError}>{t('common.dismiss')}</button>
           </div>
         )}
         <Outlet />
       </main>
 
-      <nav className="mobile-bottom-nav" aria-label="Primary mobile navigation">
+      <nav className="mobile-bottom-nav" aria-label={t('navigation.mobileAria')}>
         {primaryMobile.map((item) => {
           const Icon = item.icon
           return (
             <NavLink key={item.path} to={item.path} end={item.path === '/'}>
               <Icon size={18} />
-              <span>{item.shortLabel}</span>
+              <span>{t(item.shortLabelKey)}</span>
             </NavLink>
           )
         })}
@@ -137,7 +149,7 @@ export function AppShell() {
           onClick={() => setMobileMenuOpen(true)}
         >
           <MoreHorizontal size={18} />
-          <span>More</span>
+          <span>{t('common.more')}</span>
         </button>
       </nav>
 
@@ -146,17 +158,18 @@ export function AppShell() {
           <aside className="mobile-menu" onMouseDown={(event) => event.stopPropagation()}>
             <header>
               <div>
-                <p className="eyebrow">Research workspace</p>
-                <h2>Navigate</h2>
+                <p className="eyebrow">{t('navigation.workspaceEyebrow')}</p>
+                <h2>{t('navigation.title')}</h2>
               </div>
-              <IconButton label="Close navigation" onClick={() => setMobileMenuOpen(false)}>
+              <IconButton label={t('navigation.close')} onClick={() => setMobileMenuOpen(false)}>
                 <X size={19} />
               </IconButton>
             </header>
             {nav}
             <footer>
               <WorkspaceTools compact />
-              <IconButton label="Toggle color theme" onClick={toggleTheme}>
+              <LanguageControl compact />
+              <IconButton label={t('theme.toggle')} onClick={toggleTheme}>
                 {theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}
               </IconButton>
             </footer>

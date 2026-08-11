@@ -10,6 +10,7 @@ Sociology PhD Desk is a local-first browser application that coordinates researc
 - **TypeScript** defines domain, validation, and component contracts.
 - **Vite** provides development and production builds.
 - **React Router** maps stable feature routes.
+- A typed, namespace-based **i18n context** provides the `zh-CN` and `en` interface resources, locale-aware dates and numbers, and stable display labels for persisted enums.
 - **IndexedDB**, accessed through **Dexie**, persists local research records.
 - **Zod** validates imported portable data and other untrusted boundaries.
 - **Vitest**, Testing Library, and `fake-indexeddb` test domain, portable-data, migration, conflict, persistence, queued context writes, and nested modal lifecycle. Full route and multi-viewport browser automation remains planned after `0.1.0`.
@@ -34,6 +35,12 @@ IndexedDB in the current browser profile
 ### Application shell
 
 Owns navigation, route framing, theme, global utilities, and error boundaries. It must not become the database or business-logic layer.
+
+### Interface localization
+
+`I18nProvider` owns the active application locale, document language metadata, interface-message lookup, interpolation, dates, numbers, and enum display labels. A fresh installation deliberately starts in Simplified Chinese; browser language does not override that product default. The explicit `zh-CN` or `en` choice is stored with the theme in a small typed `AppSettings` localStorage record.
+
+Application settings are not part of `WorkspaceData`, IndexedDB domain tables, or the portable JSON envelope. Persisted enum values remain the stable English schema literals while the interface renders localized labels. Switching language must preserve the current route and research data and must never translate user-authored titles, notes, fieldwork material, quotations, or manuscripts.
 
 ### Feature modules
 
@@ -91,6 +98,7 @@ Priority order:
 4. Cross-object links and status transitions.
 5. Critical UI flows and destructive confirmations.
 6. Responsive, theme, accessibility, and browser-level checks.
+7. Message-key and interpolation parity, locale preference, raw enum values, locale-independent export semantics, and unchanged user research content.
 
 Every release revision must run lint, type checking, tests, and production build. Manual route review complements tests; it does not replace them.
 

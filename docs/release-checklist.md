@@ -12,6 +12,9 @@ Use this checklist for every release. A checked item means it was verified again
 - [ ] Replacement is separate, explicit, confirmed, and transactional.
 - [ ] Demo records are synthetic and clearly marked.
 - [ ] Fieldwork surfaces retain the direct-identifier warning.
+- [ ] A fresh browser profile opens in Simplified Chinese; switching to English is immediate and survives reload.
+- [ ] Both languages cover every current route, validation message, dialog, empty state, accessible name, and responsive table label.
+- [ ] Language switching does not alter workspace revision, demo markers, user-authored content, enum values, or portable JSON semantics.
 
 ## Quality gates
 
@@ -39,6 +42,7 @@ Attach or record exact outputs; do not infer success from an earlier revision.
 
 - [ ] README feature claims match observed behavior.
 - [ ] English and Chinese READMEs remain substantively aligned.
+- [ ] `README.md` remains the Chinese-default entry and links directly to the complete `README.en.md`.
 - [ ] Sanitized screenshots come from the release candidate.
 - [ ] `CHANGELOG.md` describes user-visible changes.
 - [ ] `PROJECT_STATE.md` records architecture, checks, known issues, GitHub state, release, and next target.
@@ -53,6 +57,8 @@ Attach or record exact outputs; do not infer success from an earlier revision.
 - [ ] Version, tag, and release title match.
 - [ ] Release notes explain purpose, supported workflows, known limitations, privacy model, and roadmap.
 - [ ] GitHub Pages, if enabled, contains only synthetic/browser-local demo data.
+- [ ] The deployed Pages build opens in Chinese on a fresh profile, switches immediately to English, and retains the chosen language after reload.
+- [ ] Both deployed languages retain the current route, theme, workspace data, and privacy warnings at desktop and narrow widths.
 - [ ] Metrics in `docs/codex-for-oss.md` are refreshed from verifiable sources and dated.
 
 Do not publish when a required check fails. Record the blocker in `PROJECT_STATE.md` and `NEXT_TASKS.md` instead.

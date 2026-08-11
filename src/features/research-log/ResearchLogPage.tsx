@@ -4,11 +4,11 @@ import type { ResearchLogEntry } from '../../models/domain'
 import { useWorkspace } from '../../hooks/useWorkspace'
 import {
   entityMeta,
-  formatDate,
   projectLabel,
   todayIso,
   truncate,
 } from '../../app/format'
+import { useI18n } from '../../i18n'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
   AddButton,
@@ -42,10 +42,20 @@ const emptyDraft = (projectId = ''): ResearchLogDraft => ({
 
 export function ResearchLogPage() {
   const { data, updateData } = useWorkspace()
+  const { t, formatDate, formatNumber } = useI18n()
   const [search, setSearch] = useState('')
   const [projectFilter, setProjectFilter] = useState('')
   const [formOpen, setFormOpen] = useState(false)
   const [draft, setDraft] = useState<ResearchLogDraft>(emptyDraft)
+
+  const entryCount = (count: number) => t(
+    count === 1 ? 'researchLog.count.entriesOne' : 'researchLog.count.entriesOther',
+    { count: formatNumber(count) },
+  )
+  const localizedProjectLabel = (projectId?: string) => {
+    const project = data?.projects.find((item) => item.id === projectId)
+    return project?.shortTitle || project?.title || t('common.unassigned')
+  }
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -123,25 +133,25 @@ export function ResearchLogPage() {
     <div className="page">
       <PageHeader
         index="07"
-        eyebrow="Decision audit trail"
-        title="Research log"
-        description="Recover what changed, why a decision was made, which uncertainty remains, and what should happen next."
+        eyebrow={t('researchLog.header.eyebrow')}
+        title={t('researchLog.header.title')}
+        description={t('researchLog.header.description')}
         actions={
           <AddButton
             onClick={openCreate}
             disabled={!data.projects.length}
-            title={!data.projects.length ? 'Create a project before adding a log entry.' : undefined}
+            title={!data.projects.length ? t('researchLog.disabled.noProject') : undefined}
           >
-            Add log entry
+            {t('researchLog.action.add')}
           </AddButton>
         }
       />
 
       <div className="stats-grid stats-grid--four">
-        <StatCard label="Log entries" value={data.researchLogs.length} detail="recoverable research moves" tone="blue" />
-        <StatCard label="This month" value={thisMonth} detail="changes and judgments" tone="accent" />
-        <StatCard label="Decisions" value={decisions} detail="with recorded rationale" tone="success" />
-        <StatCard label="Problems noted" value={problems} detail="uncertainties retained" tone={problems ? 'warning' : 'neutral'} />
+        <StatCard label={t('researchLog.stats.entries.label')} value={formatNumber(data.researchLogs.length)} detail={t('researchLog.stats.entries.detail')} tone="blue" />
+        <StatCard label={t('researchLog.stats.month.label')} value={formatNumber(thisMonth)} detail={t('researchLog.stats.month.detail')} tone="accent" />
+        <StatCard label={t('researchLog.stats.decisions.label')} value={formatNumber(decisions)} detail={t('researchLog.stats.decisions.detail')} tone="success" />
+        <StatCard label={t('researchLog.stats.problems.label')} value={formatNumber(problems)} detail={t('researchLog.stats.problems.detail')} tone={problems ? 'warning' : 'neutral'} />
       </div>
 
       <section className="panel">
@@ -149,7 +159,7 @@ export function ResearchLogPage() {
           <SearchField
             value={search}
             onChange={setSearch}
-            placeholder="Search changes, decisions, problems, or next steps"
+            placeholder={t('researchLog.search.placeholder')}
           />
           <ProjectSelect
             projects={data.projects}
@@ -158,7 +168,7 @@ export function ResearchLogPage() {
             includeAll
           />
           <span className="toolbar__count">
-            {filtered.length} {filtered.length === 1 ? 'entry' : 'entries'}
+            {entryCount(filtered.length)}
           </span>
         </div>
 
@@ -169,10 +179,10 @@ export function ResearchLogPage() {
                 <header className="research-log-day__header">
                   <span className="object-mark"><CalendarDays size={16} /></span>
                   <div>
-                    <p className="eyebrow">Research date</p>
+                    <p className="eyebrow">{t('researchLog.timeline.date')}</p>
                     <h2>{formatDate(group.date)}</h2>
                   </div>
-                  <Badge>{group.entries.length} {group.entries.length === 1 ? 'entry' : 'entries'}</Badge>
+                  <Badge>{entryCount(group.entries.length)}</Badge>
                 </header>
                 <div className="research-log-day__entries">
                   {group.entries.map((entry) => (
@@ -182,22 +192,22 @@ export function ResearchLogPage() {
                       </span>
                       <div className="research-log-entry__body">
                         <div className="badge-row">
-                          <Badge tone="blue">{projectLabel(data.projects, entry.projectId)}</Badge>
-                          {entry.decision && <Badge tone="success">Decision recorded</Badge>}
-                          {entry.problem && <Badge tone="warning">Problem retained</Badge>}
+                          <Badge tone="blue">{localizedProjectLabel(entry.projectId)}</Badge>
+                          {entry.decision && <Badge tone="success">{t('researchLog.entry.decisionRecorded')}</Badge>}
+                          {entry.problem && <Badge tone="warning">{t('researchLog.entry.problemRetained')}</Badge>}
                         </div>
                         <h3>{entry.whatChanged}</h3>
                         <dl className="research-log-entry__details">
                           <div>
-                            <dt>Decision / rationale</dt>
-                            <dd>{entry.decision || 'No decision recorded.'}</dd>
+                            <dt>{t('researchLog.entry.decision')}</dt>
+                            <dd>{entry.decision || t('researchLog.entry.noDecision')}</dd>
                           </div>
                           <div>
-                            <dt>Problem / uncertainty</dt>
-                            <dd>{entry.problem || 'No unresolved problem recorded.'}</dd>
+                            <dt>{t('researchLog.entry.problem')}</dt>
+                            <dd>{entry.problem || t('researchLog.entry.noProblem')}</dd>
                           </div>
                           <div className="research-log-entry__next">
-                            <dt>Next step</dt>
+                            <dt>{t('researchLog.entry.nextStep')}</dt>
                             <dd><ArrowRight size={14} /> {truncate(entry.nextStep, 220)}</dd>
                           </div>
                         </dl>
@@ -210,19 +220,19 @@ export function ResearchLogPage() {
           </div>
         ) : (
           <EmptyState
-            title={data.researchLogs.length ? 'No log entries match these filters' : 'No research decisions logged yet'}
+            title={t(data.researchLogs.length ? 'researchLog.empty.filteredTitle' : 'researchLog.empty.initialTitle')}
             description={
               data.researchLogs.length
-                ? 'Clear the search or project filter to recover the wider audit trail.'
+                ? t('researchLog.empty.filteredDescription')
                 : data.projects.length
-                  ? 'Start with one material change and the next research move it implies.'
-                  : 'Create a project first so every log entry has a real research context.'
+                  ? t('researchLog.empty.withProjectsDescription')
+                  : t('researchLog.empty.withoutProjectsDescription')
             }
             action={
               data.researchLogs.length ? (
-                <Button onClick={() => { setSearch(''); setProjectFilter('') }}>Clear filters</Button>
+                <Button onClick={() => { setSearch(''); setProjectFilter('') }}>{t('researchLog.action.clearFilters')}</Button>
               ) : (
-                <AddButton onClick={openCreate} disabled={!data.projects.length}>Add first entry</AddButton>
+                <AddButton onClick={openCreate} disabled={!data.projects.length}>{t('researchLog.action.addFirst')}</AddButton>
               )
             }
           />
@@ -231,19 +241,19 @@ export function ResearchLogPage() {
 
       <Modal
         open={formOpen}
-        title="Add a research log entry"
-        description="Record the reasoning needed to understand this research move later."
+        title={t('researchLog.dialog.title')}
+        description={t('researchLog.dialog.description')}
         onClose={() => setFormOpen(false)}
         size="lg"
         footer={
           <>
-            <Button onClick={() => setFormOpen(false)}>Cancel</Button>
-            <Button variant="primary" type="submit" form="research-log-form">Add entry</Button>
+            <Button onClick={() => setFormOpen(false)}>{t('common.cancel')}</Button>
+            <Button variant="primary" type="submit" form="research-log-form">{t('researchLog.dialog.submit')}</Button>
           </>
         }
       >
         <form id="research-log-form" className="form-grid" onSubmit={(event) => void saveEntry(event)}>
-          <Field label="Research date" required>
+          <Field label={t('researchLog.form.date')} required>
             <input
               autoFocus
               required
@@ -252,7 +262,7 @@ export function ResearchLogPage() {
               onChange={(event) => setDraft({ ...draft, date: event.target.value })}
             />
           </Field>
-          <Field label="Project" required>
+          <Field label={t('researchLog.form.project')} required>
             <ProjectSelect
               required
               projects={data.projects}
@@ -260,38 +270,38 @@ export function ResearchLogPage() {
               onChange={(projectId) => setDraft({ ...draft, projectId })}
             />
           </Field>
-          <Field label="What changed?" required className="form-span-2">
+          <Field label={t('researchLog.form.changed')} required className="form-span-2">
             <textarea
               required
               rows={3}
               value={draft.whatChanged}
               onChange={(event) => setDraft({ ...draft, whatChanged: event.target.value })}
-              placeholder="Describe the empirical, theoretical, methodological, or writing change."
+              placeholder={t('researchLog.form.changedPlaceholder')}
             />
           </Field>
-          <Field label="Decision and rationale">
+          <Field label={t('researchLog.form.decision')}>
             <textarea
               rows={4}
               value={draft.decision}
               onChange={(event) => setDraft({ ...draft, decision: event.target.value })}
-              placeholder="What did you decide, and on what grounds?"
+              placeholder={t('researchLog.form.decisionPlaceholder')}
             />
           </Field>
-          <Field label="Problem or uncertainty">
+          <Field label={t('researchLog.form.problem')}>
             <textarea
               rows={4}
               value={draft.problem}
               onChange={(event) => setDraft({ ...draft, problem: event.target.value })}
-              placeholder="What remains unresolved or threatens the inference?"
+              placeholder={t('researchLog.form.problemPlaceholder')}
             />
           </Field>
-          <Field label="Next step" required className="form-span-2">
+          <Field label={t('researchLog.form.nextStep')} required className="form-span-2">
             <textarea
               required
               rows={2}
               value={draft.nextStep}
               onChange={(event) => setDraft({ ...draft, nextStep: event.target.value })}
-              placeholder="Name the next concrete research move."
+              placeholder={t('researchLog.form.nextStepPlaceholder')}
             />
           </Field>
         </form>
