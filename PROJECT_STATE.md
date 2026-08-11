@@ -1,7 +1,7 @@
 # Project State
 
 > Last updated: 2026-08-11  
-> Status: Phase 0 and Phase 1 complete locally; GitHub publication blocked by missing authenticated tooling
+> Status: Phase 0 and Phase 1 complete locally; Phase 2 public-release verification in progress
 > Canonical local project path: `D:\phddesk`
 
 This file is the factual handoff record for maintainers and future Codex sessions. Update it at the end of every development session. Never infer passing checks, repository activity, users, or releases.
@@ -9,7 +9,7 @@ This file is the factual handoff record for maintainers and future Codex session
 ## Current version
 
 - Package version: `0.1.0`
-- Release status: locally verified pre-release; no public repository, tag, or release verified
+- Release status: locally verified pre-release; public repository provisioned, with remote CI, Pages, tag, and Release still awaiting verification
 - Next release target: publish the already runnable, tested, and documented `v0.1.0` only after remote CI succeeds
 
 ## Phase 0 audit
@@ -89,11 +89,11 @@ A later audit added the generation-poison write queue and nested modal stack. Bo
 - Target remote: `https://github.com/Yoesher/sociology-phd-desk`.
 - Intended visibility: public.
 - Intended default branch: `main`.
-- GitHub CLI/authentication: blocked during Phase 0 because `gh` was not installed.
+- GitHub CLI/authentication: Phase 0 was blocked because `gh` was not installed; Phase 2 installed the official GitHub CLI and verified the authenticated account as `Yoesher`.
 - Connector lookup: target repository not discovered during Phase 0.
-- Local Git status: `main` contains durable bootstrap, application, and documentation commits; final handoff requires a clean working tree.
-- Remote status: no `origin` is configured.
-- Push status: blocked; do not claim a push until a remote and commit are independently confirmed.
+- Local Git status: `main` contains durable bootstrap, application, and documentation commits; Phase 2 publication changes are being verified before push.
+- Remote status: `origin` is configured for the sole target repository, `Yoesher/sociology-phd-desk`.
+- Push status: no remote `main` SHA was verified at the time of this pre-push snapshot; the final Phase 2 record must independently compare local Git, Git transport, and GitHub API SHAs.
 
 ## Release state
 

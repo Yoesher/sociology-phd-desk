@@ -70,11 +70,11 @@ Read [Security](SECURITY.md) and the [research ethics guidance](docs/research-wo
 
 All visible records below come from the explicitly synthetic demo workspace. See the [screenshot register](docs/screenshots/README.md) for capture and privacy details.
 
-![Today research desk in the light theme](docs/screenshots/today-light.png)
+![Today research desk in the light theme](docs/screenshots/today-light.jpg)
 
-![Evidence ledger in the dark theme](docs/screenshots/evidence-dark.png)
+![Evidence ledger in the dark theme](docs/screenshots/evidence-dark.jpg)
 
-![Workspace backup, import, and demo-reset dialog](docs/screenshots/workspace-data-light.png)
+![Workspace backup, import, and demo-reset dialog](docs/screenshots/workspace-data-light.jpg)
 
 ## Getting started
 

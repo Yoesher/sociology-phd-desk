@@ -70,11 +70,11 @@
 
 以下截图只显示明确标注的合成演示记录。拍摄信息与隐私检查详见[截图登记](docs/screenshots/README.md)。
 
-![浅色主题下的今日研究工作台](docs/screenshots/today-light.png)
+![浅色主题下的今日研究工作台](docs/screenshots/today-light.jpg)
 
-![深色主题下的证据台账](docs/screenshots/evidence-dark.png)
+![深色主题下的证据台账](docs/screenshots/evidence-dark.jpg)
 
-![工作区备份、导入与演示数据重置对话框](docs/screenshots/workspace-data-light.png)
+![工作区备份、导入与演示数据重置对话框](docs/screenshots/workspace-data-light.jpg)
 
 ## 开始使用
 

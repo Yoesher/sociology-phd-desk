@@ -17,9 +17,9 @@ These captures document the locally verified `0.1.0` pre-release candidate. They
 
 | File | View | Theme | Privacy review |
 | --- | --- | --- | --- |
-| [`today-light.png`](today-light.png) | Today dashboard and synthetic research plan | Light | PASS — bundled demo only |
-| [`evidence-dark.png`](evidence-dark.png) | Evidence ledger, provenance fields, and DEMO warnings | Dark | PASS — no real citation, result, or source material |
-| [`workspace-data-light.png`](workspace-data-light.png) | Backup/import controls and explicit demo-reset entry point | Light | PASS — no exported content, path, or notification shown |
+| [`today-light.jpg`](today-light.jpg) | Today dashboard and synthetic research plan | Light | PASS — bundled demo only |
+| [`evidence-dark.jpg`](evidence-dark.jpg) | Evidence ledger, provenance fields, and DEMO warnings | Dark | PASS — no real citation, result, or source material |
+| [`workspace-data-light.jpg`](workspace-data-light.jpg) | Backup/import controls and explicit demo-reset entry point | Light | PASS — no exported content, path, or notification shown |
 
 ## Browser checks recorded with the captures
 
