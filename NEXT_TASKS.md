@@ -2,16 +2,16 @@
 
 > Verified handoff queue after the public [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0) release. Checked items have independent evidence; unchecked items remain future work.
 
-## P0 — Phase 3A bilingual gate (in progress)
+## P0 — Phase 3A bilingual gate (complete)
 
 - [x] Create and scope bilingual foundation Issue [#7](https://github.com/Yoesher/sociology-phd-desk/issues/7), separate from the research graph and China Research Map.
 - [x] Work on the dedicated `feat/bilingual-localization` branch without changing the `v0.1.0` release.
 - [x] Verify the final Chinese-first implementation with a clean install, lint, typecheck, 11 files / 37 tests, production build, and desktop/mobile browser smoke in both languages.
 - [x] Open scoped Draft Pull Request [#9](https://github.com/Yoesher/sociology-phd-desk/pull/9) with `Closes #7`, the data-boundary statement, exact local checks, and browser evidence.
-- [ ] Wait for exact-final-head PR CI, complete maintainer self-review, and mark PR #9 ready only when both pass.
-- [ ] Squash merge only after every PR gate passes, then verify exact-`main` CI and GitHub Pages in Chinese and English.
-- [ ] Update this handoff and `PROJECT_STATE.md` with the final PR, commit, CI, Pages, and metric evidence.
-- [ ] Do not begin Phase 3B or Phase 3C while any Phase 3A item above remains incomplete.
+- [x] Pass exact-final-head [PR CI](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31491692818), complete maintainer self-review, and mark PR #9 ready only after both gates pass.
+- [x] Squash-merge PR #9 as [`bad788f`](https://github.com/Yoesher/sociology-phd-desk/commit/bad788fac457950dfe311dc1b539cec5e74bf65a), then pass exact-`main` [CI](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31491968689), [Pages deployment](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31491968688), and public desktop/mobile browser smoke in Chinese and English.
+- [x] Update this handoff, `PROJECT_STATE.md`, and the open-source evidence register with the final PR, commit, CI, Pages, repository description, and metric evidence.
+- [x] Keep Phase 3B and Phase 3C blocked until every Phase 3A gate passes; that prerequisite is now satisfied for Phase 3B only.
 
 ## P0 — first authenticated publication (complete)
 
@@ -24,7 +24,7 @@
 - [x] Publish [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0) only after remote CI passes; include supported workflows, narrower CRUD scope, privacy/backup model, known limitations, and roadmap in the release notes.
 - [x] Update `PROJECT_STATE.md` and `docs/codex-for-oss.md` with source-backed repository, commit, CI, tag, release, Pages, Issues, and real metric evidence.
 
-## P1 — Phase 3B research graph, only after Phase 3A passes
+## P1 — Phase 3B research graph (next; Phase 3A gate passed)
 
 - [ ] Promote Research Question and Claim to first-class objects with stable links to projects ([#1](https://github.com/Yoesher/sociology-phd-desk/issues/1)).
 - [ ] Add bidirectional Claim ↔ Evidence ↔ Manuscript-location navigation and contradiction/limitation review without collapsing uncertainty into a score ([#2](https://github.com/Yoesher/sociology-phd-desk/issues/2)).
@@ -43,6 +43,7 @@
 
 ## P2 — ecosystem work after a stable core
 
+- [ ] Upgrade GitHub Actions dependencies away from the runner's Node 20 deprecation annotations in a separate maintenance PR, then re-run CI and Pages; do not mix this maintenance with Phase 3B product changes.
 - [ ] Evaluate Zotero integration against its official API and license while preserving the product boundary.
 - [ ] Evaluate Crossref, OpenAlex, and ORCID metadata workflows with explicit network/privacy behavior.
 - [ ] Design configurable Stata, R, and Python run references without committing local executable paths.
