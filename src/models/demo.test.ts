@@ -10,6 +10,8 @@ describe('createDemoWorkspace', () => {
     const validation = validateWorkspace(demo)
 
     expect(validation.success).toBe(true)
+    expect(demo.application).toBe('sociology-phd-desk')
+    expect(demo.workspace.revision).toBe(0)
     expect(demo.workspace.todayGoals).toHaveLength(3)
     expect(demo.projects[0]?.method).toBe('Mixed Methods')
     expect(demo.literature).toHaveLength(3)

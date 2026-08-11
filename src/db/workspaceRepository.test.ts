@@ -6,8 +6,10 @@ import {
   initializeWorkspace,
   mergeWorkspace,
   replaceWorkspace,
+  WorkspaceConflictError,
 } from './workspaceRepository'
 import { createDemoWorkspace } from '../models/demo'
+import { validateWorkspace, WorkspaceValidationError } from '../utils/workspace-transfer'
 
 const firstAnchor = new Date('2026-04-10T09:30:00.000Z')
 const laterTimestamp = '2026-04-11T09:30:00.000Z'
@@ -50,6 +52,47 @@ describe('workspace repository', () => {
     expect(persisted?.evidence).toEqual([])
   })
 
+  it('rejects a stale full-snapshot write without losing the winning write', async () => {
+    const base = await initializeWorkspace(createDemoWorkspace(firstAnchor))
+    const winningWrite = structuredClone(base)
+    winningWrite.workspace.name = 'Concurrent winner'
+    winningWrite.workspace.updatedAt = laterTimestamp
+
+    await replaceWorkspace(winningWrite, base.workspace.revision)
+    const afterWinner = await getWorkspaceSnapshot()
+    expect(afterWinner?.workspace.revision).toBe(1)
+
+    const staleWrite = structuredClone(base)
+    staleWrite.workspace.name = 'Stale overwrite'
+    staleWrite.tasks = []
+
+    await expect(replaceWorkspace(staleWrite, base.workspace.revision)).rejects.toBeInstanceOf(
+      WorkspaceConflictError,
+    )
+
+    const persisted = await getWorkspaceSnapshot()
+    expect(persisted?.workspace.name).toBe('Concurrent winner')
+    expect(persisted?.workspace.revision).toBe(1)
+    expect(persisted?.tasks).toEqual(afterWinner?.tasks)
+  })
+
+  it('rejects invalid replacement data before clearing any local table', async () => {
+    const current = await initializeWorkspace(createDemoWorkspace(firstAnchor))
+    const invalid = structuredClone(current)
+    const task = invalid.tasks[0]
+    if (!task) {
+      throw new Error('Expected a demo task.')
+    }
+    task.projectId = 'missing-project'
+
+    await expect(replaceWorkspace(invalid)).rejects.toBeInstanceOf(WorkspaceValidationError)
+
+    const persisted = await getWorkspaceSnapshot()
+    expect(persisted?.workspace.revision).toBe(current.workspace.revision)
+    expect(persisted?.projects).toEqual(current.projects)
+    expect(persisted?.tasks).toEqual(current.tasks)
+  })
+
   it('merges new IDs while retaining colliding local records', async () => {
     const current = await initializeWorkspace(createDemoWorkspace(firstAnchor))
     const originalProject = current.projects[0]
@@ -80,6 +123,57 @@ describe('workspace repository', () => {
       'Local title must win',
     )
     expect(persisted?.projects.some((item) => item.id === 'new-imported-project')).toBe(true)
+    expect(persisted?.workspace.revision).toBe(current.workspace.revision + 1)
+  })
+
+  it('atomically rejects a merge whose parent-ID collision breaks project ownership', async () => {
+    const current = await initializeWorkspace(createDemoWorkspace(firstAnchor))
+    const incoming = createDemoWorkspace(new Date(laterTimestamp))
+    const sourceProject = incoming.projects[0]
+    const collidingSite = incoming.fieldSites[0]
+    const sourceInterview = incoming.interviews[0]
+    if (!sourceProject || !collidingSite || !sourceInterview) {
+      throw new Error('Expected demo project and fieldwork records.')
+    }
+
+    const incomingProjectId = 'incoming-project-b'
+    incoming.workspace.activeProjectId = incomingProjectId
+    incoming.projects = [
+      {
+        ...sourceProject,
+        id: incomingProjectId,
+        title: 'Incoming project B',
+        shortTitle: 'Project B',
+      },
+    ]
+    incoming.tasks = []
+    incoming.literature = []
+    incoming.fieldSites = [{ ...collidingSite, projectId: incomingProjectId }]
+    incoming.interviews = [
+      {
+        ...sourceInterview,
+        id: 'incoming-interview-b',
+        projectId: incomingProjectId,
+        fieldSiteId: collidingSite.id,
+      },
+    ]
+    incoming.fieldVisits = []
+    incoming.datasets = []
+    incoming.analysisRuns = []
+    incoming.evidence = []
+    incoming.researchLogs = []
+    incoming.manuscripts = []
+    incoming.submissions = []
+    incoming.reviewerComments = []
+
+    expect(validateWorkspace(incoming).success).toBe(true)
+    await expect(mergeWorkspace(incoming)).rejects.toBeInstanceOf(WorkspaceValidationError)
+
+    const persisted = await getWorkspaceSnapshot()
+    expect(persisted?.workspace.revision).toBe(current.workspace.revision)
+    expect(persisted?.projects).toEqual(current.projects)
+    expect(persisted?.fieldSites).toEqual(current.fieldSites)
+    expect(persisted?.interviews).toEqual(current.interviews)
   })
 
   it('supports project CRUD through the typed Dexie table', async () => {

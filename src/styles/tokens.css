@@ -1,0 +1,95 @@
+:root {
+  --font-sans: Inter, Aptos, 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-serif: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+
+  --canvas: #f2f1ec;
+  --canvas-subtle: #ebeae4;
+  --surface: #fbfaf6;
+  --surface-raised: #ffffff;
+  --surface-inset: #f1f2ed;
+  --surface-hover: #f5f5ef;
+  --ink: #192321;
+  --ink-soft: #3f4d49;
+  --muted: #68736f;
+  --faint: #89928e;
+  --line: #d9ddd5;
+  --line-strong: #c3cac1;
+
+  --nav: #142725;
+  --nav-raised: #1b312e;
+  --nav-text: #e8eee8;
+  --nav-muted: #9fafaa;
+  --nav-line: rgb(232 238 232 / 11%);
+
+  --accent: #2e665d;
+  --accent-strong: #215249;
+  --accent-soft: #e1eeea;
+  --accent-border: #b9d5ce;
+  --copper: #9a5b34;
+  --copper-soft: #f3e7dc;
+  --blue: #3c6680;
+  --blue-soft: #e3edf2;
+  --violet: #685b85;
+  --violet-soft: #ebe7f2;
+  --success: #397252;
+  --success-soft: #e4efe7;
+  --warning: #9a6b1f;
+  --warning-soft: #f5ecd8;
+  --danger: #a34740;
+  --danger-soft: #f6e5e2;
+
+  --shadow-xs: 0 1px 1px rgb(20 39 37 / 4%);
+  --shadow-sm: 0 8px 24px rgb(20 39 37 / 7%);
+  --shadow-lg: 0 24px 72px rgb(13 26 24 / 19%);
+  --focus: 0 0 0 3px rgb(46 102 93 / 18%);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --sidebar-width: 244px;
+  --topbar-height: 58px;
+}
+
+:root[data-theme='dark'] {
+  --canvas: #101615;
+  --canvas-subtle: #0c1211;
+  --surface: #17201f;
+  --surface-raised: #1c2826;
+  --surface-inset: #121a19;
+  --surface-hover: #202d2b;
+  --ink: #edf1eb;
+  --ink-soft: #c1cbc6;
+  --muted: #93a09b;
+  --faint: #727f7a;
+  --line: #2d3a37;
+  --line-strong: #40504c;
+
+  --nav: #0b1211;
+  --nav-raised: #13201e;
+  --nav-text: #eef3ed;
+  --nav-muted: #94a39e;
+  --nav-line: rgb(238 243 237 / 10%);
+
+  --accent: #78b5a7;
+  --accent-strong: #98cbbf;
+  --accent-soft: #203a35;
+  --accent-border: #31594f;
+  --copper: #d29267;
+  --copper-soft: #412d23;
+  --blue: #86b4ca;
+  --blue-soft: #213641;
+  --violet: #b2a3cf;
+  --violet-soft: #342f43;
+  --success: #83bf98;
+  --success-soft: #21382a;
+  --warning: #d7ad62;
+  --warning-soft: #3c3220;
+  --danger: #de8d86;
+  --danger-soft: #432725;
+
+  --shadow-xs: 0 1px 1px rgb(0 0 0 / 20%);
+  --shadow-sm: 0 10px 28px rgb(0 0 0 / 18%);
+  --shadow-lg: 0 28px 84px rgb(0 0 0 / 48%);
+  --focus: 0 0 0 3px rgb(120 181 167 / 22%);
+}

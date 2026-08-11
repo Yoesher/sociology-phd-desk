@@ -1,4 +1,4 @@
-import { WORKSPACE_SCHEMA_VERSION } from './domain'
+import { WORKSPACE_APPLICATION, WORKSPACE_SCHEMA_VERSION } from './domain'
 import type {
   AnalysisRun,
   Dataset,
@@ -346,6 +346,7 @@ export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {
   ]
 
   return {
+    application: WORKSPACE_APPLICATION,
     version: WORKSPACE_SCHEMA_VERSION,
     exportedAt: timestamp,
     workspace: {
@@ -355,6 +356,7 @@ export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {
       description:
         'A fully synthetic orientation workspace. It contains no real citations, people, research data, findings, or submissions.',
       activeProjectId: DEMO_PROJECT_ID,
+      revision: 0,
       todayGoals: [
         'Trace one DEMO claim back to its placeholder source',
         'Review the planned analysis reproducibility fields',

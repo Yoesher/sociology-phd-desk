@@ -17,6 +17,7 @@ import {
   TASK_CATEGORIES,
   TASK_STATUSES,
   WORK_PRODUCT_STATUSES,
+  WORKSPACE_APPLICATION,
   WORKSPACE_SCHEMA_VERSION,
 } from '../models/domain'
 import type { EntityMetadata, WorkspaceData } from '../models/domain'
@@ -86,6 +87,7 @@ const workspaceMetaSchema = entityMetadataSchema
     name: titleSchema,
     description: shortTextSchema.optional(),
     activeProjectId: idSchema.optional(),
+    revision: z.number().int().nonnegative(),
     todayGoals: z.array(titleSchema).max(3),
   })
   .strict()
@@ -224,7 +226,7 @@ const manuscriptSchema = entityMetadataSchema
   .extend({
     title: titleSchema,
     projectId: idSchema,
-    targetJournal: titleSchema,
+    targetJournal: shortTextSchema,
     status: z.enum(MANUSCRIPT_STATUSES),
     wordCount: z.number().int().nonnegative(),
     nextAction: textSchema,
@@ -262,6 +264,7 @@ const reviewerCommentSchema = entityMetadataSchema
 
 const workspaceDataSchema = z
   .object({
+    application: z.literal(WORKSPACE_APPLICATION),
     version: z.literal(WORKSPACE_SCHEMA_VERSION),
     exportedAt: isoDateTimeSchema,
     workspace: workspaceMetaSchema,

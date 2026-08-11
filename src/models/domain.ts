@@ -9,6 +9,7 @@ export type ISODate = string
 export type ISODateTime = string
 
 export const WORKSPACE_SCHEMA_VERSION = 1 as const
+export const WORKSPACE_APPLICATION = 'sociology-phd-desk' as const
 
 export const RESEARCH_METHODS = [
   'Quantitative',
@@ -136,6 +137,8 @@ export interface WorkspaceMeta extends EntityMetadata {
   name: string
   description?: string
   activeProjectId?: EntityId
+  /** Monotonic local revision used for optimistic full-snapshot writes. */
+  revision: number
   /** The focused research outcomes shown on Today; deliberately capped at three. */
   todayGoals: string[]
 }
@@ -289,6 +292,7 @@ export interface ReviewerComment extends EntityMetadata {
  * files referred to by local paths are never embedded in the JSON.
  */
 export interface WorkspaceData {
+  application: typeof WORKSPACE_APPLICATION
   version: typeof WORKSPACE_SCHEMA_VERSION
   exportedAt: ISODateTime
   workspace: WorkspaceMeta

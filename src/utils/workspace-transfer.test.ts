@@ -47,6 +47,46 @@ describe('workspace JSON transfer', () => {
     }
   })
 
+  it('rejects workspace files produced by a different application', () => {
+    const input = structuredClone(createDemoWorkspace(anchor)) as unknown as {
+      application: string
+    }
+    input.application = 'another-application'
+
+    const result = validateWorkspace(input)
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.issues.some((issue) => issue.path.join('.') === 'application')).toBe(true)
+    }
+  })
+
+  it('rejects negative workspace revisions', () => {
+    const input = structuredClone(createDemoWorkspace(anchor))
+    input.workspace.revision = -1
+
+    const result = validateWorkspace(input)
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.issues.some((issue) => issue.path.join('.') === 'workspace.revision')).toBe(true)
+    }
+  })
+
+  it('allows a manuscript target journal to remain genuinely undecided', () => {
+    const input = structuredClone(createDemoWorkspace(anchor))
+    const manuscript = input.manuscripts[0]
+    if (!manuscript) {
+      throw new Error('Expected a demo manuscript.')
+    }
+    manuscript.targetJournal = ''
+
+    const exported = exportWorkspaceJson(input)
+    const imported = importWorkspaceJson(exported)
+
+    expect(imported.manuscripts[0]?.targetJournal).toBe('')
+  })
+
   it('rejects duplicate IDs', () => {
     const input = structuredClone(createDemoWorkspace(anchor))
     const firstTask = input.tasks[0]

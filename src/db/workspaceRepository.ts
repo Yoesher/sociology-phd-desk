@@ -1,8 +1,8 @@
-import type { Table } from 'dexie'
 import { db } from './database'
 import { createDemoWorkspace } from '../models/demo'
-import { WORKSPACE_SCHEMA_VERSION } from '../models/domain'
+import { WORKSPACE_APPLICATION, WORKSPACE_SCHEMA_VERSION } from '../models/domain'
 import type { EntityMetadata, WorkspaceData } from '../models/domain'
+import { validateWorkspace, WorkspaceValidationError } from '../utils/workspace-transfer'
 
 export const WORKSPACE_COLLECTIONS = [
   'projects',
@@ -30,6 +30,23 @@ export interface MergeWorkspaceResult {
   skipped: WorkspaceMergeCounts
   /** True when the current workspace settings were retained. */
   preservedWorkspace: boolean
+}
+
+/** Raised when a caller tries to commit a snapshot based on an older revision. */
+export class WorkspaceConflictError extends Error {
+  expectedRevision: number
+  actualRevision: number | null
+
+  constructor(expectedRevision: number, actualRevision: number | null) {
+    super(
+      actualRevision === null
+        ? `Workspace revision conflict: expected ${expectedRevision}, but no workspace exists.`
+        : `Workspace revision conflict: expected ${expectedRevision}, but found ${actualRevision}.`,
+    )
+    this.name = 'WorkspaceConflictError'
+    this.expectedRevision = expectedRevision
+    this.actualRevision = actualRevision
+  }
 }
 
 const allTables = [
@@ -108,49 +125,28 @@ async function writeSnapshot(snapshot: WorkspaceData): Promise<void> {
   ])
 }
 
-async function addMissing<T extends EntityMetadata>(
-  table: Table<T, string>,
-  records: T[],
-): Promise<{ added: number; skipped: number }> {
-  const existingKeys = new Set(await table.toCollection().primaryKeys())
-  const additions = records.filter((record) => !existingKeys.has(record.id))
-
-  if (additions.length > 0) {
-    await table.bulkAdd(additions)
+function assertValidWorkspace(snapshot: unknown, operation: string): WorkspaceData {
+  const result = validateWorkspace(snapshot)
+  if (!result.success) {
+    throw new WorkspaceValidationError(`The workspace failed ${operation} validation.`, result.issues)
   }
+  return result.data
+}
 
+function mergeRecords<T extends EntityMetadata>(
+  localRecords: T[],
+  incomingRecords: T[],
+): { records: T[]; added: number; skipped: number } {
+  const localIds = new Set(localRecords.map((record) => record.id))
+  const additions = incomingRecords.filter((record) => !localIds.has(record.id))
   return {
+    records: [...localRecords, ...additions],
     added: additions.length,
-    skipped: records.length - additions.length,
+    skipped: incomingRecords.length - additions.length,
   }
 }
 
-/**
- * Opens the local workspace. The synthetic demo is written only when no
- * workspace exists, so subsequent launches never reset user edits.
- */
-export async function initializeWorkspace(
-  initialWorkspace: WorkspaceData = createDemoWorkspace(),
-): Promise<WorkspaceData> {
-  await db.transaction('rw', allTables, async () => {
-    if ((await db.workspaces.count()) > 0) {
-      return
-    }
-
-    // Remove possible orphan rows left by an interrupted pre-v1 write.
-    await clearAllTables()
-    await writeSnapshot(initialWorkspace)
-  })
-
-  const snapshot = await getWorkspaceSnapshot()
-  if (!snapshot) {
-    throw new Error('Workspace initialization completed without a workspace record.')
-  }
-  return snapshot
-}
-
-/** Returns a portable point-in-time snapshot, or null before initialization. */
-export async function getWorkspaceSnapshot(): Promise<WorkspaceData | null> {
+async function readWorkspaceSnapshot(): Promise<WorkspaceData | null> {
   const workspace = await db.workspaces.toCollection().first()
   if (!workspace) {
     return null
@@ -187,6 +183,7 @@ export async function getWorkspaceSnapshot(): Promise<WorkspaceData | null> {
   ])
 
   return {
+    application: WORKSPACE_APPLICATION,
     version: WORKSPACE_SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
     workspace,
@@ -207,61 +204,181 @@ export async function getWorkspaceSnapshot(): Promise<WorkspaceData | null> {
 }
 
 /**
- * Atomically replaces every persisted collection. Callers should use this only
- * after a validated import and an explicit replace choice in the UI.
+ * Opens the local workspace. The synthetic demo is written only when no
+ * workspace exists, so subsequent launches never reset user edits.
  */
-export async function replaceWorkspace(snapshot: WorkspaceData): Promise<void> {
+export async function initializeWorkspace(
+  initialWorkspace: WorkspaceData = createDemoWorkspace(),
+): Promise<WorkspaceData> {
+  const validatedInitialWorkspace = assertValidWorkspace(initialWorkspace, 'initialization')
+
   await db.transaction('rw', allTables, async () => {
+    if ((await db.workspaces.count()) > 0) {
+      return
+    }
+
+    // Remove possible orphan rows left by an interrupted pre-v1 write.
     await clearAllTables()
-    await writeSnapshot(snapshot)
+    await writeSnapshot(validatedInitialWorkspace)
+  })
+
+  const snapshot = await getWorkspaceSnapshot()
+  if (!snapshot) {
+    throw new Error('Workspace initialization completed without a workspace record.')
+  }
+  return snapshot
+}
+
+/** Returns a portable point-in-time snapshot, or null before initialization. */
+export async function getWorkspaceSnapshot(): Promise<WorkspaceData | null> {
+  return db.transaction('r', allTables, readWorkspaceSnapshot)
+}
+
+/**
+ * Atomically replaces every persisted collection. When expectedRevision is
+ * supplied, a stale caller is rejected before any table is cleared.
+ */
+export async function replaceWorkspace(
+  snapshot: WorkspaceData,
+  expectedRevision?: number,
+): Promise<void> {
+  const validatedSnapshot = assertValidWorkspace(snapshot, 'replacement input')
+
+  await db.transaction('rw', allTables, async () => {
+    const currentWorkspace = await db.workspaces.toCollection().first()
+    const actualRevision = currentWorkspace?.revision ?? null
+
+    if (expectedRevision !== undefined && expectedRevision !== actualRevision) {
+      throw new WorkspaceConflictError(expectedRevision, actualRevision)
+    }
+
+    const prospectiveSnapshot = assertValidWorkspace(
+      {
+        ...validatedSnapshot,
+        workspace: {
+          ...validatedSnapshot.workspace,
+          revision:
+            currentWorkspace === undefined
+              ? validatedSnapshot.workspace.revision
+              : currentWorkspace.revision + 1,
+        },
+      },
+      'replacement commit',
+    )
+
+    await clearAllTables()
+    await writeSnapshot(prospectiveSnapshot)
   })
 }
 
 /**
- * Adds records whose IDs are new and preserves every existing record on an ID
- * collision. The returned counts make collision handling visible to callers.
+ * Builds a complete local-first prospective snapshot in memory. Existing IDs
+ * win, but the resulting research graph must still validate before one atomic
+ * replacement transaction is allowed to commit.
  */
 export async function mergeWorkspace(snapshot: WorkspaceData): Promise<MergeWorkspaceResult> {
-  const currentWorkspace = await db.workspaces.toCollection().first()
-  if (!currentWorkspace) {
-    await replaceWorkspace(snapshot)
-    return {
-      added: snapshotCollectionCounts(snapshot),
-      skipped: emptyMergeCounts(),
-      preservedWorkspace: false,
-    }
-  }
+  const validatedIncoming = assertValidWorkspace(snapshot, 'merge input')
 
-  const added = emptyMergeCounts()
-  const skipped = emptyMergeCounts()
-
-  await db.transaction('rw', allTables, async () => {
-    const results = await Promise.all([
-      addMissing(db.projects, snapshot.projects),
-      addMissing(db.tasks, snapshot.tasks),
-      addMissing(db.literature, snapshot.literature),
-      addMissing(db.fieldSites, snapshot.fieldSites),
-      addMissing(db.interviews, snapshot.interviews),
-      addMissing(db.fieldVisits, snapshot.fieldVisits),
-      addMissing(db.datasets, snapshot.datasets),
-      addMissing(db.analysisRuns, snapshot.analysisRuns),
-      addMissing(db.evidence, snapshot.evidence),
-      addMissing(db.researchLogs, snapshot.researchLogs),
-      addMissing(db.manuscripts, snapshot.manuscripts),
-      addMissing(db.submissions, snapshot.submissions),
-      addMissing(db.reviewerComments, snapshot.reviewerComments),
-    ])
-
-    WORKSPACE_COLLECTIONS.forEach((collection, index) => {
-      const result = results[index]
-      if (result) {
-        added[collection] = result.added
-        skipped[collection] = result.skipped
+  return db.transaction('rw', allTables, async () => {
+    const current = await readWorkspaceSnapshot()
+    if (!current) {
+      const prospectiveSnapshot = assertValidWorkspace(
+        {
+          ...validatedIncoming,
+          workspace: { ...validatedIncoming.workspace, revision: 0 },
+        },
+        'merge commit',
+      )
+      await clearAllTables()
+      await writeSnapshot(prospectiveSnapshot)
+      return {
+        added: snapshotCollectionCounts(prospectiveSnapshot),
+        skipped: emptyMergeCounts(),
+        preservedWorkspace: false,
       }
-    })
-  })
+    }
 
-  return { added, skipped, preservedWorkspace: true }
+    const projects = mergeRecords(current.projects, validatedIncoming.projects)
+    const tasks = mergeRecords(current.tasks, validatedIncoming.tasks)
+    const literature = mergeRecords(current.literature, validatedIncoming.literature)
+    const fieldSites = mergeRecords(current.fieldSites, validatedIncoming.fieldSites)
+    const interviews = mergeRecords(current.interviews, validatedIncoming.interviews)
+    const fieldVisits = mergeRecords(current.fieldVisits, validatedIncoming.fieldVisits)
+    const datasets = mergeRecords(current.datasets, validatedIncoming.datasets)
+    const analysisRuns = mergeRecords(current.analysisRuns, validatedIncoming.analysisRuns)
+    const evidence = mergeRecords(current.evidence, validatedIncoming.evidence)
+    const researchLogs = mergeRecords(current.researchLogs, validatedIncoming.researchLogs)
+    const manuscripts = mergeRecords(current.manuscripts, validatedIncoming.manuscripts)
+    const submissions = mergeRecords(current.submissions, validatedIncoming.submissions)
+    const reviewerComments = mergeRecords(
+      current.reviewerComments,
+      validatedIncoming.reviewerComments,
+    )
+
+    const prospectiveSnapshot = assertValidWorkspace(
+      {
+        application: WORKSPACE_APPLICATION,
+        version: WORKSPACE_SCHEMA_VERSION,
+        exportedAt: new Date().toISOString(),
+        workspace: {
+          ...current.workspace,
+          revision: current.workspace.revision + 1,
+          updatedAt: new Date().toISOString(),
+        },
+        projects: projects.records,
+        tasks: tasks.records,
+        literature: literature.records,
+        fieldSites: fieldSites.records,
+        interviews: interviews.records,
+        fieldVisits: fieldVisits.records,
+        datasets: datasets.records,
+        analysisRuns: analysisRuns.records,
+        evidence: evidence.records,
+        researchLogs: researchLogs.records,
+        manuscripts: manuscripts.records,
+        submissions: submissions.records,
+        reviewerComments: reviewerComments.records,
+      },
+      'merged result',
+    )
+
+    await clearAllTables()
+    await writeSnapshot(prospectiveSnapshot)
+
+    return {
+      added: {
+        projects: projects.added,
+        tasks: tasks.added,
+        literature: literature.added,
+        fieldSites: fieldSites.added,
+        interviews: interviews.added,
+        fieldVisits: fieldVisits.added,
+        datasets: datasets.added,
+        analysisRuns: analysisRuns.added,
+        evidence: evidence.added,
+        researchLogs: researchLogs.added,
+        manuscripts: manuscripts.added,
+        submissions: submissions.added,
+        reviewerComments: reviewerComments.added,
+      },
+      skipped: {
+        projects: projects.skipped,
+        tasks: tasks.skipped,
+        literature: literature.skipped,
+        fieldSites: fieldSites.skipped,
+        interviews: interviews.skipped,
+        fieldVisits: fieldVisits.skipped,
+        datasets: datasets.skipped,
+        analysisRuns: analysisRuns.skipped,
+        evidence: evidence.skipped,
+        researchLogs: researchLogs.skipped,
+        manuscripts: manuscripts.skipped,
+        submissions: submissions.skipped,
+        reviewerComments: reviewerComments.skipped,
+      },
+      preservedWorkspace: true,
+    }
+  })
 }
 
 /** Removes all local workspace metadata and research-object records. */

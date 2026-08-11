@@ -17,6 +17,23 @@ import type {
   WorkspaceMeta,
 } from '../models/domain'
 
+const databaseStoresV1 = {
+  workspaces: '&id, updatedAt',
+  projects: '&id, status, method, updatedAt',
+  tasks: '&id, projectId, status, category, dueDate, priority',
+  literature: '&id, projectId, status, priority, year',
+  fieldSites: '&id, projectId, status',
+  interviews: '&id, projectId, fieldSiteId, status, interviewDate',
+  fieldVisits: '&id, projectId, fieldSiteId, date',
+  datasets: '&id, projectId, name',
+  analysisRuns: '&id, projectId, datasetId, status, date',
+  evidence: '&id, projectId, evidenceType, supportLevel',
+  researchLogs: '&id, projectId, date',
+  manuscripts: '&id, projectId, status, deadline',
+  submissions: '&id, projectId, manuscriptId, status, submissionDate',
+  reviewerComments: '&id, submissionId, status, severity',
+}
+
 export class SociologyPhdDeskDatabase extends Dexie {
   workspaces!: Table<WorkspaceMeta, string>
   projects!: Table<ResearchProject, string>
@@ -36,22 +53,22 @@ export class SociologyPhdDeskDatabase extends Dexie {
   constructor(databaseName = 'sociology-phd-desk') {
     super(databaseName)
 
-    this.version(1).stores({
-      workspaces: '&id, updatedAt',
-      projects: '&id, status, method, updatedAt',
-      tasks: '&id, projectId, status, category, dueDate, priority',
-      literature: '&id, projectId, status, priority, year',
-      fieldSites: '&id, projectId, status',
-      interviews: '&id, projectId, fieldSiteId, status, interviewDate',
-      fieldVisits: '&id, projectId, fieldSiteId, date',
-      datasets: '&id, projectId, name',
-      analysisRuns: '&id, projectId, datasetId, status, date',
-      evidence: '&id, projectId, evidenceType, supportLevel',
-      researchLogs: '&id, projectId, date',
-      manuscripts: '&id, projectId, status, deadline',
-      submissions: '&id, projectId, manuscriptId, status, submissionDate',
-      reviewerComments: '&id, submissionId, status, severity',
-    })
+    this.version(1).stores(databaseStoresV1)
+    this.version(2)
+      .stores({
+        ...databaseStoresV1,
+        workspaces: '&id, revision, updatedAt',
+      })
+      .upgrade(async (transaction) => {
+        await transaction
+          .table<WorkspaceMeta, string>('workspaces')
+          .toCollection()
+          .modify((workspace) => {
+            if (!Number.isInteger(workspace.revision) || workspace.revision < 0) {
+              workspace.revision = 0
+            }
+          })
+      })
   }
 }
 
