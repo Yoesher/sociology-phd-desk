@@ -8,20 +8,20 @@ Sociology PhD Desk may consider applying to an OpenAI open-source support progra
 
 | Metric | Verified value | Evidence and interpretation |
 | --- | --- | --- |
-| Public repository | [Yoesher/sociology-phd-desk](https://github.com/Yoesher/sociology-phd-desk), public | GitHub API verified the owner, repository name, public visibility, and `main` default branch on 2026-08-11. |
+| Public repository | [Yoesher/sociology-phd-desk](https://github.com/Yoesher/sociology-phd-desk), public | GitHub API verified the owner, repository name, public visibility, `main` default branch, and description `社会学博士研究工作站｜A local-first ResearchOps workstation for sociology researchers.` on 2026-08-11. |
 | Version | [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0) | GitHub Release and annotated tag verified on 2026-08-11; tag dereferences to `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994`. |
 | Maintainer | `Yoesher` | Repository owner and current maintainer. This does not imply an external contributor community. |
 | Stars | 0 | GitHub repository API query on 2026-08-11. |
 | Forks | 0 | GitHub repository API query on 2026-08-11. |
-| Open issues | 8 | GitHub Issues API/CLI query after creating the bilingual and China Research Map issues on 2026-08-11. |
-| Closed issues | 0 | GitHub Issues API query on 2026-08-11. |
-| Open pull requests | 1 | Draft Phase 3A localization PR [#9](https://github.com/Yoesher/sociology-phd-desk/pull/9), verified through GitHub CLI on 2026-08-11. |
-| Merged pull requests | 0 | GitHub Pull Requests API query on 2026-08-11. |
+| Open issues | 7 | GitHub Issues API/CLI query after Phase 3A merged on 2026-08-11. |
+| Closed issues | 1 | Issue [#7](https://github.com/Yoesher/sociology-phd-desk/issues/7) was closed as completed by the Phase 3A merge. |
+| Open pull requests | 0 | GitHub Pull Requests API/CLI query after Phase 3A merged on 2026-08-11. |
+| Merged pull requests | 1 | Maintainer-authored Phase 3A PR [#9](https://github.com/Yoesher/sociology-phd-desk/pull/9), squash-merged on 2026-08-11. |
 | Published releases | 1 | GitHub Releases API and `gh release view v0.1.0` on 2026-08-11. |
 | Downloads | No verified count | The release has no custom binary assets. GitHub-generated source archives do not provide an asset download count through the release-assets API. |
 | Real external users | 0 verified | No user evidence has been collected or supplied. This is not an estimate of interest. |
 | Real external testers | 0 verified | The bootstrap session did not document an external tester. Maintainer self-testing must not be relabeled as an external tester. |
-| External contributors | 0 verified | Public commits are maintainer-originated; the sole open Pull Request is maintainer-authored Draft PR #9, and no external or merged Pull Request is verified. |
+| External contributors | 0 verified | Public commits and the sole merged Pull Request, maintainer-authored PR #9, are maintainer-originated; no external contributor or external Pull Request is verified. |
 | External mentions | 0 verified in project records | No external mention was supplied or documented. This is not a comprehensive web-wide search result. |
 | Institutional adoption | None known | No institution has supplied evidence of use or adoption. |
 
@@ -49,7 +49,7 @@ Do not publish identities, affiliations, or research topics without explicit per
 
 ## Maintainer activity
 
-As of 2026-08-11, verified activity consists of the Phase 0 audit; a durable public `main` history for the Phase 1 application, data-integrity hardening, documentation, and Pages infrastructure; passing remote CI; a deployed browser-local demo; eight substantive roadmap issues; and Draft Phase 3A PR [#9](https://github.com/Yoesher/sociology-phd-desk/pull/9). The unmerged Phase 3A candidate passed a clean install, lint, type checking, 37 automated tests, production build, and nine-route Chinese/English desktop/mobile browser review. This is maintainer self-verification, not an external test or adoption signal.
+As of 2026-08-11, verified activity consists of the Phase 0 audit; a durable public `main` history for the Phase 1 application, data-integrity hardening, documentation, Pages infrastructure, and merged Phase 3A bilingual implementation; passing remote CI; a deployed browser-local demo; eight substantive roadmap issues; and maintainer-authored PR [#9](https://github.com/Yoesher/sociology-phd-desk/pull/9), squash-merged as [`bad788f`](https://github.com/Yoesher/sociology-phd-desk/commit/bad788fac457950dfe311dc1b539cec5e74bf65a). The Phase 3A final candidate passed a clean install, lint, type checking, 37 automated tests, production build, and nine-route Chinese/English desktop/mobile browser review. Exact-`main` [CI run 31491968689](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31491968689) and [Pages run 31491968688](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31491968688) then passed, and the public deployment was re-verified in both languages at desktop and mobile sizes. This remains maintainer self-verification, not an external test or adoption signal.
 
 Release SHA `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994` was independently matched through local Git, Git transport, and the GitHub commits API. [CI run 31483003952](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31483003952) passed, [Pages run 31483003953](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31483003953) deployed `https://yoesher.github.io/sociology-phd-desk/`, and the annotated tag was published as [Sociology PhD Desk v0.1.0](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0). Public activity remains maintainer-originated; no external PR, review, tester, user, or adoption evidence is verified.
 
@@ -77,3 +77,4 @@ Never buy Stars, fabricate accounts, users, downloads, contributors, issues, pul
 | 2026-08-11 | Public repository, CI, Pages, six roadmap issues, and zero-valued repository metrics independently verified; no external users/testers or published release yet | GitHub repository, Issues, Pull Requests, Releases, Actions, and Pages APIs |
 | 2026-08-11 | `v0.1.0` published; 0 Stars, 0 Forks, 6 open Issues, 0 PRs, 1 Release, 0 verified external users/testers, and no known institutional adoption | GitHub repository, Issues, Pull Requests, Releases, Actions, and Pages APIs plus local tag verification |
 | 2026-08-11 | Phase 3A candidate opened as Draft PR #9; 0 Stars, 0 Forks, 8 open Issues, 1 open PR, 0 merged PRs, and 1 Release | GitHub repository, Issues, Pull Requests, Actions, and local final-candidate verification |
+| 2026-08-11 | Phase 3A PR #9 merged as `bad788f`; Issue #7 closed; 0 Stars, 0 Forks, 7 open Issues, 1 closed Issue, 0 open PRs, 1 merged PR, and 1 unchanged Release; exact-`main` CI, Pages, and public bilingual browser verification passed | GitHub repository, Issues, Pull Requests, Actions, Pages, and public deployment verification |
