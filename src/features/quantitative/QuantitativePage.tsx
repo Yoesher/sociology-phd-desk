@@ -7,7 +7,8 @@ import {
   type Dataset,
 } from '../../models/domain'
 import { useWorkspace } from '../../hooks/useWorkspace'
-import { entityMeta, formatDate, projectLabel, todayIso, truncate } from '../../app/format'
+import { entityMeta, todayIso, truncate } from '../../app/format'
+import { useI18n } from '../../i18n'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
   AddButton,
@@ -41,6 +42,7 @@ const runDraft = () => ({
 
 export function QuantitativePage() {
   const { data, updateData } = useWorkspace()
+  const { t, formatDate, formatNumber, labelEnum } = useI18n()
   const [tab, setTab] = useState<RegistryTab>('datasets')
   const [search, setSearch] = useState('')
   const [projectFilter, setProjectFilter] = useState('')
@@ -48,6 +50,27 @@ export function QuantitativePage() {
   const [runOpen, setRunOpen] = useState(false)
   const [dataset, setDataset] = useState(datasetDraft)
   const [run, setRun] = useState(runDraft)
+
+  const recordCount = (count: number) => t(
+    count === 1 ? 'quantitative.count.recordsOne' : 'quantitative.count.recordsOther',
+    { count: formatNumber(count) },
+  )
+  const totalSpecifications = (count: number) => t(
+    count === 1
+      ? 'quantitative.stats.completed.detailOne'
+      : 'quantitative.stats.completed.detailOther',
+    { count: formatNumber(count) },
+  )
+  const registeredRuns = (count: number) => t(
+    count === 1
+      ? 'quantitative.stats.software.detailOne'
+      : 'quantitative.stats.software.detailOther',
+    { count: formatNumber(count) },
+  )
+  const localizedProjectLabel = (projectId?: string) => {
+    const project = data?.projects.find((item) => item.id === projectId)
+    return project?.shortTitle || project?.title || t('common.unassigned')
+  }
 
   const query = search.trim().toLowerCase()
   const filteredDatasets = useMemo(
@@ -124,112 +147,116 @@ export function QuantitativePage() {
     <div className="page">
       <PageHeader
         index="05"
-        eyebrow="Reproducibility registry"
-        title="Quantitative analysis"
-        description="Register datasets, specifications, scripts, samples, and outputs without trying to replace Stata, R, or Python."
-        actions={<AddButton onClick={tab === 'datasets' ? openDataset : openRun}>Add {tab === 'datasets' ? 'dataset' : 'analysis run'}</AddButton>}
+        eyebrow={t('quantitative.header.eyebrow')}
+        title={t('quantitative.header.title')}
+        description={t('quantitative.header.description')}
+        actions={
+          <AddButton onClick={tab === 'datasets' ? openDataset : openRun}>
+            {t(tab === 'datasets' ? 'quantitative.action.addDataset' : 'quantitative.action.addAnalysisRun')}
+          </AddButton>
+        }
       />
 
       <section className="boundary-note boundary-note--blue">
         <FolderLock size={18} />
-        <div><strong>Files stay where you keep them</strong><p>Paths are local pointers only. Sociology PhD Desk does not upload datasets or embed source files in JSON exports.</p></div>
+        <div><strong>{t('quantitative.boundary.title')}</strong><p>{t('quantitative.boundary.body')}</p></div>
       </section>
 
       <div className="stats-grid stats-grid--four">
-        <StatCard label="Datasets" value={data.datasets.length} detail="registered local sources" tone="blue" />
-        <StatCard label="Completed runs" value={completed} detail={`${data.analysisRuns.length} total specifications`} tone="success" />
-        <StatCard label="Failed runs" value={failed} detail="retained for auditability" tone={failed ? 'danger' : 'neutral'} />
-        <StatCard label="Primary software" value={software?.name || '—'} detail={software ? `${software.count} registered runs` : 'no runs yet'} tone="violet" />
+        <StatCard label={t('quantitative.stats.datasets.label')} value={formatNumber(data.datasets.length)} detail={t('quantitative.stats.datasets.detail')} tone="blue" />
+        <StatCard label={t('quantitative.stats.completed.label')} value={formatNumber(completed)} detail={totalSpecifications(data.analysisRuns.length)} tone="success" />
+        <StatCard label={t('quantitative.stats.failed.label')} value={formatNumber(failed)} detail={t('quantitative.stats.failed.detail')} tone={failed ? 'danger' : 'neutral'} />
+        <StatCard label={t('quantitative.stats.software.label')} value={software ? labelEnum(software.name) : '—'} detail={software ? registeredRuns(software.count) : t('quantitative.stats.software.none')} tone="violet" />
       </div>
 
       <section className="panel">
-        <div className="segmented-tabs" role="tablist" aria-label="Quantitative registry">
-          <button type="button" className={tab === 'datasets' ? 'active' : ''} onClick={() => setTab('datasets')}><Database size={15} /> Datasets <span>{data.datasets.length}</span></button>
-          <button type="button" className={tab === 'runs' ? 'active' : ''} onClick={() => setTab('runs')}><BarChart3 size={15} /> Analysis runs <span>{data.analysisRuns.length}</span></button>
+        <div className="segmented-tabs" role="tablist" aria-label={t('quantitative.tabs.label')}>
+          <button type="button" role="tab" aria-selected={tab === 'datasets'} className={tab === 'datasets' ? 'active' : ''} onClick={() => setTab('datasets')}><Database size={15} /> {t('quantitative.tabs.datasets')} <span>{formatNumber(data.datasets.length)}</span></button>
+          <button type="button" role="tab" aria-selected={tab === 'runs'} className={tab === 'runs' ? 'active' : ''} onClick={() => setTab('runs')}><BarChart3 size={15} /> {t('quantitative.tabs.analysisRuns')} <span>{formatNumber(data.analysisRuns.length)}</span></button>
         </div>
         <div className="toolbar toolbar--under-tabs">
-          <SearchField value={search} onChange={setSearch} placeholder={tab === 'datasets' ? 'Search datasets' : 'Search models, samples, or outcomes'} />
+          <SearchField value={search} onChange={setSearch} placeholder={t(tab === 'datasets' ? 'quantitative.search.datasets' : 'quantitative.search.runs')} />
           <ProjectSelect projects={data.projects} value={projectFilter} onChange={setProjectFilter} includeAll />
-          <span className="toolbar__count">{tab === 'datasets' ? filteredDatasets.length : filteredRuns.length} records</span>
+          <span className="toolbar__count">{recordCount(tab === 'datasets' ? filteredDatasets.length : filteredRuns.length)}</span>
         </div>
 
         {tab === 'datasets' && (filteredDatasets.length ? (
           <div className="dataset-grid">
             {filteredDatasets.map((item) => (
               <article className="dataset-card" key={item.id}>
-                <header><span className="object-mark"><Database size={17} /></span><Badge>{item.wave || 'No wave'}</Badge></header>
+                <header><span className="object-mark"><Database size={17} /></span><Badge>{item.wave || t('quantitative.dataset.noWave')}</Badge></header>
                 <h3>{item.name}</h3>
-                <p>{truncate(item.source || 'No source description', 130)}</p>
+                <p>{truncate(item.source || t('quantitative.dataset.noSource'), 130)}</p>
                 <dl>
-                  <div><dt>Project</dt><dd>{projectLabel(data.projects, item.projectId)}</dd></div>
-                  <div><dt>Local path</dt><dd className="path-value">{item.localPath || 'Not configured'}</dd></div>
+                  <div><dt>{t('quantitative.dataset.project')}</dt><dd>{localizedProjectLabel(item.projectId)}</dd></div>
+                  <div><dt>{t('quantitative.dataset.localPath')}</dt><dd className="path-value">{item.localPath || t('quantitative.dataset.notConfigured')}</dd></div>
                 </dl>
               </article>
             ))}
           </div>
-        ) : <EmptyState title="No datasets found" description="Register a dataset source, wave, local pointer, and project relationship." action={<AddButton onClick={openDataset}>Add dataset</AddButton>} />)}
+        ) : <EmptyState title={t('quantitative.empty.datasets.title')} description={t('quantitative.empty.datasets.description')} action={<AddButton onClick={openDataset}>{t('quantitative.action.addDataset')}</AddButton>} />)}
 
         {tab === 'runs' && (filteredRuns.length ? (
           <div className="data-table-wrap">
             <table className="data-table analysis-table">
-              <thead><tr><th>Specification</th><th>Software</th><th>Dataset / sample</th><th>Date</th><th>Status</th></tr></thead>
+              <thead><tr><th>{t('quantitative.table.specification')}</th><th>{t('quantitative.table.software')}</th><th>{t('quantitative.table.datasetSample')}</th><th>{t('quantitative.table.date')}</th><th>{t('quantitative.table.status')}</th></tr></thead>
               <tbody>
                 {filteredRuns.map((item) => {
                   const source = data.datasets.find((datasetItem) => datasetItem.id === item.datasetId)
                   return (
                     <tr key={item.id}>
-                      <td data-label="Specification"><span className="record-title"><strong>{item.model || 'Unnamed model'}</strong><span>{item.outcome} ← {item.keyPredictor}</span></span></td>
-                      <td data-label="Software"><Badge tone="violet"><Code2 size={12} /> {item.software}</Badge></td>
-                      <td data-label="Dataset / sample"><span className="date-cell">{source?.name || 'Unknown dataset'}<small>{truncate(item.sample, 64)}</small></span></td>
-                      <td data-label="Date">{formatDate(item.date)}</td>
-                      <td data-label="Status"><select className={`status-select status-select--${item.status.toLowerCase()}`} value={item.status} onChange={(event) => void updateRunStatus(item.id, event.target.value as AnalysisRun['status'])}>{ANALYSIS_RUN_STATUSES.map((status) => <option key={status}>{status}</option>)}</select></td>
+                      <td data-label={t('quantitative.table.specification')}><span className="record-title"><strong>{item.model || t('quantitative.run.unnamedModel')}</strong><span>{item.outcome} ← {item.keyPredictor}</span></span></td>
+                      <td data-label={t('quantitative.table.software')}><Badge tone="violet"><Code2 size={12} /> {labelEnum(item.software)}</Badge></td>
+                      <td data-label={t('quantitative.table.datasetSample')}><span className="date-cell">{source?.name || t('quantitative.run.unknownDataset')}<small>{truncate(item.sample, 64)}</small></span></td>
+                      <td data-label={t('quantitative.table.date')}>{formatDate(item.date)}</td>
+                      <td data-label={t('quantitative.table.status')}><select aria-label={t('quantitative.run.updateStatusAria', { name: item.model || t('quantitative.run.unnamedModel') })} className={`status-select status-select--${item.status.toLowerCase()}`} value={item.status} onChange={(event) => void updateRunStatus(item.id, event.target.value as AnalysisRun['status'])}>{ANALYSIS_RUN_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></td>
                     </tr>
                   )
                 })}
               </tbody>
             </table>
           </div>
-        ) : <EmptyState title="No analysis runs found" description={data.datasets.length ? 'Register a specification and the exact dataset, sample, script, and output.' : 'Add a dataset before registering an analysis run.'} action={<AddButton onClick={data.datasets.length ? openRun : openDataset}>{data.datasets.length ? 'Add analysis run' : 'Add dataset first'}</AddButton>} />)}
+        ) : <EmptyState title={t('quantitative.empty.runs.title')} description={t(data.datasets.length ? 'quantitative.empty.runs.withDatasets' : 'quantitative.empty.runs.withoutDatasets')} action={<AddButton onClick={data.datasets.length ? openRun : openDataset}>{t(data.datasets.length ? 'quantitative.action.addAnalysisRun' : 'quantitative.action.addDatasetFirst')}</AddButton>} />)}
       </section>
 
       <Modal
         open={datasetOpen}
-        title="Register a dataset"
-        description="Record provenance and a local pointer; the dataset itself remains outside the browser database."
+        title={t('quantitative.datasetDialog.title')}
+        description={t('quantitative.datasetDialog.description')}
         onClose={() => setDatasetOpen(false)}
-        footer={<><Button onClick={() => setDatasetOpen(false)}>Cancel</Button><Button type="submit" form="dataset-form" variant="primary">Add dataset</Button></>}
+        footer={<><Button onClick={() => setDatasetOpen(false)}>{t('common.cancel')}</Button><Button type="submit" form="dataset-form" variant="primary">{t('quantitative.action.addDataset')}</Button></>}
       >
         <form id="dataset-form" className="form-grid" onSubmit={(event) => void saveDataset(event)}>
-          <Field label="Dataset name" required className="form-span-2"><input autoFocus required value={dataset.name} onChange={(event) => setDataset({ ...dataset, name: event.target.value })} /></Field>
-          <Field label="Wave / version"><input value={dataset.wave} onChange={(event) => setDataset({ ...dataset, wave: event.target.value })} placeholder="e.g. Wave 5 or 2024 extract" /></Field>
-          <Field label="Project" required><ProjectSelect required projects={data.projects} value={dataset.projectId} onChange={(projectId) => setDataset({ ...dataset, projectId })} /></Field>
-          <Field label="Source" required className="form-span-2"><textarea required rows={3} value={dataset.source} onChange={(event) => setDataset({ ...dataset, source: event.target.value })} placeholder="Provenance, provider, access date, or construction notes" /></Field>
-          <Field label="Local path" className="form-span-2" hint="Never hard-code a personal path into public source code."><input value={dataset.localPath} onChange={(event) => setDataset({ ...dataset, localPath: event.target.value })} placeholder="Your private local path or mounted location" /></Field>
-          <Field label="Notes" className="form-span-2"><textarea rows={4} value={dataset.notes} onChange={(event) => setDataset({ ...dataset, notes: event.target.value })} placeholder="Restrictions, weights, identifiers, cleaning state, or version cautions" /></Field>
+          <Field label={t('quantitative.datasetForm.name')} required className="form-span-2"><input autoFocus required value={dataset.name} onChange={(event) => setDataset({ ...dataset, name: event.target.value })} /></Field>
+          <Field label={t('quantitative.datasetForm.wave')}><input value={dataset.wave} onChange={(event) => setDataset({ ...dataset, wave: event.target.value })} placeholder={t('quantitative.datasetForm.wavePlaceholder')} /></Field>
+          <Field label={t('quantitative.datasetForm.project')} required><ProjectSelect required projects={data.projects} value={dataset.projectId} onChange={(projectId) => setDataset({ ...dataset, projectId })} /></Field>
+          <Field label={t('quantitative.datasetForm.source')} required className="form-span-2"><textarea required rows={3} value={dataset.source} onChange={(event) => setDataset({ ...dataset, source: event.target.value })} placeholder={t('quantitative.datasetForm.sourcePlaceholder')} /></Field>
+          <Field label={t('quantitative.datasetForm.localPath')} className="form-span-2" hint={t('quantitative.datasetForm.localPathHint')}><input value={dataset.localPath} onChange={(event) => setDataset({ ...dataset, localPath: event.target.value })} placeholder={t('quantitative.datasetForm.localPathPlaceholder')} /></Field>
+          <Field label={t('quantitative.datasetForm.notes')} className="form-span-2"><textarea rows={4} value={dataset.notes} onChange={(event) => setDataset({ ...dataset, notes: event.target.value })} placeholder={t('quantitative.datasetForm.notesPlaceholder')} /></Field>
         </form>
       </Modal>
 
       <Modal
         open={runOpen}
-        title="Register an analysis run"
-        description="A run is an auditable specification, not only a successful result."
+        title={t('quantitative.runDialog.title')}
+        description={t('quantitative.runDialog.description')}
         onClose={() => setRunOpen(false)}
         size="lg"
-        footer={<><Button onClick={() => setRunOpen(false)}>Cancel</Button><Button type="submit" form="run-form" variant="primary">Add analysis run</Button></>}
+        footer={<><Button onClick={() => setRunOpen(false)}>{t('common.cancel')}</Button><Button type="submit" form="run-form" variant="primary">{t('quantitative.action.addAnalysisRun')}</Button></>}
       >
         <form id="run-form" className="form-grid" onSubmit={(event) => void saveRun(event)}>
-          <Field label="Project" required><ProjectSelect required projects={data.projects} value={run.projectId} onChange={(projectId) => setRun({ ...run, projectId, datasetId: data.datasets.find((item) => item.projectId === projectId)?.id || '' })} /></Field>
-          <Field label="Dataset" required><select required value={run.datasetId} onChange={(event) => setRun({ ...run, datasetId: event.target.value })}><option value="">Select a dataset</option>{data.datasets.filter((item) => item.projectId === run.projectId).map((item) => <option key={item.id} value={item.id}>{item.name} {item.wave && `— ${item.wave}`}</option>)}</select></Field>
-          <Field label="Run date" required><input required type="date" value={run.date} onChange={(event) => setRun({ ...run, date: event.target.value })} /></Field>
-          <Field label="Software" required><select value={run.software} onChange={(event) => setRun({ ...run, software: event.target.value as AnalysisRun['software'] })}>{ANALYSIS_SOFTWARE.map((item) => <option key={item}>{item}</option>)}</select></Field>
-          <Field label="Model specification" required className="form-span-2"><textarea required rows={3} value={run.model} onChange={(event) => setRun({ ...run, model: event.target.value })} placeholder="Estimator, controls, fixed effects, interactions, standard errors" /></Field>
-          <Field label="Sample" required className="form-span-2"><textarea required rows={2} value={run.sample} onChange={(event) => setRun({ ...run, sample: event.target.value })} placeholder="Restrictions, exclusions, unit of analysis, N" /></Field>
-          <Field label="Outcome" required><input required value={run.outcome} onChange={(event) => setRun({ ...run, outcome: event.target.value })} /></Field>
-          <Field label="Key predictor" required><input required value={run.keyPredictor} onChange={(event) => setRun({ ...run, keyPredictor: event.target.value })} /></Field>
-          <Field label="Status"><select value={run.status} onChange={(event) => setRun({ ...run, status: event.target.value as AnalysisRun['status'] })}>{ANALYSIS_RUN_STATUSES.map((status) => <option key={status}>{status}</option>)}</select></Field>
-          <Field label="Script path"><input value={run.scriptPath} onChange={(event) => setRun({ ...run, scriptPath: event.target.value })} /></Field>
-          <Field label="Result summary" className="form-span-2"><textarea rows={4} value={run.resultSummary} onChange={(event) => setRun({ ...run, resultSummary: event.target.value })} placeholder="Direction, magnitude, uncertainty, robustness, and interpretation" /></Field>
-          <Field label="Output path" className="form-span-2"><input value={run.outputPath} onChange={(event) => setRun({ ...run, outputPath: event.target.value })} /></Field>
+          <Field label={t('quantitative.runForm.project')} required><ProjectSelect required projects={data.projects} value={run.projectId} onChange={(projectId) => setRun({ ...run, projectId, datasetId: data.datasets.find((item) => item.projectId === projectId)?.id || '' })} /></Field>
+          <Field label={t('quantitative.runForm.dataset')} required><select required value={run.datasetId} onChange={(event) => setRun({ ...run, datasetId: event.target.value })}><option value="">{t('quantitative.runForm.selectDataset')}</option>{data.datasets.filter((item) => item.projectId === run.projectId).map((item) => <option key={item.id} value={item.id}>{item.name} {item.wave && `— ${item.wave}`}</option>)}</select></Field>
+          <Field label={t('quantitative.runForm.date')} required><input required type="date" value={run.date} onChange={(event) => setRun({ ...run, date: event.target.value })} /></Field>
+          <Field label={t('quantitative.runForm.software')} required><select value={run.software} onChange={(event) => setRun({ ...run, software: event.target.value as AnalysisRun['software'] })}>{ANALYSIS_SOFTWARE.map((item) => <option key={item} value={item}>{labelEnum(item)}</option>)}</select></Field>
+          <Field label={t('quantitative.runForm.model')} required className="form-span-2"><textarea required rows={3} value={run.model} onChange={(event) => setRun({ ...run, model: event.target.value })} placeholder={t('quantitative.runForm.modelPlaceholder')} /></Field>
+          <Field label={t('quantitative.runForm.sample')} required className="form-span-2"><textarea required rows={2} value={run.sample} onChange={(event) => setRun({ ...run, sample: event.target.value })} placeholder={t('quantitative.runForm.samplePlaceholder')} /></Field>
+          <Field label={t('quantitative.runForm.outcome')} required><input required value={run.outcome} onChange={(event) => setRun({ ...run, outcome: event.target.value })} /></Field>
+          <Field label={t('quantitative.runForm.predictor')} required><input required value={run.keyPredictor} onChange={(event) => setRun({ ...run, keyPredictor: event.target.value })} /></Field>
+          <Field label={t('quantitative.runForm.status')}><select value={run.status} onChange={(event) => setRun({ ...run, status: event.target.value as AnalysisRun['status'] })}>{ANALYSIS_RUN_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
+          <Field label={t('quantitative.runForm.scriptPath')}><input value={run.scriptPath} onChange={(event) => setRun({ ...run, scriptPath: event.target.value })} /></Field>
+          <Field label={t('quantitative.runForm.resultSummary')} className="form-span-2"><textarea rows={4} value={run.resultSummary} onChange={(event) => setRun({ ...run, resultSummary: event.target.value })} placeholder={t('quantitative.runForm.resultSummaryPlaceholder')} /></Field>
+          <Field label={t('quantitative.runForm.outputPath')} className="form-span-2"><input value={run.outputPath} onChange={(event) => setRun({ ...run, outputPath: event.target.value })} /></Field>
         </form>
       </Modal>
     </div>

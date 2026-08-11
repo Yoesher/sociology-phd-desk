@@ -1,109 +1,116 @@
-# Sociology PhD Desk
+**简体中文** | [English](README.en.md) · [路线图](ROADMAP.md) · [贡献指南](CONTRIBUTING.md) · [项目状态](PROJECT_STATE.md)
 
-**A local-first ResearchOps workstation for sociology doctoral researchers.**
+# Sociology PhD Desk / 社会学博士研究工作站
 
-Manage the full research lifecycle—from literature and fieldwork to quantitative analysis, evidence, manuscripts, and peer-review revisions.
+**面向社会学博士研究者的本地优先 ResearchOps 工作站。**
 
-[简体中文](README.zh-CN.md) · [Roadmap](ROADMAP.md) · [Contributing](CONTRIBUTING.md) · [Project state](PROJECT_STATE.md)
+在同一条研究生命周期中管理文献、田野、定量分析、证据、论文与同行评审后的修回工作。
 
-**Live demo:** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
+**在线演示：** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
 
-> **Early public software:** the `0.1.0` codebase, public repository, remote CI, and hosted demo have passed the verification recorded in [PROJECT_STATE.md](PROJECT_STATE.md), but the project has not yet been tested by external researchers. Do not use it as the only copy of irreplaceable research material. Public availability does not imply adoption.
+> **早期公开软件：** `0.1.0` 代码、公开仓库、远程 CI 与在线演示已经通过 [PROJECT_STATE.md](PROJECT_STATE.md) 记录的核验，但项目尚未经过外部研究者测试。请勿把不可替代的研究材料只保存在本软件中；公开可用不代表已经获得真实采用。
 
-## Why Sociology PhD Desk?
+## 为什么需要 Sociology PhD Desk？
 
-Sociological research is not just task management.
+社会学研究不只是任务管理。
 
-A single project may simultaneously involve literature, interviews, fieldnotes, datasets, models, analytical memos, manuscripts, and reviewer responses. General-purpose tools usually manage files, notes, or tasks separately. Sociology PhD Desk connects research objects and decisions into one traceable workflow:
+一个项目往往同时包含文献、访谈、田野笔记、数据集、模型、分析备忘录、论文和审稿意见。通用工具通常分别管理文件、笔记或任务。Sociology PhD Desk 尝试把研究对象与研究决策连接成一条可追溯的工作流：
 
 ```text
-Research question
-  → Literature
-  → Dataset / Interview
-  → Analysis
-  → Evidence
-  → Claim
-  → Manuscript
-  → Submission
-  → Reviewer comment
-  → Revision
+研究问题
+  → 文献
+  → 数据集 / 访谈
+  → 分析
+  → 证据
+  → 主张
+  → 论文
+  → 投稿
+  → 审稿意见
+  → 修回
 ```
 
-It is an orchestration layer, not a replacement for Zotero, Word, Stata, R, Python, NVivo, MAXQDA, or a journal submission system.
+它是一层研究编排工具，而不是 Zotero、Word、Stata、R、Python、NVivo、MAXQDA 或期刊投稿系统的替代品。
 
-## Features
+## 功能
 
-The `0.1.x` workspace is organized around sociology-specific research objects:
+`0.1.x` 工作站围绕社会学研究对象组织：
 
-- **Today** — research goals, project-linked tasks, overdue work, and a concise daily research log.
-- **Projects** — research questions, methods, stages, dates, and linked research activity.
-- **Literature** — a reading workflow that records why a source matters and how it enters an argument; Zotero remains the reference library.
-- **Fieldwork** — field sites, visits, and interviews identified by aliases and anonymous IDs.
-- **Quantitative** — registries for datasets and analysis runs across Stata, R, Python, and other tools.
-- **Evidence ledger** — claims, source locators, findings, limitations, support levels, and manuscript destinations.
-- **Research log** — an audit trail of changes, decisions, problems, and next steps.
-- **Manuscripts and submissions** — writing stages, journal submissions, reviewer comments, responses, and revision actions.
-- **Portable workspace data** — validated JSON export and import, with no silent replacement of existing data.
-- **Demo workspace** — explicitly synthetic records that explain the product without imitating real papers, results, or interview material.
+- **今日工作台**：研究目标、关联项目的任务、逾期事项与简明的当日研究日志。
+- **研究项目**：研究问题、方法、阶段、日期和关联研究活动。
+- **文献队列**：记录为什么要读、文献如何进入论证；参考文献库仍由 Zotero 管理。
+- **田野与访谈**：用别名和匿名 ID 管理田野点、田野访问与访谈。
+- **定量分析**：登记数据集，以及 Stata、R、Python 和其他工具的分析运行。
+- **证据台账**：连接主张、来源定位、发现、局限、支持程度和论文位置。
+- **研究日志**：记录研究变化、判断、问题和下一步，形成可审计轨迹。
+- **论文与投稿**：跟踪写作阶段、期刊投稿、审稿意见、回复与修回行动。
+- **可迁移工作区数据**：经过验证的 JSON 导入与导出，不静默替换已有数据。
+- **演示工作区**：只使用明确标注的合成记录来说明产品，不伪装真实论文、结果或访谈材料。
 
-The product is desktop-first, responsive, theme-aware, offline-friendly, and designed to keep its core workflow usable without an account or application server.
+产品优先服务桌面研究，支持响应式布局、明暗主题和离线友好使用；核心工作流不要求账号或应用服务器。
 
-In `0.1.0`, Projects, Evidence, and Fieldwork provide create, inspect, edit, and protected-delete flows. Literature, Quantitative, Research Log, Manuscripts, Submissions, and Today provide focused registry, creation, filtering, and status workflows; complete edit/delete parity for every object is future work.
+在 `0.1.0` 中，研究项目、证据台账与田野模块提供创建、查看、编辑和受保护删除流程；文献、定量分析、研究日志、论文、投稿与今日工作台提供聚焦的登记、新增、筛选和状态工作流。让每一种对象都具备完整编辑与删除能力属于后续工作。
 
-## Why sociology-specific?
+## 为什么是社会学专用？
 
-The product is for sociology doctoral researchers first: quantitative, qualitative, mixed-methods, and theoretical work, including population, labour, family, organizational, and youth research. Adjacent empirical researchers may find it useful, but the product will not trade away its sociology identity for generic productivity features.
+产品首先服务于社会学博士研究者，包括定量、质性、混合方法和理论研究，以及人口、劳动、家庭、组织与青年研究等领域。相邻经验学科的研究者也可能受益，但产品不会为了泛化而放弃社会学身份。
 
-A proposed feature should answer a simple question: **does it solve a distinctive problem in the sociological research workflow?** Social networking, chat, a general note editor, a reference database, and an all-purpose AI assistant are deliberately outside the current scope.
+每个新功能都应回答：**它是否解决了社会学研究工作流中的特有问题？** 社交网络、聊天、通用笔记编辑器、参考文献数据库和大型通用 AI 助手不在当前范围内。
 
-## Local-first and privacy
+## 语言与数据边界
 
-- Core research records are stored in the browser with IndexedDB.
-- No account, default cloud synchronization, analytics, or third-party tracker is required.
-- Local file fields are references; the application is not a secure vault for source datasets or transcripts.
-- JSON export is the portability and backup path. Store exports in a location appropriate to their sensitivity.
-- AI is not a core dependency. Any future AI suggestion must remain visibly separate from source evidence.
+- 本文件是默认中文入口；[README.en.md](README.en.md) 提供完整英文版本。
+- 产品方向是简体中文优先并提供完整英语界面。每项实质性界面功能必须同步维护中英文文案；实际交付状态以 [PROJECT_STATE.md](PROJECT_STATE.md) 为准。
+- 界面语言偏好与研究工作区分开保存；架构中的枚举、标识符和可迁移 JSON 保持语言中立。
+- 切换语言只改变应用界面、系统消息以及日期和数字的显示，不会静默翻译或改写用户输入的标题、笔记、引文、田野材料或其他研究内容。
 
-Local-first does **not** mean risk-free. Browser storage can be cleared, devices can fail, and exported workspaces can contain sensitive notes. Maintain encrypted backups and follow your institution's research-ethics, consent, retention, and data-protection requirements.
+## 本地优先与隐私
 
-Read [Security](SECURITY.md) and the [research ethics guidance](docs/research-workflows/research-ethics.md) before entering fieldwork or interview metadata.
+- 核心研究记录通过 IndexedDB 保存在浏览器本地。
+- 不要求账号、默认云同步、分析统计或第三方跟踪器。
+- 本地文件字段只是引用；本应用不是源数据或访谈文本的安全保管库。
+- JSON 导出是迁移和备份路径；请根据内容敏感程度选择适当的保存位置。
+- AI 不是核心依赖。未来任何 AI 建议都必须与来源证据清晰区分。
 
-## Screenshots
+本地优先并不等于没有风险。浏览器存储可能被清除，设备可能损坏，导出的工作区也可能包含敏感笔记。请维护加密备份，并遵守所在机构的研究伦理、知情同意、保留期限与数据保护要求。
 
-All visible records below come from the explicitly synthetic demo workspace. See the [screenshot register](docs/screenshots/README.md) for capture and privacy details.
+在录入田野或访谈元数据前，请阅读[安全政策](SECURITY.md)和[研究伦理指南](docs/research-workflows/research-ethics.md)。
 
-![Today research desk in the light theme](docs/screenshots/today-light.jpg)
+## 截图
 
-![Evidence ledger in the dark theme](docs/screenshots/evidence-dark.jpg)
+以下截图只显示明确标注的合成演示记录。采集信息与隐私检查详见[截图登记](docs/screenshots/README.md)。
 
-![Workspace backup, import, and demo-reset dialog](docs/screenshots/workspace-data-light.jpg)
+![浅色主题下的今日研究工作台](docs/screenshots/today-light.jpg)
 
-## Getting started
+![深色主题下的证据台账](docs/screenshots/evidence-dark.jpg)
 
-### Prerequisites
+![工作区备份、导入与演示数据重置对话框](docs/screenshots/workspace-data-light.jpg)
 
-- Node.js 24 and npm 11 are the verified development environment.
-- A current Chromium-, Firefox-, or Safari-based desktop browser with IndexedDB enabled.
+## 开始使用
 
-### Run locally
+### 环境要求
 
-From an existing checkout:
+- 已验证的开发环境为 Node.js 24 和 npm 11。
+- 启用 IndexedDB 的当前版本 Chromium、Firefox 或 Safari 桌面浏览器。
+
+### 本地运行
+
+在已有代码检出目录中运行：
 
 ```bash
 npm ci
 npm run dev
 ```
 
-The public repository is [Yoesher/sociology-phd-desk](https://github.com/Yoesher/sociology-phd-desk). A new checkout can use:
+公开仓库为 [Yoesher/sociology-phd-desk](https://github.com/Yoesher/sociology-phd-desk)。新检出可使用：
 
 ```bash
 git clone https://github.com/Yoesher/sociology-phd-desk.git
 cd sociology-phd-desk
 ```
 
-Open the local URL printed by Vite. Data created in one browser profile is not automatically available in another profile or device.
+打开 Vite 在终端中显示的本地地址。同一浏览器配置文件中的数据不会自动出现在其他配置文件或设备上。
 
-### Validate a contribution
+### 验证贡献
 
 ```bash
 npm run lint
@@ -112,43 +119,43 @@ npm test
 npm run build
 ```
 
-These commands are also the required CI sequence. A command is not considered passing unless it has actually run successfully in the current revision.
+CI 也执行这组命令。只有在当前修订上实际成功运行后，才能把命令报告为通过。
 
-### Back up or move a workspace
+### 备份或迁移工作区
 
-Use the in-app JSON export action and inspect the destination before sharing the file. On import, validate the preview and choose the intended merge behavior. Replacement must be an explicit action; it must never happen silently.
+使用应用内 JSON 导出，并在分享前检查目标文件。导入时请核对预览并选择预期的合并方式。替换必须是明确操作，绝不能静默发生。
 
-## Architecture
+## 架构
 
-The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith.
+当前基础采用 React、TypeScript 和 Vite。Dexie 提供 IndexedDB 数据层，Zod 验证可迁移数据，Vitest 覆盖可测试的应用逻辑。持久化与领域逻辑和页面组件保持分离，使研究对象能够演进，而不把应用外壳变成单体组件。
 
-See [architecture overview](docs/architecture/overview.md), [data model](docs/architecture/data-model.md), and [decisions](DECISIONS.md).
+参阅[架构概览](docs/architecture/overview.md)、[数据模型](docs/architecture/data-model.md)和[架构决策](DECISIONS.md)。
 
-## Roadmap
+## 路线图
 
-The `0.1` line establishes the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure. Next work deepens evidence provenance, qualitative traceability, reproducibility metadata, browser-level coverage, and carefully scoped integrations.
+`0.1` 系列建立核心研究生命周期、安全导入导出、质量门禁和公开维护基础。Phase 3 按顺序推进简中优先的双语基础、研究问题—主张图谱，以及通过数据来源与法律合规核验后才能实施的中国研究地图。
 
-See [ROADMAP.md](ROADMAP.md). Roadmap entries are intentions, not delivery promises.
+详见 [ROADMAP.md](ROADMAP.md)。路线图描述方向，不是交付承诺。
 
-## Contributing
+## 参与贡献
 
-Researchers, research software engineers, designers, and documentation contributors are welcome. The most useful reports describe a concrete research object or transition the current model cannot represent.
+欢迎研究者、研究软件工程师、设计师和文档贡献者参与。最有帮助的报告会描述当前模型无法表示的具体研究对象或工作流转折。
 
-- Read [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
-- Use the bug, feature, or research-workflow issue form that best fits the report.
-- Never attach identifiable participant information, private fieldnotes, transcripts, credentials, or proprietary research data.
-- Run lint, type checking, tests, and the production build before opening a pull request.
+- 阅读[中文贡献指南](CONTRIBUTING.md)和[行为准则](CODE_OF_CONDUCT.md)。
+- 使用最适合问题的缺陷、功能或研究工作流 Issue 表单。
+- 切勿附上可识别参与者信息、私人田野笔记、访谈文本、凭据或专有研究数据。
+- 打开 Pull Request 前运行 lint、类型检查、测试和生产构建。
 
-## Research ethics
+## 研究伦理
 
-**Do not store directly identifying participant information here.** Use aliases and anonymous identifiers such as `participant_id`, `case_id`, and `interview_id`. Do not enter names, phone numbers, government identifiers, precise home addresses, signatures, or complete consent forms.
+**请勿在此存储可直接识别参与者身份的信息。** 请使用别名以及 `participant_id`、`case_id`、`interview_id` 等匿名标识符。不要录入姓名、电话号码、政府证件号码、精确住址、签名或完整知情同意书。
 
-Sociology PhD Desk is a workflow tool, not an ethics review, consent-management, de-identification, encryption, or institutional repository system. Researchers remain responsible for lawful and ethical use.
+Sociology PhD Desk 是工作流工具，不是伦理审查、知情同意管理、去标识化、加密或机构知识库系统。研究者仍须对合法且合乎伦理的使用负责。
 
-## Project integrity
+## 项目诚信
 
-Project activity, users, stars, forks, downloads, issues, pull requests, releases, and external adoption are reported only when they can be verified. The current evidence register is maintained in [docs/codex-for-oss.md](docs/codex-for-oss.md). The project has not automatically applied to any external program.
+项目活动、用户、Star、Fork、下载量、Issue、Pull Request、Release 与外部采用情况，只在能够核验时报告。当前证据登记维护在 [docs/codex-for-oss.md](docs/codex-for-oss.md)。项目不会自动申请任何外部计划。
 
-## License
+## 许可证
 
-Sociology PhD Desk is available under the [MIT License](LICENSE).
+Sociology PhD Desk 使用 [MIT License](LICENSE)。

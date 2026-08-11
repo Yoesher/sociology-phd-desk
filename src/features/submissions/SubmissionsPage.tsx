@@ -8,7 +8,8 @@ import {
   type Submission,
 } from '../../models/domain'
 import { useWorkspace } from '../../hooks/useWorkspace'
-import { entityMeta, formatDate, projectLabel, truncate } from '../../app/format'
+import { entityMeta, projectLabel, truncate } from '../../app/format'
+import { useI18n } from '../../i18n'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
   AddButton,
@@ -96,6 +97,7 @@ const severityTone = (severity: ReviewerComment['severity']): Tone => {
 
 export function SubmissionsPage() {
   const { data, updateData } = useWorkspace()
+  const { t, formatDate, formatNumber, labelEnum } = useI18n()
   const [tab, setTab] = useState<SubmissionTab>('submissions')
   const [search, setSearch] = useState('')
   const [projectFilter, setProjectFilter] = useState('')
@@ -105,7 +107,16 @@ export function SubmissionsPage() {
   const [reviewerOpen, setReviewerOpen] = useState(false)
   const [submissionDraft, setSubmissionDraft] = useState<SubmissionDraft>(emptySubmissionDraft)
   const [reviewerDraft, setReviewerDraft] = useState<ReviewerDraft>(emptyReviewerDraft)
-  const [reviewerError, setReviewerError] = useState<string | null>(null)
+  const [reviewerError, setReviewerError] = useState(false)
+
+  const recordCount = (count: number) => t(
+    count === 1 ? 'submissions.count.recordsOne' : 'submissions.count.recordsOther',
+    { count: formatNumber(count) },
+  )
+  const localizedProjectLabel = (projectId?: string) => {
+    const project = data?.projects.find((item) => item.id === projectId)
+    return project?.shortTitle || project?.title || t('common.unassigned')
+  }
 
   const filteredSubmissions = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -219,7 +230,7 @@ export function SubmissionsPage() {
     ) || validSubmissions[0]
     if (!preferred) return
     setReviewerDraft(emptyReviewerDraft(preferred.id))
-    setReviewerError(null)
+    setReviewerError(false)
     setReviewerOpen(true)
   }
 
@@ -261,7 +272,7 @@ export function SubmissionsPage() {
     if (data.reviewerComments.some(
       (comment) => comment.submissionId === reviewerDraft.submissionId && comment.commentId === commentId,
     )) {
-      setReviewerError('This comment ID already exists for the selected submission. Use a unique reviewer-comment ID.')
+      setReviewerError(true)
       return
     }
 
@@ -280,7 +291,7 @@ export function SubmissionsPage() {
       ...current,
       reviewerComments: [record, ...current.reviewerComments],
     }))
-    setReviewerError(null)
+    setReviewerError(false)
     setReviewerOpen(false)
     setTab('review')
   }
@@ -334,38 +345,38 @@ export function SubmissionsPage() {
     <div className="page">
       <PageHeader
         index="09"
-        eyebrow="Editorial record"
-        title="Submissions & peer review"
-        description="Keep journal states, manuscript versions, reviewer claims, responses, and revision actions in one traceable record."
+        eyebrow={t('submissions.header.eyebrow')}
+        title={t('submissions.header.title')}
+        description={t('submissions.header.description')}
         actions={
           <div className="button-row">
             <Button
               onClick={openReviewer}
               disabled={!validSubmissions.length}
-              title={!validSubmissions.length ? 'Add a valid submission before recording reviewer comments.' : undefined}
+              title={!validSubmissions.length ? t('submissions.disabled.noSubmission') : undefined}
             >
-              Add reviewer comment
+              {t('submissions.action.addReviewerComment')}
             </Button>
             <AddButton
               onClick={openSubmission}
               disabled={!validManuscripts.length}
-              title={!validManuscripts.length ? 'Add a project-linked manuscript before creating a submission.' : undefined}
+              title={!validManuscripts.length ? t('submissions.disabled.noManuscript') : undefined}
             >
-              Add submission
+              {t('submissions.action.addSubmission')}
             </AddButton>
           </div>
         }
       />
 
       <div className="stats-grid stats-grid--four">
-        <StatCard label="Submissions" value={data.submissions.length} detail="complete editorial records" tone="blue" />
-        <StatCard label="In review" value={inReview} detail="submitted or under review" tone="violet" />
-        <StatCard label="Decisions" value={decisions} detail="decision record received" tone="success" />
-        <StatCard label="Open comments" value={openComments} detail={`${resolvedComments} resolved`} tone={openComments ? 'warning' : 'neutral'} />
+        <StatCard label={t('submissions.stats.submissions.label')} value={formatNumber(data.submissions.length)} detail={t('submissions.stats.submissions.detail')} tone="blue" />
+        <StatCard label={t('submissions.stats.review.label')} value={formatNumber(inReview)} detail={t('submissions.stats.review.detail')} tone="violet" />
+        <StatCard label={t('submissions.stats.decisions.label')} value={formatNumber(decisions)} detail={t('submissions.stats.decisions.detail')} tone="success" />
+        <StatCard label={t('submissions.stats.comments.label')} value={formatNumber(openComments)} detail={t(resolvedComments === 1 ? 'submissions.stats.comments.detailOne' : 'submissions.stats.comments.detailOther', { count: formatNumber(resolvedComments) })} tone={openComments ? 'warning' : 'neutral'} />
       </div>
 
       <section className="panel">
-        <div className="segmented-tabs" role="tablist" aria-label="Editorial workflow">
+        <div className="segmented-tabs" role="tablist" aria-label={t('submissions.tabs.label')}>
           <button
             type="button"
             role="tab"
@@ -373,7 +384,7 @@ export function SubmissionsPage() {
             className={tab === 'submissions' ? 'active' : ''}
             onClick={() => setTab('submissions')}
           >
-            <Send size={15} /> Submissions <span>{data.submissions.length}</span>
+            <Send size={15} /> {t('submissions.tabs.submissions')} <span>{formatNumber(data.submissions.length)}</span>
           </button>
           <button
             type="button"
@@ -382,7 +393,7 @@ export function SubmissionsPage() {
             className={tab === 'review' ? 'active' : ''}
             onClick={() => setTab('review')}
           >
-            <MessageSquareText size={15} /> Reviewer matrix <span>{data.reviewerComments.length}</span>
+            <MessageSquareText size={15} /> {t('submissions.tabs.review')} <span>{formatNumber(data.reviewerComments.length)}</span>
           </button>
         </div>
 
@@ -390,7 +401,7 @@ export function SubmissionsPage() {
           <SearchField
             value={search}
             onChange={setSearch}
-            placeholder={tab === 'submissions' ? 'Search journal, manuscript, version, or decision' : 'Search reviewer, comment, response, or action'}
+            placeholder={t(tab === 'submissions' ? 'submissions.search.submissions' : 'submissions.search.review')}
           />
           <ProjectSelect
             projects={data.projects}
@@ -402,23 +413,23 @@ export function SubmissionsPage() {
             <select
               value={submissionStatusFilter}
               onChange={(event) => setSubmissionStatusFilter(event.target.value)}
-              aria-label="Filter by submission status"
+              aria-label={t('submissions.filter.submissionStatusLabel')}
             >
-              <option value="">All submission statuses</option>
-              {SUBMISSION_STATUSES.map((status) => <option key={status}>{status}</option>)}
+              <option value="">{t('submissions.filter.allSubmissionStatuses')}</option>
+              {SUBMISSION_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
             </select>
           ) : (
             <select
               value={reviewStatusFilter}
               onChange={(event) => setReviewStatusFilter(event.target.value)}
-              aria-label="Filter by reviewer comment status"
+              aria-label={t('submissions.filter.reviewStatusLabel')}
             >
-              <option value="">All review statuses</option>
-              {REVIEW_COMMENT_STATUSES.map((status) => <option key={status}>{status}</option>)}
+              <option value="">{t('submissions.filter.allReviewStatuses')}</option>
+              {REVIEW_COMMENT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
             </select>
           )}
           <span className="toolbar__count">
-            {tab === 'submissions' ? filteredSubmissions.length : filteredComments.length} records
+            {recordCount(tab === 'submissions' ? filteredSubmissions.length : filteredComments.length)}
           </span>
         </div>
 
@@ -427,11 +438,11 @@ export function SubmissionsPage() {
             <table className="data-table submissions-table">
               <thead>
                 <tr>
-                  <th>Manuscript / journal</th>
-                  <th>Project / version</th>
-                  <th>Editorial dates</th>
-                  <th>Editorial record</th>
-                  <th>Status</th>
+                  <th>{t('submissions.table.manuscriptJournal')}</th>
+                  <th>{t('submissions.table.projectVersion')}</th>
+                  <th>{t('submissions.table.editorialDates')}</th>
+                  <th>{t('submissions.table.editorialRecord')}</th>
+                  <th>{t('submissions.table.status')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -441,42 +452,42 @@ export function SubmissionsPage() {
                   )
                   return (
                     <tr key={submission.id}>
-                      <td data-label="Manuscript / journal">
+                      <td data-label={t('submissions.table.manuscriptJournal')}>
                         <span className="record-title">
-                          <strong>{manuscript?.title || 'Missing manuscript record'}</strong>
+                          <strong>{manuscript?.title || t('submissions.fallback.missingManuscript')}</strong>
                           <span>{submission.journal}</span>
                         </span>
                       </td>
-                      <td data-label="Project / version">
+                      <td data-label={t('submissions.table.projectVersion')}>
                         <span className="date-cell">
-                          {projectLabel(data.projects, submission.projectId)}
+                          {localizedProjectLabel(submission.projectId)}
                           <small>{submission.manuscriptVersion}</small>
                         </span>
                       </td>
-                      <td data-label="Editorial dates">
+                      <td data-label={t('submissions.table.editorialDates')}>
                         <span className="date-cell">
-                          {formatDate(submission.submissionDate, 'Not submitted')}
-                          <small>Decision: {formatDate(submission.decisionDate)}</small>
+                          {formatDate(submission.submissionDate, t('submissions.fallback.notSubmitted'))}
+                          <small>{t('submissions.table.decisionDate', { date: formatDate(submission.decisionDate) })}</small>
                         </span>
                       </td>
-                      <td data-label="Editorial record">
+                      <td data-label={t('submissions.table.editorialRecord')}>
                         <span className="record-title">
-                          <strong>{submission.editorialStatus || 'No editorial note'}</strong>
-                          <span>{truncate(submission.decision || submission.notes || 'No decision or notes recorded.', 90)}</span>
+                          <strong>{submission.editorialStatus || t('submissions.fallback.noEditorialNote')}</strong>
+                          <span>{truncate(submission.decision || submission.notes || t('submissions.fallback.noDecisionNotes'), 90)}</span>
                         </span>
                       </td>
-                      <td data-label="Status">
+                      <td data-label={t('submissions.table.status')}>
                         <select
                           value={submission.status}
                           onChange={(event) => void updateSubmissionStatus(
                             submission.id,
                             event.target.value as Submission['status'],
                           )}
-                          aria-label={`Update submission status for ${manuscript?.title || submission.journal}`}
+                          aria-label={t('submissions.a11y.updateSubmissionStatus', { name: manuscript?.title || submission.journal })}
                         >
-                          {SUBMISSION_STATUSES.map((status) => <option key={status}>{status}</option>)}
+                          {SUBMISSION_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
                         </select>
-                        <Badge tone={submissionTone(submission.status)}>{submission.status}</Badge>
+                        <Badge tone={submissionTone(submission.status)}>{labelEnum(submission.status)}</Badge>
                       </td>
                     </tr>
                   )
@@ -486,18 +497,18 @@ export function SubmissionsPage() {
           </div>
         ) : (
           <EmptyState
-            title={data.submissions.length ? 'No submissions match these filters' : 'No journal submissions recorded'}
+            title={t(data.submissions.length ? 'submissions.empty.submissions.filteredTitle' : 'submissions.empty.submissions.initialTitle')}
             description={
               data.submissions.length
-                ? 'Clear one or more filters to restore the editorial record.'
+                ? t('submissions.empty.submissions.filteredDescription')
                 : validManuscripts.length
-                  ? 'Create a submission from a real project-linked manuscript.'
-                  : 'Add a project-linked manuscript before creating its submission record.'
+                  ? t('submissions.empty.submissions.withManuscriptsDescription')
+                  : t('submissions.empty.submissions.withoutManuscriptsDescription')
             }
             action={
               data.submissions.length
-                ? <Button onClick={clearFilters}>Clear filters</Button>
-                : <AddButton onClick={openSubmission} disabled={!validManuscripts.length}>Add first submission</AddButton>
+                ? <Button onClick={clearFilters}>{t('submissions.action.clearFilters')}</Button>
+                : <AddButton onClick={openSubmission} disabled={!validManuscripts.length}>{t('submissions.action.addFirstSubmission')}</AddButton>
             }
           />
         ))}
@@ -516,35 +527,35 @@ export function SubmissionsPage() {
                   <header>
                     <div>
                       <p className="eyebrow">{comment.reviewer} / {comment.commentId}</p>
-                      <h3>{manuscript?.title || 'Missing manuscript record'}</h3>
-                      <span>{submission?.journal || 'Missing submission record'} · {projectLabel(data.projects, submission?.projectId)}</span>
+                      <h3>{manuscript?.title || t('submissions.fallback.missingManuscript')}</h3>
+                      <span>{submission?.journal || t('submissions.fallback.missingSubmission')} · {localizedProjectLabel(submission?.projectId)}</span>
                     </div>
                     <div className="badge-row">
-                      <Badge tone={severityTone(comment.severity)}>{comment.severity}</Badge>
-                      <Badge tone={reviewTone(comment.status)}>{comment.status}</Badge>
+                      <Badge tone={severityTone(comment.severity)}>{labelEnum(comment.severity)}</Badge>
+                      <Badge tone={reviewTone(comment.status)}>{labelEnum(comment.status)}</Badge>
                     </div>
                   </header>
                   <blockquote>{comment.comment}</blockquote>
                   <dl className="reviewer-comment-card__work">
                     <div>
-                      <dt>Response</dt>
-                      <dd>{truncate(comment.response || 'Response not drafted.', 220)}</dd>
+                      <dt>{t('submissions.review.response')}</dt>
+                      <dd>{truncate(comment.response || t('submissions.review.noResponse'), 220)}</dd>
                     </div>
                     <div>
-                      <dt>Revision action</dt>
-                      <dd>{truncate(comment.revisionAction || 'Revision action not defined.', 220)}</dd>
+                      <dt>{t('submissions.review.revisionAction')}</dt>
+                      <dd>{truncate(comment.revisionAction || t('submissions.review.noRevisionAction'), 220)}</dd>
                     </div>
                   </dl>
-                  <Field label="Comment status" className="field--compact">
+                  <Field label={t('submissions.review.commentStatus')} className="field--compact">
                     <select
                       value={comment.status}
                       onChange={(event) => void updateReviewStatus(
                         comment.id,
                         event.target.value as ReviewerComment['status'],
                       )}
-                      aria-label={`Update status for reviewer comment ${comment.commentId}`}
+                      aria-label={t('submissions.a11y.updateCommentStatus', { id: comment.commentId })}
                     >
-                      {REVIEW_COMMENT_STATUSES.map((status) => <option key={status}>{status}</option>)}
+                      {REVIEW_COMMENT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
                     </select>
                   </Field>
                 </article>
@@ -553,18 +564,18 @@ export function SubmissionsPage() {
           </div>
         ) : (
           <EmptyState
-            title={data.reviewerComments.length ? 'No reviewer comments match these filters' : 'No reviewer comments recorded'}
+            title={t(data.reviewerComments.length ? 'submissions.empty.review.filteredTitle' : 'submissions.empty.review.initialTitle')}
             description={
               data.reviewerComments.length
-                ? 'Clear one or more filters to restore the revision matrix.'
+                ? t('submissions.empty.review.filteredDescription')
                 : validSubmissions.length
-                  ? 'Turn each reviewer claim into a response and an explicit revision action.'
-                  : 'Add a valid submission before recording peer-review work.'
+                  ? t('submissions.empty.review.withSubmissionsDescription')
+                  : t('submissions.empty.review.withoutSubmissionsDescription')
             }
             action={
               data.reviewerComments.length
-                ? <Button onClick={clearFilters}>Clear filters</Button>
-                : <AddButton onClick={openReviewer} disabled={!validSubmissions.length}>Add first comment</AddButton>
+                ? <Button onClick={clearFilters}>{t('submissions.action.clearFilters')}</Button>
+                : <AddButton onClick={openReviewer} disabled={!validSubmissions.length}>{t('submissions.action.addFirstComment')}</AddButton>
             }
           />
         ))}
@@ -572,19 +583,19 @@ export function SubmissionsPage() {
 
       <Modal
         open={submissionOpen}
-        title="Add a submission"
-        description="Link the exact manuscript version and retain the journal's editorial state as a separate record."
+        title={t('submissions.submissionDialog.title')}
+        description={t('submissions.submissionDialog.description')}
         onClose={() => setSubmissionOpen(false)}
         size="lg"
         footer={
           <>
-            <Button onClick={() => setSubmissionOpen(false)}>Cancel</Button>
-            <Button variant="primary" type="submit" form="submission-form">Add submission</Button>
+            <Button onClick={() => setSubmissionOpen(false)}>{t('common.cancel')}</Button>
+            <Button variant="primary" type="submit" form="submission-form">{t('submissions.action.addSubmission')}</Button>
           </>
         }
       >
         <form id="submission-form" className="form-grid" onSubmit={(event) => void saveSubmission(event)}>
-          <Field label="Project" required>
+          <Field label={t('submissions.submissionForm.project')} required>
             <ProjectSelect
               required
               projects={submissionProjects}
@@ -600,7 +611,7 @@ export function SubmissionsPage() {
               }}
             />
           </Field>
-          <Field label="Manuscript" required>
+          <Field label={t('submissions.submissionForm.manuscript')} required>
             <select
               required
               value={submissionDraft.manuscriptId}
@@ -613,13 +624,13 @@ export function SubmissionsPage() {
                 })
               }}
             >
-              <option value="">Select a manuscript</option>
+              <option value="">{t('submissions.submissionForm.selectManuscript')}</option>
               {data.manuscripts
                 .filter((manuscript) => manuscript.projectId === submissionDraft.projectId)
                 .map((manuscript) => <option key={manuscript.id} value={manuscript.id}>{manuscript.title}</option>)}
             </select>
           </Field>
-          <Field label="Journal" required>
+          <Field label={t('submissions.submissionForm.journal')} required>
             <input
               autoFocus
               required
@@ -627,56 +638,56 @@ export function SubmissionsPage() {
               onChange={(event) => setSubmissionDraft({ ...submissionDraft, journal: event.target.value })}
             />
           </Field>
-          <Field label="Manuscript version" required>
+          <Field label={t('submissions.submissionForm.version')} required>
             <input
               required
               value={submissionDraft.manuscriptVersion}
               onChange={(event) => setSubmissionDraft({ ...submissionDraft, manuscriptVersion: event.target.value })}
-              placeholder="e.g. v1.2, clean submission copy"
+              placeholder={t('submissions.submissionForm.versionPlaceholder')}
             />
           </Field>
-          <Field label="Submission date">
+          <Field label={t('submissions.submissionForm.date')}>
             <input
               type="date"
               value={submissionDraft.submissionDate}
               onChange={(event) => setSubmissionDraft({ ...submissionDraft, submissionDate: event.target.value })}
             />
           </Field>
-          <Field label="Submission status" required>
+          <Field label={t('submissions.submissionForm.status')} required>
             <select
               value={submissionDraft.status}
               onChange={(event) => setSubmissionDraft({ ...submissionDraft, status: event.target.value as Submission['status'] })}
             >
-              {SUBMISSION_STATUSES.map((status) => <option key={status}>{status}</option>)}
+              {SUBMISSION_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
             </select>
           </Field>
-          <Field label="Editorial status" className="form-span-2">
+          <Field label={t('submissions.submissionForm.editorialStatus')} className="form-span-2">
             <input
               value={submissionDraft.editorialStatus}
               onChange={(event) => setSubmissionDraft({ ...submissionDraft, editorialStatus: event.target.value })}
-              placeholder="Journal-specific state, editor note, or portal label"
+              placeholder={t('submissions.submissionForm.editorialStatusPlaceholder')}
             />
           </Field>
-          <Field label="Decision date">
+          <Field label={t('submissions.submissionForm.decisionDate')}>
             <input
               type="date"
               value={submissionDraft.decisionDate}
               onChange={(event) => setSubmissionDraft({ ...submissionDraft, decisionDate: event.target.value })}
             />
           </Field>
-          <Field label="Decision">
+          <Field label={t('submissions.submissionForm.decision')}>
             <input
               value={submissionDraft.decision}
               onChange={(event) => setSubmissionDraft({ ...submissionDraft, decision: event.target.value })}
-              placeholder="Use the journal's exact decision category"
+              placeholder={t('submissions.submissionForm.decisionPlaceholder')}
             />
           </Field>
-          <Field label="Notes" className="form-span-2">
+          <Field label={t('submissions.submissionForm.notes')} className="form-span-2">
             <textarea
               rows={4}
               value={submissionDraft.notes}
               onChange={(event) => setSubmissionDraft({ ...submissionDraft, notes: event.target.value })}
-              placeholder="Scope, correspondence, constraints, or next editorial checkpoint"
+              placeholder={t('submissions.submissionForm.notesPlaceholder')}
             />
           </Field>
         </form>
@@ -684,29 +695,32 @@ export function SubmissionsPage() {
 
       <Modal
         open={reviewerOpen}
-        title="Add a reviewer comment"
-        description="Keep the source comment distinct from your response and the concrete manuscript change."
+        title={t('submissions.reviewDialog.title')}
+        description={t('submissions.reviewDialog.description')}
         onClose={() => {
           setReviewerOpen(false)
-          setReviewerError(null)
+          setReviewerError(false)
         }}
         size="lg"
         footer={
           <>
-            <Button onClick={() => setReviewerOpen(false)}>Cancel</Button>
-            <Button variant="primary" type="submit" form="reviewer-comment-form">Add comment</Button>
+            <Button onClick={() => setReviewerOpen(false)}>{t('common.cancel')}</Button>
+            <Button variant="primary" type="submit" form="reviewer-comment-form">{t('submissions.reviewDialog.submit')}</Button>
           </>
         }
       >
         <form id="reviewer-comment-form" className="form-grid" onSubmit={(event) => void saveReviewerComment(event)}>
-          <Field label="Submission" required className="form-span-2">
+          <Field label={t('submissions.reviewForm.submission')} required className="form-span-2">
             <select
               autoFocus
               required
               value={reviewerDraft.submissionId}
-              onChange={(event) => setReviewerDraft({ ...reviewerDraft, submissionId: event.target.value })}
+              onChange={(event) => {
+                setReviewerDraft({ ...reviewerDraft, submissionId: event.target.value })
+                setReviewerError(false)
+              }}
             >
-              <option value="">Select a submission</option>
+              <option value="">{t('submissions.reviewForm.selectSubmission')}</option>
               {validSubmissions.map((submission) => {
                 const manuscript = data.manuscripts.find((item) => item.id === submission.manuscriptId)
                 return (
@@ -717,69 +731,69 @@ export function SubmissionsPage() {
               })}
             </select>
           </Field>
-          <Field label="Reviewer label" required>
+          <Field label={t('submissions.reviewForm.reviewer')} required>
             <input
               required
               value={reviewerDraft.reviewer}
               onChange={(event) => setReviewerDraft({ ...reviewerDraft, reviewer: event.target.value })}
-              placeholder="e.g. Reviewer 2 or Editor"
+              placeholder={t('submissions.reviewForm.reviewerPlaceholder')}
             />
           </Field>
-          <Field label="Comment ID" required>
+          <Field label={t('submissions.reviewForm.commentId')} required>
             <input
               required
               value={reviewerDraft.commentId}
               onChange={(event) => {
                 setReviewerDraft({ ...reviewerDraft, commentId: event.target.value })
-                setReviewerError(null)
+                setReviewerError(false)
               }}
-              placeholder="e.g. R2-C04"
+              placeholder={t('submissions.reviewForm.commentIdPlaceholder')}
             />
           </Field>
           {reviewerError && (
             <div className="app-error form-span-2" role="alert">
-              <span>{reviewerError}</span>
+              <span>{t('submissions.validation.duplicateCommentId')}</span>
             </div>
           )}
-          <Field label="Severity" required>
+          <Field label={t('submissions.reviewForm.severity')} required>
             <select
               value={reviewerDraft.severity}
               onChange={(event) => setReviewerDraft({ ...reviewerDraft, severity: event.target.value as ReviewerComment['severity'] })}
             >
-              {REVIEW_COMMENT_SEVERITIES.map((severity) => <option key={severity}>{severity}</option>)}
+              {REVIEW_COMMENT_SEVERITIES.map((severity) => <option key={severity} value={severity}>{labelEnum(severity)}</option>)}
             </select>
           </Field>
-          <Field label="Status" required>
+          <Field label={t('submissions.reviewForm.status')} required>
             <select
               value={reviewerDraft.status}
               onChange={(event) => setReviewerDraft({ ...reviewerDraft, status: event.target.value as ReviewerComment['status'] })}
             >
-              {REVIEW_COMMENT_STATUSES.map((status) => <option key={status}>{status}</option>)}
+              {REVIEW_COMMENT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
             </select>
           </Field>
-          <Field label="Reviewer comment" required className="form-span-2">
+          <Field label={t('submissions.reviewForm.comment')} required className="form-span-2">
             <textarea
               required
               rows={5}
               value={reviewerDraft.comment}
               onChange={(event) => setReviewerDraft({ ...reviewerDraft, comment: event.target.value })}
-              placeholder="Transcribe or accurately summarize one discrete reviewer claim."
+              placeholder={t('submissions.reviewForm.commentPlaceholder')}
             />
           </Field>
-          <Field label="Response" className="form-span-2">
+          <Field label={t('submissions.reviewForm.response')} className="form-span-2">
             <textarea
               rows={4}
               value={reviewerDraft.response}
               onChange={(event) => setReviewerDraft({ ...reviewerDraft, response: event.target.value })}
-              placeholder="Draft the substantive response or rationale for declining the request."
+              placeholder={t('submissions.reviewForm.responsePlaceholder')}
             />
           </Field>
-          <Field label="Revision action" className="form-span-2">
+          <Field label={t('submissions.reviewForm.revisionAction')} className="form-span-2">
             <textarea
               rows={3}
               value={reviewerDraft.revisionAction}
               onChange={(event) => setReviewerDraft({ ...reviewerDraft, revisionAction: event.target.value })}
-              placeholder="Name the exact manuscript, analysis, or appendix change."
+              placeholder={t('submissions.reviewForm.revisionActionPlaceholder')}
             />
           </Field>
         </form>

@@ -7,11 +7,11 @@ import {
 import { useWorkspace } from '../../hooks/useWorkspace'
 import {
   entityMeta,
-  formatDate,
   projectLabel,
   todayIso,
   truncate,
 } from '../../app/format'
+import { useI18n, type MessageKey } from '../../i18n'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
   AddButton,
@@ -38,30 +38,35 @@ interface ManuscriptDraft {
 }
 
 interface PipelineStage {
-  label: string
-  description: string
+  id: string
+  labelKey: MessageKey
+  descriptionKey: MessageKey
   statuses: Manuscript['status'][]
 }
 
 const PIPELINE_STAGES: PipelineStage[] = [
   {
-    label: 'Develop',
-    description: 'From argument idea to a complete draft.',
+    id: 'develop',
+    labelKey: 'manuscripts.stage.develop.label',
+    descriptionKey: 'manuscripts.stage.develop.description',
     statuses: ['Idea', 'Outline', 'Drafting'],
   },
   {
-    label: 'Internal review',
-    description: 'Sharpen claims before the external record begins.',
+    id: 'internal',
+    labelKey: 'manuscripts.stage.internal.label',
+    descriptionKey: 'manuscripts.stage.internal.description',
     statuses: ['Internal Review', 'Ready to Submit'],
   },
   {
-    label: 'External cycle',
-    description: 'Submission, review, and revision work.',
+    id: 'external',
+    labelKey: 'manuscripts.stage.external.label',
+    descriptionKey: 'manuscripts.stage.external.description',
     statuses: ['Submitted', 'Under Review', 'Revision'],
   },
   {
-    label: 'Outcome / rework',
-    description: 'Publication outcomes and deliberate re-framing.',
+    id: 'outcome',
+    labelKey: 'manuscripts.stage.outcome.label',
+    descriptionKey: 'manuscripts.stage.outcome.description',
     statuses: ['Accepted', 'Published', 'Rejected', 'Reworking'],
   },
 ]
@@ -91,11 +96,21 @@ const isClosed = (status: Manuscript['status']) =>
 
 export function ManuscriptsPage() {
   const { data, updateData } = useWorkspace()
+  const { t, formatDate, formatNumber, labelEnum } = useI18n()
   const [search, setSearch] = useState('')
   const [projectFilter, setProjectFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [formOpen, setFormOpen] = useState(false)
   const [draft, setDraft] = useState<ManuscriptDraft>(emptyDraft)
+
+  const manuscriptCount = (count: number) => t(
+    count === 1 ? 'manuscripts.count.manuscriptsOne' : 'manuscripts.count.manuscriptsOther',
+    { count: formatNumber(count) },
+  )
+  const localizedProjectLabel = (projectId?: string) => {
+    const project = data?.projects.find((item) => item.id === projectId)
+    return project?.shortTitle || project?.title || t('common.unassigned')
+  }
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -188,37 +203,37 @@ export function ManuscriptsPage() {
     <div className="page">
       <PageHeader
         index="08"
-        eyebrow="Writing pipeline"
-        title="Manuscripts"
-        description="Move arguments from outline to publication while keeping the next consequential writing action visible."
+        eyebrow={t('manuscripts.header.eyebrow')}
+        title={t('manuscripts.header.title')}
+        description={t('manuscripts.header.description')}
         actions={
           <AddButton
             onClick={openCreate}
             disabled={!data.projects.length}
-            title={!data.projects.length ? 'Create a project before adding a manuscript.' : undefined}
+            title={!data.projects.length ? t('manuscripts.disabled.noProject') : undefined}
           >
-            Add manuscript
+            {t('manuscripts.action.add')}
           </AddButton>
         }
       />
 
       <div className="stats-grid stats-grid--four">
-        <StatCard label="Developing" value={developing} detail="idea through drafting" tone="accent" />
-        <StatCard label="External cycle" value={external} detail="submitted through revision" tone="violet" />
-        <StatCard label="Accepted / published" value={accepted} detail={`${data.manuscripts.length} manuscripts total`} tone="success" />
-        <StatCard label="Dated milestones" value={datedMilestones} detail="open deadline commitments" tone={datedMilestones ? 'warning' : 'neutral'} />
+        <StatCard label={t('manuscripts.stats.developing.label')} value={formatNumber(developing)} detail={t('manuscripts.stats.developing.detail')} tone="accent" />
+        <StatCard label={t('manuscripts.stats.external.label')} value={formatNumber(external)} detail={t('manuscripts.stats.external.detail')} tone="violet" />
+        <StatCard label={t('manuscripts.stats.accepted.label')} value={formatNumber(accepted)} detail={t(data.manuscripts.length === 1 ? 'manuscripts.stats.accepted.detailOne' : 'manuscripts.stats.accepted.detailOther', { count: formatNumber(data.manuscripts.length) })} tone="success" />
+        <StatCard label={t('manuscripts.stats.milestones.label')} value={formatNumber(datedMilestones)} detail={t('manuscripts.stats.milestones.detail')} tone={datedMilestones ? 'warning' : 'neutral'} />
       </div>
 
       <section className="panel">
         <SectionHeader
-          title="Argument pipeline"
-          description="Status expresses editorial position; the next action expresses the work needed now."
+          title={t('manuscripts.pipeline.title')}
+          description={t('manuscripts.pipeline.description')}
         />
         <div className="toolbar toolbar--wrap">
           <SearchField
             value={search}
             onChange={setSearch}
-            placeholder="Search title, journal, project, or next action"
+            placeholder={t('manuscripts.search.placeholder')}
           />
           <ProjectSelect
             projects={data.projects}
@@ -229,12 +244,12 @@ export function ManuscriptsPage() {
           <select
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}
-            aria-label="Filter by manuscript status"
+            aria-label={t('manuscripts.filter.statusLabel')}
           >
-            <option value="">All statuses</option>
-            {MANUSCRIPT_STATUSES.map((status) => <option key={status}>{status}</option>)}
+            <option value="">{t('manuscripts.filter.allStatuses')}</option>
+            {MANUSCRIPT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
           </select>
-          <span className="toolbar__count">{filtered.length} manuscripts</span>
+          <span className="toolbar__count">{manuscriptCount(filtered.length)}</span>
         </div>
 
         {filtered.length ? (
@@ -244,14 +259,14 @@ export function ManuscriptsPage() {
                 stage.statuses.includes(manuscript.status),
               )
               return (
-                <section className="pipeline-lane" key={stage.label}>
+                <section className="pipeline-lane" key={stage.id}>
                   <header className="pipeline-lane__header">
                     <div>
-                      <p className="eyebrow">Pipeline stage</p>
-                      <h2>{stage.label}</h2>
-                      <p>{stage.description}</p>
+                      <p className="eyebrow">{t('manuscripts.pipeline.stage')}</p>
+                      <h2>{t(stage.labelKey)}</h2>
+                      <p>{t(stage.descriptionKey)}</p>
                     </div>
-                    <Badge>{manuscripts.length}</Badge>
+                    <Badge>{formatNumber(manuscripts.length)}</Badge>
                   </header>
                   <div className="pipeline-lane__records">
                     {manuscripts.length ? manuscripts.map((manuscript) => {
@@ -264,42 +279,42 @@ export function ManuscriptsPage() {
                         <article className="manuscript-card" key={manuscript.id}>
                           <header>
                             <span className="object-mark"><FilePenLine size={16} /></span>
-                            <Badge tone={statusTone(manuscript.status)}>{manuscript.status}</Badge>
+                            <Badge tone={statusTone(manuscript.status)}>{labelEnum(manuscript.status)}</Badge>
                           </header>
                           <h3>{manuscript.title}</h3>
                           <p className="manuscript-card__journal">
-                            {manuscript.targetJournal || 'Target journal not set'}
+                            {manuscript.targetJournal || t('manuscripts.card.noJournal')}
                           </p>
                           <dl>
-                            <div><dt>Project</dt><dd>{projectLabel(data.projects, manuscript.projectId)}</dd></div>
-                            <div><dt>Word count</dt><dd>{new Intl.NumberFormat('en').format(manuscript.wordCount)}</dd></div>
+                            <div><dt>{t('manuscripts.card.project')}</dt><dd>{localizedProjectLabel(manuscript.projectId)}</dd></div>
+                            <div><dt>{t('manuscripts.card.wordCount')}</dt><dd>{formatNumber(manuscript.wordCount)}</dd></div>
                             <div>
-                              <dt>Deadline</dt>
+                              <dt>{t('manuscripts.card.deadline')}</dt>
                               <dd className={overdue ? 'text-danger' : ''}>
                                 <CalendarClock size={13} /> {formatDate(manuscript.deadline)}
                               </dd>
                             </div>
                           </dl>
                           <div className="manuscript-card__next">
-                            <span>Next action</span>
-                            <p>{truncate(manuscript.nextAction || 'No next action recorded.', 150)}</p>
+                            <span>{t('manuscripts.card.nextAction')}</span>
+                            <p>{truncate(manuscript.nextAction || t('manuscripts.card.noNextAction'), 150)}</p>
                           </div>
-                          <Field label="Update status" className="field--compact">
+                          <Field label={t('manuscripts.card.updateStatus')} className="field--compact">
                             <select
                               value={manuscript.status}
                               onChange={(event) => void updateStatus(
                                 manuscript.id,
                                 event.target.value as Manuscript['status'],
                               )}
-                              aria-label={`Update status for ${manuscript.title}`}
+                              aria-label={t('manuscripts.card.updateStatusFor', { title: manuscript.title })}
                             >
-                              {MANUSCRIPT_STATUSES.map((status) => <option key={status}>{status}</option>)}
+                              {MANUSCRIPT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
                             </select>
                           </Field>
                         </article>
                       )
                     }) : (
-                      <p className="pipeline-lane__empty">No matching manuscripts at this stage.</p>
+                      <p className="pipeline-lane__empty">{t('manuscripts.pipeline.noMatches')}</p>
                     )}
                   </div>
                 </section>
@@ -308,19 +323,19 @@ export function ManuscriptsPage() {
           </div>
         ) : (
           <EmptyState
-            title={data.manuscripts.length ? 'No manuscripts match these filters' : 'No manuscripts in the pipeline'}
+            title={t(data.manuscripts.length ? 'manuscripts.empty.filteredTitle' : 'manuscripts.empty.initialTitle')}
             description={
               data.manuscripts.length
-                ? 'Clear one or more filters to restore the complete writing pipeline.'
+                ? t('manuscripts.empty.filteredDescription')
                 : data.projects.length
-                  ? 'Add an argument, its project, current writing state, and next action.'
-                  : 'Create a project first so each manuscript has a real research anchor.'
+                  ? t('manuscripts.empty.withProjectsDescription')
+                  : t('manuscripts.empty.withoutProjectsDescription')
             }
             action={
               data.manuscripts.length ? (
-                <Button onClick={() => { setSearch(''); setProjectFilter(''); setStatusFilter('') }}>Clear filters</Button>
+                <Button onClick={() => { setSearch(''); setProjectFilter(''); setStatusFilter('') }}>{t('manuscripts.action.clearFilters')}</Button>
               ) : (
-                <AddButton onClick={openCreate} disabled={!data.projects.length}>Add first manuscript</AddButton>
+                <AddButton onClick={openCreate} disabled={!data.projects.length}>{t('manuscripts.action.addFirst')}</AddButton>
               )
             }
           />
@@ -329,28 +344,28 @@ export function ManuscriptsPage() {
 
       <Modal
         open={formOpen}
-        title="Add a manuscript"
-        description="Create a project-linked writing record with one explicit next action."
+        title={t('manuscripts.dialog.title')}
+        description={t('manuscripts.dialog.description')}
         onClose={() => setFormOpen(false)}
         size="lg"
         footer={
           <>
-            <Button onClick={() => setFormOpen(false)}>Cancel</Button>
-            <Button variant="primary" type="submit" form="manuscript-form">Add manuscript</Button>
+            <Button onClick={() => setFormOpen(false)}>{t('common.cancel')}</Button>
+            <Button variant="primary" type="submit" form="manuscript-form">{t('manuscripts.action.add')}</Button>
           </>
         }
       >
         <form id="manuscript-form" className="form-grid" onSubmit={(event) => void saveManuscript(event)}>
-          <Field label="Working title" required className="form-span-2">
+          <Field label={t('manuscripts.form.title')} required className="form-span-2">
             <input
               autoFocus
               required
               value={draft.title}
               onChange={(event) => setDraft({ ...draft, title: event.target.value })}
-              placeholder="Name the argument rather than the file."
+              placeholder={t('manuscripts.form.titlePlaceholder')}
             />
           </Field>
-          <Field label="Project" required>
+          <Field label={t('manuscripts.form.project')} required>
             <ProjectSelect
               required
               projects={data.projects}
@@ -358,23 +373,23 @@ export function ManuscriptsPage() {
               onChange={(projectId) => setDraft({ ...draft, projectId })}
             />
           </Field>
-          <Field label="Target journal" required>
+          <Field label={t('manuscripts.form.journal')} required>
             <input
               required
               value={draft.targetJournal}
               onChange={(event) => setDraft({ ...draft, targetJournal: event.target.value })}
-              placeholder="Use a working journal target; revise it as strategy changes."
+              placeholder={t('manuscripts.form.journalPlaceholder')}
             />
           </Field>
-          <Field label="Pipeline status" required>
+          <Field label={t('manuscripts.form.status')} required>
             <select
               value={draft.status}
               onChange={(event) => setDraft({ ...draft, status: event.target.value as Manuscript['status'] })}
             >
-              {MANUSCRIPT_STATUSES.map((status) => <option key={status}>{status}</option>)}
+              {MANUSCRIPT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
             </select>
           </Field>
-          <Field label="Word count" required>
+          <Field label={t('manuscripts.form.wordCount')} required>
             <input
               required
               type="number"
@@ -384,16 +399,16 @@ export function ManuscriptsPage() {
               onChange={(event) => setDraft({ ...draft, wordCount: event.target.value })}
             />
           </Field>
-          <Field label="Next action" required className="form-span-2">
+          <Field label={t('manuscripts.form.nextAction')} required className="form-span-2">
             <textarea
               required
               rows={3}
               value={draft.nextAction}
               onChange={(event) => setDraft({ ...draft, nextAction: event.target.value })}
-              placeholder="e.g. Reconcile the mechanism claim with the robustness appendix."
+              placeholder={t('manuscripts.form.nextActionPlaceholder')}
             />
           </Field>
-          <Field label="Deadline" className="form-span-2">
+          <Field label={t('manuscripts.form.deadline')} className="form-span-2">
             <input
               type="date"
               value={draft.deadline}

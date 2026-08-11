@@ -1,7 +1,7 @@
 # Project State
 
 > Last updated: 2026-08-11  
-> Status: Phase 0, Phase 1, and Phase 2 complete; `v0.1.0` is a verified public release
+> Status: Phase 0, Phase 1, and Phase 2 complete; Phase 3A bilingual candidate is locally verified on `feat/bilingual-localization` and awaits Pull Request gates; `v0.1.0` remains the verified public release
 > Canonical local project path: `D:\phddesk`
 
 This file is the factual handoff record for maintainers and future Codex sessions. Update it at the end of every development session. Never infer passing checks, repository activity, users, or releases.
@@ -33,6 +33,7 @@ These facts do not prove that a similarly named remote repository cannot exist; 
 - Browser-local IndexedDB persistence through Dexie.
 - Zod validation at portable-data and repository write boundaries.
 - React Router for application navigation.
+- A typed internal i18n layer with Chinese-first `zh-CN` and complete `en` resources; application language/theme settings remain separate from research data.
 - Vitest and Testing Library for tests; `fake-indexeddb` for persistence tests.
 - Oxlint, TypeScript project checks, and Vite production build as quality gates.
 - No server, account, default cloud synchronization, analytics, or required AI API in the core architecture.
@@ -44,6 +45,7 @@ See [DECISIONS.md](DECISIONS.md) and [docs/architecture/overview.md](docs/archit
 The local `0.1.0` vertical slice is implemented and exercised:
 
 - responsive application shell, desktop/mobile navigation, route-level code splitting, and persistent light/dark theme;
+- a Phase 3A candidate with Chinese as the fresh-install default, immediate persistent Chinese/English switching, locale-aware dates/numbers/validation, stable persisted enum values, and no automatic translation of user-authored content;
 - all nine routes: Today, Projects, Literature, Fieldwork, Quantitative, Evidence, Research Log, Manuscripts, and Submissions;
 - full create, inspect, edit, and protected-delete flows for Projects, Evidence, Field Sites, Interviews, and Field Visits;
 - focused creation, filtering, status, and registry workflows for Today tasks, Literature, Datasets/Analysis Runs, Research Log, Manuscripts, Submissions, and Reviewer Comments;
@@ -51,26 +53,27 @@ The local `0.1.0` vertical slice is implemented and exercised:
 - browser-local IndexedDB persistence with a tested database v1-to-v2 migration, whole-workspace validation, generation-aware queued writes, optimistic revision checks, stale-tab/dependent-write cancellation, and same-origin refresh broadcasts;
 - validated portable JSON v2 export/import, tested legacy v1-to-v2 migration, preview, merge collision counts, explicit replacement, and destructive reset confirmation;
 - fieldwork privacy warnings and cross-project relationship guards;
-- English/Chinese documentation, contributor/security infrastructure, issue forms, CI, and sanitized screenshots.
+- Chinese-default documentation with complete reciprocal English README/contribution guides, contributor/security infrastructure, issue forms, CI, and sanitized screenshots.
 
 Projects, Evidence, and Fieldwork are the deepest CRUD modules in this release. Other modules intentionally provide narrower registry/status workflows; the READMEs do not claim full CRUD parity.
 
 ## Validation status
 
-Recorded on 2026-08-11. Local checks were most recently run after the Pages workflow change; remote checks below identify the exact tested revision.
+Recorded on 2026-08-11. The Phase 3A candidate was verified locally after the final accessibility and responsive fixes. Remote CI/Pages rows remain explicitly tied to the unchanged `v0.1.0` release until the feature Pull Request and post-merge workflows pass.
 
 | Check | Command | Current recorded result |
 | --- | --- | --- |
 | Install | `npm ci` | PASS — 126 packages installed from the lockfile |
-| Lint | `npm run lint` | PASS — Oxlint exited 0 with no findings |
-| Type check | `npm run typecheck` | PASS — TypeScript build check exited 0 |
-| Tests | `npm test` | PASS — 6 files, 25 tests |
-| Build | `npm run build` | PASS — Vite 8.2.1, 1,907 modules, main chunk 450.31 kB / 140.43 kB gzip |
-| Deployed browser smoke | `https://yoesher.github.io/sociology-phd-desk/` | PASS — nine hash routes, light/dark, synthetic demo, task persistence across reload, confirmed demo restore, and zero application console errors; the export control was exercised but the in-app browser did not expose its download event |
-| Remote CI | [CI run 31483003952](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31483003952) | PASS on release SHA `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994` — install, lint, typecheck, 25 tests, and production build |
-| Pages | [Pages run 31483003953](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31483003953) | PASS on the same release SHA; deployed URL verified as `https://yoesher.github.io/sociology-phd-desk/` |
+| Lint | `npm run lint` | PASS — Oxlint exited 0 with no findings on the final local candidate |
+| Type check | `npm run typecheck` | PASS — TypeScript build check exited 0 on the final local candidate |
+| Tests | `npm test` | PASS — 11 files, 37 tests |
+| Build | `npm run build` | PASS — Vite 8.2.1, 1,927 modules, largest `vendor` chunk 402.70 kB / 125.99 kB gzip; no oversized-chunk warning |
+| Phase 3A local browser smoke | `http://127.0.0.1:41739/` | PASS — all nine routes in both languages; Chinese fresh default; immediate switch and reload persistence; stable route/theme/demo content; Chinese/English validation; workspace/reset dialogs; fieldwork privacy; 1280, 1025, and 390 × 844 layouts; mobile status labels; zero console warnings/errors; no horizontal overflow. JSON export showed its versioned success state, while the in-app browser did not expose a download event. |
+| `v0.1.0` deployed browser smoke | `https://yoesher.github.io/sociology-phd-desk/` | PASS — nine hash routes, light/dark, synthetic demo, task persistence across reload, confirmed demo restore, and zero application console errors at the release revision |
+| `v0.1.0` remote CI | [CI run 31483003952](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31483003952) | PASS on release SHA `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994` — install, lint, typecheck, 25 tests, and production build |
+| `v0.1.0` Pages | [Pages run 31483003953](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31483003953) | PASS on the same release SHA; deployed URL verified as `https://yoesher.github.io/sociology-phd-desk/` |
 
-The browser pass created a clearly synthetic QA project, reloaded the page to prove IndexedDB and theme persistence, then deleted the record through its confirmation flow. JSON export displayed its versioned success filename. Demo reset opened a separate destructive confirmation and was cancelled. A Workspace modal positioning defect discovered during this pass was fixed with a document-body portal and re-verified at 1280 × 720. The browser console contained no warnings or errors at that revision.
+The earlier `v0.1.0` browser pass created a clearly synthetic QA project, reloaded the page to prove IndexedDB and theme persistence, then deleted the record through its confirmation flow. JSON export displayed its versioned success filename. Demo reset opened a separate destructive confirmation and was cancelled. A Workspace modal positioning defect discovered during that pass was fixed with a document-body portal and re-verified at 1280 × 720. The browser console contained no warnings or errors at that revision.
 
 A later audit added the generation-poison write queue and nested modal stack. Both are covered by dedicated automated regression tests. The deployed Phase 2 smoke exercised the nested demo-reset confirmation, but complete keyboard Escape/focus lifecycle coverage remains an automated-browser roadmap item.
 
@@ -93,7 +96,7 @@ A later audit added the generation-poison write queue and nested modal stack. Bo
 - Default branch: `main`, verified after the first push.
 - GitHub CLI/authentication: Phase 0 was blocked because `gh` was not installed; Phase 2 installed the official GitHub CLI and verified the authenticated account as `Yoesher`.
 - Connector lookup: target repository not discovered during Phase 0.
-- Local Git status: `main` contains the durable application, documentation, Pages deployment, and release history. This post-release state update intentionally follows the tagged release commit and does not move the tag.
+- Local Git status: `feat/bilingual-localization` contains the unmerged Phase 3A candidate; `main` remains the durable deployed history at the start of this work. The `v0.1.0` tag is unchanged.
 - Remote status: `origin` is restored to `https://github.com/Yoesher/sociology-phd-desk.git`. Phase 2 temporarily used a repository-scoped deploy key over GitHub's official SSH-over-443 transport because direct `github.com` Git HTTPS timed out; the key lived only under `.git`, was never tracked, and was revoked after the final status push.
 - Push status: PASS for release SHA `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994`; local Git, `git ls-remote`, and GitHub API returned the same SHA before tagging.
 
@@ -103,11 +106,11 @@ A later audit added the generation-poison write queue and nested modal stack. Bo
 - Published: `2026-08-11T10:42:22Z`; public, not a draft, and not a prerelease.
 - Annotated tag: `v0.1.0`; local and remote tag object `06a81e2b10a20cc71440a3027544345cef6a04a5` dereferences to release SHA `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994`.
 - Release assets: no custom binary assets; GitHub provides generated source archives.
-- Public project state at verification: 0 Stars, 0 Forks, 6 open Issues, 0 open Pull Requests, and 1 published Release.
+- Public project state before the Phase 3A Pull Request: 0 Stars, 0 Forks, 8 open Issues, 0 open Pull Requests, and 1 published Release. Issue [#7](https://github.com/Yoesher/sociology-phd-desk/issues/7) tracks bilingual localization; [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8) records the later, source-gated China Research Map.
 - External users/testers: 0 verified. Institutional adoption: none known.
 
 ## Next version objective
 
-Maintain the six substantive roadmap issues, prioritize data portability and browser coverage, and gather consented feedback from real sociology researchers before claiming adoption. Do not start external-program applications until evidence exceeds maintainer self-verification.
+Complete every Phase 3A gate for [#7](https://github.com/Yoesher/sociology-phd-desk/issues/7): final local verification, Pull Request CI, maintainer self-review, squash merge, exact-`main` CI, and bilingual Pages verification. Only then may Phase 3B begin with existing Issue [#1](https://github.com/Yoesher/sociology-phd-desk/issues/1). Do not create `v0.2.0` or claim external adoption.
 
 See [NEXT_TASKS.md](NEXT_TASKS.md) for the prioritized queue.

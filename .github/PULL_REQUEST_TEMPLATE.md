@@ -20,6 +20,7 @@ Describe IndexedDB schema, import/export, ID, relationship, deletion, or replace
 
 Record exact commands and results for the final revision:
 
+- [ ] `npm ci`
 - [ ] `npm run lint`
 - [ ] `npm run typecheck`
 - [ ] `npm test`
@@ -37,6 +38,13 @@ For UI changes, add sanitized screenshots from synthetic data in light/dark and 
 - [ ] User documentation matches the behavior.
 - [ ] `DECISIONS.md` is updated for a durable architecture choice, or not applicable.
 - [ ] `PROJECT_STATE.md` and `NEXT_TASKS.md` reflect the verified post-change state.
+
+## Bilingual and data boundary
+
+- [ ] New or changed user-facing behavior is complete in both `zh-CN` and `en`.
+- [ ] Persisted enums, identifiers, research records, and portable JSON remain locale-neutral.
+- [ ] User-authored research content is unchanged by language switching.
+- [ ] Fresh Chinese, English switching, reload persistence, and relevant mobile states were manually checked, or the omission is explained.
 
 ## Linked issue
 

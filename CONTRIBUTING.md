@@ -1,19 +1,21 @@
-# Contributing to Sociology PhD Desk
+# 为 Sociology PhD Desk 贡献
 
-Thank you for helping build a durable, sociology-specific research workstation. Contributions may be code, tests, documentation, accessibility work, design, translations, or carefully described research-workflow needs.
+**简体中文** | [English](CONTRIBUTING.en.md)
 
-## Before you contribute
+感谢你帮助建设一个可长期维护、面向社会学研究的工作站。贡献可以是代码、测试、文档、无障碍改进、设计、翻译，也可以是经过认真描述的研究工作流需求。
 
-1. Read [README.md](README.md), [PROJECT_STATE.md](PROJECT_STATE.md), [DECISIONS.md](DECISIONS.md), and [NEXT_TASKS.md](NEXT_TASKS.md).
-2. Search existing issues before opening a new one.
-3. Use the issue form that matches the work: bug, feature, or research workflow.
-4. For a substantial architecture or data-model change, open an issue before investing in a full implementation.
+## 贡献之前
 
-Never submit real participant data, identifiable metadata, interview transcripts, private fieldnotes, credentials, API keys, unpublished proprietary datasets, or confidential reviewer correspondence. Use the explicitly synthetic demo conventions described below.
+1. 阅读 [README.md](README.md)、[PROJECT_STATE.md](PROJECT_STATE.md)、[DECISIONS.md](DECISIONS.md) 和 [NEXT_TASKS.md](NEXT_TASKS.md)。
+2. 新建 Issue 前先检索已有 Issue。
+3. 使用与工作最匹配的 Issue 表单：缺陷、功能或研究工作流。
+4. 对重要架构或数据模型改动，先开 Issue，再投入完整实现。
 
-## Development setup
+绝不要提交真实参与者数据、可识别元数据、访谈文本、私人田野笔记、凭据、API Key、未公开的专有数据集或保密审稿通信。请遵循下文的明确合成演示数据约定。
 
-The verified local environment for the initial build is Node.js 24 and npm 11.
+## 开发环境
+
+初始构建验证使用 Node.js 24 和 npm 11。
 
 ```bash
 git clone https://github.com/Yoesher/sociology-phd-desk.git
@@ -22,38 +24,41 @@ npm ci
 npm run dev
 ```
 
-Create a focused branch and keep unrelated changes separate. The conventional `codex/` prefix is used for Codex-created branches; human contributors may use a short descriptive branch name.
+请创建范围清晰的分支，并把无关改动分开。Codex 创建的分支通常使用 `codex/` 前缀；人工贡献者可以使用简短、描述性的分支名。
 
-## Product test for a proposal
+## 提案的产品检验
 
-Every proposal should explain:
+每项提案都应说明：
 
-- Which sociology research object or lifecycle transition is affected?
-- What is impossible, unsafe, or unnecessarily fragmented today?
-- Why is this not better solved by Zotero, Word, Stata/R/Python, NVivo/MAXQDA, or a general task manager?
-- What privacy, ethics, reproducibility, and migration risks does it introduce?
+- 它影响哪个社会学研究对象或生命周期转折？
+- 目前什么事情无法完成、不够安全或被不必要地割裂？
+- 为什么它不更适合由 Zotero、Word、Stata/R/Python、NVivo/MAXQDA 或通用任务管理器解决？
+- 它引入哪些隐私、伦理、可复现性和迁移风险？
 
-Generic productivity features are intentionally a lower priority than traceability across projects, questions, evidence, analysis, manuscripts, submissions, and revisions.
+相较于通用效率功能，项目更优先处理研究项目、研究问题、证据、分析、论文、投稿与修回之间的可追溯性。
 
-## Implementation expectations
+## 实现要求
 
-- Keep domain and persistence logic out of page components when practical.
-- Preserve local-first operation; the core application must not require an account, server, or AI API.
-- Treat schema and import behavior as compatibility surfaces. Validate external data before writing it.
-- Never silently overwrite an existing workspace. Import conflicts must be visible; replacement must be explicit.
-- Keep source evidence distinct from AI-generated suggestions.
-- Use anonymous fieldwork identifiers and retain the participant-privacy warning.
-- Follow the existing visual language instead of importing a generic dashboard template.
-- Add or update tests for changed behavior.
-- Update user documentation and long-term handoff files when behavior or status changes.
+- 在可行时，让领域逻辑与持久化逻辑离开页面组件。
+- 保持本地优先；核心应用不得依赖账号、服务器或 AI API。
+- 把数据模式和导入行为视为兼容性接口；外部数据写入前必须验证。
+- 绝不静默覆盖已有工作区。导入冲突必须可见；替换必须由用户明确选择。
+- 让来源证据与 AI 生成建议保持清晰区分。
+- 简体中文是默认界面语言，同时必须维护完整英语版本。实质性界面改动应同步提供中英文文案，包括验证消息、无障碍名称和响应式标签。
+- 持久化领域值与可迁移 JSON 必须保持语言中立。切换界面语言时，绝不翻译或改写用户撰写的研究内容。
+- 使用匿名田野标识符，并保留参与者隐私警告。
+- 中国研究地图的行政层级止于县级，绝不加入参与者精确位置。公开地图边界必须有记录清楚的权威来源、许可用途、署名和版本；不得以任意数据集替代。
+- 遵循现有视觉语言，不要引入通用后台仪表盘模板。
+- 为改动行为新增或更新测试。
+- 行为或状态变化时，更新用户文档与长期交接文件。
 
-## Synthetic demo data
+## 合成演示数据
 
-Demo records must be visibly marked `DEMO` or `synthetic`. Do not invent plausible DOI values, quotations, effect sizes, interview passages, or institutional claims. A safe fixture uses obviously fictional titles, aliases such as `INT-001`, and neutral placeholder findings.
+演示记录必须清楚标记为 `DEMO` 或 `synthetic`。不要虚构看似真实的 DOI、引文、效应量、访谈片段或机构性主张。安全的测试数据可使用明显虚构的标题、`INT-001` 等别名和中性的占位发现。
 
-## Required checks
+## 必需检查
 
-Run all checks on the exact revision you intend to submit:
+在准备提交的确切修订上运行全部检查：
 
 ```bash
 npm run lint
@@ -62,26 +67,26 @@ npm test
 npm run build
 ```
 
-If a check cannot run, describe the exact command and failure in the pull request. Never report a check as passing based on expectation or an earlier revision.
+如果某项检查无法运行，请在 Pull Request 中说明准确命令与失败信息。绝不能根据预期或较早修订声称检查已经通过。
 
-## Commit and pull-request guidance
+## Commit 与 Pull Request 指南
 
-- Write clear, imperative commit messages that match the actual change, for example `feat: add evidence conflict review` or `docs: clarify import safety`.
-- Avoid artificial commit volume and avoid combining unrelated work into one unreviewable commit.
-- In the pull request, describe the problem, approach, user-visible change, data migration impact, tests run, and screenshots for visual work.
-- Confirm that no secret or research data is included.
-- Link the relevant issue when one exists.
+- 使用清晰、祈使式且与实际改动一致的 Commit 信息，例如 `feat: add evidence conflict review` 或 `docs: clarify import safety`。
+- 避免人为增加 Commit 数量，也不要把不相关工作合并为一个难以审查的 Commit。
+- 在 Pull Request 中描述问题、实现方式、用户可见变化、数据迁移影响、实际运行的测试；视觉改动还应提供截图。
+- 确认其中不包含秘密信息或真实研究数据。
+- 如有相关 Issue，请建立链接。
 
-A maintainer may ask for a smaller scope, an ADR entry in [DECISIONS.md](DECISIONS.md), migration documentation, or additional tests before merging.
+维护者可能在合并前要求缩小范围、在 [DECISIONS.md](DECISIONS.md) 中新增 ADR、补充迁移文档或增加测试。
 
-## Documentation-only changes
+## 仅文档改动
 
-Documentation must distinguish current verified behavior from planned work. Do not invent repository metrics, users, contributors, releases, institutional adoption, or external mentions. Update [docs/codex-for-oss.md](docs/codex-for-oss.md) only from verifiable sources and date every metric snapshot.
+文档必须区分当前已核验行为与计划工作。不要虚构仓库指标、用户、贡献者、Release、机构采用或外部提及。只有在来源可核验时才能更新 [docs/codex-for-oss.md](docs/codex-for-oss.md)，并为每次指标快照注明日期。
 
-## Reporting security problems
+## 报告安全问题
 
-Do not open a public issue for a vulnerability or disclose sensitive sample data. Follow [SECURITY.md](SECURITY.md).
+不要为漏洞新建公开 Issue，也不要披露敏感样例数据。请遵循 [SECURITY.md](SECURITY.md)。
 
-## Community standards
+## 社区规范
 
-Participation is governed by [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). By contributing, you agree that your contribution is licensed under the repository's [MIT License](LICENSE).
+参与行为遵循 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)。提交贡献即表示你同意该贡献按照仓库的 [MIT License](LICENSE) 授权。

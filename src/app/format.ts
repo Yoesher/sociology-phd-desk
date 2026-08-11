@@ -18,24 +18,6 @@ export const entityMeta = (prefix: string) => {
   return { id: makeId(prefix), createdAt: timestamp, updatedAt: timestamp, isDemo: false }
 }
 
-export const formatDate = (value?: string, fallback = 'Not set') => {
-  if (!value) return fallback
-  const date = new Date(`${value.slice(0, 10)}T12:00:00`)
-  if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat('en', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(date)
-}
-
-export const formatCompactDate = (value?: string) => {
-  if (!value) return '—'
-  const date = new Date(`${value.slice(0, 10)}T12:00:00`)
-  if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(date)
-}
-
 export const daysUntil = (value?: string) => {
   if (!value) return null
   const target = new Date(`${value.slice(0, 10)}T00:00:00`).getTime()

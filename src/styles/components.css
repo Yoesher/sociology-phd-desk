@@ -117,6 +117,60 @@
   border-color: var(--nav-line);
 }
 
+.language-control {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  background: var(--surface-inset);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.language-control button {
+  min-height: 28px;
+  padding: 0 8px;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-radius: calc(var(--radius-sm) - 2px);
+  font-size: 0.68rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.language-control button:hover {
+  color: var(--ink);
+}
+
+.language-control button[aria-pressed='true'] {
+  color: var(--ink);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+}
+
+.language-control--compact button {
+  padding-inline: 6px;
+  font-size: 0.64rem;
+}
+
+.sidebar .language-control,
+.mobile-menu .language-control {
+  background: rgb(255 255 255 / 4%);
+  border-color: var(--nav-line);
+}
+
+.sidebar .language-control button,
+.mobile-menu .language-control button {
+  color: var(--nav-muted);
+}
+
+.sidebar .language-control button[aria-pressed='true'],
+.mobile-menu .language-control button[aria-pressed='true'] {
+  color: var(--nav-text);
+  background: rgb(255 255 255 / 9%);
+  box-shadow: none;
+}
+
 .badge {
   display: inline-flex;
   align-items: center;
@@ -1200,11 +1254,11 @@ button.record-title:hover strong {
   }
 
   .data-table td:first-child::before,
-  .data-table td:last-child::before {
+  .data-table td:last-child:not([data-label])::before {
     display: none;
   }
 
-  .data-table td:last-child {
+  .data-table td:last-child:not([data-label]) {
     display: block;
     padding-bottom: 0;
     border-bottom: 0;

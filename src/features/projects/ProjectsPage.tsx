@@ -6,7 +6,8 @@ import {
   type ResearchProject,
 } from '../../models/domain'
 import { useWorkspace } from '../../hooks/useWorkspace'
-import { daysUntil, entityMeta, formatDate, todayIso, truncate } from '../../app/format'
+import { daysUntil, entityMeta, todayIso, truncate } from '../../app/format'
+import { useI18n } from '../../i18n'
 import {
   AddButton,
   Badge,
@@ -57,6 +58,7 @@ const statusTone = (status: ResearchProject['status']): Tone => {
 
 export function ProjectsPage() {
   const { data, updateData, setActiveProject } = useWorkspace()
+  const { t, formatDate, formatNumber, labelEnum } = useI18n()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [methodFilter, setMethodFilter] = useState('')
@@ -207,33 +209,33 @@ export function ProjectsPage() {
     <div className="page">
       <PageHeader
         index="02"
-        eyebrow="Research portfolio"
-        title="Projects"
-        description="Organize the full arc from research question and design to evidence, writing, and publication."
-        actions={<AddButton onClick={openCreate}>New project</AddButton>}
+        eyebrow={t('projects.header.eyebrow')}
+        title={t('projects.header.title')}
+        description={t('projects.header.description')}
+        actions={<AddButton onClick={openCreate}>{t('projects.actions.new')}</AddButton>}
       />
 
       <div className="stats-grid stats-grid--four">
-        <StatCard label="Active projects" value={activeCount} detail="not published or archived" tone="blue" />
-        <StatCard label="Writing pipeline" value={inWriting} detail="writing through revision" tone="violet" />
-        <StatCard label="Next 45 days" value={nearDeadline} detail="target dates approaching" tone={nearDeadline ? 'warning' : 'neutral'} />
-        <StatCard label="Evidence linked" value={data.evidence.length} detail="across the portfolio" tone="accent" />
+        <StatCard label={t('projects.stats.active')} value={formatNumber(activeCount)} detail={t('projects.stats.activeDetail')} tone="blue" />
+        <StatCard label={t('projects.stats.writing')} value={formatNumber(inWriting)} detail={t('projects.stats.writingDetail')} tone="violet" />
+        <StatCard label={t('projects.stats.deadline')} value={formatNumber(nearDeadline)} detail={t('projects.stats.deadlineDetail')} tone={nearDeadline ? 'warning' : 'neutral'} />
+        <StatCard label={t('projects.stats.evidence')} value={formatNumber(data.evidence.length)} detail={t('projects.stats.evidenceDetail')} tone="accent" />
       </div>
 
       <section className="panel">
         <div className="toolbar">
-          <SearchField value={search} onChange={setSearch} placeholder="Search title, question, or topic" />
+          <SearchField value={search} onChange={setSearch} placeholder={t('projects.filters.search')} />
           <div className="toolbar__filters">
-            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} aria-label="Filter by project status">
-              <option value="">All stages</option>
-              {PROJECT_STATUSES.map((status) => <option key={status}>{status}</option>)}
+            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} aria-label={t('projects.filters.statusAria')}>
+              <option value="">{t('projects.filters.allStages')}</option>
+              {PROJECT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
             </select>
-            <select value={methodFilter} onChange={(event) => setMethodFilter(event.target.value)} aria-label="Filter by method">
-              <option value="">All methods</option>
-              {RESEARCH_METHODS.map((method) => <option key={method}>{method}</option>)}
+            <select value={methodFilter} onChange={(event) => setMethodFilter(event.target.value)} aria-label={t('projects.filters.methodAria')}>
+              <option value="">{t('projects.filters.allMethods')}</option>
+              {RESEARCH_METHODS.map((method) => <option key={method} value={method}>{labelEnum(method)}</option>)}
             </select>
           </div>
-          <span className="toolbar__count">{filtered.length} of {data.projects.length}</span>
+          <span className="toolbar__count">{t('projects.filters.count', { visible: formatNumber(filtered.length), total: formatNumber(data.projects.length) })}</span>
         </div>
 
         {filtered.length ? (
@@ -241,11 +243,11 @@ export function ProjectsPage() {
             <table className="data-table projects-table">
               <thead>
                 <tr>
-                  <th>Project</th>
-                  <th>Stage</th>
-                  <th>Method</th>
-                  <th>Target</th>
-                  <th><span className="sr-only">Actions</span></th>
+                  <th>{t('projects.table.project')}</th>
+                  <th>{t('projects.table.stage')}</th>
+                  <th>{t('projects.table.method')}</th>
+                  <th>{t('projects.table.target')}</th>
+                  <th><span className="sr-only">{t('projects.table.actions')}</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -253,18 +255,18 @@ export function ProjectsPage() {
                   const days = daysUntil(project.targetDate)
                   return (
                     <tr key={project.id}>
-                      <td data-label="Project">
+                      <td data-label={t('projects.table.project')}>
                         <button type="button" className="record-title" onClick={() => setDetail(project)}>
                           <strong>{project.title}</strong>
                           <span>{truncate(project.researchQuestion, 94)}</span>
                         </button>
                       </td>
-                      <td data-label="Stage"><Badge tone={statusTone(project.status)}>{project.status}</Badge></td>
-                      <td data-label="Method"><span className="method-label">{project.method}</span></td>
-                      <td data-label="Target">
+                      <td data-label={t('projects.table.stage')}><Badge tone={statusTone(project.status)}>{labelEnum(project.status)}</Badge></td>
+                      <td data-label={t('projects.table.method')}><span className="method-label">{labelEnum(project.method)}</span></td>
+                      <td data-label={t('projects.table.target')}>
                         <span className={days !== null && days < 0 ? 'date-cell date-cell--overdue' : 'date-cell'}>
                           {formatDate(project.targetDate)}
-                          {days !== null && days >= 0 && days <= 45 && <small>{days}d remaining</small>}
+                          {days !== null && days >= 0 && days <= 45 && <small>{t('projects.table.daysRemaining', { days: formatNumber(days) })}</small>}
                         </span>
                       </td>
                       <td>
@@ -282,57 +284,57 @@ export function ProjectsPage() {
           </div>
         ) : (
           <EmptyState
-            title={data.projects.length ? 'No projects match these filters' : 'Start with a research project'}
-            description={data.projects.length ? 'Clear a filter or search for a different term.' : 'Define the question, method, and current stage that will organize related work.'}
-            action={data.projects.length ? <Button onClick={() => { setSearch(''); setStatusFilter(''); setMethodFilter('') }}>Clear filters</Button> : <AddButton onClick={openCreate}>Create first project</AddButton>}
+            title={t(data.projects.length ? 'projects.empty.filteredTitle' : 'projects.empty.initialTitle')}
+            description={t(data.projects.length ? 'projects.empty.filteredDescription' : 'projects.empty.initialDescription')}
+            action={data.projects.length ? <Button onClick={() => { setSearch(''); setStatusFilter(''); setMethodFilter('') }}>{t('projects.actions.clearFilters')}</Button> : <AddButton onClick={openCreate}>{t('projects.actions.createFirst')}</AddButton>}
           />
         )}
       </section>
 
       <Modal
         open={formOpen}
-        title={editing ? 'Edit research project' : 'Create a research project'}
-        description="A project is the anchor for tasks, sources, fieldwork, analysis, evidence, and writing."
+        title={t(editing ? 'projects.form.editTitle' : 'projects.form.createTitle')}
+        description={t('projects.form.description')}
         onClose={() => setFormOpen(false)}
         size="lg"
         footer={
           <>
-            <Button onClick={() => setFormOpen(false)}>Cancel</Button>
-            <Button type="submit" form="project-form" variant="primary">{editing ? 'Save changes' : 'Create project'}</Button>
+            <Button onClick={() => setFormOpen(false)}>{t('common.cancel')}</Button>
+            <Button type="submit" form="project-form" variant="primary">{t(editing ? 'projects.form.save' : 'projects.form.create')}</Button>
           </>
         }
       >
         <form id="project-form" className="form-grid" onSubmit={(event) => void saveProject(event)}>
-          <Field label="Project title" required className="form-span-2">
-            <input autoFocus required value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} placeholder="Descriptive working title" />
+          <Field label={t('projects.form.title')} required className="form-span-2">
+            <input autoFocus required value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} placeholder={t('projects.form.titlePlaceholder')} />
           </Field>
-          <Field label="Short title" hint="Used in dense tables and selectors.">
-            <input value={draft.shortTitle} onChange={(event) => setDraft({ ...draft, shortTitle: event.target.value })} placeholder="A concise label" />
+          <Field label={t('projects.form.shortTitle')} hint={t('projects.form.shortTitleHint')}>
+            <input value={draft.shortTitle} onChange={(event) => setDraft({ ...draft, shortTitle: event.target.value })} placeholder={t('projects.form.shortTitlePlaceholder')} />
           </Field>
-          <Field label="Topic" required>
-            <input required value={draft.topic} onChange={(event) => setDraft({ ...draft, topic: event.target.value })} placeholder="e.g. labor, migration, family" />
+          <Field label={t('projects.form.topic')} required>
+            <input required value={draft.topic} onChange={(event) => setDraft({ ...draft, topic: event.target.value })} placeholder={t('projects.form.topicPlaceholder')} />
           </Field>
-          <Field label="Research question" required className="form-span-2">
-            <textarea required rows={3} value={draft.researchQuestion} onChange={(event) => setDraft({ ...draft, researchQuestion: event.target.value })} placeholder="State the empirical or theoretical question this project must answer." />
+          <Field label={t('projects.form.question')} required className="form-span-2">
+            <textarea required rows={3} value={draft.researchQuestion} onChange={(event) => setDraft({ ...draft, researchQuestion: event.target.value })} placeholder={t('projects.form.questionPlaceholder')} />
           </Field>
-          <Field label="Method" required>
+          <Field label={t('projects.form.method')} required>
             <select value={draft.method} onChange={(event) => setDraft({ ...draft, method: event.target.value as ResearchProject['method'] })}>
-              {RESEARCH_METHODS.map((method) => <option key={method}>{method}</option>)}
+              {RESEARCH_METHODS.map((method) => <option key={method} value={method}>{labelEnum(method)}</option>)}
             </select>
           </Field>
-          <Field label="Current stage" required>
+          <Field label={t('projects.form.stage')} required>
             <select value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value as ResearchProject['status'] })}>
-              {PROJECT_STATUSES.map((status) => <option key={status}>{status}</option>)}
+              {PROJECT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
             </select>
           </Field>
-          <Field label="Start date" required>
+          <Field label={t('projects.form.startDate')} required>
             <input required type="date" value={draft.startDate} onChange={(event) => setDraft({ ...draft, startDate: event.target.value })} />
           </Field>
-          <Field label="Target date">
+          <Field label={t('projects.form.targetDate')}>
             <input type="date" value={draft.targetDate} onChange={(event) => setDraft({ ...draft, targetDate: event.target.value })} />
           </Field>
-          <Field label="Project notes" className="form-span-2">
-            <textarea rows={4} value={draft.notes} onChange={(event) => setDraft({ ...draft, notes: event.target.value })} placeholder="Design constraints, collaborators, scope boundaries, or current uncertainty" />
+          <Field label={t('projects.form.notes')} className="form-span-2">
+            <textarea rows={4} value={draft.notes} onChange={(event) => setDraft({ ...draft, notes: event.target.value })} placeholder={t('projects.form.notesPlaceholder')} />
           </Field>
         </form>
       </Modal>
@@ -346,62 +348,62 @@ export function ProjectsPage() {
           size="xl"
           footer={
             <>
-              <Button onClick={() => void setActiveProject(detail.id)}>Make primary project</Button>
-              <Button variant="primary" onClick={() => openEdit(detail)}>Edit project</Button>
+              <Button onClick={() => void setActiveProject(detail.id)}>{t('projects.detail.makePrimary')}</Button>
+              <Button variant="primary" onClick={() => openEdit(detail)}>{t('projects.detail.edit')}</Button>
             </>
           }
         >
           <div className="project-detail">
             <aside className="project-detail__summary">
-              <Badge tone={statusTone(detail.status)}>{detail.status}</Badge>
+              <Badge tone={statusTone(detail.status)}>{labelEnum(detail.status)}</Badge>
               <dl>
-                <div><dt>Method</dt><dd>{detail.method}</dd></div>
-                <div><dt>Topic</dt><dd>{detail.topic}</dd></div>
-                <div><dt>Started</dt><dd>{formatDate(detail.startDate)}</dd></div>
-                <div><dt>Target</dt><dd>{formatDate(detail.targetDate)}</dd></div>
+                <div><dt>{t('projects.detail.method')}</dt><dd>{labelEnum(detail.method)}</dd></div>
+                <div><dt>{t('projects.detail.topic')}</dt><dd>{detail.topic}</dd></div>
+                <div><dt>{t('projects.detail.started')}</dt><dd>{formatDate(detail.startDate)}</dd></div>
+                <div><dt>{t('projects.detail.target')}</dt><dd>{formatDate(detail.targetDate)}</dd></div>
               </dl>
               {detail.notes && <p>{detail.notes}</p>}
             </aside>
             <div className="project-detail__workspace">
               <div className="linked-object-grid">
                 {[
-                  ['Current tasks', linked.tasks.filter((item) => item.status !== 'Done').length],
-                  ['Literature', linked.literature.length],
-                  ['Data / fieldwork', linked.fieldwork + linked.quantitative],
-                  ['Evidence', linked.evidence.length],
-                  ['Manuscripts', linked.manuscripts.length],
-                  ['Submissions', linked.submissions.length],
+                  [t('projects.detail.currentTasks'), formatNumber(linked.tasks.filter((item) => item.status !== 'Done').length)],
+                  [t('projects.detail.literature'), formatNumber(linked.literature.length)],
+                  [t('projects.detail.dataFieldwork'), formatNumber(linked.fieldwork + linked.quantitative)],
+                  [t('projects.detail.evidence'), formatNumber(linked.evidence.length)],
+                  [t('projects.detail.manuscripts'), formatNumber(linked.manuscripts.length)],
+                  [t('projects.detail.submissions'), formatNumber(linked.submissions.length)],
                 ].map(([label, count]) => (
                   <div key={label}><span>{label}</span><strong>{count}</strong></div>
                 ))}
               </div>
               <section>
-                <SectionHeader title="Current tasks" description="Open work explicitly linked to this project." />
+                <SectionHeader title={t('projects.detail.currentTasks')} description={t('projects.detail.tasksDescription')} />
                 {linked.tasks.filter((item) => item.status !== 'Done').length ? (
                   <div className="compact-record-list">
                     {linked.tasks.filter((item) => item.status !== 'Done').slice(0, 5).map((item) => (
                       <article key={item.id}>
                         <span className="object-mark"><FolderKanban size={14} /></span>
-                        <div><strong>{item.title}</strong><span>{item.category} · {formatDate(item.dueDate)}</span></div>
-                        <Badge tone={item.priority === 'Critical' ? 'danger' : 'neutral'}>{item.status}</Badge>
+                        <div><strong>{item.title}</strong><span>{labelEnum(item.category)} · {formatDate(item.dueDate)}</span></div>
+                        <Badge tone={item.priority === 'Critical' ? 'danger' : 'neutral'}>{labelEnum(item.status)}</Badge>
                       </article>
                     ))}
                   </div>
-                ) : <p className="quiet-copy">No open tasks linked to this project.</p>}
+                ) : <p className="quiet-copy">{t('projects.detail.noTasks')}</p>}
               </section>
               <section>
-                <SectionHeader title="Evidence pulse" description="Recent claims and the strength of their support." />
+                <SectionHeader title={t('projects.detail.evidencePulse')} description={t('projects.detail.evidenceDescription')} />
                 {linked.evidence.length ? (
                   <div className="compact-record-list">
                     {linked.evidence.slice(0, 4).map((item) => (
                       <article key={item.id}>
                         <span className="object-mark"><Network size={14} /></span>
-                        <div><strong>{truncate(item.claim, 90)}</strong><span>{item.evidenceType} · {item.source}</span></div>
-                        <Badge tone={item.supportLevel === 'Strong' ? 'success' : item.supportLevel === 'Contradictory' ? 'danger' : 'warning'}>{item.supportLevel}</Badge>
+                        <div><strong>{truncate(item.claim, 90)}</strong><span>{labelEnum(item.evidenceType)} · {item.source}</span></div>
+                        <Badge tone={item.supportLevel === 'Strong' ? 'success' : item.supportLevel === 'Contradictory' ? 'danger' : 'warning'}>{labelEnum(item.supportLevel)}</Badge>
                       </article>
                     ))}
                   </div>
-                ) : <p className="quiet-copy">No evidence claims linked yet.</p>}
+                ) : <p className="quiet-copy">{t('projects.detail.noEvidence')}</p>}
               </section>
             </div>
           </div>
@@ -410,24 +412,24 @@ export function ProjectsPage() {
 
       <ConfirmDialog
         open={Boolean(deleting) && deletingDependencies === 0}
-        title={`Delete “${deleting?.shortTitle || deleting?.title || 'project'}”?`}
-        description="This empty project record will be permanently removed from the local workspace."
-        confirmLabel="Delete project"
+        title={t('projects.delete.title', { name: deleting?.shortTitle || deleting?.title || t('projects.delete.fallbackName') })}
+        description={t('projects.delete.description')}
+        confirmLabel={t('projects.delete.confirm')}
         onCancel={() => setDeleting(null)}
         onConfirm={deleteProject}
       />
       <Modal
         open={Boolean(deleting) && deletingDependencies > 0}
-        title="Project still has linked research records"
-        description="Sociology PhD Desk will not silently cascade-delete research material or leave broken provenance links."
+        title={t('projects.delete.blockedTitle')}
+        description={t('projects.delete.blockedDescription')}
         onClose={() => setDeleting(null)}
         size="sm"
-        footer={<Button variant="primary" onClick={() => setDeleting(null)}>Keep project</Button>}
+        footer={<Button variant="primary" onClick={() => setDeleting(null)}>{t('projects.delete.keep')}</Button>}
       >
         <div className="confirm-panel confirm-panel--primary">
           <Network size={20} />
           <p>
-            {deletingDependencies} linked {deletingDependencies === 1 ? 'record must' : 'records must'} be moved or deleted before this project can be removed.
+            {t(deletingDependencies === 1 ? 'projects.delete.blockedOne' : 'projects.delete.blockedMany', { count: formatNumber(deletingDependencies) })}
           </p>
         </div>
       </Modal>

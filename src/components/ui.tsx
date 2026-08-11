@@ -11,6 +11,7 @@ import {
   Search,
   X,
 } from 'lucide-react'
+import { useI18n } from '../i18n'
 
 export type Tone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger' | 'violet' | 'blue'
 
@@ -233,6 +234,7 @@ export function Modal({
   footer?: ReactNode
   size?: 'sm' | 'md' | 'lg' | 'xl'
 }) {
+  const { t } = useI18n()
   const titleId = useId()
   const descriptionId = useId()
   const stackId = useId()
@@ -268,11 +270,11 @@ export function Modal({
       >
         <header className="modal__header">
           <div>
-            <p className="eyebrow">Workspace record</p>
+            <p className="eyebrow">{t('modal.eyebrow')}</p>
             <h2 id={titleId}>{title}</h2>
             {description && <p id={descriptionId}>{description}</p>}
           </div>
-          <IconButton label="Close dialog" onClick={requestClose}>
+          <IconButton label={t('common.closeDialog')} onClick={requestClose}>
             <X size={18} />
           </IconButton>
         </header>
@@ -301,6 +303,7 @@ export function ConfirmDialog({
   onConfirm: () => void | Promise<void>
   onCancel: () => void
 }) {
+  const { t } = useI18n()
   return (
     <Modal
       open={open}
@@ -310,7 +313,7 @@ export function ConfirmDialog({
       size="sm"
       footer={
         <>
-          <Button onClick={onCancel}>Cancel</Button>
+          <Button onClick={onCancel}>{t('common.cancel')}</Button>
           <Button variant={tone} onClick={() => void onConfirm()}>
             {confirmLabel}
           </Button>
@@ -319,7 +322,7 @@ export function ConfirmDialog({
     >
       <div className={`confirm-panel confirm-panel--${tone}`}>
         <AlertTriangle size={20} />
-        <p>This action changes the local workspace stored in this browser.</p>
+        <p>{t('modal.localChange')}</p>
       </div>
     </Modal>
   )
@@ -353,19 +356,20 @@ export function Field({
 export function SearchField({
   value,
   onChange,
-  placeholder = 'Search records',
+  placeholder,
 }: {
   value: string
   onChange: (value: string) => void
   placeholder?: string
 }) {
+  const { t } = useI18n()
   return (
     <label className="search-field">
       <Search size={15} aria-hidden="true" />
-      <span className="sr-only">Search</span>
-      <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} />
+      <span className="sr-only">{t('common.search')}</span>
+      <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder || t('common.searchRecords')} />
       {value && (
-        <button type="button" aria-label="Clear search" onClick={() => onChange('')}>
+        <button type="button" aria-label={t('common.clearSearch')} onClick={() => onChange('')}>
           <X size={13} />
         </button>
       )}
@@ -395,24 +399,24 @@ export function EmptyState({
 }
 
 export function PrivacyNotice({ compact = false }: { compact?: boolean }) {
+  const { t } = useI18n()
   return (
     <aside className={`privacy-notice ${compact ? 'privacy-notice--compact' : ''}`}>
       <LockKeyhole size={18} />
       <div>
-        <strong>Protect participant privacy</strong>
-        <p>
-          Do not store directly identifying participant information here. Use aliases and anonymous case IDs only.
-        </p>
+        <strong>{t('privacy.title')}</strong>
+        <p>{t('privacy.body')}</p>
       </div>
     </aside>
   )
 }
 
 export function LocalDataNotice() {
+  const { t } = useI18n()
   return (
     <div className="local-data-notice">
       <Database size={15} />
-      <span>Stored locally in this browser</span>
+      <span>{t('storage.local')}</span>
     </div>
   )
 }
@@ -428,21 +432,22 @@ export function TableActions({
   viewLabel?: string
   onView?: () => void
 }) {
+  const { t } = useI18n()
   return (
     <div className="table-actions">
       {onView && (
         <button type="button" onClick={onView}>
-          {viewLabel || 'View'} <ArrowRight size={13} />
+          {viewLabel || t('common.view')} <ArrowRight size={13} />
         </button>
       )}
       {onEdit && (
         <button type="button" onClick={onEdit}>
-          Edit
+          {t('common.edit')}
         </button>
       )}
       {onDelete && (
         <button type="button" className="text-danger" onClick={onDelete}>
-          Delete
+          {t('common.delete')}
         </button>
       )}
     </div>

@@ -22,7 +22,12 @@ These rules apply to every Codex agent or automated contributor working in this 
 
 - Ask whether a feature solves a sociology-specific research workflow problem before expanding scope.
 - Preserve local-first operation. The core workstation must function without an account, server, cloud sync, analytics, tracker, or AI API.
+- Treat Simplified Chinese as the default interface language and maintain a complete English alternative. Every substantial new user-interface feature must ship with both languages in the same change.
+- Keep persisted research data, schema enums, identifiers, and import/export values locale-neutral. Never persist translated display labels as domain values.
+- Never silently translate, rewrite, or normalize user-authored research content when the interface language changes. Language switching affects application chrome and system messages only.
 - Use anonymous fieldwork identifiers and keep the warning against directly identifying participant information visible.
+- Treat the China Research Map as a first-class sociology research capability, not a decorative dashboard map. Its administrative hierarchy must stop at county level; never collect, infer, display, or export exact participant locations.
+- Do not ship public China map boundaries or geographic datasets until their authoritative source, permitted use, attribution, version, and update path have been verified and documented. Never substitute an arbitrary or merely convenient map dataset.
 - Treat import/export schemas as durable public interfaces. Validate before writes and make replacement explicit.
 - Keep source evidence visibly distinct from AI-generated suggestions.
 - Demo content must be obviously synthetic. Never invent realistic DOI values, quotations, empirical results, interview material, users, or institutions.
@@ -33,6 +38,7 @@ These rules apply to every Codex agent or automated contributor working in this 
 ## Quality commands
 
 ```bash
+npm ci
 npm run lint
 npm run typecheck
 npm test

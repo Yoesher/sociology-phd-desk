@@ -81,7 +81,18 @@ Export and import surfaces must warn that a JSON file can contain sensitive rese
 
 Use precise, calm, non-promotional language. Prefer “record an analysis run” to “unlock insights.” Distinguish facts, plans, suggestions, and unknowns. Do not claim scientific validity, security, adoption, or automation beyond what the software can demonstrate.
 
-English is the primary repository language; the complete Chinese README must remain substantively aligned. Interface localization is a future design decision, not implied by bilingual documentation alone.
+Simplified Chinese is the default product and repository entry language, with a complete English interface and English copies of primary contributor-facing documents. Substantial interface work must add or update both language resources in the same change; a partially translated workflow is not an acceptable finished state.
+
+Interface translation is presentation only. Persisted domain values, schema enums, identifiers, imports, and exports remain locale-neutral, and changing the interface language must never translate or rewrite user-authored titles, notes, quotations, fieldnotes, or other research content.
+
+## Localization, CJK, and responsive layout
+
+- Write Chinese labels as natural Chinese interface copy rather than literal word-for-word translations. Keep the English version substantively equivalent, including warnings, recovery guidance, and destructive consequences.
+- Use typography and spacing that remain legible for both CJK and Latin scripts. Do not depend on letter spacing, forced uppercase, fixed line heights, or narrow fixed-width controls that only work for English.
+- Let headings, buttons, tabs, utility controls, table headers, and validation messages wrap or reflow without clipping at supported widths and browser zoom levels.
+- Localize narrow-layout table labels and accessible names as well as visible desktop labels. A responsive table is not bilingual if its generated `data-label` content remains in one language.
+- Keep language selection visible, keyboard-operable, and expressed with language names rather than national flags. Switching language must preserve the current route, theme, draft state, and user-authored data.
+- Review dense Chinese and English fixtures at desktop and narrow widths in both themes. Pay particular attention to top-bar crowding, modal height, long English actions, CJK line breaking, focus indicators, and horizontal overflow.
 
 ## Accessibility baseline
 
@@ -90,7 +101,7 @@ English is the primary repository language; the complete Chinese README must rem
 - Associate every form control with an accessible label and error description.
 - Use semantic headings, landmarks, tables, and buttons.
 - Respect reduced-motion preferences.
-- Test zoom, long labels, and narrow layouts without clipped actions.
+- Test zoom, long labels in both supported languages, CJK text, and narrow layouts without clipped actions or inaccessible horizontal overflow.
 
 ## Design review checklist
 
@@ -100,4 +111,4 @@ English is the primary repository language; the complete Chinese README must rem
 - Are privacy and destructive consequences visible at the decision point?
 - Does the screen remain readable when the data is dense?
 - Is the visual treatment original and coherent with the rest of the product?
-- Does it work in both themes, at narrow width, with keyboard navigation, and with demo labels visible?
+- Does it work in both languages and themes, at narrow width, with keyboard navigation, and with demo labels visible?

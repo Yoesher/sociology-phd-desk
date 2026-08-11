@@ -6,7 +6,8 @@ import {
   type LiteratureItem,
 } from '../../models/domain'
 import { useWorkspace } from '../../hooks/useWorkspace'
-import { entityMeta, projectLabel, truncate } from '../../app/format'
+import { useI18n } from '../../i18n'
+import { entityMeta, truncate } from '../../app/format'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
   AddButton,
@@ -59,6 +60,7 @@ const statusTone = (status: LiteratureItem['status']): Tone => {
 
 export function LiteraturePage() {
   const { data, updateData } = useWorkspace()
+  const { t, formatNumber, labelEnum } = useI18n()
   const [search, setSearch] = useState('')
   const [projectFilter, setProjectFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -82,6 +84,11 @@ export function LiteraturePage() {
   }, [data?.literature, priorityFilter, projectFilter, search, statusFilter])
 
   if (!data) return null
+
+  const localizedProjectLabel = (projectId?: string) => {
+    const project = data.projects.find((item) => item.id === projectId)
+    return project?.shortTitle || project?.title || t('common.unassigned')
+  }
 
   const openCreate = () => {
     setDraft({ ...emptyDraft(), projectId: data.workspace.activeProjectId || data.projects[0]?.id || '' })
@@ -126,54 +133,54 @@ export function LiteraturePage() {
     <div className="page">
       <PageHeader
         index="03"
-        eyebrow="Reading decisions"
-        title="Literature inbox"
-        description="Track why a source matters, which project question it bears on, and whether it has entered the argument."
-        actions={<AddButton onClick={openCreate}>Add literature</AddButton>}
+        eyebrow={t('literature.header.eyebrow')}
+        title={t('literature.header.title')}
+        description={t('literature.header.description')}
+        actions={<AddButton onClick={openCreate}>{t('literature.actions.add')}</AddButton>}
       />
 
       <section className="boundary-note">
         <LibraryBig size={18} />
-        <div><strong>Designed to complement Zotero</strong><p>Zotero remains the reference library. This desk records reading purpose, analytical judgment, project relevance, and argument use.</p></div>
+        <div><strong>{t('literature.boundary.title')}</strong><p>{t('literature.boundary.description')}</p></div>
       </section>
 
       <div className="stats-grid stats-grid--four">
-        <StatCard label="Reading backlog" value={backlog} detail="inbox and to read" tone="warning" />
-        <StatCard label="Reading now" value={reading} detail="active interpretation" tone="accent" />
-        <StatCard label="Cited" value={cited} detail="entered an argument" tone="success" />
-        <StatCard label="High priority" value={highPriority} detail="open priority sources" tone="danger" />
+        <StatCard label={t('literature.stats.backlog')} value={formatNumber(backlog)} detail={t('literature.stats.backlogDetail')} tone="warning" />
+        <StatCard label={t('literature.stats.reading')} value={formatNumber(reading)} detail={t('literature.stats.readingDetail')} tone="accent" />
+        <StatCard label={t('literature.stats.cited')} value={formatNumber(cited)} detail={t('literature.stats.citedDetail')} tone="success" />
+        <StatCard label={t('literature.stats.priority')} value={formatNumber(highPriority)} detail={t('literature.stats.priorityDetail')} tone="danger" />
       </div>
 
       <section className="panel">
         <div className="toolbar toolbar--wrap">
-          <SearchField value={search} onChange={setSearch} placeholder="Search title, author, journal, or rationale" />
+          <SearchField value={search} onChange={setSearch} placeholder={t('literature.filters.search')} />
           <ProjectSelect projects={data.projects} value={projectFilter} onChange={setProjectFilter} includeAll />
-          <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} aria-label="Filter by reading status"><option value="">All statuses</option>{LITERATURE_STATUSES.map((status) => <option key={status}>{status}</option>)}</select>
-          <select value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value)} aria-label="Filter by priority"><option value="">All priorities</option>{PRIORITIES.map((priority) => <option key={priority}>{priority}</option>)}</select>
-          <span className="toolbar__count">{filtered.length} sources</span>
+          <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} aria-label={t('literature.filters.statusAria')}><option value="">{t('literature.filters.allStatuses')}</option>{LITERATURE_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select>
+          <select value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value)} aria-label={t('literature.filters.priorityAria')}><option value="">{t('literature.filters.allPriorities')}</option>{PRIORITIES.map((priority) => <option key={priority} value={priority}>{labelEnum(priority)}</option>)}</select>
+          <span className="toolbar__count">{t(filtered.length === 1 ? 'literature.filters.sourceOne' : 'literature.filters.sourceMany', { count: formatNumber(filtered.length) })}</span>
         </div>
 
         {filtered.length ? (
           <div className="literature-list">
             {filtered.map((item) => (
               <article className="literature-row" key={item.id}>
-                <div className="literature-row__year"><span>{item.year || 'n.d.'}</span></div>
+                <div className="literature-row__year"><span>{item.year || t('literature.item.noDate')}</span></div>
                 <div className="literature-row__main">
                   <div className="badge-row">
-                    <Badge tone={statusTone(item.status)}>{item.status}</Badge>
-                    <Badge tone={item.priority === 'Critical' ? 'danger' : item.priority === 'High' ? 'warning' : 'neutral'}>{item.priority}</Badge>
-                    <span>{projectLabel(data.projects, item.projectId)}</span>
+                    <Badge tone={statusTone(item.status)}>{labelEnum(item.status)}</Badge>
+                    <Badge tone={item.priority === 'Critical' ? 'danger' : item.priority === 'High' ? 'warning' : 'neutral'}>{labelEnum(item.priority)}</Badge>
+                    <span>{localizedProjectLabel(item.projectId)}</span>
                   </div>
                   <h3>{item.title}</h3>
-                  <p className="literature-row__citation">{item.authors.join(', ') || 'Unknown author'}{item.journal ? ` · ${item.journal}` : ''}</p>
-                  <div className="literature-row__why"><span>Why read</span><p>{truncate(item.whyRead || 'No rationale recorded.', 180)}</p></div>
+                  <p className="literature-row__citation">{item.authors.join(', ') || t('literature.item.unknownAuthor')}{item.journal ? ` · ${item.journal}` : ''}</p>
+                  <div className="literature-row__why"><span>{t('literature.item.whyRead')}</span><p>{truncate(item.whyRead || t('literature.item.noRationale'), 180)}</p></div>
                 </div>
                 <div className="literature-row__controls">
                   {(item.url || item.doi) && (
-                    <a href={item.url || `https://doi.org/${item.doi}`} target="_blank" rel="noreferrer" aria-label={`Open source for ${item.title}`}><ArrowUpRight size={15} /></a>
+                    <a href={item.url || `https://doi.org/${item.doi}`} target="_blank" rel="noreferrer" aria-label={t('literature.item.openSourceAria', { title: item.title })}><ArrowUpRight size={15} /></a>
                   )}
-                  <select value={item.status} onChange={(event) => void updateStatus(item.id, event.target.value as LiteratureItem['status'])} aria-label={`Update status for ${item.title}`}>
-                    {LITERATURE_STATUSES.map((status) => <option key={status}>{status}</option>)}
+                  <select value={item.status} onChange={(event) => void updateStatus(item.id, event.target.value as LiteratureItem['status'])} aria-label={t('literature.item.updateStatusAria', { title: item.title })}>
+                    {LITERATURE_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
                   </select>
                 </div>
               </article>
@@ -181,33 +188,33 @@ export function LiteraturePage() {
           </div>
         ) : (
           <EmptyState
-            title={data.literature.length ? 'No sources match these filters' : 'Your literature queue is empty'}
-            description={data.literature.length ? 'Clear one or more filters to recover the reading queue.' : 'Add a source when you can state why it matters to a specific project.'}
-            action={data.literature.length ? <Button onClick={() => { setSearch(''); setProjectFilter(''); setStatusFilter(''); setPriorityFilter('') }}>Clear filters</Button> : <AddButton onClick={openCreate}>Add first source</AddButton>}
+            title={data.literature.length ? t('literature.empty.filteredTitle') : t('literature.empty.initialTitle')}
+            description={data.literature.length ? t('literature.empty.filteredDescription') : t('literature.empty.initialDescription')}
+            action={data.literature.length ? <Button onClick={() => { setSearch(''); setProjectFilter(''); setStatusFilter(''); setPriorityFilter('') }}>{t('literature.actions.clearFilters')}</Button> : <AddButton onClick={openCreate}>{t('literature.actions.addFirst')}</AddButton>}
           />
         )}
       </section>
 
       <Modal
         open={formOpen}
-        title="Add literature"
-        description="Capture workflow context here; keep canonical citation management in your reference manager."
+        title={t('literature.form.title')}
+        description={t('literature.form.description')}
         onClose={() => setFormOpen(false)}
         size="lg"
-        footer={<><Button onClick={() => setFormOpen(false)}>Cancel</Button><Button variant="primary" type="submit" form="literature-form">Add to queue</Button></>}
+        footer={<><Button onClick={() => setFormOpen(false)}>{t('common.cancel')}</Button><Button variant="primary" type="submit" form="literature-form">{t('literature.form.submit')}</Button></>}
       >
         <form id="literature-form" className="form-grid" onSubmit={(event) => void saveLiterature(event)}>
-          <Field label="Title" required className="form-span-2"><input autoFocus required value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} /></Field>
-          <Field label="Authors" required className="form-span-2" hint="Separate names with semicolons."><input required value={draft.authors} onChange={(event) => setDraft({ ...draft, authors: event.target.value })} placeholder="Author One; Author Two" /></Field>
-          <Field label="Year"><input type="number" min="1000" max="2100" value={draft.year} onChange={(event) => setDraft({ ...draft, year: event.target.value })} /></Field>
-          <Field label="Journal"><input value={draft.journal} onChange={(event) => setDraft({ ...draft, journal: event.target.value })} /></Field>
-          <Field label="DOI"><input value={draft.doi} onChange={(event) => setDraft({ ...draft, doi: event.target.value })} placeholder="10.xxxx/…" /></Field>
-          <Field label="URL"><input type="url" value={draft.url} onChange={(event) => setDraft({ ...draft, url: event.target.value })} /></Field>
-          <Field label="Project" required><ProjectSelect required projects={data.projects} value={draft.projectId} onChange={(projectId) => setDraft({ ...draft, projectId })} /></Field>
-          <Field label="Reading status"><select value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value as LiteratureItem['status'] })}>{LITERATURE_STATUSES.map((status) => <option key={status}>{status}</option>)}</select></Field>
-          <Field label="Priority"><select value={draft.priority} onChange={(event) => setDraft({ ...draft, priority: event.target.value as LiteratureItem['priority'] })}>{PRIORITIES.map((priority) => <option key={priority}>{priority}</option>)}</select></Field>
-          <Field label="Why read?" required><textarea required rows={4} value={draft.whyRead} onChange={(event) => setDraft({ ...draft, whyRead: event.target.value })} placeholder="Which question, uncertainty, or debate makes this source worth reading?" /></Field>
-          <Field label="Notes" className="form-span-2"><textarea rows={4} value={draft.notes} onChange={(event) => setDraft({ ...draft, notes: event.target.value })} placeholder="Initial theoretical or empirical judgment" /></Field>
+          <Field label={t('literature.form.sourceTitle')} required className="form-span-2"><input autoFocus required value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} /></Field>
+          <Field label={t('literature.form.authors')} required className="form-span-2" hint={t('literature.form.authorsHint')}><input required value={draft.authors} onChange={(event) => setDraft({ ...draft, authors: event.target.value })} placeholder={t('literature.form.authorsPlaceholder')} /></Field>
+          <Field label={t('literature.form.year')}><input type="number" min="1000" max="2100" value={draft.year} onChange={(event) => setDraft({ ...draft, year: event.target.value })} /></Field>
+          <Field label={t('literature.form.journal')}><input value={draft.journal} onChange={(event) => setDraft({ ...draft, journal: event.target.value })} /></Field>
+          <Field label={t('literature.form.doi')}><input value={draft.doi} onChange={(event) => setDraft({ ...draft, doi: event.target.value })} placeholder={t('literature.form.doiPlaceholder')} /></Field>
+          <Field label={t('literature.form.url')}><input type="url" value={draft.url} onChange={(event) => setDraft({ ...draft, url: event.target.value })} /></Field>
+          <Field label={t('literature.form.project')} required><ProjectSelect required projects={data.projects} value={draft.projectId} onChange={(projectId) => setDraft({ ...draft, projectId })} /></Field>
+          <Field label={t('literature.form.status')}><select value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value as LiteratureItem['status'] })}>{LITERATURE_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
+          <Field label={t('literature.form.priority')}><select value={draft.priority} onChange={(event) => setDraft({ ...draft, priority: event.target.value as LiteratureItem['priority'] })}>{PRIORITIES.map((priority) => <option key={priority} value={priority}>{labelEnum(priority)}</option>)}</select></Field>
+          <Field label={t('literature.form.whyRead')} required><textarea required rows={4} value={draft.whyRead} onChange={(event) => setDraft({ ...draft, whyRead: event.target.value })} placeholder={t('literature.form.whyReadPlaceholder')} /></Field>
+          <Field label={t('literature.form.notes')} className="form-span-2"><textarea rows={4} value={draft.notes} onChange={(event) => setDraft({ ...draft, notes: event.target.value })} placeholder={t('literature.form.notesPlaceholder')} /></Field>
         </form>
       </Modal>
     </div>

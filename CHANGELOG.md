@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Chinese-first application interface with a complete English alternative across all nine research modules, global workspace tools, forms, dialogs, validation, empty states, navigation, and responsive table labels.
+- Visible language control with an explicit `zh-CN` or `en` preference that applies immediately and persists locally with the existing theme preference.
+- Typed, namespace-based localization resources; locale-aware date and number formatting; and exhaustive display labels for persisted domain enums.
+- Chinese-default README and contribution guide with complete reciprocal English documents.
+- Automated coverage for locale defaults and persistence, resource and interpolation parity, navigation labels, dialogs, form validation, locale-independent export semantics, unchanged research content, and raw enum persistence.
+
+### Changed
+
+- Simplified Chinese is now the default for a fresh installation even when the browser language is English.
+- Application settings are stored separately from IndexedDB research data and portable workspace JSON; switching language does not change research records, revisions, demo markers, or schema values.
+- User-facing dates, numbers, system errors, accessible names, and document metadata now follow the selected application locale.
+
+### Security
+
+- Preserved user-authored research content exactly during language changes; no automatic translation is performed.
+- Recorded a permanent compliance gate requiring authoritative, legally usable provenance before any public China Research Map boundary asset can ship.
+
 ## [0.1.0] - 2026-08-11
 
 ### Added
