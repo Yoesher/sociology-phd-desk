@@ -21,7 +21,7 @@ Include, when safe:
 - whether export files, browser storage, or external links are involved;
 - suggested mitigation, if known.
 
-The maintainers will acknowledge and triage reports on a best-effort basis. No response or remediation time is promised while the project is pre-release. Coordinated disclosure timing will be agreed with the reporter when possible.
+The maintainers will acknowledge and triage reports on a best-effort basis. No response or remediation time is promised during this early public-release stage. Coordinated disclosure timing will be agreed with the reporter when possible.
 
 ## Security boundaries
 
