@@ -23,11 +23,11 @@ The product remains sociology-specific and complements, rather than replaces, sp
 
 ## Phase 3 — Chinese-first research platform expansion
 
-Phase 3 is planned as six gated increments. Each increment must be implemented, tested, reviewed, and verified in production before work advances to the next one. Listing an increment here does not mean it has shipped; verified status remains in [PROJECT_STATE.md](PROJECT_STATE.md).
+Phase 3 uses independently verified increments. Listing an increment here does not mean it has shipped; verified status remains in [PROJECT_STATE.md](PROJECT_STATE.md).
 
-**Current gate:** Phase 3A and Phase 3B are complete on `main`. Phase 3C has an unmerged local candidate on `codex/private-local-workspaces`; its Pull Request, CI, review, merge, exact-`main` CI, and Pages gates remain pending. Phase 3D has not begun and stays blocked until every Phase 3C gate passes.
+**Current finalization scope:** Phase 3A, Phase 3B, and Phase 3C are complete on `main`. The Phase 3D China Research Map source/compliance review is complete with all four map gates **BLOCKED**, so the map feature is deferred and excluded from `v0.2.0`. No map asset or implementation may merge or deploy. The non-map release sequence is Theory Research workspace → hierarchical navigation and integrated publishing → stabilization and `v0.2.0`. See the retained bilingual source register: [简体中文](docs/zh-CN/map-data-sources.md) / [English](docs/en/map-data-sources.md).
 
-Every Phase 3 increment follows the same evidence chain: scoped Issue → dedicated feature branch → implementation and tests → Pull Request → passing PR CI → maintainer self-review → squash merge → passing `main` CI → GitHub Pages verification. A later increment must not begin while any earlier gate is incomplete.
+Every implemented increment follows the same evidence chain: scoped Issue → dedicated feature branch → implementation and tests → Pull Request → passing PR CI → maintainer self-review → squash merge → passing `main` CI → GitHub Pages verification. The map's blocked gate applies to the map alone; each non-map increment must pass its own complete gate before the next begins.
 
 ### Phase 3A — Chinese-first bilingual foundation
 
@@ -60,19 +60,29 @@ Every Phase 3 increment follows the same evidence chain: scoped Issue → dedica
 - Do not use an arbitrary third-party boundary file as a temporary substitute. If the source and legal conditions cannot be verified, the map remains planned rather than shipped.
 - Preserve local-first operation, never transmit user notes or fieldwork data to GitHub Pages or a map service, and provide a useful non-map fallback for linked regional research notes.
 
-### Phase 3E — Hierarchical navigation and information architecture
+The 2026-08-12 review found every mandatory map gate blocked. China Research Map is deferred and excluded from `v0.2.0`; the retained evidence prevents an unverified substitute dataset or fabricated UI from shipping. If source and approval conditions change in a later release cycle, the feature may be reconsidered only after all four gates are independently verified.
+
+### Phase 3E — Theory Research workspace
+
+- Add one first-class `TheoryMemo` object for conceptual definitions, mechanisms, theoretical dialogue, counterarguments, boundary conditions, and synthesis while reusing existing ResearchQuestion, Claim, Literature, and Manuscript objects.
+- Keep memo relationships stable-ID, same-project, locale-neutral, and explicit; UI prompts guide reasoning but never become stored research content automatically.
+- Advance portable and standard workspace data through an explicit v3 → v4 migration while keeping encrypted container v1 independent and supporting authenticated v3 encrypted-workspace/backup migration.
+- Provide complete Chinese and English Theory views, CRUD, task category, minimal synthetic demo records, and standard/encrypted workspace coverage.
+
+### Phase 3F — Hierarchical navigation and information architecture
 
 - Organize primary navigation around research-work domains and secondary navigation around workflows or derived smart views within those domains.
 - Keep the main sidebar to at most two levels; concrete projects, manuscripts, interviews, regions, and other objects continue their drill-down in the content area.
 - Treat secondary navigation as presentation and filtering by default. Do not add persisted enum values merely to mirror menu labels.
-- Preserve routes, deep links, keyboard and screen-reader semantics, responsive access, both languages, and unchanged user-authored content through the navigation migration.
+- Present Manuscript, Submission, and ReviewerComment through one Manuscripts & Publishing UI without merging the underlying entities.
+- Preserve old routes, deep links, keyboard and screen-reader semantics, responsive access, both languages, and unchanged user-authored content through the navigation migration.
 
-### Phase 3F — Stabilization and v0.2.0 release
+### Phase 3G — Stabilization and v0.2.0 release
 
-- Integrate and audit the Phase 3B–3E data, privacy, map, navigation, accessibility, responsive, and bilingual boundaries as a whole.
+- Freeze feature scope after the navigation merge. Integrate and audit the research graph, Theory, private/encrypted workspaces, navigation, publishing, accessibility, responsive, migration, and bilingual boundaries as a whole.
 - Run migration paths, import/export, protected deletion, local workspace isolation and encryption checks where implemented, production builds, browser smoke tests, and the complete CI and Pages release gate.
-- Reconcile bilingual documentation, architecture decisions, privacy and map-source records, changelog, project state, screenshots, and release notes with the verified revision.
-- Create the v0.2.0 tag and formal release only after every earlier Phase 3 gate passes; do not move the existing v0.1.0 tag.
+- Reconcile bilingual documentation, architecture decisions, privacy records, retained map deferral evidence, changelog, project state, screenshots, and release notes with the verified revision.
+- Create the `v0.2.0` annotated tag and formal release only after the Theory, navigation, and release gates pass; do not move the existing `v0.1.0` tag.
 
 ## `0.1.0` — usable local foundation
 

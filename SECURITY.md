@@ -6,7 +6,7 @@ Sociology PhD Desk is local-first research workflow software. Its threat model d
 
 The latest formal public release is [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0). Security fixes are normally developed against the latest maintained `main` revision; no long-term support window or response-time service level is promised during this early public stage.
 
-The private-local-workspace and encrypted-vault work described below is present only on the unmerged Phase 3C candidate until its Pull Request, CI, review, merge, exact-`main` CI, and Pages gates pass. Do not infer that a candidate feature is available in `v0.1.0` or the public demo. Verified delivery state belongs in [PROJECT_STATE.md](PROJECT_STATE.md).
+The private-local-workspace and encrypted-vault work described below passed its Phase 3C Pull Request, CI, review, merge, exact-`main` CI, and Pages gates and is deployed on public `main`. It remains `Unreleased` and is not part of formal release `v0.1.0`. Verified delivery state belongs in [PROJECT_STATE.md](PROJECT_STATE.md).
 
 ## Report a vulnerability
 

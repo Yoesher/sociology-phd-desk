@@ -4,7 +4,7 @@
 
 JSON export and import provide backup, inspection, and migration for a browser-local workspace. They are not cloud synchronization and do not make the exported file encrypted.
 
-Verified public `main` currently implements portable workspace v3. The local-workspace registry and `.sociologydesk` encrypted-backup sections below describe the unmerged Phase 3C candidate. Its final local automated gate, real-browser smoke, and independent P0/P1 review passed; Pull Request, exact-head CI, merge, exact-`main` CI, Pages, and public interaction remain pending.
+Verified public `main` implements portable workspace v3 plus the Phase 3C local-workspace registry and `.sociologydesk` encrypted-backup container described below. Phase 3C passed its local automated gate, real-browser smoke, independent P0/P1 review, Pull Request CI, merge, exact-`main` CI, and Pages deployment. It remains `Unreleased`; limited public interaction evidence and its explicit gaps are recorded in `PROJECT_STATE.md`.
 
 ## Export envelope
 
@@ -24,7 +24,7 @@ Before either export path is generated, the active snapshot and registry route a
 
 ## Encrypted `.sociologydesk` backup
 
-The Phase 3C candidate defines a separate encrypted-backup container v1. It is not a portable JSON envelope renamed with a custom extension:
+Phase 3C defines a separate encrypted-backup container v1. It is not a portable JSON envelope renamed with a custom extension:
 
 - the file extension is `.sociologydesk` and the encrypted-backup purpose is authenticated in its protected header;
 - the payload is a complete, strictly validated portable-v3 workspace;
@@ -89,7 +89,7 @@ Unsupported future versions should fail safely with an actionable message. Old s
 
 ### Independent Phase 3C version axes
 
-The candidate does not advance portable workspace beyond v3:
+Phase 3C does not advance portable workspace beyond v3:
 
 | Version domain | Candidate version | Scope |
 | --- | ---: | --- |

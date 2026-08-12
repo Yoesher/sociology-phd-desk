@@ -4,7 +4,7 @@
 
 Sociology PhD Desk is a local-first browser application that coordinates research objects across the sociology lifecycle. The core must remain useful without an account, application server, cloud sync, analytics, or AI API.
 
-Verified public `main` is Phase 3B at `4f3d615`. The workspace registry, lock gate, and encrypted-vault architecture below describe the unmerged Phase 3C candidate on `codex/private-local-workspaces`. Its final local automated gate, real-browser smoke, and independent P0/P1 review passed; Pull Request, exact-head CI, merge, exact-`main` CI, Pages, and public interaction remain pending.
+Verified public `main` includes Phase 3C at `f8b9ef9`. The workspace registry, lock gate, and encrypted-vault architecture below passed local automated checks, real-browser smoke, independent P0/P1 review, Pull Request CI, merge, exact-`main` CI, and Pages deployment. It remains `Unreleased`; limited public interaction evidence and its explicit gaps are recorded in `PROJECT_STATE.md`.
 
 ## Technology foundation
 
@@ -42,7 +42,7 @@ metadata-only registry DB v1
 
 ### Application shell
 
-Owns navigation, route framing, theme, global utilities, and error boundaries. In the Phase 3C candidate, the i18n provider remains outside the workspace gate so lock screens are bilingual; research routes and `WorkspaceProvider` mount only after a session is unlocked. The shell must not become the database or business-logic layer.
+Owns navigation, route framing, theme, global utilities, and error boundaries. In Phase 3C, the i18n provider remains outside the workspace gate so lock screens are bilingual; research routes and `WorkspaceProvider` mount only after a session is unlocked. The shell must not become the database or business-logic layer.
 
 ### Interface localization
 
@@ -64,7 +64,7 @@ Phase 3B makes `ResearchQuestion`, `Claim`, and `ClaimQuestionLink` first-class 
 
 Owns Dexie schema versions, transactions, indexes, migrations, and repository methods. UI code should not scatter direct table operations.
 
-The Phase 3C candidate has three persistence roles:
+Phase 3C has three persistence roles:
 
 1. `sociology-phd-desk-registry` schema v1 stores workspace routing and recovery metadata only. Canonical display name, timestamps, kind, encryption mode, auto-lock, migration/cleanup state, an interrupted-conversion target reservation, schema versions, registry revision, and opaque storage locators are plaintext. Research content, passphrases, derived keys, verifiers, and content digests are forbidden.
 2. Each standard personal or synthetic-demo workspace uses a separate physical database and the existing IndexedDB schema v3. Its 17 structured domain tables remain plaintext and validate complete `WorkspaceData` v3 snapshots before writes.

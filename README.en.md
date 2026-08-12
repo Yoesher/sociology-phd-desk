@@ -8,7 +8,7 @@ Manage the full research lifecycle—from literature and fieldwork to quantitati
 
 **Live demo:** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
 
-> **Early public software:** the latest formal release remains `v0.1.0`; `main` and the live demo also contain merged but unreleased Phase 3A / 3B work. Phase 3C private local workspaces currently exist only on an unmerged candidate branch: the Pull Request, CI, `main`, and Pages gates have not passed, and the feature is not in the public demo. Evidence and limitations are recorded in [PROJECT_STATE.md](PROJECT_STATE.md). The project has not yet been tested by external researchers. Do not use it as the only copy of irreplaceable research material. Public availability or a Star does not imply adoption.
+> **Early public software:** the latest formal release remains `v0.1.0`; `main` and the live demo also contain merged but unreleased Phase 3A / 3B / 3C work. Phase 3C private local workspaces passed their Pull Request, CI, `main`, and Pages gates and are deployed, but no new Release has been created. Evidence and limitations are recorded in [PROJECT_STATE.md](PROJECT_STATE.md). The project has not yet been tested by external researchers. Do not use it as the only copy of irreplaceable research material. Public availability or a Star does not imply adoption.
 
 ## Why Sociology PhD Desk?
 
@@ -63,9 +63,9 @@ Phase 3B was merged into `main` through [PR #11](https://github.com/Yoesher/soci
 
 This is not a new-version release claim: Phase 3B is merged and deployed but remains `Unreleased`; the formal release and package version remain `v0.1.0` / `0.1.0`. Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) remains OPEN. Its explicit Evidence↔Claim relationship is not part of Phase 3B, and v3 does not add an evidence `claimId`. The public URL returned HTTP 200 and its deployed asset names/hashes matched the final local build; real public interaction smoke was not run because browser control returned `instances=[]`, so that check is not reported as passing. See [PROJECT_STATE.md](PROJECT_STATE.md) for the evidence record.
 
-### Phase 3C local candidate (not merged or released)
+### Phase 3C private local workspaces (merged and deployed, unreleased)
 
-The local candidate for Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) replaces one ambiguous singleton database with an explicit local registry and separate physical databases. It is not a sign-in system and does not create network accounts:
+The merged implementation for Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) replaces one ambiguous singleton database with an explicit local registry and separate physical databases. It is not a sign-in system and does not create network accounts:
 
 - Ordinary personal workspaces and the explicitly synthetic demo workspace are stored separately. An entity in one workspace cannot refer to an entity in another. Concurrent first boots converge on the same deterministic initial routes instead of creating duplicate seed workspaces.
 - A **standard local workspace** stores queryable research tables as plaintext structures in IndexedDB. Its interface lock hides the application UI but does not encrypt those tables.
@@ -76,7 +76,7 @@ The local candidate for Issue [#13](https://github.com/Yoesher/sociology-phd-des
 - Conversion durably reserves its target locator before creating the encrypted vault. If an interrupted target still exists, either continuing conversion or discarding that target requires passphrase authentication and a workspace-identity check. Only a confirmed-absent target allows the empty reservation to be cleared without a passphrase. After route promotion, plaintext cleanup flushes queued writes first, then requires the currently unlocked session and rereads the encrypted vault plus verifies the source identity while both physical databases are locked.
 - Deletion first leaves a recoverable registry marker. Bootstrap retries it automatically, and unresolved items remain visible in Workspace Center with an explicit retry action. Every such browser deletion is logical deletion, not secure erasure.
 
-There is no cloud password reset or recovery key. Applications deployed at different paths under one GitHub Pages origin also share an origin trust boundary; separate browser databases are not separate security origins. Read the [English privacy and encryption model](docs/en/privacy-model.md); [中文版](docs/zh-CN/privacy-model.md). These capabilities remain a local candidate and do not establish delivery on public `main`, the live demo, or a new release.
+There is no cloud password reset or recovery key. Applications deployed at different paths under one GitHub Pages origin also share an origin trust boundary; separate browser databases are not separate security origins. Read the [English privacy and encryption model](docs/en/privacy-model.md); [中文版](docs/zh-CN/privacy-model.md). These capabilities are on public `main` and the live demo but remain `Unreleased`; they do not establish delivery in a new formal Release.
 
 ## Why sociology-specific?
 
@@ -156,17 +156,17 @@ Ordinary JSON export is an inspectable, portable, **plaintext** workspace. Treat
 
 The current merged implementation exports portable v3 and continues to accept supported v1 and v2 files by applying the explicit v1 → v2 → v3 transformation before the same strict validation. See [data portability](docs/data-portability.md) for migration details and the research-graph boundary.
 
-The Phase 3C candidate adds `.sociologydesk` encrypted backup for encrypted workspaces. It is a separate container-v1 format, not ordinary JSON with a different extension. Restore authenticates and validates the entire backup before creating an independent workspace with a new logical workspace ID. A wrong passphrase or damaged ciphertext writes no destination workspace. See [data portability](docs/data-portability.md) and the [privacy and encryption model](docs/en/privacy-model.md) for the format and failure boundaries.
+Phase 3C adds `.sociologydesk` encrypted backup for encrypted workspaces. It is a separate container-v1 format, not ordinary JSON with a different extension. Restore authenticates and validates the entire backup before creating an independent workspace with a new logical workspace ID. A wrong passphrase or damaged ciphertext writes no destination workspace. See [data portability](docs/data-portability.md) and the [privacy and encryption model](docs/en/privacy-model.md) for the format and failure boundaries.
 
 ## Architecture
 
-The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith. Merged Phase 3B adds research questions, analytical claims, and their explicit links. The Phase 3C candidate adds a metadata-only registry, per-workspace database adapters, a session gate, and a Web Crypto vault outside the domain workspace; portable workspace remains v3.
+The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith. Merged Phase 3B adds research questions, analytical claims, and their explicit links. Merged Phase 3C adds a metadata-only registry, per-workspace database adapters, a session gate, and a Web Crypto vault outside the domain workspace; portable workspace remains v3.
 
 See [architecture overview](docs/architecture/overview.md), [data model](docs/architecture/data-model.md), and [decisions](DECISIONS.md).
 
 ## Roadmap
 
-The `0.1` line establishes the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure. Phase 3 follows a gated sequence: 3A Chinese-first bilingual foundation, 3B Research Question–Claim graph, 3C private local workspaces, 3D China Research Map, 3E hierarchical navigation and information architecture, and 3F stabilization plus the v0.2.0 release. Work does not advance while an earlier gate remains incomplete.
+The `0.1` line establishes the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure. The frozen `v0.2.0` finalization scope includes the merged Chinese-first bilingual foundation, Research Question–Claim graph, and private local workspaces, followed by the Theory Research workspace, hierarchical navigation, integrated Manuscripts & Publishing UI, and release stabilization. The China Research Map is deferred and excluded from `v0.2.0` because a verifiable public-source, redistribution, and map-approval chain has not been established; it may resume only if those compliance conditions change and are reviewed again.
 
 See [ROADMAP.md](ROADMAP.md). Roadmap entries are intentions, not delivery promises.
 
