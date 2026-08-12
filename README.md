@@ -8,7 +8,7 @@
 
 **在线演示：** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
 
-> **早期公开软件：** 当前正式 Release 仍是 `v0.1.0`。公开 `main` 与 Pages 已核验到 [`ca4429f`](https://github.com/Yoesher/sociology-phd-desk/commit/ca4429facfa124e85c3dba37f9ce7da270a82601)，包含已合并但尚未发布的 Phase 3A / 3B / 3C，以及不含地图实现的 Phase 3D 合规收口。下面的 Theory Research 功能目前仅存在于本地未合并候选；尽管最近一次 exact-tree 独立审计记录为 P0 = 0 / P1 = 0，它仍尚未通过最终全量测试、生产构建、真实浏览器、PR/CI、合并或 Pages 门禁，也不在在线演示中。核验证据与限制见 [PROJECT_STATE.md](PROJECT_STATE.md)。项目尚未经过外部研究者测试；请勿把不可替代的研究材料只保存在本软件中。公开可用或获得 Star 不代表已经获得真实采用。
+> **早期公开软件：** 当前正式 Release 仍是 `v0.1.0`。公开 `main` 与 Pages 已核验到 [`b8c8c60`](https://github.com/Yoesher/sociology-phd-desk/commit/b8c8c60434b1d88c348f83c5d08f2d19770db78a)，包含已合并但尚未发布的 Phase 3A / 3B / 3C、没有地图实现的 Phase 3D 合规收口，以及 Phase 3E Theory Research。二级导航与论文/投稿整合目前只是本地未提交候选：它通过了本地门禁，但尚未经过其自身的 PR、CI、合并、Pages 或公开核验，不在在线演示中。核验证据与限制见 [PROJECT_STATE.md](PROJECT_STATE.md)。项目尚未经过外部研究者测试；请勿把不可替代的研究材料只保存在本软件中。公开可用或获得 Star 不代表已经获得真实采用。
 
 ## 为什么需要 Sociology PhD Desk？
 
@@ -78,7 +78,7 @@ Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) 的已合�
 
 遗失口令后没有云端重置或恢复密钥。GitHub Pages 上以不同路径托管的应用也共享来源信任边界；浏览器数据库分离不是独立安全来源。完整边界见[中文隐私与加密模型](docs/zh-CN/privacy-model.md)；[English version](docs/en/privacy-model.md)。上述功能已经进入公开 `main` 与在线演示，但仍属 `Unreleased`，不能据此推断新 Release 已经交付。
 
-### Phase 3E Theory Research（仅本地候选，未合并、未部署）
+### Phase 3E Theory Research（已合并、已部署，尚未正式发布）
 
 当前 `feat/theory-research-workspace` 本地候选为概念社会学工作增加一个新实体 `TheoryMemo`，并复用现有 ResearchQuestion、Claim、Literature 与 Manuscript：
 
@@ -88,7 +88,11 @@ Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) 的已合�
 - 结构化提示问题只提供界面引导，绝不自动写入正文；理论写作继续使用 Manuscript，任务使用稳定原始值 `Theory / Conceptual Work`；
 - 合成演示仅增加 2 条 Theory Memo；整个 fixture 含 2 个项目、2 个研究问题、3 个主张和 3 条 `ClaimQuestionLink`（经验项目 2 条、理论项目 1 条）。Concept memo 引用 1 个研究问题，Mechanism memo 引用同一问题和 1 个主张，两条 memo 都不引用文献；它不伪造真实文献、发现或理论结论。空白个人工作台不会自动生成这些记录。
 
-该候选把 portable workspace 与标准 IndexedDB 存储推进到 v4；v3 → v4 只增加空的 `theoryMemos` 集合，不从日志、备注或其他文本推断理论内容。encrypted container v1、encrypted-vault database v1 与 registry database v1 保持独立。已有已认证的 portable-v3 密文或备份只有在认证、迁移与读回验证成功后才升级。以上均是**本地候选描述，不是已合并或已部署声明**。
+该实现把 portable workspace 与标准 IndexedDB 存储推进到 v4；v3 → v4 只增加空的 `theoryMemos` 集合，不从日志、备注或其他文本推断理论内容。encrypted container v1、encrypted-vault database v1 与 registry database v1 保持独立。已有已认证的 portable-v3 密文或备份只有在认证、迁移与读回验证成功后才升级。Theory [PR #18](https://github.com/Yoesher/sociology-phd-desk/pull/18) 已合并至 [`b8c8c60`](https://github.com/Yoesher/sociology-phd-desk/commit/b8c8c60434b1d88c348f83c5d08f2d19770db78a) 并部署；这不是新的正式 Release 声明。
+
+### Phase 3F 二级导航与论文/投稿整合（仅本地候选）
+
+当前 `feat/hierarchical-navigation` 候选将九个研究工作域组织为至多两层导航：Today、Projects、Literature、Theory Research、Fieldwork、Quantitative、Evidence、Research Log 与 Manuscripts & Publishing；第二层为不会改变数据的 URL 可寻址 Smart View。Manuscript、Submission 与 ReviewerComment 仍是独立实体，候选只统一其展示与流程入口，并保留旧的 manuscripts/submissions 链接重定向。该候选尚未建立 PR 或通过远端门禁，因此不是公开演示或正式发布功能。
 
 ## 为什么是社会学专用？
 
@@ -166,7 +170,7 @@ CI 也执行这组命令。只有在当前修订上实际成功运行后，才�
 
 普通 JSON 导出是可检查、可迁移的明文 portable workspace；请把它视为其中最敏感记录，并在分享前检查目标文件。导入时请核对预览并选择预期的合并方式。替换必须是明确操作，绝不能静默发生。
 
-公开 `main` `ca4429f` 仍导出 portable v3。当前未合并 Theory 候选导出 portable v4，并继续接受受支持的 v1、v2、v3 文件，通过显式 v1 → v2 → v3 → v4 转换后再执行同一套严格验证；v3 → v4 只创建空 `theoryMemos` 集合。迁移细节与研究图谱边界见[数据迁移说明](docs/data-portability.md)。
+公开 `main` `b8c8c60` 导出 portable v4，并继续接受受支持的 v1、v2、v3 文件，通过显式 v1 → v2 → v3 → v4 转换后再执行同一套严格验证；v3 → v4 只创建空 `theoryMemos` 集合。迁移细节与研究图谱边界见[数据迁移说明](docs/data-portability.md)。
 
 Phase 3C 为加密工作台增加 `.sociologydesk` 加密备份。它是独立的 container v1 格式，而不是换扩展名的普通 JSON；恢复时先认证和验证完整备份，再用新的逻辑工作台 ID 创建独立工作台。口令错误或密文损坏不会写入目标工作台。格式与失败边界见[数据迁移说明](docs/data-portability.md)和[隐私与加密模型](docs/zh-CN/privacy-model.md)。
 

@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { MapPinned, MessageSquareText, NotebookTabs } from 'lucide-react'
 import {
   FIELD_SITE_STATUSES,
@@ -11,6 +11,8 @@ import {
 import { useWorkspace } from '../../hooks/useWorkspace'
 import { useI18n, type MessageKey } from '../../i18n'
 import { entityMeta, todayIso, truncate } from '../../app/format'
+import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
+import { matchesFieldworkInterviewView } from './fieldworkViews'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
   AddButton,
@@ -29,6 +31,14 @@ import {
 
 type RegistryTab = 'sites' | 'interviews' | 'visits'
 type RecordKind = 'site' | 'interview' | 'visit'
+
+const FIELDWORK_VIEWS = ['overview', 'sites', 'visits', 'interviews', 'transcription', 'coding', 'memos', 'completed'] as const
+type FieldworkView = (typeof FIELDWORK_VIEWS)[number]
+
+function readFieldworkView(): FieldworkView {
+  const requested = new URLSearchParams(window.location.hash.split('?')[1] || '').get('view')
+  return FIELDWORK_VIEWS.includes(requested as FieldworkView) ? requested as FieldworkView : 'overview'
+}
 
 const siteDraft = () => ({ nameOrAlias: '', projectId: '', status: 'Planned' as FieldSite['status'], notes: '' })
 const interviewDraft = () => ({
@@ -71,6 +81,18 @@ export function FieldworkPage() {
   const [interview, setInterview] = useState(interviewDraft)
   const [visit, setVisit] = useState(visitDraft)
   const [validationMessageKey, setValidationMessageKey] = useState<MessageKey | null>(null)
+  const [view, setView] = useState<FieldworkView>(readFieldworkView)
+
+  useEffect(() => {
+    const syncView = () => setView(readFieldworkView())
+    window.addEventListener('hashchange', syncView)
+    window.addEventListener('popstate', syncView)
+    return () => {
+      window.removeEventListener('hashchange', syncView)
+      window.removeEventListener('popstate', syncView)
+    }
+  }, [])
+  const effectiveTab: RegistryTab = view === 'sites' ? 'sites' : view === 'visits' ? 'visits' : view === 'overview' ? tab : 'interviews'
 
   const query = search.trim().toLowerCase()
   const filteredSites = useMemo(
@@ -86,10 +108,11 @@ export function FieldworkPage() {
     () =>
       data?.interviews.filter(
         (item) =>
+          matchesFieldworkInterviewView(item, view) &&
           (!projectFilter || item.projectId === projectFilter) &&
           (!query || `${item.participantAlias} ${item.notes}`.toLowerCase().includes(query)),
       ) ?? [],
-    [data?.interviews, projectFilter, query],
+    [data?.interviews, projectFilter, query, view],
   )
   const filteredVisits = useMemo(
     () =>
@@ -100,6 +123,23 @@ export function FieldworkPage() {
       ) ?? [],
     [data?.fieldVisits, projectFilter, query],
   )
+
+  useEffect(() => {
+    const handleQuickAdd = (event: Event) => {
+      const detail = (event as QuickAddEvent).detail
+      if (detail?.module !== 'fieldwork') return
+      if (detail.action !== 'interview' && detail.action !== 'field-visit') return
+      const kind: RecordKind = detail.action === 'field-visit' ? 'visit' : 'interview'
+      setEditingId(null)
+      setValidationMessageKey(null)
+      const projectId = data?.workspace.activeProjectId || ''
+      if (kind === 'interview') setInterview({ ...interviewDraft(), projectId })
+      else setVisit({ ...visitDraft(), projectId })
+      setFormKind(kind)
+    }
+    window.addEventListener(QUICK_ADD_EVENT, handleQuickAdd)
+    return () => window.removeEventListener(QUICK_ADD_EVENT, handleQuickAdd)
+  }, [data?.workspace.activeProjectId])
 
   if (!data) return null
 
@@ -280,11 +320,11 @@ export function FieldworkPage() {
   return (
     <div className="page">
       <PageHeader
-        index="04"
+        index="05"
         eyebrow={t('fieldwork.header.eyebrow')}
         title={t('fieldwork.header.title')}
         description={t('fieldwork.header.description')}
-        actions={<AddButton onClick={() => openCreate(tab === 'sites' ? 'site' : tab === 'interviews' ? 'interview' : 'visit')}>{t(tab === 'sites' ? 'fieldwork.actions.addSite' : tab === 'interviews' ? 'fieldwork.actions.addInterview' : 'fieldwork.actions.addVisit')}</AddButton>}
+        actions={<AddButton onClick={() => openCreate(effectiveTab === 'sites' ? 'site' : effectiveTab === 'interviews' ? 'interview' : 'visit')}>{t(effectiveTab === 'sites' ? 'fieldwork.actions.addSite' : effectiveTab === 'interviews' ? 'fieldwork.actions.addInterview' : 'fieldwork.actions.addVisit')}</AddButton>}
       />
 
       <PrivacyNotice />
@@ -298,25 +338,25 @@ export function FieldworkPage() {
 
       <section className="panel">
         <div className="segmented-tabs" role="tablist" aria-label={t('fieldwork.tabs.aria')}>
-          <button type="button" role="tab" aria-selected={tab === 'sites'} className={tab === 'sites' ? 'active' : ''} onClick={() => setTab('sites')}>
+          <button type="button" role="tab" aria-selected={effectiveTab === 'sites'} className={effectiveTab === 'sites' ? 'active' : ''} onClick={() => setTab('sites')}>
             <MapPinned size={15} /> {t('fieldwork.tabs.sites')} <span>{formatNumber(data.fieldSites.length)}</span>
           </button>
-          <button type="button" role="tab" aria-selected={tab === 'interviews'} className={tab === 'interviews' ? 'active' : ''} onClick={() => setTab('interviews')}>
+          <button type="button" role="tab" aria-selected={effectiveTab === 'interviews'} className={effectiveTab === 'interviews' ? 'active' : ''} onClick={() => setTab('interviews')}>
             <MessageSquareText size={15} /> {t('fieldwork.tabs.interviews')} <span>{formatNumber(data.interviews.length)}</span>
           </button>
-          <button type="button" role="tab" aria-selected={tab === 'visits'} className={tab === 'visits' ? 'active' : ''} onClick={() => setTab('visits')}>
+          <button type="button" role="tab" aria-selected={effectiveTab === 'visits'} className={effectiveTab === 'visits' ? 'active' : ''} onClick={() => setTab('visits')}>
             <NotebookTabs size={15} /> {t('fieldwork.tabs.visits')} <span>{formatNumber(data.fieldVisits.length)}</span>
           </button>
         </div>
         <div className="toolbar toolbar--under-tabs">
-          <SearchField value={search} onChange={setSearch} placeholder={t(tab === 'sites' ? 'fieldwork.search.sites' : tab === 'interviews' ? 'fieldwork.search.interviews' : 'fieldwork.search.visits')} />
+          <SearchField value={search} onChange={setSearch} placeholder={t(effectiveTab === 'sites' ? 'fieldwork.search.sites' : effectiveTab === 'interviews' ? 'fieldwork.search.interviews' : 'fieldwork.search.visits')} />
           <ProjectSelect projects={data.projects} value={projectFilter} onChange={setProjectFilter} includeAll />
-          <Button size="sm" variant="ghost" onClick={() => openCreate(tab === 'sites' ? 'site' : tab === 'interviews' ? 'interview' : 'visit')}>
+          <Button size="sm" variant="ghost" onClick={() => openCreate(effectiveTab === 'sites' ? 'site' : effectiveTab === 'interviews' ? 'interview' : 'visit')}>
             {t('fieldwork.actions.addRecord')}
           </Button>
         </div>
 
-        {tab === 'sites' && (filteredSites.length ? (
+        {effectiveTab === 'sites' && (filteredSites.length ? (
           <div className="data-table-wrap">
             <table className="data-table">
               <thead><tr><th>{t('fieldwork.table.siteAlias')}</th><th>{t('fieldwork.table.project')}</th><th>{t('fieldwork.table.status')}</th><th>{t('fieldwork.table.notes')}</th><th><span className="sr-only">{t('fieldwork.table.actions')}</span></th></tr></thead>
@@ -335,7 +375,7 @@ export function FieldworkPage() {
           </div>
         ) : <EmptyState title={t('fieldwork.empty.sitesTitle')} description={t('fieldwork.empty.sitesDescription')} action={<AddButton onClick={() => openCreate('site')}>{t('fieldwork.empty.sitesAction')}</AddButton>} />)}
 
-        {tab === 'interviews' && (filteredInterviews.length ? (
+        {effectiveTab === 'interviews' && (filteredInterviews.length ? (
           <div className="data-table-wrap">
             <table className="data-table">
               <thead><tr><th>{t('fieldwork.table.participantAlias')}</th><th>{t('fieldwork.table.siteDate')}</th><th>{t('fieldwork.table.status')}</th><th>{t('fieldwork.table.workProducts')}</th><th><span className="sr-only">{t('fieldwork.table.actions')}</span></th></tr></thead>
@@ -360,7 +400,7 @@ export function FieldworkPage() {
           </div>
         ) : <EmptyState title={t('fieldwork.empty.interviewsTitle')} description={t('fieldwork.empty.interviewsDescription')} action={<AddButton onClick={() => openCreate('interview')}>{t('fieldwork.empty.interviewsAction')}</AddButton>} />)}
 
-        {tab === 'visits' && (filteredVisits.length ? (
+        {effectiveTab === 'visits' && (filteredVisits.length ? (
           <div className="field-visit-grid">
             {filteredVisits.map((item) => (
               <article className="field-visit-card" key={item.id}>

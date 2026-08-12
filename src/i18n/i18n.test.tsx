@@ -145,13 +145,21 @@ describe('Chinese-first i18n', () => {
     }
   })
 
-  it('localizes the Theory-era primary navigation in both languages', () => {
-    expect(navigationItems).toHaveLength(10)
+  it('localizes the final nine primary modules and every secondary workflow in both languages', () => {
+    expect(navigationItems).toHaveLength(9)
     for (const item of navigationItems) {
       expect(messages.en[item.labelKey]).toBeTruthy()
       expect(messages['zh-CN'][item.labelKey]).toBeTruthy()
       expect(messages.en[item.shortLabelKey]).toBeTruthy()
       expect(messages['zh-CN'][item.shortLabelKey]).toBeTruthy()
+      for (const view of item.views) {
+        expect(messages.en[view.labelKey]).toBeTruthy()
+        expect(messages['zh-CN'][view.labelKey]).toBeTruthy()
+      }
+      for (const action of item.quickAdd) {
+        expect(messages.en[action.labelKey]).toBeTruthy()
+        expect(messages['zh-CN'][action.labelKey]).toBeTruthy()
+      }
     }
     expect(navigationItems.map((item) => messages['zh-CN'][item.labelKey])).toEqual([
       '今日',
@@ -162,8 +170,7 @@ describe('Chinese-first i18n', () => {
       '定量分析',
       '证据',
       '研究日志',
-      '论文',
-      '投稿与修订',
+      '论文与投稿',
     ])
   })
 

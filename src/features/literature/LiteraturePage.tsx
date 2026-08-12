@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { ArrowUpRight, LibraryBig } from 'lucide-react'
 import {
   LITERATURE_STATUSES,
@@ -8,6 +8,7 @@ import {
 import { useWorkspace } from '../../hooks/useWorkspace'
 import { useI18n } from '../../i18n'
 import { entityMeta, truncate } from '../../app/format'
+import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
   AddButton,
@@ -58,6 +59,22 @@ const statusTone = (status: LiteratureItem['status']): Tone => {
   return 'warning'
 }
 
+const LITERATURE_VIEW_STATUS = {
+  inbox: 'Inbox',
+  'to-read': 'To Read',
+  reading: 'Reading',
+  read: 'Read',
+  cited: 'Cited',
+  archived: 'Archived',
+} as const satisfies Record<string, LiteratureItem['status']>
+
+function readLiteratureView(): 'all' | keyof typeof LITERATURE_VIEW_STATUS {
+  const requested = new URLSearchParams(window.location.hash.split('?')[1] || '').get('view')
+  return requested && requested in LITERATURE_VIEW_STATUS
+    ? requested as keyof typeof LITERATURE_VIEW_STATUS
+    : 'all'
+}
+
 export function LiteraturePage() {
   const { data, updateData } = useWorkspace()
   const { t, formatNumber, labelEnum } = useI18n()
@@ -67,6 +84,17 @@ export function LiteraturePage() {
   const [priorityFilter, setPriorityFilter] = useState('')
   const [formOpen, setFormOpen] = useState(false)
   const [draft, setDraft] = useState<LiteratureDraft>(emptyDraft)
+  const [view, setView] = useState<'all' | keyof typeof LITERATURE_VIEW_STATUS>(readLiteratureView)
+
+  useEffect(() => {
+    const syncView = () => setView(readLiteratureView())
+    window.addEventListener('hashchange', syncView)
+    window.addEventListener('popstate', syncView)
+    return () => {
+      window.removeEventListener('hashchange', syncView)
+      window.removeEventListener('popstate', syncView)
+    }
+  }, [])
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -75,13 +103,25 @@ export function LiteraturePage() {
         const corpus = `${item.title} ${item.authors.join(' ')} ${item.journal || ''} ${item.whyRead} ${item.notes}`.toLowerCase()
         return (
           (!query || corpus.includes(query)) &&
+          (view === 'all' || item.status === LITERATURE_VIEW_STATUS[view]) &&
           (!projectFilter || item.projectId === projectFilter) &&
           (!statusFilter || item.status === statusFilter) &&
           (!priorityFilter || item.priority === priorityFilter)
         )
       }) ?? []
     )
-  }, [data?.literature, priorityFilter, projectFilter, search, statusFilter])
+  }, [data?.literature, priorityFilter, projectFilter, search, statusFilter, view])
+
+  useEffect(() => {
+    const handleQuickAdd = (event: Event) => {
+      const detail = (event as QuickAddEvent).detail
+      if (detail?.module !== 'literature' || detail.action !== 'literature') return
+      setDraft({ ...emptyDraft(), projectId: data?.workspace.activeProjectId || data?.projects[0]?.id || '' })
+      setFormOpen(true)
+    }
+    window.addEventListener(QUICK_ADD_EVENT, handleQuickAdd)
+    return () => window.removeEventListener(QUICK_ADD_EVENT, handleQuickAdd)
+  }, [data?.projects, data?.workspace.activeProjectId])
 
   if (!data) return null
 

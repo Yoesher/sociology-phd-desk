@@ -1,7 +1,7 @@
 # Project State
 
 > Last updated: 2026-08-12
-> Status: Phase 0, Phase 1, Phase 2, Phase 3A, Phase 3B, and Phase 3C are complete on `main`; Phase 3D closed as a documentation-only deferral at exact `main` `ca4429f`, with all four map gates still **BLOCKED**, PR #16 merged, and Issue #8 `CLOSED_NOT_PLANNED`; Phase 3E Theory Research is under review in PR #18 after its local and initial exact-head CI gates passed; merge, exact-`main` CI, Pages, and public verification remain pending; Phase 3F navigation is blocked until those Theory gates pass; `v0.1.0` remains the verified public release
+> Status: Phase 0, Phase 1, Phase 2, Phase 3A, Phase 3B, Phase 3C, and Phase 3E are complete on `main`; Phase 3D remains a documentation-only map deferral with all four gates **BLOCKED**, PR #16 merged, and Issue #8 `CLOSED_NOT_PLANNED`. Theory PR #18 was squash-merged as exact `main` `b8c8c604…`; its exact-main CI and Pages gates passed. Phase 3F hierarchical navigation and integrated publishing is a local, uncommitted candidate on `feat/hierarchical-navigation`; no navigation PR, navigation CI, merge, Pages, or public verification is claimed. `v0.1.0` remains the verified public release.
 > Canonical local project path: `D:\phddesk`
 
 This file is the factual handoff record for maintainers and future Codex sessions. Update it at the end of every development session. Never infer passing checks, repository activity, users, or releases.
@@ -29,7 +29,7 @@ These facts do not prove that a similarly named remote repository cannot exist; 
 
 ## Current architecture
 
-The following bullets describe verified `main` at `ca4429facfa124e85c3dba37f9ce7da270a82601`, including merged but unreleased Phase 3A / 3B / 3C and the documentation-only Phase 3D closeout. The Theory architecture described separately below is the unmerged PR #18 candidate, not public `main` or Pages behavior.
+The following bullets describe verified `main` at `b8c8c60434b1d88c348f83c5d08f2d19770db78a`, including merged but unreleased Phase 3A / 3B / 3C, the documentation-only Phase 3D closeout, and Phase 3E Theory Research. The navigation architecture described separately below is a local candidate only, not public `main` or Pages behavior.
 
 - React + TypeScript + Vite client application.
 - Browser-local IndexedDB persistence through Dexie.
@@ -54,7 +54,7 @@ See [DECISIONS.md](DECISIONS.md) and [docs/architecture/overview.md](docs/archit
 
 This architecture was merged through PR #14 and deployed from exact `main` on 2026-08-12. It remains `Unreleased`: package version and the latest formal GitHub Release are still `0.1.0` / `v0.1.0`.
 
-### Phase 3E architecture (local candidate only; unmerged and undeployed)
+### Phase 3E architecture (merged and deployed; unreleased)
 
 - `TheoryMemo` is the only new theory-specific entity. It belongs to one project, has one of six locale-neutral types (`concept`, `mechanism`, `dialogue`, `counterargument`, `boundary`, `synthesis`), and may reference existing same-project ResearchQuestion, Claim, and Literature records by stable ID. Manuscript remains the writing entity.
 - Missing endpoints, cross-project relationships, and duplicate IDs within any memo relationship array are invalid. A referenced project, question, claim, or literature record cannot be deleted until the memo relationship is removed. Deleting a memo removes only that memo and never its endpoints.
@@ -62,9 +62,15 @@ This architecture was merged through PR #14 and deployed from exact `main` on 20
 - Encrypted container v1, encrypted-vault database v1, and registry database v1 do not advance. Existing authenticated portable-v3 vaults or backups migrate only after authentication and complete v4 read-back validation; failure retains the old ciphertext and publishes no partial route/storage update.
 - The stable task category is `Theory / Conceptual Work`. It is stored as a locale-neutral raw value and localized only for display.
 
+### Phase 3F architecture (local candidate only; uncommitted, unmerged, and undeployed)
+
+- The candidate fixes nine research-work primary modules with one URL-addressable secondary Smart View level, plus a separate Workspace & Settings utility area. Secondary views are derived presentation filters and do not add persisted status values or mutate research data when opened.
+- Manuscript, Submission, and ReviewerComment remain independent entities. The candidate presents them through one Manuscripts & Publishing area and preserves legacy manuscript/submission routes through redirects.
+- The candidate adds an active breadcrumb, context-aware Quick Add, compact keyboard-operable flyout, complete mobile More accordion, responsive desktop/mobile layouts, and true-empty personal-workspace onboarding.
+
 ## Current functional state
 
-Verified `main` at [`ca4429f`](https://github.com/Yoesher/sociology-phd-desk/commit/ca4429facfa124e85c3dba37f9ce7da270a82601) contains the published `v0.1.0` foundation plus merged, unreleased Phase 3A bilingual, Phase 3B research-graph, and Phase 3C private-local-workspace implementations, followed by the Phase 3D documentation-only map deferral. The Phase 3B product change itself was squash-merged as [`a51a10f`](https://github.com/Yoesher/sociology-phd-desk/commit/a51a10febfb3e186aa1774c0110c27fdceec9f0e):
+Verified `main` at [`b8c8c60`](https://github.com/Yoesher/sociology-phd-desk/commit/b8c8c60434b1d88c348f83c5d08f2d19770db78a) contains the published `v0.1.0` foundation plus merged, unreleased Phase 3A bilingual, Phase 3B research-graph, Phase 3C private-local-workspace, and Phase 3E Theory Research implementations, following the Phase 3D documentation-only map deferral. The Phase 3B product change itself was squash-merged as [`a51a10f`](https://github.com/Yoesher/sociology-phd-desk/commit/a51a10febfb3e186aa1774c0110c27fdceec9f0e):
 
 - responsive application shell, desktop/mobile navigation, route-level code splitting, and persistent light/dark theme;
 - the merged Phase 3A implementation with Chinese as the fresh-install default, immediate persistent Chinese/English switching, locale-aware dates/numbers/validation, stable persisted enum values, and no automatic translation of user-authored content;
@@ -105,11 +111,11 @@ The merged Phase 3C implementation provides:
 
 These features remain present on verified `main` and Pages at exact SHA `ca4429facfa124e85c3dba37f9ce7da270a82601`. They remain outside the formal `v0.1.0` Release.
 
-### Phase 3E functional state (local candidate only; unmerged and undeployed)
+### Phase 3E functional state (merged and deployed; unreleased)
 
-The current local candidate provides complete Chinese and English Theory Memo create/read/update/delete flows; project, type, and updated-date filters; overview, questions/propositions, core concepts, mechanisms, theoretical dialogue, counterarguments/boundaries, all-memos, and theoretical-manuscript views; explicit links to same-project questions, claims, and literature; project and endpoint deletion protection; UI-only structured prompts that never insert stored prose; Theory task-category display/filtering; and a minimal synthetic demo with two memos. The whole fixture contains two projects, two research questions, three claims, and three `ClaimQuestionLink` records. Its concept memo references one question; its mechanism memo references that same question and one claim; neither references literature. It makes no real citation, finding, or theoretical-conclusion claim. A fresh personal workspace remains empty.
+The merged Theory implementation provides complete Chinese and English Theory Memo create/read/update/delete flows; project, type, and updated-date filters; overview, questions/propositions, core concepts, mechanisms, theoretical dialogue, counterarguments/boundaries, all-memos, and theoretical-manuscript views; explicit links to same-project questions, claims, and literature; project and endpoint deletion protection; UI-only structured prompts that never insert stored prose; Theory task-category display/filtering; and a minimal synthetic demo with two memos. The whole fixture contains two projects, two research questions, three claims, and three `ClaimQuestionLink` records. Its concept memo references one question; its mechanism memo references that same question and one claim; neither references literature. It makes no real citation, finding, or theoretical-conclusion claim. A fresh personal workspace remains empty.
 
-This paragraph records only the unmerged PR #18 candidate. Its local automated/build/browser gates and initial exact-head push/PR CI passed; it does **not** claim that maintainer review, merge, exact-`main` CI, Pages deployment, or public browser verification has passed.
+Theory [PR #18](https://github.com/Yoesher/sociology-phd-desk/pull/18) was reviewed with P0 = 0 / P1 = 0 and squash-merged as [`b8c8c60`](https://github.com/Yoesher/sociology-phd-desk/commit/b8c8c60434b1d88c348f83c5d08f2d19770db78a). Exact-main [CI run 31576643318 / job 94050153842](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31576643318/job/94050153842) and [Pages run 31576643397](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31576643397) (build `94050153623`, deploy `94050362595`, [deployment `5865496339`](https://github.com/Yoesher/sociology-phd-desk/deployments/5865496339)) passed. This is merged and deployed but remains outside the formal `v0.1.0` Release.
 
 ## Validation status
 
@@ -151,21 +157,34 @@ The bilingual evidence register is [Chinese](docs/zh-CN/map-data-sources.md) / [
 
 The documentation-only [PR #16](https://github.com/Yoesher/sociology-phd-desk/pull/16) records this blocked gate. Its initial documentation head `bc3c6cb261e92008210536f97aa3e2e54a689c89` passed [push CI 31556499910](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31556499910) and [Pull Request CI 31556578385](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31556578385); the [maintainer gate review](https://github.com/Yoesher/sociology-phd-desk/pull/16#issuecomment-5261353262) recorded documentation P0 = 0 and P1 = 0 while retaining all four map gates as BLOCKED. PR #16 was then merged as [`ca4429f`](https://github.com/Yoesher/sociology-phd-desk/commit/ca4429facfa124e85c3dba37f9ce7da270a82601), and Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8) was closed with reason `not planned`. Exact-`main` [CI run 31567658853 / job 94022736509](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31567658853/job/94022736509) passed. [Pages run 31567658866](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31567658866) passed build job `94022736462` and deploy job `94022889244`; [deployment 5863903867](https://github.com/Yoesher/sociology-phd-desk/deployments/5863903867) points to the same exact SHA. This merged and deployed a compliance record, not a map, asset, administrative catalog, or region-writing workflow.
 
-## Phase 3E Theory candidate validation status
+## Phase 3E Theory validation status
 
-The local branch is based on exact verified `main` `ca4429facfa124e85c3dba37f9ce7da270a82601`. Implementation and targeted checks may be iterated during review, but only the final shared revision may supply release evidence.
+Theory was based on exact verified `main` `ca4429facfa124e85c3dba37f9ce7da270a82601`. Only the final shared revision supplied the completed evidence below.
 
 | Theory gate | Current factual state |
 | --- | --- |
-| Entity, relationships, CRUD, bilingual views, demo, task category, v4 migration, encrypted-v3 compatibility | PRESENT IN LOCAL CANDIDATE — not merged or deployed |
+| Entity, relationships, CRUD, bilingual views, demo, task category, v4 migration, encrypted-v3 compatibility | PASS — merged in PR #18 and deployed from exact `main` `b8c8c60434b1d88c348f83c5d08f2d19770db78a`; still unreleased |
 | Final integrated lint and typecheck | PASS — lint completed with zero warnings; TypeScript completed without errors |
 | Final full Vitest suite | PASS — 25 files / 249 tests in 18.71 seconds |
 | Final production build and diff/hygiene gate | PASS — Vite built 1,957 modules in 478 ms; largest emitted chunk was `vendor` at 407.60 kB / 127.62 kB gzip; diff, relative-link, secret, and private-path checks passed |
 | Chinese/English desktop/mobile real-browser smoke | PASS — Theory CRUD and same-project links, UI-only prompts, preserved user text, Theory task filtering, reload persistence, standard/encrypted isolation, lock/wrong-pass/correct-unlock/reload-lock behavior, 1280 × 720 desktop, 390 × 844 mobile, no horizontal overflow, and zero console warnings/errors. Synthetic QA workspaces were deleted. Browser restore of an old encrypted backup was NOT RUN; automated migration/restore tests cover that boundary. |
 | Independent exact-tree P0/P1 review | PASS — P0 = 0 and P1 = 0 on the final local candidate |
-| Theory Pull Request and exact-head CI | PASS ON INITIAL HEAD — [PR #18](https://github.com/Yoesher/sociology-phd-desk/pull/18) opened at `b478875587982d51b049100333c0dfc44c2f5ceb`; [push CI 31575636028 / job 94047000462](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31575636028/job/94047000462) and [PR CI 31575666773 / job 94047095608](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31575666773/job/94047095608) passed. This documentation correction creates a new head that must pass again. |
-| Maintainer review, merge, exact-`main` CI, Pages, public verification | PENDING |
-| Phase 3F hierarchical navigation | BLOCKED until every preceding Theory gate passes |
+| Theory Pull Request and exact-head CI | PASS — [PR #18](https://github.com/Yoesher/sociology-phd-desk/pull/18) final head `978fa3cf3d276de24f16752116518456c661db4f` passed [push CI 31576458299 / job 94049572484](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31576458299/job/94049572484) and [PR CI 31576462527 / job 94049584975](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31576462527/job/94049584975). |
+| Maintainer review and merge | PASS — [self-review](https://github.com/Yoesher/sociology-phd-desk/pull/18#issuecomment-5264007436) recorded P0 = 0 / P1 = 0; PR #18 squash-merged as `b8c8c60434b1d88c348f83c5d08f2d19770db78a` and Issue #17 is closed. |
+| Exact-`main` CI and Pages | PASS — [CI 31576643318 / job 94050153842](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31576643318/job/94050153842), [Pages 31576643397](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31576643397) build/deploy `94050153623` / `94050362595`, and [deployment 5865496339](https://github.com/Yoesher/sociology-phd-desk/deployments/5865496339) passed on exact `main`. |
+| Phase 3F hierarchical navigation | LOCAL CANDIDATE — implementation is underway on `feat/hierarchical-navigation`; its own PR, CI, merge, Pages, and public verification remain pending. |
+
+## Phase 3F navigation candidate validation status
+
+This section records only the current, uncommitted local candidate on `feat/hierarchical-navigation`. It must not be read as a public `main`, Pages, PR, or release claim.
+
+| Navigation candidate gate | Current factual state |
+| --- | --- |
+| Information architecture and integrated publishing | PRESENT LOCALLY — nine primaries, derived Smart Views, breadcrumbs, Quick Add, legacy redirects, and separate underlying publication entities |
+| Final local static and automated checks | PASS — `npm ci`; lint with 0 findings; typecheck; 28 files / 269 tests; the final exact-tree Vite build transformed 1,962 modules in 580 ms. Main output was 248.28 kB / 57.61 kB gzip, vendor 407.79 kB / 127.67 kB gzip, i18n 182.43 kB / 45.72 kB gzip, Theory 21.40 kB / 5.34 kB gzip, Publishing 20.35 kB / 4.71 kB gzip plus 1.96 kB / 0.70 kB CSS, and common CSS 87.34 kB / 15.67 kB gzip. |
+| Independent exact-tree audit | PASS — P0 = 0 and P1 = 0. |
+| Local browser interaction and responsive smoke | PASS — Chinese and English desktop 1280 views, keyboard compact-sidebar focus, deep-link/back/forward/reload, Chinese and English 390-wide mobile views with mobile focus behavior (`scrollWidth` 375 ≤ 390), Theory Quick Add in the synthetic demo, Publishing revision view, legacy routes, and an encrypted QA workspace create → lock → wrong-passphrase clear → correct unlock → delete. Console warnings/errors were 0. |
+| Navigation Pull Request, exact-head CI, merge, Pages, public verification | PENDING — do not claim these until separately completed. |
 
 Recorded on 2026-08-11. The Phase 3A final candidate passed local verification after the final accessibility and responsive fixes. Pull Request final-head CI, maintainer self-review, squash merge, exact-`main` CI, Pages deployment, and bilingual public browser verification then passed. The published `v0.1.0` release and annotated tag remain unchanged; Phase 3A is merged on `main` but not presented as a new release.
 
@@ -242,7 +261,7 @@ A later audit added the generation-poison write queue and nested modal stack. Bo
 - Final Phase 3A base: local `main` and the locally recorded `origin/main` ref matched `d37f5d480932fe511cb505b16cb57adf29fc2805`, the squash merge of documentation-closeout PR #10. The product implementation itself was merged through PR #9 as `bad788fac457950dfe311dc1b539cec5e74bf65a`. The `v0.1.0` tag is unchanged and still dereferences to release commit `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994`.
 - Verified Phase 3B closeout base: local `main`, `origin/main`, and the Phase 3C branch point matched `4f3d615c62959e4c84d8d72751414e978f5b123b`, the squash merge of documentation-closeout PR [#12](https://github.com/Yoesher/sociology-phd-desk/pull/12). The underlying Phase 3B product merge remains `a51a10febfb3e186aa1774c0110c27fdceec9f0e` from PR #11.
 - Remote status: `origin` is restored to `https://github.com/Yoesher/sociology-phd-desk.git`. Phase 2 temporarily used a repository-scoped deploy key over GitHub's official SSH-over-443 transport because direct `github.com` Git HTTPS timed out; the key lived only under `.git`, was never tracked, and was revoked after the final status push.
-- Push/merge status: Phase 3A PRs #9/#10, Phase 3B PRs [#11](https://github.com/Yoesher/sociology-phd-desk/pull/11)/[#12](https://github.com/Yoesher/sociology-phd-desk/pull/12), Phase 3C [PR #14](https://github.com/Yoesher/sociology-phd-desk/pull/14), and documentation-only Phase 3D [PR #16](https://github.com/Yoesher/sociology-phd-desk/pull/16) are merged. PR #16 produced exact verified `main` `ca4429facfa124e85c3dba37f9ce7da270a82601`; Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8) is `CLOSED_NOT_PLANNED`. Issue [#17](https://github.com/Yoesher/sociology-phd-desk/issues/17) is tracked by open Theory [PR #18](https://github.com/Yoesher/sociology-phd-desk/pull/18); its initial exact head passed both CI events, but review, merge, exact-`main`, and Pages remain pending. Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) remains OPEN and separate.
+- Push/merge status: Phase 3A PRs #9/#10, Phase 3B PRs [#11](https://github.com/Yoesher/sociology-phd-desk/pull/11)/[#12](https://github.com/Yoesher/sociology-phd-desk/pull/12), Phase 3C [PR #14](https://github.com/Yoesher/sociology-phd-desk/pull/14), documentation-only Phase 3D [PR #16](https://github.com/Yoesher/sociology-phd-desk/pull/16), and Theory [PR #18](https://github.com/Yoesher/sociology-phd-desk/pull/18) are merged. PR #18 produced exact verified `main` `b8c8c60434b1d88c348f83c5d08f2d19770db78a`; Issue [#17](https://github.com/Yoesher/sociology-phd-desk/issues/17) is closed. The navigation candidate is uncommitted locally and has no PR or remote-gate claim. Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) remains OPEN and separate.
 - Phase 3D closeout remote checks: exact-`main` [CI run 31567658853 / job 94022736509](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31567658853/job/94022736509) and [Pages run 31567658866](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31567658866) succeeded on `ca4429facfa124e85c3dba37f9ce7da270a82601`; Pages build job `94022736462`, deploy job `94022889244`, and deployment `5863903867` all reference that exact closeout revision.
 - Phase 3C remote checks: exact-`main` [CI 31551698246](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551698246) and [Pages 31551698215](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551698215) succeeded on `f8b9ef94e67730955a4ab4b6fbe27f66ab3a5db9`; Pages deployment `5861195664` published the project URL. The public URL returned HTTP 200 and served final-local-matching `index-d7Ca3tI7.js` and `index-MceaPGZ1.css`.
 - Phase 3B remote checks: exact-`main` [CI 31508962634](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31508962634) and [Pages 31508962638](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31508962638) succeeded. The earlier release SHA `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994` remains the immutable `v0.1.0` target.
@@ -260,6 +279,6 @@ A later audit added the generation-poison write queue and nested modal stack. Bo
 
 ## Next version objective
 
-Phase 3A, Phase 3B, and Phase 3C gates are complete. The Phase 3D documentation closeout is merged and deployed at exact `ca4429f`; all four map gates remain **BLOCKED**, the map remains excluded from `v0.2.0`, and Issue #8 is closed as not planned. The immediate objective is to finish and independently audit the current local Theory candidate, then run its full automated/build/browser/PR/CI/merge/Pages gates. Hierarchical navigation and integrated publishing remain blocked until that sequence is complete. Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) remains separate, OPEN, and unimplemented. Do not create `v0.2.0` before the new release gates pass, move `v0.1.0`, translate user-authored research content, or claim external adoption without evidence.
+Phase 3A, Phase 3B, Phase 3C, and Phase 3E gates are complete. The Phase 3D documentation closeout remains merged and deployed at exact `ca4429f`; all four map gates remain **BLOCKED**, the map remains excluded from `v0.2.0`, and Issue #8 is closed as not planned. The immediate objective is to open, verify, merge, and publicly validate the current local navigation and integrated-publishing candidate before declaring feature freeze. Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) remains separate, OPEN, and unimplemented. Do not create `v0.2.0` before the new release gates pass, move `v0.1.0`, translate user-authored research content, or claim external adoption without evidence.
 
 See [NEXT_TASKS.md](NEXT_TASKS.md) for the prioritized queue.

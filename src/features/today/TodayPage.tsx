@@ -1,13 +1,15 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { ScrollText } from 'lucide-react'
 import {
   PRIORITIES,
   TASK_CATEGORIES,
   type ResearchLogEntry,
   type ResearchTask,
+  type WorkspaceData,
 } from '../../models/domain'
 import { useWorkspace } from '../../hooks/useWorkspace'
 import { entityMeta, isOverdue, todayIso } from '../../app/format'
+import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import { useI18n } from '../../i18n'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
@@ -40,6 +42,55 @@ const emptyLog = {
   nextStep: '',
 }
 
+const TODAY_VIEWS = ['overview', 'tasks', 'overdue', 'week', 'completed'] as const
+type TodayView = (typeof TODAY_VIEWS)[number]
+
+function readTodayView(): TodayView {
+  const requested = new URLSearchParams(window.location.hash.split('?')[1] || '').get('view')
+  return TODAY_VIEWS.includes(requested as TodayView) ? requested as TodayView : 'overview'
+}
+
+function dueWithinWeek(date: string | undefined, today: string): boolean {
+  if (!date) return false
+  const millisecondsPerDay = 86_400_000
+  const dueIn = Math.round(
+    (new Date(`${date}T12:00:00`).getTime() - new Date(`${today}T12:00:00`).getTime()) /
+      millisecondsPerDay,
+  )
+  return dueIn >= 0 && dueIn <= 6
+}
+
+function dueWithinPastWeek(date: string, today: string): boolean {
+  const millisecondsPerDay = 86_400_000
+  const age = Math.round(
+    (new Date(`${today}T12:00:00`).getTime() - new Date(`${date}T12:00:00`).getTime()) /
+      millisecondsPerDay,
+  )
+  return age >= 0 && age <= 6
+}
+
+function isTrulyEmptyPersonalWorkspace(data: WorkspaceData): boolean {
+  return !data.workspace.isDemo && [
+    data.projects,
+    data.researchQuestions,
+    data.claims,
+    data.claimQuestionLinks,
+    data.theoryMemos,
+    data.tasks,
+    data.literature,
+    data.fieldSites,
+    data.interviews,
+    data.fieldVisits,
+    data.datasets,
+    data.analysisRuns,
+    data.evidence,
+    data.researchLogs,
+    data.manuscripts,
+    data.submissions,
+    data.reviewerComments,
+  ].every((collection) => collection.length === 0)
+}
+
 export function TodayPage() {
   const { data, updateData, setActiveProject } = useWorkspace()
   const { locale, t, formatNumber, labelEnum } = useI18n()
@@ -49,6 +100,17 @@ export function TodayPage() {
   const [log, setLog] = useState(emptyLog)
   const [goals, setGoals] = useState<string[] | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<ResearchTask['category'] | ''>('')
+  const [view, setView] = useState<TodayView>(readTodayView)
+
+  useEffect(() => {
+    const syncView = () => setView(readTodayView())
+    window.addEventListener('hashchange', syncView)
+    window.addEventListener('popstate', syncView)
+    return () => {
+      window.removeEventListener('hashchange', syncView)
+      window.removeEventListener('popstate', syncView)
+    }
+  }, [])
 
   const today = todayIso()
   const dateLabel = new Intl.DateTimeFormat(locale, {
@@ -58,13 +120,24 @@ export function TodayPage() {
     year: 'numeric',
   }).format(new Date(`${today}T12:00:00`))
 
-  const relevantTasks = useMemo(
-    () =>
-      data?.tasks
-        .filter((item) => item.dueDate === today || isOverdue(item.dueDate, item.status))
-        .sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || '')) ?? [],
-    [data?.tasks, today],
-  )
+  const relevantTasks = useMemo(() => {
+    const filtered = (data?.tasks ?? []).filter((item) => {
+      if (view === 'tasks') return item.dueDate === today && item.status !== 'Done'
+      if (view === 'overdue') return isOverdue(item.dueDate, item.status)
+      if (view === 'week') return item.status !== 'Done' && dueWithinWeek(item.dueDate, today)
+      if (view === 'completed') {
+        const updated = item.updatedAt.slice(0, 10)
+        const age = dueWithinPastWeek(updated, today)
+        return item.status === 'Done' && age
+      }
+      return item.dueDate === today || isOverdue(item.dueDate, item.status)
+    })
+    return filtered.sort((left, right) =>
+      view === 'completed'
+        ? right.updatedAt.localeCompare(left.updatedAt)
+        : (left.dueDate || '').localeCompare(right.dueDate || ''),
+    )
+  }, [data?.tasks, today, view])
   const completedToday = relevantTasks.filter((item) => item.status === 'Done').length
   const overdue = relevantTasks.filter((item) => isOverdue(item.dueDate, item.status)).length
   const completionPercent = relevantTasks.length ? (completedToday / relevantTasks.length) * 100 : 0
@@ -75,12 +148,25 @@ export function TodayPage() {
   const visibleGoals = goals ?? data?.workspace.todayGoals ?? []
   const visibleTasks = relevantTasks.filter((item) => !categoryFilter || item.category === categoryFilter)
 
+  useEffect(() => {
+    const handleQuickAdd = (event: Event) => {
+      const detail = (event as QuickAddEvent).detail
+      if (detail?.module !== 'today' || detail.action !== 'task') return
+      setTask({ ...emptyTask, projectId: data?.workspace.activeProjectId || '' })
+      setTaskOpen(true)
+    }
+    window.addEventListener(QUICK_ADD_EVENT, handleQuickAdd)
+    return () => window.removeEventListener(QUICK_ADD_EVENT, handleQuickAdd)
+  }, [data?.workspace.activeProjectId])
+
   const localizedProjectLabel = (projectId?: string) => {
     const project = data?.projects.find((item) => item.id === projectId)
     return project?.shortTitle || project?.title || t('common.unassigned')
   }
 
   if (!data) return null
+
+  const showOnboarding = view === 'overview' && isTrulyEmptyPersonalWorkspace(data)
 
   const saveTask = async (event: FormEvent) => {
     event.preventDefault()
@@ -151,6 +237,21 @@ export function TodayPage() {
         actions={<AddButton onClick={openTaskForm}>{t('today.actions.addResearchTask')}</AddButton>}
       />
 
+      {showOnboarding && (
+        <section className="panel onboarding-card" aria-labelledby="today-onboarding-title">
+          <p className="eyebrow">{t('today.onboarding.eyebrow')}</p>
+          <h2 id="today-onboarding-title">{t('today.onboarding.title')}</h2>
+          <p>{t('today.onboarding.description')}</p>
+          <ol className="onboarding-steps">
+            <li>{t('today.onboarding.stepProject')}</li>
+            <li>{t('today.onboarding.stepQuestion')}</li>
+            <li>{t('today.onboarding.stepTask')}</li>
+            <li>{t('today.onboarding.stepBackup')}</li>
+          </ol>
+        </section>
+      )}
+
+      {view === 'overview' && <>
       <section className="focus-strip">
         <div className="focus-strip__label">
           <span>{t('today.focus.primaryProject')}</span>
@@ -236,8 +337,9 @@ export function TodayPage() {
           </div>
         </section>
       </div>
+      </>}
 
-      <div className="today-grid today-grid--lower">
+      <div className={view === 'overview' ? 'today-grid today-grid--lower' : 'today-grid today-grid--single'}>
         <section className="panel">
           <SectionHeader
             title={t('today.tasks.title')}
@@ -280,7 +382,7 @@ export function TodayPage() {
           )}
         </section>
 
-        <section className="panel panel--log">
+        {view === 'overview' && <section className="panel panel--log">
           <SectionHeader
             title={t('today.log.title')}
             description={t('today.log.description')}
@@ -306,7 +408,7 @@ export function TodayPage() {
               action={<Button onClick={openLogForm}>{t('today.log.emptyAction')}</Button>}
             />
           )}
-        </section>
+        </section>}
       </div>
 
       <Modal

@@ -105,6 +105,60 @@
   border-color: var(--line);
 }
 
+.quick-add {
+  position: relative;
+}
+
+.quick-add__trigger {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  gap: 6px;
+  padding: 0 9px;
+  color: #f7faf7;
+  background: var(--accent-strong);
+  border: 1px solid var(--accent-strong);
+  border-radius: var(--radius-sm);
+  font-size: 0.69rem;
+  font-weight: 700;
+}
+
+.quick-add__trigger:hover,
+.quick-add__trigger[aria-expanded='true'] {
+  background: color-mix(in srgb, var(--accent-strong) 87%, #000);
+}
+
+.quick-add__menu {
+  position: absolute;
+  z-index: 55;
+  top: calc(100% + 7px);
+  right: 0;
+  display: grid;
+  min-width: 190px;
+  padding: 6px;
+  background: var(--surface-raised);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+}
+
+.quick-add__menu button {
+  min-height: 34px;
+  padding: 0 9px;
+  color: var(--ink-soft);
+  text-align: left;
+  background: transparent;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: 650;
+}
+
+.quick-add__menu button:hover,
+.quick-add__menu button:focus-visible {
+  color: var(--ink);
+  background: var(--surface-inset);
+}
+
 .sidebar .icon-button,
 .mobile-menu .icon-button {
   color: var(--nav-muted);

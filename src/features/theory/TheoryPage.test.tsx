@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { WorkspaceContext, type WorkspaceContextValue } from '../../app/workspace-context'
+import { QUICK_ADD_EVENT, type QuickAddEventDetail } from '../../app/navigationEvents'
 import { I18nProvider, useI18n } from '../../i18n'
 import { createDemoWorkspace } from '../../models/demo'
 import type { TheoryMemoType, WorkspaceData } from '../../models/domain'
@@ -174,5 +175,15 @@ describe('TheoryPage research workflow', () => {
     await user.click(screen.getByRole('button', { name: '机制分析' }))
     expect(screen.getByRole('button', { name: '机制分析', current: 'page' })).toBeInTheDocument()
     expect(screen.queryByRole('dialog', { name: '新建理论备忘' })).not.toBeInTheDocument()
+  })
+
+  it('opens a new memo from the module-scoped Quick Add action', async () => {
+    renderTheory(undefined, '/theory?view=overview')
+
+    window.dispatchEvent(new CustomEvent<QuickAddEventDetail>(QUICK_ADD_EVENT, {
+      detail: { module: 'theory', action: 'theory-memo' },
+    }))
+
+    expect(await screen.findByRole('dialog', { name: '新建理论备忘' })).toBeInTheDocument()
   })
 })

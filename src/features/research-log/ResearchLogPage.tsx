@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { ArrowRight, CalendarDays, ScrollText } from 'lucide-react'
 import type { ResearchLogEntry } from '../../models/domain'
 import { useWorkspace } from '../../hooks/useWorkspace'
@@ -8,6 +8,7 @@ import {
   todayIso,
   truncate,
 } from '../../app/format'
+import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import { useI18n } from '../../i18n'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
@@ -40,6 +41,21 @@ const emptyDraft = (projectId = ''): ResearchLogDraft => ({
   nextStep: '',
 })
 
+const RESEARCH_LOG_VIEWS = ['timeline', 'today', 'week', 'decisions', 'problems', 'next-steps', 'by-project'] as const
+type ResearchLogView = (typeof RESEARCH_LOG_VIEWS)[number]
+
+function readResearchLogView(): ResearchLogView {
+  const requested = new URLSearchParams(window.location.hash.split('?')[1] || '').get('view')
+  return RESEARCH_LOG_VIEWS.includes(requested as ResearchLogView) ? requested as ResearchLogView : 'timeline'
+}
+
+function weekStart(date: string): string {
+  const current = new Date(`${date}T12:00:00`)
+  const mondayOffset = (current.getDay() + 6) % 7
+  current.setDate(current.getDate() - mondayOffset)
+  return current.toISOString().slice(0, 10)
+}
+
 export function ResearchLogPage() {
   const { data, updateData } = useWorkspace()
   const { t, formatDate, formatNumber } = useI18n()
@@ -47,6 +63,40 @@ export function ResearchLogPage() {
   const [projectFilter, setProjectFilter] = useState('')
   const [formOpen, setFormOpen] = useState(false)
   const [draft, setDraft] = useState<ResearchLogDraft>(emptyDraft)
+  const [view, setView] = useState<ResearchLogView>(readResearchLogView)
+  const previousViewRef = useRef<ResearchLogView | null>(null)
+  const autoProjectFilterRef = useRef(false)
+
+  useEffect(() => {
+    const previousView = previousViewRef.current
+    previousViewRef.current = view
+    const hasValidProject = Boolean(projectFilter && data?.projects.some((project) => project.id === projectFilter))
+
+    if (view === 'by-project') {
+      if (!hasValidProject) {
+        autoProjectFilterRef.current = true
+        setProjectFilter(data?.workspace.activeProjectId || data?.projects[0]?.id || '')
+      }
+    } else if (previousView === 'by-project' && autoProjectFilterRef.current) {
+      autoProjectFilterRef.current = false
+      setProjectFilter('')
+    }
+  }, [data?.projects, data?.workspace.activeProjectId, projectFilter, view])
+
+  const changeProjectFilter = (projectId: string) => {
+    autoProjectFilterRef.current = false
+    setProjectFilter(projectId)
+  }
+
+  useEffect(() => {
+    const syncView = () => setView(readResearchLogView())
+    window.addEventListener('hashchange', syncView)
+    window.addEventListener('popstate', syncView)
+    return () => {
+      window.removeEventListener('hashchange', syncView)
+      window.removeEventListener('popstate', syncView)
+    }
+  }, [])
 
   const entryCount = (count: number) => t(
     count === 1 ? 'researchLog.count.entriesOne' : 'researchLog.count.entriesOther',
@@ -72,6 +122,11 @@ export function ResearchLogPage() {
           .join(' ')
           .toLowerCase()
         return (
+          (view !== 'today' || entry.date === todayIso()) &&
+          (view !== 'week' || entry.date >= weekStart(todayIso()) && entry.date <= todayIso()) &&
+          (view !== 'decisions' || Boolean(entry.decision.trim())) &&
+          (view !== 'problems' || Boolean(entry.problem.trim())) &&
+          (view !== 'next-steps' || Boolean(entry.nextStep.trim())) &&
           (!query || corpus.includes(query)) &&
           (!projectFilter || entry.projectId === projectFilter)
         )
@@ -79,7 +134,22 @@ export function ResearchLogPage() {
       .sort((left, right) =>
         right.date.localeCompare(left.date) || right.updatedAt.localeCompare(left.updatedAt),
       )
-  }, [data?.projects, data?.researchLogs, projectFilter, search])
+  }, [data?.projects, data?.researchLogs, projectFilter, search, view])
+
+  useEffect(() => {
+    const handleQuickAdd = (event: Event) => {
+      const detail = (event as QuickAddEvent).detail
+      if (detail?.module !== 'research-log' || detail.action !== 'research-log') return
+      const projectId = data?.projects.some((project) => project.id === data?.workspace.activeProjectId)
+        ? data?.workspace.activeProjectId || ''
+        : data?.projects[0]?.id || ''
+      if (!projectId) return
+      setDraft(emptyDraft(projectId))
+      setFormOpen(true)
+    }
+    window.addEventListener(QUICK_ADD_EVENT, handleQuickAdd)
+    return () => window.removeEventListener(QUICK_ADD_EVENT, handleQuickAdd)
+  }, [data?.projects, data?.workspace.activeProjectId])
 
   const timeline = useMemo(() => {
     const groups: Array<{ date: string; entries: ResearchLogEntry[] }> = []
@@ -132,7 +202,7 @@ export function ResearchLogPage() {
   return (
     <div className="page">
       <PageHeader
-        index="07"
+        index="08"
         eyebrow={t('researchLog.header.eyebrow')}
         title={t('researchLog.header.title')}
         description={t('researchLog.header.description')}
@@ -164,8 +234,8 @@ export function ResearchLogPage() {
           <ProjectSelect
             projects={data.projects}
             value={projectFilter}
-            onChange={setProjectFilter}
-            includeAll
+            onChange={changeProjectFilter}
+            includeAll={view !== 'by-project'}
           />
           <span className="toolbar__count">
             {entryCount(filtered.length)}
@@ -230,7 +300,7 @@ export function ResearchLogPage() {
             }
             action={
               data.researchLogs.length ? (
-                <Button onClick={() => { setSearch(''); setProjectFilter('') }}>{t('researchLog.action.clearFilters')}</Button>
+                <Button onClick={() => { setSearch(''); if (view !== 'by-project') changeProjectFilter('') }}>{t('researchLog.action.clearFilters')}</Button>
               ) : (
                 <AddButton onClick={openCreate} disabled={!data.projects.length}>{t('researchLog.action.addFirst')}</AddButton>
               )

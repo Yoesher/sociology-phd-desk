@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { BarChart3, Code2, Database, FolderLock } from 'lucide-react'
 import {
   ANALYSIS_RUN_STATUSES,
@@ -8,6 +8,7 @@ import {
 } from '../../models/domain'
 import { useWorkspace } from '../../hooks/useWorkspace'
 import { entityMeta, todayIso, truncate } from '../../app/format'
+import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import { useI18n } from '../../i18n'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
@@ -23,6 +24,14 @@ import {
 } from '../../components/ui'
 
 type RegistryTab = 'datasets' | 'runs'
+
+const QUANTITATIVE_VIEWS = ['overview', 'datasets', 'planned', 'running', 'completed', 'failed', 'superseded'] as const
+type QuantitativeView = (typeof QUANTITATIVE_VIEWS)[number]
+
+function readQuantitativeView(): QuantitativeView {
+  const requested = new URLSearchParams(window.location.hash.split('?')[1] || '').get('view')
+  return QUANTITATIVE_VIEWS.includes(requested as QuantitativeView) ? requested as QuantitativeView : 'overview'
+}
 
 const datasetDraft = () => ({ name: '', wave: '', source: '', localPath: '', projectId: '', notes: '' })
 const runDraft = () => ({
@@ -50,6 +59,18 @@ export function QuantitativePage() {
   const [runOpen, setRunOpen] = useState(false)
   const [dataset, setDataset] = useState(datasetDraft)
   const [run, setRun] = useState(runDraft)
+  const [view, setView] = useState<QuantitativeView>(readQuantitativeView)
+
+  useEffect(() => {
+    const syncView = () => setView(readQuantitativeView())
+    window.addEventListener('hashchange', syncView)
+    window.addEventListener('popstate', syncView)
+    return () => {
+      window.removeEventListener('hashchange', syncView)
+      window.removeEventListener('popstate', syncView)
+    }
+  }, [])
+  const effectiveTab: RegistryTab = view === 'datasets' || view === 'overview' && tab === 'datasets' ? 'datasets' : 'runs'
 
   const recordCount = (count: number) => t(
     count === 1 ? 'quantitative.count.recordsOne' : 'quantitative.count.recordsOther',
@@ -86,11 +107,28 @@ export function QuantitativePage() {
     () =>
       data?.analysisRuns.filter(
         (item) =>
+          (view === 'overview' || view === 'datasets' || item.status.toLowerCase() === view) &&
           (!projectFilter || item.projectId === projectFilter) &&
           (!query || `${item.model} ${item.outcome} ${item.keyPredictor} ${item.sample} ${item.resultSummary}`.toLowerCase().includes(query)),
       ) ?? [],
-    [data?.analysisRuns, projectFilter, query],
+    [data?.analysisRuns, projectFilter, query, view],
   )
+
+  useEffect(() => {
+    const handleQuickAdd = (event: Event) => {
+      const detail = (event as QuickAddEvent).detail
+      if (detail?.module !== 'quantitative' || detail.action !== 'analysis-run') return
+      const projectId = data?.workspace.activeProjectId || data?.projects[0]?.id || ''
+      setRun({
+        ...runDraft(),
+        projectId,
+        datasetId: data?.datasets.find((item) => item.projectId === projectId)?.id || '',
+      })
+      setRunOpen(true)
+    }
+    window.addEventListener(QUICK_ADD_EVENT, handleQuickAdd)
+    return () => window.removeEventListener(QUICK_ADD_EVENT, handleQuickAdd)
+  }, [data?.datasets, data?.projects, data?.workspace.activeProjectId])
 
   if (!data) return null
 
@@ -146,13 +184,13 @@ export function QuantitativePage() {
   return (
     <div className="page">
       <PageHeader
-        index="05"
+        index="06"
         eyebrow={t('quantitative.header.eyebrow')}
         title={t('quantitative.header.title')}
         description={t('quantitative.header.description')}
         actions={
-          <AddButton onClick={tab === 'datasets' ? openDataset : openRun}>
-            {t(tab === 'datasets' ? 'quantitative.action.addDataset' : 'quantitative.action.addAnalysisRun')}
+          <AddButton onClick={effectiveTab === 'datasets' ? openDataset : openRun}>
+            {t(effectiveTab === 'datasets' ? 'quantitative.action.addDataset' : 'quantitative.action.addAnalysisRun')}
           </AddButton>
         }
       />
@@ -171,16 +209,16 @@ export function QuantitativePage() {
 
       <section className="panel">
         <div className="segmented-tabs" role="tablist" aria-label={t('quantitative.tabs.label')}>
-          <button type="button" role="tab" aria-selected={tab === 'datasets'} className={tab === 'datasets' ? 'active' : ''} onClick={() => setTab('datasets')}><Database size={15} /> {t('quantitative.tabs.datasets')} <span>{formatNumber(data.datasets.length)}</span></button>
-          <button type="button" role="tab" aria-selected={tab === 'runs'} className={tab === 'runs' ? 'active' : ''} onClick={() => setTab('runs')}><BarChart3 size={15} /> {t('quantitative.tabs.analysisRuns')} <span>{formatNumber(data.analysisRuns.length)}</span></button>
+          <button type="button" role="tab" aria-selected={effectiveTab === 'datasets'} className={effectiveTab === 'datasets' ? 'active' : ''} onClick={() => setTab('datasets')}><Database size={15} /> {t('quantitative.tabs.datasets')} <span>{formatNumber(data.datasets.length)}</span></button>
+          <button type="button" role="tab" aria-selected={effectiveTab === 'runs'} className={effectiveTab === 'runs' ? 'active' : ''} onClick={() => setTab('runs')}><BarChart3 size={15} /> {t('quantitative.tabs.analysisRuns')} <span>{formatNumber(data.analysisRuns.length)}</span></button>
         </div>
         <div className="toolbar toolbar--under-tabs">
-          <SearchField value={search} onChange={setSearch} placeholder={t(tab === 'datasets' ? 'quantitative.search.datasets' : 'quantitative.search.runs')} />
+          <SearchField value={search} onChange={setSearch} placeholder={t(effectiveTab === 'datasets' ? 'quantitative.search.datasets' : 'quantitative.search.runs')} />
           <ProjectSelect projects={data.projects} value={projectFilter} onChange={setProjectFilter} includeAll />
-          <span className="toolbar__count">{recordCount(tab === 'datasets' ? filteredDatasets.length : filteredRuns.length)}</span>
+          <span className="toolbar__count">{recordCount(effectiveTab === 'datasets' ? filteredDatasets.length : filteredRuns.length)}</span>
         </div>
 
-        {tab === 'datasets' && (filteredDatasets.length ? (
+        {effectiveTab === 'datasets' && (filteredDatasets.length ? (
           <div className="dataset-grid">
             {filteredDatasets.map((item) => (
               <article className="dataset-card" key={item.id}>
@@ -196,7 +234,7 @@ export function QuantitativePage() {
           </div>
         ) : <EmptyState title={t('quantitative.empty.datasets.title')} description={t('quantitative.empty.datasets.description')} action={<AddButton onClick={openDataset}>{t('quantitative.action.addDataset')}</AddButton>} />)}
 
-        {tab === 'runs' && (filteredRuns.length ? (
+        {effectiveTab === 'runs' && (filteredRuns.length ? (
           <div className="data-table-wrap">
             <table className="data-table analysis-table">
               <thead><tr><th>{t('quantitative.table.specification')}</th><th>{t('quantitative.table.software')}</th><th>{t('quantitative.table.datasetSample')}</th><th>{t('quantitative.table.date')}</th><th>{t('quantitative.table.status')}</th></tr></thead>

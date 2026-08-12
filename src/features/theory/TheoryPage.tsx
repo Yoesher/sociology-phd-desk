@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ArrowRight, FilePenLine, Link2, Network } from 'lucide-react'
 import { ProjectSelect } from '../../components/ProjectSelect'
+import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import {
   AddButton,
   Badge,
@@ -39,10 +40,6 @@ export function TheoryPage() {
 
   const projects = useMemo(() => prioritizeTheoryProjects(data?.projects ?? []), [data?.projects])
 
-  if (!data) return null
-
-  const selectedQuestionProject = questionProjectId || data.workspace.activeProjectId || projects[0]?.id || ''
-
   const selectView = (nextView: TheoryView) => {
     const next = new URLSearchParams(searchParams)
     if (nextView === 'overview') next.delete('view')
@@ -54,6 +51,19 @@ export function TheoryPage() {
     if (!memoViews.has(view)) selectView('memos')
     setCreateRequest((current) => current + 1)
   }
+
+  useEffect(() => {
+    const handleQuickAdd = (event: Event) => {
+      const detail = (event as QuickAddEvent).detail
+      if (detail?.module === 'theory' && detail.action === 'theory-memo') newMemo()
+    }
+    window.addEventListener(QUICK_ADD_EVENT, handleQuickAdd)
+    return () => window.removeEventListener(QUICK_ADD_EVENT, handleQuickAdd)
+  })
+
+  if (!data) return null
+
+  const selectedQuestionProject = questionProjectId || data.workspace.activeProjectId || projects[0]?.id || ''
 
   return (
     <div className="page page--theory">

@@ -6,11 +6,13 @@ import { WorkspaceContext, type WorkspaceContextValue } from '../../app/workspac
 import { todayIso } from '../../app/format'
 import { I18nProvider } from '../../i18n'
 import { createDemoWorkspace } from '../../models/demo'
+import { createEmptyWorkspace } from '../../models/empty-workspace'
+import type { WorkspaceData } from '../../models/domain'
 import { TodayPage } from './TodayPage'
 
-function renderToday() {
+function renderToday(initialOverride?: WorkspaceData) {
   const demo = createDemoWorkspace(new Date())
-  const initialData = {
+  const initialData: WorkspaceData = initialOverride ?? {
     ...demo,
     tasks: demo.tasks.map((task) => task.category === 'Theory / Conceptual Work'
       ? { ...task, dueDate: todayIso() }
@@ -40,7 +42,10 @@ function renderToday() {
 }
 
 describe('TodayPage theory work mode', () => {
-  beforeEach(() => window.localStorage.clear())
+  beforeEach(() => {
+    window.localStorage.clear()
+    window.location.hash = ''
+  })
   afterEach(() => cleanup())
 
   it('offers the stable theory task category and can filter visible tasks by it', async () => {
@@ -57,5 +62,34 @@ describe('TodayPage theory work mode', () => {
     await user.selectOptions(filter, 'Theory / Conceptual Work')
     expect(screen.getByText('Review the synthetic concept boundary prompts')).toBeInTheDocument()
     expect(screen.queryByText('Review the three synthetic literature queue records')).not.toBeInTheDocument()
+  })
+
+  it('shows lightweight onboarding only for a truly empty personal workspace', () => {
+    renderToday(createEmptyWorkspace({ id: 'empty-personal', now: new Date() }))
+
+    expect(screen.getByRole('heading', { name: '开始你的研究工作台' })).toBeInTheDocument()
+    expect(screen.getByText('创建研究项目')).toBeInTheDocument()
+    expect(screen.getByText('写下第一个研究问题')).toBeInTheDocument()
+    expect(screen.getByText('添加今天的研究任务')).toBeInTheDocument()
+    expect(screen.getByText('定期备份工作台')).toBeInTheDocument()
+  })
+
+  it('derives the overdue task view from the URL without changing task data', () => {
+    const demo = createDemoWorkspace(new Date())
+    const overdueTitle = 'SYNTHETIC overdue smart-view task'
+    const futureTitle = 'SYNTHETIC future smart-view task'
+    const initial: WorkspaceData = {
+      ...demo,
+      tasks: [
+        { ...demo.tasks[0], id: 'overdue-task', title: overdueTitle, dueDate: '2000-01-01', status: 'To Do' },
+        { ...demo.tasks[0], id: 'future-task', title: futureTitle, dueDate: '2099-01-01', status: 'To Do' },
+      ],
+    }
+    window.location.hash = '/?view=overdue'
+    renderToday(initial)
+
+    expect(screen.getByText(overdueTitle)).toBeInTheDocument()
+    expect(screen.queryByText(futureTitle)).not.toBeInTheDocument()
+    expect(initial.tasks).toHaveLength(2)
   })
 })

@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { FolderKanban, Network } from 'lucide-react'
 import {
   PROJECT_STATUSES,
@@ -7,6 +7,7 @@ import {
 } from '../../models/domain'
 import { useWorkspace } from '../../hooks/useWorkspace'
 import { daysUntil, entityMeta, todayIso, truncate } from '../../app/format'
+import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import { useI18n } from '../../i18n'
 import {
   AddButton,
@@ -55,6 +56,25 @@ const statusTone = (status: ResearchProject['status']): Tone => {
   return 'blue'
 }
 
+const PROJECT_VIEWS = ['all', 'design', 'data', 'analysis', 'writing', 'submission', 'theoretical', 'completed'] as const
+type ProjectView = (typeof PROJECT_VIEWS)[number]
+
+function readProjectView(): ProjectView {
+  const requested = new URLSearchParams(window.location.hash.split('?')[1] || '').get('view')
+  return PROJECT_VIEWS.includes(requested as ProjectView) ? requested as ProjectView : 'all'
+}
+
+function matchesProjectView(project: ResearchProject, view: ProjectView): boolean {
+  if (view === 'design') return project.status === 'Idea' || project.status === 'Design'
+  if (view === 'data') return project.status === 'Data / Fieldwork'
+  if (view === 'analysis') return project.status === 'Analysis'
+  if (view === 'writing') return project.status === 'Writing'
+  if (view === 'submission') return project.status === 'Submission' || project.status === 'Revision'
+  if (view === 'theoretical') return project.method === 'Theoretical'
+  if (view === 'completed') return project.status === 'Published' || project.status === 'Archived'
+  return true
+}
+
 export function ProjectsPage() {
   const { data, updateData, setActiveProject } = useWorkspace()
   const { t, formatDate, formatNumber, labelEnum } = useI18n()
@@ -66,6 +86,17 @@ export function ProjectsPage() {
   const [editing, setEditing] = useState<ResearchProject | null>(null)
   const [deleting, setDeleting] = useState<ResearchProject | null>(null)
   const [draft, setDraft] = useState<ProjectDraft>(emptyDraft)
+  const [view, setView] = useState<ProjectView>(readProjectView)
+
+  useEffect(() => {
+    const syncView = () => setView(readProjectView())
+    window.addEventListener('hashchange', syncView)
+    window.addEventListener('popstate', syncView)
+    return () => {
+      window.removeEventListener('hashchange', syncView)
+      window.removeEventListener('popstate', syncView)
+    }
+  }, [])
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -84,10 +115,22 @@ export function ProjectsPage() {
             .join(' ')
             .toLowerCase()
             .includes(query)
-        return matchesQuery && (!statusFilter || project.status === statusFilter) && (!methodFilter || project.method === methodFilter)
+        return matchesProjectView(project, view) && matchesQuery && (!statusFilter || project.status === statusFilter) && (!methodFilter || project.method === methodFilter)
       }) ?? []
     )
-  }, [data?.projects, data?.researchQuestions, methodFilter, search, statusFilter])
+  }, [data?.projects, data?.researchQuestions, methodFilter, search, statusFilter, view])
+
+  useEffect(() => {
+    const handleQuickAdd = (event: Event) => {
+      const detail = (event as QuickAddEvent).detail
+      if (detail?.module !== 'projects' || detail.action !== 'project') return
+      setEditing(null)
+      setDraft(emptyDraft())
+      setFormOpen(true)
+    }
+    window.addEventListener(QUICK_ADD_EVENT, handleQuickAdd)
+    return () => window.removeEventListener(QUICK_ADD_EVENT, handleQuickAdd)
+  }, [])
 
   if (!data) return null
 
