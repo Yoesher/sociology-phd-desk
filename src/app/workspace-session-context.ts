@@ -33,6 +33,8 @@ export interface WorkspaceSessionContextValue {
   openActiveStandard: () => Promise<void>
   unlockActiveEncrypted: (passphrase: string) => Promise<void>
   lockActiveWorkspace: () => Promise<void>
+  /** Flushes and re-reads the active workspace before a user-approved app update. */
+  prepareForApplicationUpdate: () => Promise<void>
   /** Cooperating-tab/missed-signal invalidation: closes locally without rebroadcasting. */
   invalidateActiveSession: (
     workspaceId?: string,

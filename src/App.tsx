@@ -5,6 +5,7 @@ import { WorkspaceAccessGate } from './app/WorkspaceAccessGate'
 import { WorkspaceCenter } from './app/WorkspaceCenter'
 import { WorkspaceProvider } from './app/WorkspaceContext'
 import { WorkspaceSessionProvider } from './app/WorkspaceSessionContext'
+import { UpdateManagerProvider } from './app/UpdateManager'
 import { readMountableSnapshot } from './app/session-snapshot'
 import type { OpenedLocalWorkspaceSession } from './db/localWorkspaceManager'
 import { useWorkspaceSession } from './hooks/useWorkspaceSession'
@@ -206,7 +207,9 @@ function App() {
   return (
     <I18nProvider>
       <WorkspaceSessionProvider>
-        <WorkspaceExperience />
+        <UpdateManagerProvider>
+          <WorkspaceExperience />
+        </UpdateManagerProvider>
       </WorkspaceSessionProvider>
     </I18nProvider>
   )

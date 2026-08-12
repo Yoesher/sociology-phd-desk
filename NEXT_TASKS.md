@@ -1,6 +1,19 @@
 # Next Tasks
 
-> Verified post-release handoff queue. [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) is published from exact release SHA `eb399f7da0a1f3142f7c8361492fa86b08db77db`. Checked items have independent evidence; unchecked items remain an unscheduled backlog. Stop after this closeout and do not begin `v0.3.0` without a separately scoped plan.
+> Active v0.2.1 Distribution & PWA queue. [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) remains published from exact release SHA `eb399f7da0a1f3142f7c8361492fa86b08db77db`. Do not begin `v0.3.0`; stop after the v0.2.1 release and closeout.
+
+## P0 — v0.2.1 Distribution & PWA
+
+- [x] Create Issue [#23](https://github.com/Yoesher/sociology-phd-desk/issues/23) and branch `codex/v0.2.1-distribution-pwa` from verified main `782311864b61b0aaeece0e803c0e886c726ed1af`.
+- [x] Add a complete manifest, 192/512 app icons, and an inject-manifest service worker that precaches only static application assets with project/version-specific cache names.
+- [x] Add startup/throttled-focus/updatefound/waiting detection, bilingual waiting UI, no forced reload, and flush/read-back verification before a user-approved activation.
+- [x] Add app/build/portable/database/container version display, explicit persistent-storage status/request, install affordance, 7/14/30 local export reminder, and once-per-version bilingual summary.
+- [x] Add researcher-first README entry, bilingual getting-started guides, and a durable A/B/C origin-risk decision; retain current shared origin with explicit risk and no cross-origin IndexedDB claim.
+- [x] Pass focused and full automated gates from a clean install and inspect the emitted manifest/service worker/static cache list: lint 0, no-incremental app typecheck, 31 files / 278 tests, 1,970-module build, 24 static precache entries, and build-time no-runtime-route verification.
+- [ ] Complete the browser matrix. PASS: fresh browser, standard-open update, encrypted-open update, locked update, offline startup, online recovery, unchanged-schema compatibility, zh-CN/en, desktop/mobile, browser mode, zero console warnings/errors, and synthetic QA cleanup. **BLOCKED / NOT RUN:** real installed standalone-window launch because no controllable Chrome/Edge PWA installation surface is available in this environment. Do not infer this from the manifest.
+- [ ] Open a Draft feature PR, pass exact-head push/PR CI, mark ready after self-review, merge, and pass exact-main CI plus Pages deployment.
+- [ ] Verify public manifest/service worker/offline/update behavior and exact build SHA; publish annotated `v0.2.1` tag and latest non-draft GitHub Release only after all required gates pass.
+- [ ] Close Issue #23, update exact remote evidence/metrics, and stop without starting v0.3.
 
 ## P0 — Phase 3A bilingual gate (complete)
 

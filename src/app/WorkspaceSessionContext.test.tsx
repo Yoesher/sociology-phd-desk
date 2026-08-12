@@ -184,6 +184,57 @@ describe('WorkspaceSessionProvider flush boundaries', () => {
     vi.unstubAllGlobals()
   })
 
+  it('flushes and re-reads the active workspace before an application update', async () => {
+    const { manager } = managerFixture()
+    const flush = vi.fn().mockResolvedValue(undefined)
+    const latestSnapshot = createDemoWorkspace(new Date('2026-08-12T01:00:00.000Z'))
+    latestSnapshot.workspace.id = 'demo-workspace'
+    const refreshLatest = vi.fn().mockResolvedValue(latestSnapshot)
+    render(
+      <WorkspaceSessionProvider
+        managerFactory={() => manager as unknown as WorkspaceSessionManager}
+        channelFactory={() => null}
+        lockingStorage={null}
+      >
+        <Probe flush={flush} refreshLatest={refreshLatest} />
+      </WorkspaceSessionProvider>,
+    )
+    await waitFor(() => expect(getContext().accessState).toBe('unlocked'))
+
+    await act(async () => getContext().prepareForApplicationUpdate())
+
+    expect(flush).toHaveBeenCalledOnce()
+    expect(refreshLatest).toHaveBeenCalledOnce()
+    expect(flush.mock.invocationCallOrder[0]).toBeLessThan(refreshLatest.mock.invocationCallOrder[0])
+  })
+
+  it('rejects application update preparation when the final committed read fails', async () => {
+    const { manager } = managerFixture()
+    const flush = vi.fn().mockResolvedValue(undefined)
+    const refreshLatest = vi.fn().mockRejectedValue(
+      new LocalWorkspaceManagerError('revision-conflict', 'stale encrypted route'),
+    )
+    render(
+      <WorkspaceSessionProvider
+        managerFactory={() => manager as unknown as WorkspaceSessionManager}
+        channelFactory={() => null}
+        lockingStorage={null}
+      >
+        <Probe flush={flush} refreshLatest={refreshLatest} />
+      </WorkspaceSessionProvider>,
+    )
+    await waitFor(() => expect(getContext().accessState).toBe('unlocked'))
+
+    await act(async () => {
+      await expect(getContext().prepareForApplicationUpdate()).rejects.toMatchObject({
+        code: 'revision-conflict',
+      })
+    })
+    expect(flush).toHaveBeenCalledOnce()
+    expect(refreshLatest).toHaveBeenCalledOnce()
+    expect(getContext().accessState).toBe('unlocked')
+  })
+
   it('flushes before reset and before create/import/recover side effects; a failed flush calls none', async () => {
     const { manager } = managerFixture()
     const flush = vi.fn(async () => {

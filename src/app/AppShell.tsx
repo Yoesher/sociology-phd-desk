@@ -285,6 +285,9 @@ export function AppShell() {
       <button type="button" onClick={() => openWorkspaceCenter('backup')}>
         {t('navigation.backupRestore')}
       </button>
+      <button type="button" onClick={() => openWorkspaceCenter('distribution')}>
+        {t('distribution.center.tab')}
+      </button>
       <div className="settings-nav__controls">
         <span>{t('navigation.languageAppearance')}</span>
         <div>

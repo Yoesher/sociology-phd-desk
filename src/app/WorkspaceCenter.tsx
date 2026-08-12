@@ -32,11 +32,12 @@ import {
   type WorkspaceRegistryEntry,
 } from '../models/workspace-registry'
 import { PrivacyCenter } from './PrivacyCenter'
+import { DistributionCenter } from './DistributionCenter'
 import type {
   WorkspaceUiErrorDescriptor,
 } from './WorkspaceAccessGate'
 
-export type WorkspaceCenterSection = 'workspaces' | 'privacy' | 'backup'
+export type WorkspaceCenterSection = 'workspaces' | 'privacy' | 'backup' | 'distribution'
 
 export interface WorkspaceCreateRequest {
   displayName: string
@@ -142,6 +143,7 @@ const sectionLabelKeys: Record<WorkspaceCenterSection, MessageKey> = {
   workspaces: 'localWorkspaces.center.tab.workspaces',
   privacy: 'localWorkspaces.center.tab.privacy',
   backup: 'localWorkspaces.center.tab.backup',
+  distribution: 'distribution.center.tab',
 }
 const workspaceCenterSections = Object.keys(sectionLabelKeys) as WorkspaceCenterSection[]
 
@@ -230,6 +232,7 @@ export function WorkspaceCenter({
     workspaces: null,
     privacy: null,
     backup: null,
+    distribution: null,
   })
 
   const activeWorkspace = workspaces.find((workspace) => workspace.id === activeWorkspaceId) ?? null
@@ -689,7 +692,7 @@ export function WorkspaceCenter({
           </div>
           <div className="workspace-center__tabs" role="tablist" aria-label={t('localWorkspaces.center.tabsLabel')}>
             {workspaceCenterSections.map((item) => {
-              const unavailable = item !== 'workspaces' && !activeWorkspace
+              const unavailable = (item === 'privacy' || item === 'backup') && !activeWorkspace
               return (
                 <button
                   key={item}
@@ -969,6 +972,7 @@ export function WorkspaceCenter({
                 </div>
               </section>
             )}
+            {section === 'distribution' && <DistributionCenter activeWorkspace={activeWorkspace} />}
           </div>
         </div>
       </Modal>
