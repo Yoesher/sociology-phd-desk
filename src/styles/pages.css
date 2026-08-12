@@ -1997,3 +1997,46 @@
     padding: 13px;
   }
 }
+
+.today-grid--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.onboarding-card {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--surface)) 0%, var(--surface) 75%);
+}
+
+.onboarding-card > p:not(.eyebrow) {
+  max-width: 68ch;
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.onboarding-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style-position: inside;
+}
+
+.onboarding-steps li {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+}
+
+@media (max-width: 820px) {
+  .onboarding-steps {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .onboarding-steps {
+    grid-template-columns: 1fr;
+  }
+}

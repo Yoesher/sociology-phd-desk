@@ -33,7 +33,7 @@ These rules apply to every Codex agent or automated contributor working in this 
 11. A private local workspace is not a network account.
 12. The default remains local-first, with no account and no required cloud service.
 13. Claim that data is encrypted only when real data encryption is implemented; hiding or locking the UI alone is not encryption.
-14. The China Research Map is a primary, first-class module.
+14. The China Research Map is a deferred candidate, not part of `v0.2.0`; it may become a first-class module only after its source, redistribution, transformation, approval, and completeness gates pass.
 15. Geographic research management stops at county level by default and does not descend to township, subdistrict, or village levels.
 16. Never upload map notes, fieldwork material, or other user data to GitHub Pages or a map service.
 
@@ -45,7 +45,7 @@ These rules apply to every Codex agent or automated contributor working in this 
 - Keep persisted research data, schema enums, identifiers, and import/export values locale-neutral. Never persist translated display labels as domain values.
 - Never silently translate, rewrite, or normalize user-authored research content when the interface language changes. Language switching affects application chrome and system messages only.
 - Use anonymous fieldwork identifiers and keep the warning against directly identifying participant information visible.
-- Treat the China Research Map as a first-class sociology research capability, not a decorative dashboard map. Its administrative hierarchy must stop at county level; never collect, infer, display, or export exact participant locations.
+- If the deferred China Research Map is revisited, treat it as a first-class sociology research capability rather than a decorative dashboard map. Its administrative hierarchy must stop at county level; never collect, infer, display, or export exact participant locations.
 - Do not ship public China map boundaries or geographic datasets until their authoritative source, permitted use, attribution, version, and update path have been verified and documented. Never substitute an arbitrary or merely convenient map dataset.
 - Treat import/export schemas as durable public interfaces. Validate before writes and make replacement explicit.
 - Keep source evidence visibly distinct from AI-generated suggestions.

@@ -43,14 +43,14 @@ The stable top-level vocabulary is:
 - Today
 - Projects
 - Literature
+- Theory Research
 - Fieldwork
 - Quantitative
 - Evidence
 - Research Log
-- Manuscripts
-- Submissions
+- Manuscripts & Publishing
 
-Settings, import/export, theme, and demo controls are utilities, not competing research modules.
+Each primary module may expose one level of workflow or Smart View navigation. Concrete records remain in the content area; a third navigation level is not permitted. Settings, import/export, theme, and demo controls are grouped under Workspace & Settings rather than competing with research modules. The China Research Map is deferred outside `v0.2.0` and is not part of this stable nine-module vocabulary.
 
 ## Research status and semantics
 

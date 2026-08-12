@@ -62,7 +62,10 @@ function renderProjects(initialData = createDemoWorkspace(new Date('2026-08-11T0
 }
 
 describe('ProjectsPage localization and research graph boundary', () => {
-  beforeEach(() => window.localStorage.clear())
+  beforeEach(() => {
+    window.localStorage.clear()
+    window.location.hash = ''
+  })
   afterEach(() => cleanup())
 
   it('shows Chinese project labels while saving stable English project enum values', async () => {
@@ -85,6 +88,19 @@ describe('ProjectsPage localization and research graph boundary', () => {
       method: 'Mixed Methods',
       status: 'Idea',
     }))
+  })
+
+  it('derives the theoretical-project view from the URL without adding a status', () => {
+    const initial = createDemoWorkspace(new Date('2026-08-11T00:00:00.000Z'))
+    const theoryProject = initial.projects.find((project) => project.method === 'Theoretical')!
+    const empiricalProject = initial.projects.find((project) => project.method !== 'Theoretical')!
+    window.location.hash = '/projects?view=theoretical'
+
+    renderProjects(initial)
+
+    expect(screen.getByText(theoryProject.title)).toBeInTheDocument()
+    expect(screen.queryByText(empiricalProject.title)).not.toBeInTheDocument()
+    expect(initial.projects.map((project) => project.status)).toContain(theoryProject.status)
   })
 
   it('creates and edits a many-to-many claim using stable IDs and blocks linked deletion', async () => {

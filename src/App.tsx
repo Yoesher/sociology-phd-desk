@@ -11,6 +11,7 @@ import { useWorkspaceSession } from './hooks/useWorkspaceSession'
 import { I18nProvider, useI18n } from './i18n'
 import { ENCRYPTED_CONTAINER_VERSION } from './crypto'
 import type { WorkspaceData } from './models/domain'
+import { legacyRouteRedirects } from './app/legacyRoutes'
 
 const TodayPage = lazy(() => import('./features/today/TodayPage').then((module) => ({ default: module.TodayPage })))
 const ProjectsPage = lazy(() => import('./features/projects/ProjectsPage').then((module) => ({ default: module.ProjectsPage })))
@@ -20,8 +21,7 @@ const FieldworkPage = lazy(() => import('./features/fieldwork/FieldworkPage').th
 const QuantitativePage = lazy(() => import('./features/quantitative/QuantitativePage').then((module) => ({ default: module.QuantitativePage })))
 const EvidencePage = lazy(() => import('./features/evidence/EvidencePage').then((module) => ({ default: module.EvidencePage })))
 const ResearchLogPage = lazy(() => import('./features/research-log/ResearchLogPage').then((module) => ({ default: module.ResearchLogPage })))
-const ManuscriptsPage = lazy(() => import('./features/manuscripts/ManuscriptsPage').then((module) => ({ default: module.ManuscriptsPage })))
-const SubmissionsPage = lazy(() => import('./features/submissions/SubmissionsPage').then((module) => ({ default: module.SubmissionsPage })))
+const PublishingPage = lazy(() => import('./features/publishing/PublishingPage').then((module) => ({ default: module.PublishingPage })))
 
 function RouteBoundary({ children }: { children: ReactNode }) {
   const { t } = useI18n()
@@ -54,8 +54,9 @@ function ResearchRoutes() {
           <Route path="quantitative" element={<RouteBoundary><QuantitativePage /></RouteBoundary>} />
           <Route path="evidence" element={<RouteBoundary><EvidencePage /></RouteBoundary>} />
           <Route path="research-log" element={<RouteBoundary><ResearchLogPage /></RouteBoundary>} />
-          <Route path="manuscripts" element={<RouteBoundary><ManuscriptsPage /></RouteBoundary>} />
-          <Route path="submissions" element={<RouteBoundary><SubmissionsPage /></RouteBoundary>} />
+          <Route path="publishing" element={<RouteBoundary><PublishingPage /></RouteBoundary>} />
+          <Route path="manuscripts" element={<Navigate replace to={legacyRouteRedirects.manuscripts} />} />
+          <Route path="submissions" element={<Navigate replace to={legacyRouteRedirects.submissions} />} />
           <Route path="*" element={<Navigate replace to="/" />} />
         </Route>
       </Routes>

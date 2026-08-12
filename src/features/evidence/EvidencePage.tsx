@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { BookOpenCheck, Link2, Scale, ShieldQuestion } from 'lucide-react'
 import {
   EVIDENCE_TYPES,
@@ -7,6 +7,7 @@ import {
 } from '../../models/domain'
 import { useWorkspace } from '../../hooks/useWorkspace'
 import { entityMeta, truncate } from '../../app/format'
+import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import { useI18n } from '../../i18n'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
@@ -55,6 +56,23 @@ const supportTone = (level: EvidenceItem['supportLevel']): Tone => {
   return 'danger'
 }
 
+const EVIDENCE_VIEWS = ['all', 'literature', 'quantitative', 'fieldwork', 'documents', 'contradictory', 'by-project'] as const
+type EvidenceView = (typeof EVIDENCE_VIEWS)[number]
+
+function readEvidenceView(): EvidenceView {
+  const requested = new URLSearchParams(window.location.hash.split('?')[1] || '').get('view')
+  return EVIDENCE_VIEWS.includes(requested as EvidenceView) ? requested as EvidenceView : 'all'
+}
+
+function matchesEvidenceView(item: EvidenceItem, view: EvidenceView): boolean {
+  if (view === 'literature') return item.evidenceType === 'Literature'
+  if (view === 'quantitative') return item.evidenceType === 'Quantitative Result'
+  if (view === 'fieldwork') return item.evidenceType === 'Interview' || item.evidenceType === 'Fieldnote'
+  if (view === 'documents') return item.evidenceType === 'Policy / Document'
+  if (view === 'contradictory') return item.supportLevel === 'Contradictory' || item.supportLevel === 'Unclear'
+  return true
+}
+
 export function EvidencePage() {
   const { data, updateData } = useWorkspace()
   const { t, formatNumber, labelEnum } = useI18n()
@@ -66,6 +84,40 @@ export function EvidencePage() {
   const [editing, setEditing] = useState<EvidenceItem | null>(null)
   const [deleting, setDeleting] = useState<EvidenceItem | null>(null)
   const [draft, setDraft] = useState<EvidenceDraft>(emptyDraft)
+  const [view, setView] = useState<EvidenceView>(readEvidenceView)
+  const previousViewRef = useRef<EvidenceView | null>(null)
+  const autoProjectFilterRef = useRef(false)
+
+  useEffect(() => {
+    const previousView = previousViewRef.current
+    previousViewRef.current = view
+    const hasValidProject = Boolean(projectFilter && data?.projects.some((project) => project.id === projectFilter))
+
+    if (view === 'by-project') {
+      if (!hasValidProject) {
+        autoProjectFilterRef.current = true
+        setProjectFilter(data?.workspace.activeProjectId || data?.projects[0]?.id || '')
+      }
+    } else if (previousView === 'by-project' && autoProjectFilterRef.current) {
+      autoProjectFilterRef.current = false
+      setProjectFilter('')
+    }
+  }, [data?.projects, data?.workspace.activeProjectId, projectFilter, view])
+
+  const changeProjectFilter = (projectId: string) => {
+    autoProjectFilterRef.current = false
+    setProjectFilter(projectId)
+  }
+
+  useEffect(() => {
+    const syncView = () => setView(readEvidenceView())
+    window.addEventListener('hashchange', syncView)
+    window.addEventListener('popstate', syncView)
+    return () => {
+      window.removeEventListener('hashchange', syncView)
+      window.removeEventListener('popstate', syncView)
+    }
+  }, [])
 
   const itemCount = (count: number) => t(
     count === 1 ? 'evidence.count.itemsOne' : 'evidence.count.itemsOther',
@@ -83,13 +135,26 @@ export function EvidencePage() {
         const corpus = `${item.claim} ${item.source} ${item.finding} ${item.locator} ${item.limitations}`.toLowerCase()
         return (
           (!query || corpus.includes(query)) &&
+          matchesEvidenceView(item, view) &&
           (!projectFilter || item.projectId === projectFilter) &&
           (!typeFilter || item.evidenceType === typeFilter) &&
           (!supportFilter || item.supportLevel === supportFilter)
         )
       }) ?? []
     )
-  }, [data?.evidence, projectFilter, search, supportFilter, typeFilter])
+  }, [data?.evidence, projectFilter, search, supportFilter, typeFilter, view])
+
+  useEffect(() => {
+    const handleQuickAdd = (event: Event) => {
+      const detail = (event as QuickAddEvent).detail
+      if (detail?.module !== 'evidence' || detail.action !== 'evidence') return
+      setEditing(null)
+      setDraft({ ...emptyDraft(), projectId: data?.workspace.activeProjectId || data?.projects[0]?.id || '' })
+      setFormOpen(true)
+    }
+    window.addEventListener(QUICK_ADD_EVENT, handleQuickAdd)
+    return () => window.removeEventListener(QUICK_ADD_EVENT, handleQuickAdd)
+  }, [data?.projects, data?.workspace.activeProjectId])
 
   if (!data) return null
 
@@ -149,7 +214,7 @@ export function EvidencePage() {
   return (
     <div className="page">
       <PageHeader
-        index="06"
+        index="07"
         eyebrow={t('evidence.header.eyebrow')}
         title={t('evidence.header.title')}
         description={t('evidence.header.description')}
@@ -177,7 +242,7 @@ export function EvidencePage() {
       <section className="panel">
         <div className="toolbar toolbar--wrap">
           <SearchField value={search} onChange={setSearch} placeholder={t('evidence.search.placeholder')} />
-          <ProjectSelect projects={data.projects} value={projectFilter} onChange={setProjectFilter} includeAll />
+          <ProjectSelect projects={data.projects} value={projectFilter} onChange={changeProjectFilter} includeAll={view !== 'by-project'} />
           <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} aria-label={t('evidence.filter.typeLabel')}>
             <option value="">{t('evidence.filter.allTypes')}</option>
             {EVIDENCE_TYPES.map((type) => <option key={type} value={type}>{labelEnum(type)}</option>)}
@@ -226,7 +291,7 @@ export function EvidencePage() {
           <EmptyState
             title={t(data.evidence.length ? 'evidence.empty.filteredTitle' : 'evidence.empty.initialTitle')}
             description={t(data.evidence.length ? 'evidence.empty.filteredDescription' : 'evidence.empty.initialDescription')}
-            action={data.evidence.length ? <Button onClick={() => { setSearch(''); setProjectFilter(''); setTypeFilter(''); setSupportFilter('') }}>{t('evidence.action.clearFilters')}</Button> : <AddButton onClick={openCreate}>{t('evidence.action.addItem')}</AddButton>}
+            action={data.evidence.length ? <Button onClick={() => { setSearch(''); if (view !== 'by-project') changeProjectFilter(''); setTypeFilter(''); setSupportFilter('') }}>{t('evidence.action.clearFilters')}</Button> : <AddButton onClick={openCreate}>{t('evidence.action.addItem')}</AddButton>}
           />
         )}
       </section>

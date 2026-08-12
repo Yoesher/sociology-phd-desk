@@ -6,12 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-> Candidate boundary: the Phase 3D compliance closeout is merged and deployed at exact `main` `ca4429f`; it contains no map implementation. The Theory entries below describe unmerged PR #18. Local full-suite, build, browser, and initial exact-head push/PR CI passed; final corrected-head CI, maintainer review, merge, exact-`main`, Pages, and public-verification gates remain pending.
+> Candidate boundary: the Phase 3D compliance closeout contains no map implementation and all map gates remain blocked. Theory PR #18 is merged and deployed at exact `main` `b8c8c60`, but remains unreleased. The navigation and integrated-publishing entries below describe only the uncommitted local `feat/hierarchical-navigation` candidate; its local checks passed, while its PR, CI, merge, Pages, and public-verification gates remain pending.
 
 ### Added
 
 - A bilingual Theory Research workspace that reuses Research Questions, Claims, Literature, and Manuscripts while adding project-scoped Theory Memos for concepts, mechanisms, dialogue, counterarguments, boundary conditions, and synthesis.
 - UI-only structured theory prompts, complete Theory Memo CRUD with explicit stable-ID links, the locale-neutral `Theory / Conceptual Work` task category, and a minimal clearly synthetic Theory demo.
+- A two-level research navigation candidate with nine primary domains, URL-addressable derived Smart Views, breadcrumbs, compact flyouts, complete mobile More accordion, and restrained module-aware Quick Add.
+- A Manuscripts & Publishing candidate that presents Manuscript, Submission, and ReviewerComment workflows together while retaining separate entities, histories, IDs, and persisted statuses; legacy manuscript and submission routes redirect to compatible publishing views.
 
 - A metadata-only local workspace registry with explicit create, select, rename, lock, export, and delete workflows, plus physically separate databases for each personal or synthetic-demo workspace.
 - Standard local workspaces and optional encrypted local workspaces, with a workspace access gate that unmounts research routes while locked and auto-lock choices of Never, 5, 15, 30, or 60 minutes.
@@ -34,8 +36,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Advanced portable workspaces and standard per-workspace IndexedDB storage from v3 to v4 by adding the `theoryMemos` collection. Supported migration now composes explicitly as v1 → v2 → v3 → v4 without inferring research content.
 - Kept encrypted container v1, encrypted-vault database v1, and registry database v1 independent from portable v4. Existing authenticated portable-v3 ciphertext and backups upgrade only after authentication and read-back verification.
+- Reorganized candidate navigation as derived URL views without creating database statuses merely for menu labels or changing user-authored research content when a view is opened.
 
-- Replaced the runtime singleton-database assumption with session-bound standard/encrypted repository adapters. Phase 3C initially kept portable data at v3; the current unmerged Theory candidate advances portable and standard storage to v4.
+- Replaced the runtime singleton-database assumption with session-bound standard/encrypted repository adapters. Phase 3C initially kept portable data at v3; merged Theory advances portable and standard storage to v4.
 - Moved the bundled synthetic demo into its own local workspace and made fresh-install personal data empty. Concurrent first boots converge on deterministic seed routes; only an exact pristine legacy fixture remains demo, while an edited legacy demo is personal data beside a separate pristine demo.
 - Made legacy singleton discovery and standard-to-encrypted conversion staged and non-destructive: physical targets are preflighted, a conversion target is reserved before creation, and a destination must be read back, strictly validated, and semantically matched before its route is published, while old plaintext remains recorded until a later cleanup action.
 - Kept ordinary JSON import/export as the inspectable plaintext portability path; encrypted backup now has a separate container version and custom extension.
@@ -82,7 +85,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Encrypted storage cannot protect an unlocked session from hostile same-origin code, compromised dependencies or extensions, malware, administrators, screenshots, clipboard capture, or operating-system compromise.
 - Phase 3C is merged and deployed but remains unreleased; it is not part of the formal `v0.1.0` release.
 - The China Research Map is deferred and excluded from `v0.2.0` after its official-source review found no verified combination of source scope, public-redistribution rights, project-specific approval metadata, and testable national completeness. No production map asset or implementation has shipped; the recorded gate blocks the map itself, not the non-map release work.
-- Theory Research remains an unmerged PR #18 candidate. Local automated/build/browser gates and initial exact-head push/PR CI passed; corrected-head CI, maintainer review, merge, exact-`main`, Pages, and public verification remain pending. Hierarchical navigation remains blocked until those gates pass.
+- Theory Research is merged and deployed through PR #18 at exact `main` `b8c8c60`, but remains unreleased. The local navigation candidate passed `npm ci`, zero-finding lint, typecheck, 28 files / 269 tests, a 1,962-module build, independent P0 = 0 / P1 = 0 review, and local bilingual interaction/responsive browser smoke; its PR, CI, merge, Pages, and public verification remain pending.
 
 ## [0.1.0] - 2026-08-11
 

@@ -8,7 +8,7 @@ Manage the full research lifecycle—from literature and fieldwork to quantitati
 
 **Live demo:** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
 
-> **Early public software:** the latest formal release remains `v0.1.0`. Public `main` and Pages are verified through [`ca4429f`](https://github.com/Yoesher/sociology-phd-desk/commit/ca4429facfa124e85c3dba37f9ce7da270a82601), including merged but unreleased Phase 3A / 3B / 3C work and the Phase 3D compliance closeout with no map implementation. The Theory Research functionality below exists only in a local unmerged candidate. Although its latest exact-tree independent audit recorded P0 = 0 / P1 = 0, its final full test suite, production build, real-browser smoke, PR/CI, merge, and Pages gates remain pending, and it is not in the live demo. Evidence and limitations are recorded in [PROJECT_STATE.md](PROJECT_STATE.md). The project has not yet been tested by external researchers. Do not use it as the only copy of irreplaceable research material. Public availability or a Star does not imply adoption.
+> **Early public software:** the latest formal release remains `v0.1.0`. Public `main` and Pages are verified through [`b8c8c60`](https://github.com/Yoesher/sociology-phd-desk/commit/b8c8c60434b1d88c348f83c5d08f2d19770db78a), including merged but unreleased Phase 3A / 3B / 3C work, the Phase 3D compliance closeout with no map implementation, and Phase 3E Theory Research. Hierarchical navigation and integrated publishing are an uncommitted local candidate: its local gates passed, but its own PR, CI, merge, Pages, and public-verification gates remain pending and it is not in the live demo. Evidence and limitations are recorded in [PROJECT_STATE.md](PROJECT_STATE.md). The project has not yet been tested by external researchers. Do not use it as the only copy of irreplaceable research material. Public availability or a Star does not imply adoption.
 
 ## Why Sociology PhD Desk?
 
@@ -78,7 +78,7 @@ The merged implementation for Issue [#13](https://github.com/Yoesher/sociology-p
 
 There is no cloud password reset or recovery key. Applications deployed at different paths under one GitHub Pages origin also share an origin trust boundary; separate browser databases are not separate security origins. Read the [English privacy and encryption model](docs/en/privacy-model.md); [中文版](docs/zh-CN/privacy-model.md). These capabilities are on public `main` and the live demo but remain `Unreleased`; they do not establish delivery in a new formal Release.
 
-### Phase 3E Theory Research (local candidate only; unmerged and undeployed)
+### Phase 3E Theory Research (merged and deployed; unreleased)
 
 The current local `feat/theory-research-workspace` candidate adds one new conceptual-sociology entity, `TheoryMemo`, while reusing ResearchQuestion, Claim, Literature, and Manuscript:
 
@@ -88,7 +88,11 @@ The current local `feat/theory-research-workspace` candidate adds one new concep
 - structured prompts are UI guidance only and never auto-write memo content. Theoretical writing continues to use Manuscript, and tasks use the stable raw value `Theory / Conceptual Work`;
 - the synthetic demo adds only two Theory Memos. The whole fixture has two projects, two questions, three claims, and three `ClaimQuestionLink` records (two empirical, one theoretical). The concept memo references one question; the mechanism memo references that question and one claim; neither memo references literature. It makes no real citation, finding, or theoretical-conclusion claim, and an empty personal workspace is not seeded with these records.
 
-This candidate advances portable workspace and standard IndexedDB storage to v4. The v3 → v4 step adds only an empty `theoryMemos` collection; it does not infer theory from logs, notes, or any other text. Encrypted container v1, encrypted-vault database v1, and registry database v1 remain independent. Existing authenticated portable-v3 ciphertext or backups upgrade only after authentication, migration, and read-back verification. These statements describe a **local candidate, not merged or deployed functionality**.
+This implementation advances portable workspace and standard IndexedDB storage to v4. The v3 → v4 step adds only an empty `theoryMemos` collection; it does not infer theory from logs, notes, or any other text. Encrypted container v1, encrypted-vault database v1, and registry database v1 remain independent. Existing authenticated portable-v3 ciphertext or backups upgrade only after authentication, migration, and read-back verification. Theory [PR #18](https://github.com/Yoesher/sociology-phd-desk/pull/18) was merged as [`b8c8c60`](https://github.com/Yoesher/sociology-phd-desk/commit/b8c8c60434b1d88c348f83c5d08f2d19770db78a) and deployed; that is not a new formal Release claim.
+
+### Phase 3F hierarchical navigation and integrated publishing (local candidate only)
+
+The current `feat/hierarchical-navigation` candidate organizes the nine research-work domains—Today, Projects, Literature, Theory Research, Fieldwork, Quantitative, Evidence, Research Log, and Manuscripts & Publishing—into no more than two navigation levels. Its second level consists of URL-addressable Smart Views that do not alter stored data. Manuscript, Submission, and ReviewerComment remain separate entities; the candidate only unifies their presentation and workflow entry points, while retaining legacy manuscripts/submissions redirects. This candidate has not yet opened a PR or passed remote gates, so it is not public-demo or formal-release functionality.
 
 ## Why sociology-specific?
 
@@ -166,13 +170,13 @@ These commands are also the required CI sequence. A command is not considered pa
 
 Ordinary JSON export is an inspectable, portable, **plaintext** workspace. Treat it according to its most sensitive record, and inspect the destination before sharing the file. On import, validate the preview and choose the intended merge behavior. Replacement must be an explicit action; it must never happen silently.
 
-Public `main` `ca4429f` still exports portable v3. The current unmerged Theory candidate exports portable v4 and continues to accept supported v1, v2, and v3 files by applying the explicit v1 → v2 → v3 → v4 transformations before the same strict validation; v3 → v4 creates only an empty `theoryMemos` collection. See [data portability](docs/data-portability.md) for migration details and the research-graph boundary.
+Public `main` `b8c8c60` exports portable v4 and continues to accept supported v1, v2, and v3 files by applying the explicit v1 → v2 → v3 → v4 transformations before the same strict validation; v3 → v4 creates only an empty `theoryMemos` collection. See [data portability](docs/data-portability.md) for migration details and the research-graph boundary.
 
 Phase 3C adds `.sociologydesk` encrypted backup for encrypted workspaces. It is a separate container-v1 format, not ordinary JSON with a different extension. Restore authenticates and validates the entire backup before creating an independent workspace with a new logical workspace ID. A wrong passphrase or damaged ciphertext writes no destination workspace. See [data portability](docs/data-portability.md) and the [privacy and encryption model](docs/en/privacy-model.md) for the format and failure boundaries.
 
 ## Architecture
 
-The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith. Merged Phase 3B adds research questions, analytical claims, and their explicit links. Merged Phase 3C adds a metadata-only registry, per-workspace database adapters, a session gate, and a Web Crypto vault outside the domain workspace. The unmerged Theory candidate adds `TheoryMemo` and advances the portable/standard axes from v3 to v4; container, vault, and registry remain independently at v1.
+The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith. Merged Phase 3B adds research questions, analytical claims, and their explicit links. Merged Phase 3C adds a metadata-only registry, per-workspace database adapters, a session gate, and a Web Crypto vault outside the domain workspace. Merged Theory adds `TheoryMemo` and advances the portable/standard axes from v3 to v4; container, vault, and registry remain independently at v1.
 
 See [architecture overview](docs/architecture/overview.md), [data model](docs/architecture/data-model.md), and [decisions](DECISIONS.md).
 

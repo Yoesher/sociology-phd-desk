@@ -5,6 +5,7 @@ import { literatureMessages } from './literature'
 import { localWorkspacesMessages } from './localWorkspaces'
 import { manuscriptsMessages } from './manuscripts'
 import { projectsMessages } from './projects'
+import { publishingMessages } from './publishing'
 import { quantitativeMessages } from './quantitative'
 import { researchLogMessages } from './researchLog'
 import { shellMessages } from './shell'
@@ -21,6 +22,7 @@ const en = {
   ...todayMessages.en,
   ...theoryMessages.en,
   ...projectsMessages.en,
+  ...publishingMessages.en,
   ...literatureMessages.en,
   ...fieldworkMessages.en,
   ...quantitativeMessages.en,
@@ -40,6 +42,7 @@ const zhCN: Record<MessageKey, string> = {
   ...todayMessages['zh-CN'],
   ...theoryMessages['zh-CN'],
   ...projectsMessages['zh-CN'],
+  ...publishingMessages['zh-CN'],
   ...literatureMessages['zh-CN'],
   ...fieldworkMessages['zh-CN'],
   ...quantitativeMessages['zh-CN'],
