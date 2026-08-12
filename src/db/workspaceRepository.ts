@@ -1,4 +1,4 @@
-import { db } from './database'
+import Dexie from 'dexie'
 import { createDemoWorkspace } from '../models/demo'
 import { WORKSPACE_APPLICATION, WORKSPACE_SCHEMA_VERSION } from '../models/domain'
 import type {
@@ -8,8 +8,14 @@ import type {
   ResearchProject,
   ResearchQuestion,
   WorkspaceData,
+  WorkspaceMeta,
 } from '../models/domain'
 import { validateWorkspace, WorkspaceValidationError } from '../utils/workspace-transfer'
+import {
+  LEGACY_DATABASE_NAME,
+  SociologyPhdDeskDatabase,
+  createWorkspaceDatabase,
+} from './database'
 
 export const WORKSPACE_COLLECTIONS = [
   'projects',
@@ -59,25 +65,36 @@ export class WorkspaceConflictError extends Error {
   }
 }
 
-const allTables = [
-  db.workspaces,
-  db.projects,
-  db.researchQuestions,
-  db.claims,
-  db.claimQuestionLinks,
-  db.tasks,
-  db.literature,
-  db.fieldSites,
-  db.interviews,
-  db.fieldVisits,
-  db.datasets,
-  db.analysisRuns,
-  db.evidence,
-  db.researchLogs,
-  db.manuscripts,
-  db.submissions,
-  db.reviewerComments,
-]
+/** Raised when a snapshot attempts to change the identity bound to its database. */
+export class WorkspaceIdentityError extends Error {
+  readonly expectedWorkspaceId: string
+  readonly actualWorkspaceId: string
+
+  constructor(expectedWorkspaceId: string, actualWorkspaceId: string) {
+    super(
+      `Workspace identity conflict: database belongs to "${expectedWorkspaceId}", not "${actualWorkspaceId}".`,
+    )
+    this.name = 'WorkspaceIdentityError'
+    this.expectedWorkspaceId = expectedWorkspaceId
+    this.actualWorkspaceId = actualWorkspaceId
+  }
+}
+
+/** Raised for ambiguous or partial physical workspace databases. */
+export class WorkspaceStorageInvariantError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'WorkspaceStorageInvariantError'
+  }
+}
+
+/** Raised when a registry-bound physical database has disappeared. */
+export class WorkspaceStorageMissingError extends WorkspaceStorageInvariantError {
+  constructor() {
+    super('The bound standard workspace database no longer exists.')
+    this.name = 'WorkspaceStorageMissingError'
+  }
+}
 
 function emptyMergeCounts(): WorkspaceMergeCounts {
   return {
@@ -119,32 +136,6 @@ function snapshotCollectionCounts(snapshot: WorkspaceData): WorkspaceMergeCounts
     submissions: snapshot.submissions.length,
     reviewerComments: snapshot.reviewerComments.length,
   }
-}
-
-async function clearAllTables(): Promise<void> {
-  await Promise.all(allTables.map((table) => table.clear()))
-}
-
-async function writeSnapshot(snapshot: WorkspaceData): Promise<void> {
-  await db.workspaces.put(snapshot.workspace)
-  await Promise.all([
-    db.projects.bulkPut(snapshot.projects),
-    db.researchQuestions.bulkPut(snapshot.researchQuestions),
-    db.claims.bulkPut(snapshot.claims),
-    db.claimQuestionLinks.bulkPut(snapshot.claimQuestionLinks),
-    db.tasks.bulkPut(snapshot.tasks),
-    db.literature.bulkPut(snapshot.literature),
-    db.fieldSites.bulkPut(snapshot.fieldSites),
-    db.interviews.bulkPut(snapshot.interviews),
-    db.fieldVisits.bulkPut(snapshot.fieldVisits),
-    db.datasets.bulkPut(snapshot.datasets),
-    db.analysisRuns.bulkPut(snapshot.analysisRuns),
-    db.evidence.bulkPut(snapshot.evidence),
-    db.researchLogs.bulkPut(snapshot.researchLogs),
-    db.manuscripts.bulkPut(snapshot.manuscripts),
-    db.submissions.bulkPut(snapshot.submissions),
-    db.reviewerComments.bulkPut(snapshot.reviewerComments),
-  ])
 }
 
 function assertValidWorkspace(snapshot: unknown, operation: string): WorkspaceData {
@@ -247,8 +238,7 @@ function assertGraphMergeCollisionsSafe(
       'claimQuestionLinks',
       current.claimQuestionLinks,
       incoming.claimQuestionLinks,
-      (link) =>
-        JSON.stringify([link.projectId, link.claimId, link.researchQuestionId]),
+      (link) => JSON.stringify([link.projectId, link.claimId, link.researchQuestionId]),
     ),
   ]
   if (issues.length > 0) {
@@ -259,229 +249,124 @@ function assertGraphMergeCollisionsSafe(
   }
 }
 
-async function readWorkspaceSnapshot(): Promise<WorkspaceData | null> {
-  const workspace = await db.workspaces.toCollection().first()
-  if (!workspace) {
-    return null
+function canonicalizeWorkspaceValue(value: unknown, topLevel = false): unknown {
+  if (Array.isArray(value)) {
+    const normalized = value.map((item) => canonicalizeWorkspaceValue(item))
+    if (
+      normalized.every(
+        (item) =>
+          typeof item === 'object' &&
+          item !== null &&
+          !Array.isArray(item) &&
+          typeof (item as Record<string, unknown>)['id'] === 'string',
+      )
+    ) {
+      return [...normalized].sort((left, right) =>
+        String((left as Record<string, unknown>)['id']).localeCompare(
+          String((right as Record<string, unknown>)['id']),
+        ),
+      )
+    }
+    return normalized
   }
+  if (typeof value !== 'object' || value === null) return value
 
-  const [
-    projects,
-    researchQuestions,
-    claims,
-    claimQuestionLinks,
-    tasks,
-    literature,
-    fieldSites,
-    interviews,
-    fieldVisits,
-    datasets,
-    analysisRuns,
-    evidence,
-    researchLogs,
-    manuscripts,
-    submissions,
-    reviewerComments,
-  ] = await Promise.all([
-    db.projects.toArray(),
-    db.researchQuestions.toArray(),
-    db.claims.toArray(),
-    db.claimQuestionLinks.toArray(),
-    db.tasks.toArray(),
-    db.literature.toArray(),
-    db.fieldSites.toArray(),
-    db.interviews.toArray(),
-    db.fieldVisits.toArray(),
-    db.datasets.toArray(),
-    db.analysisRuns.toArray(),
-    db.evidence.toArray(),
-    db.researchLogs.toArray(),
-    db.manuscripts.toArray(),
-    db.submissions.toArray(),
-    db.reviewerComments.toArray(),
-  ])
+  const record = value as Record<string, unknown>
+  return Object.fromEntries(
+    Object.keys(record)
+      .filter((key) => !(topLevel && key === 'exportedAt'))
+      .sort()
+      .map((key) => [key, canonicalizeWorkspaceValue(record[key])]),
+  )
+}
+
+/** In-memory semantic comparison; no content-derived digest is persisted. */
+export function workspaceSnapshotsEqual(left: WorkspaceData, right: WorkspaceData): boolean {
+  return (
+    JSON.stringify(canonicalizeWorkspaceValue(left, true)) ===
+    JSON.stringify(canonicalizeWorkspaceValue(right, true))
+  )
+}
+
+export interface BuiltWorkspaceMerge {
+  snapshot: WorkspaceData
+  result: MergeWorkspaceResult
+}
+
+/**
+ * Shared in-memory merge contract for standard and encrypted repositories.
+ * It performs the same identity, graph-collision, and whole-snapshot checks
+ * before any adapter is allowed to persist the result.
+ */
+export function buildMergedWorkspace(
+  currentInput: WorkspaceData,
+  incomingInput: WorkspaceData,
+  now = new Date(),
+): BuiltWorkspaceMerge {
+  const current = assertValidWorkspace(currentInput, 'merge current input')
+  const incoming = assertValidWorkspace(incomingInput, 'merge incoming input')
+  if (current.workspace.id !== incoming.workspace.id) {
+    throw new WorkspaceIdentityError(current.workspace.id, incoming.workspace.id)
+  }
+  assertGraphMergeCollisionsSafe(current, incoming)
+
+  const projects = mergeRecords(current.projects, incoming.projects)
+  const researchQuestions = mergeRecords(current.researchQuestions, incoming.researchQuestions)
+  const claims = mergeRecords(current.claims, incoming.claims)
+  const claimQuestionLinks = mergeRecords(
+    current.claimQuestionLinks,
+    incoming.claimQuestionLinks,
+  )
+  const tasks = mergeRecords(current.tasks, incoming.tasks)
+  const literature = mergeRecords(current.literature, incoming.literature)
+  const fieldSites = mergeRecords(current.fieldSites, incoming.fieldSites)
+  const interviews = mergeRecords(current.interviews, incoming.interviews)
+  const fieldVisits = mergeRecords(current.fieldVisits, incoming.fieldVisits)
+  const datasets = mergeRecords(current.datasets, incoming.datasets)
+  const analysisRuns = mergeRecords(current.analysisRuns, incoming.analysisRuns)
+  const evidence = mergeRecords(current.evidence, incoming.evidence)
+  const researchLogs = mergeRecords(current.researchLogs, incoming.researchLogs)
+  const manuscripts = mergeRecords(current.manuscripts, incoming.manuscripts)
+  const submissions = mergeRecords(current.submissions, incoming.submissions)
+  const reviewerComments = mergeRecords(
+    current.reviewerComments,
+    incoming.reviewerComments,
+  )
+  const timestamp = now.toISOString()
+
+  const snapshot = assertValidWorkspace(
+    {
+      application: WORKSPACE_APPLICATION,
+      version: WORKSPACE_SCHEMA_VERSION,
+      exportedAt: timestamp,
+      workspace: {
+        ...current.workspace,
+        revision: current.workspace.revision + 1,
+        updatedAt: timestamp,
+      },
+      projects: projects.records,
+      researchQuestions: researchQuestions.records,
+      claims: claims.records,
+      claimQuestionLinks: claimQuestionLinks.records,
+      tasks: tasks.records,
+      literature: literature.records,
+      fieldSites: fieldSites.records,
+      interviews: interviews.records,
+      fieldVisits: fieldVisits.records,
+      datasets: datasets.records,
+      analysisRuns: analysisRuns.records,
+      evidence: evidence.records,
+      researchLogs: researchLogs.records,
+      manuscripts: manuscripts.records,
+      submissions: submissions.records,
+      reviewerComments: reviewerComments.records,
+    },
+    'merged result',
+  )
 
   return {
-    application: WORKSPACE_APPLICATION,
-    version: WORKSPACE_SCHEMA_VERSION,
-    exportedAt: new Date().toISOString(),
-    workspace,
-    projects,
-    researchQuestions,
-    claims,
-    claimQuestionLinks,
-    tasks,
-    literature,
-    fieldSites,
-    interviews,
-    fieldVisits,
-    datasets,
-    analysisRuns,
-    evidence,
-    researchLogs,
-    manuscripts,
-    submissions,
-    reviewerComments,
-  }
-}
-
-/**
- * Opens the local workspace. The synthetic demo is written only when no
- * workspace exists, so subsequent launches never reset user edits.
- */
-export async function initializeWorkspace(
-  initialWorkspace: WorkspaceData = createDemoWorkspace(),
-): Promise<WorkspaceData> {
-  const validatedInitialWorkspace = assertValidWorkspace(initialWorkspace, 'initialization')
-
-  await db.transaction('rw', allTables, async () => {
-    if ((await db.workspaces.count()) > 0) {
-      return
-    }
-
-    // Remove possible orphan rows left by an interrupted pre-v1 write.
-    await clearAllTables()
-    await writeSnapshot(validatedInitialWorkspace)
-  })
-
-  const snapshot = await getWorkspaceSnapshot()
-  if (!snapshot) {
-    throw new Error('Workspace initialization completed without a workspace record.')
-  }
-  return snapshot
-}
-
-/** Returns a portable point-in-time snapshot, or null before initialization. */
-export async function getWorkspaceSnapshot(): Promise<WorkspaceData | null> {
-  return db.transaction('r', allTables, readWorkspaceSnapshot)
-}
-
-/**
- * Atomically replaces every persisted collection. When expectedRevision is
- * supplied, a stale caller is rejected before any table is cleared.
- */
-export async function replaceWorkspace(
-  snapshot: WorkspaceData,
-  expectedRevision?: number,
-): Promise<void> {
-  const validatedSnapshot = assertValidWorkspace(snapshot, 'replacement input')
-
-  await db.transaction('rw', allTables, async () => {
-    const currentWorkspace = await db.workspaces.toCollection().first()
-    const actualRevision = currentWorkspace?.revision ?? null
-
-    if (expectedRevision !== undefined && expectedRevision !== actualRevision) {
-      throw new WorkspaceConflictError(expectedRevision, actualRevision)
-    }
-
-    const prospectiveSnapshot = assertValidWorkspace(
-      {
-        ...validatedSnapshot,
-        workspace: {
-          ...validatedSnapshot.workspace,
-          revision:
-            currentWorkspace === undefined
-              ? validatedSnapshot.workspace.revision
-              : currentWorkspace.revision + 1,
-        },
-      },
-      'replacement commit',
-    )
-
-    await clearAllTables()
-    await writeSnapshot(prospectiveSnapshot)
-  })
-}
-
-/**
- * Builds a complete local-first prospective snapshot in memory. Existing IDs
- * win, but the resulting research graph must still validate before one atomic
- * replacement transaction is allowed to commit.
- */
-export async function mergeWorkspace(snapshot: WorkspaceData): Promise<MergeWorkspaceResult> {
-  const validatedIncoming = assertValidWorkspace(snapshot, 'merge input')
-
-  return db.transaction('rw', allTables, async () => {
-    const current = await readWorkspaceSnapshot()
-    if (!current) {
-      const prospectiveSnapshot = assertValidWorkspace(
-        {
-          ...validatedIncoming,
-          workspace: { ...validatedIncoming.workspace, revision: 0 },
-        },
-        'merge commit',
-      )
-      await clearAllTables()
-      await writeSnapshot(prospectiveSnapshot)
-      return {
-        added: snapshotCollectionCounts(prospectiveSnapshot),
-        skipped: emptyMergeCounts(),
-        preservedWorkspace: false,
-      }
-    }
-
-    assertGraphMergeCollisionsSafe(current, validatedIncoming)
-
-    const projects = mergeRecords(current.projects, validatedIncoming.projects)
-    const researchQuestions = mergeRecords(
-      current.researchQuestions,
-      validatedIncoming.researchQuestions,
-    )
-    const claims = mergeRecords(current.claims, validatedIncoming.claims)
-    const claimQuestionLinks = mergeRecords(
-      current.claimQuestionLinks,
-      validatedIncoming.claimQuestionLinks,
-    )
-    const tasks = mergeRecords(current.tasks, validatedIncoming.tasks)
-    const literature = mergeRecords(current.literature, validatedIncoming.literature)
-    const fieldSites = mergeRecords(current.fieldSites, validatedIncoming.fieldSites)
-    const interviews = mergeRecords(current.interviews, validatedIncoming.interviews)
-    const fieldVisits = mergeRecords(current.fieldVisits, validatedIncoming.fieldVisits)
-    const datasets = mergeRecords(current.datasets, validatedIncoming.datasets)
-    const analysisRuns = mergeRecords(current.analysisRuns, validatedIncoming.analysisRuns)
-    const evidence = mergeRecords(current.evidence, validatedIncoming.evidence)
-    const researchLogs = mergeRecords(current.researchLogs, validatedIncoming.researchLogs)
-    const manuscripts = mergeRecords(current.manuscripts, validatedIncoming.manuscripts)
-    const submissions = mergeRecords(current.submissions, validatedIncoming.submissions)
-    const reviewerComments = mergeRecords(
-      current.reviewerComments,
-      validatedIncoming.reviewerComments,
-    )
-
-    const prospectiveSnapshot = assertValidWorkspace(
-      {
-        application: WORKSPACE_APPLICATION,
-        version: WORKSPACE_SCHEMA_VERSION,
-        exportedAt: new Date().toISOString(),
-        workspace: {
-          ...current.workspace,
-          revision: current.workspace.revision + 1,
-          updatedAt: new Date().toISOString(),
-        },
-        projects: projects.records,
-        researchQuestions: researchQuestions.records,
-        claims: claims.records,
-        claimQuestionLinks: claimQuestionLinks.records,
-        tasks: tasks.records,
-        literature: literature.records,
-        fieldSites: fieldSites.records,
-        interviews: interviews.records,
-        fieldVisits: fieldVisits.records,
-        datasets: datasets.records,
-        analysisRuns: analysisRuns.records,
-        evidence: evidence.records,
-        researchLogs: researchLogs.records,
-        manuscripts: manuscripts.records,
-        submissions: submissions.records,
-        reviewerComments: reviewerComments.records,
-      },
-      'merged result',
-    )
-
-    await clearAllTables()
-    await writeSnapshot(prospectiveSnapshot)
-
-    return {
+    snapshot,
+    result: {
       added: {
         projects: projects.added,
         researchQuestions: researchQuestions.added,
@@ -519,11 +404,377 @@ export async function mergeWorkspace(snapshot: WorkspaceData): Promise<MergeWork
         reviewerComments: reviewerComments.skipped,
       },
       preservedWorkspace: true,
-    }
-  })
+    },
+  }
 }
 
-/** Removes all local workspace metadata and research-object records. */
+/**
+ * A repository is permanently bound to one physical IndexedDB. For registry
+ * workspaces, `workspaceId` further prevents replacing the identity routed to
+ * that database.
+ */
+export class StandardWorkspaceRepository {
+  readonly database: SociologyPhdDeskDatabase
+  readonly workspaceId?: string
+  private closed = false
+
+  constructor(
+    database: SociologyPhdDeskDatabase,
+    workspaceId?: string,
+  ) {
+    this.database = database
+    this.workspaceId = workspaceId
+  }
+
+  private get allTables() {
+    return this.database.tables
+  }
+
+  private assertOpen(): void {
+    if (this.closed) {
+      throw new WorkspaceStorageInvariantError(
+        'The standard workspace repository is closed.',
+      )
+    }
+  }
+
+  private async assertBoundStorageExists(): Promise<void> {
+    if (this.workspaceId && !(await Dexie.exists(this.database.name))) {
+      this.database.close({ disableAutoOpen: true })
+      this.closed = true
+      throw new WorkspaceStorageMissingError()
+    }
+  }
+
+  private assertIdentity(workspaceId: string, existingWorkspaceId?: string): void {
+    const expected = this.workspaceId ?? existingWorkspaceId
+    if (expected && expected !== workspaceId) {
+      throw new WorkspaceIdentityError(expected, workspaceId)
+    }
+  }
+
+  private async clearAllTables(): Promise<void> {
+    await Promise.all(this.allTables.map((table) => table.clear()))
+  }
+
+  private async hasOrphanRows(): Promise<boolean> {
+    for (const table of this.allTables) {
+      if (table.name !== 'workspaces' && (await table.count()) > 0) return true
+    }
+    return false
+  }
+
+  private async writeSnapshot(snapshot: WorkspaceData): Promise<void> {
+    await this.database.workspaces.put(snapshot.workspace)
+    await Promise.all([
+      this.database.projects.bulkPut(snapshot.projects),
+      this.database.researchQuestions.bulkPut(snapshot.researchQuestions),
+      this.database.claims.bulkPut(snapshot.claims),
+      this.database.claimQuestionLinks.bulkPut(snapshot.claimQuestionLinks),
+      this.database.tasks.bulkPut(snapshot.tasks),
+      this.database.literature.bulkPut(snapshot.literature),
+      this.database.fieldSites.bulkPut(snapshot.fieldSites),
+      this.database.interviews.bulkPut(snapshot.interviews),
+      this.database.fieldVisits.bulkPut(snapshot.fieldVisits),
+      this.database.datasets.bulkPut(snapshot.datasets),
+      this.database.analysisRuns.bulkPut(snapshot.analysisRuns),
+      this.database.evidence.bulkPut(snapshot.evidence),
+      this.database.researchLogs.bulkPut(snapshot.researchLogs),
+      this.database.manuscripts.bulkPut(snapshot.manuscripts),
+      this.database.submissions.bulkPut(snapshot.submissions),
+      this.database.reviewerComments.bulkPut(snapshot.reviewerComments),
+    ])
+  }
+
+  private async readWorkspaceSnapshot(): Promise<WorkspaceData | null> {
+    const workspaces = await this.database.workspaces.toArray()
+    if (workspaces.length === 0) return null
+    if (workspaces.length !== 1) {
+      throw new WorkspaceStorageInvariantError(
+        `Physical workspace database contains ${workspaces.length} workspace metadata rows.`,
+      )
+    }
+    const workspace = workspaces[0] as WorkspaceMeta
+    this.assertIdentity(workspace.id)
+
+    const [
+      projects,
+      researchQuestions,
+      claims,
+      claimQuestionLinks,
+      tasks,
+      literature,
+      fieldSites,
+      interviews,
+      fieldVisits,
+      datasets,
+      analysisRuns,
+      evidence,
+      researchLogs,
+      manuscripts,
+      submissions,
+      reviewerComments,
+    ] = await Promise.all([
+      this.database.projects.toArray(),
+      this.database.researchQuestions.toArray(),
+      this.database.claims.toArray(),
+      this.database.claimQuestionLinks.toArray(),
+      this.database.tasks.toArray(),
+      this.database.literature.toArray(),
+      this.database.fieldSites.toArray(),
+      this.database.interviews.toArray(),
+      this.database.fieldVisits.toArray(),
+      this.database.datasets.toArray(),
+      this.database.analysisRuns.toArray(),
+      this.database.evidence.toArray(),
+      this.database.researchLogs.toArray(),
+      this.database.manuscripts.toArray(),
+      this.database.submissions.toArray(),
+      this.database.reviewerComments.toArray(),
+    ])
+
+    return assertValidWorkspace(
+      {
+        application: WORKSPACE_APPLICATION,
+        version: WORKSPACE_SCHEMA_VERSION,
+        exportedAt: new Date().toISOString(),
+        workspace,
+        projects,
+        researchQuestions,
+        claims,
+        claimQuestionLinks,
+        tasks,
+        literature,
+        fieldSites,
+        interviews,
+        fieldVisits,
+        datasets,
+        analysisRuns,
+        evidence,
+        researchLogs,
+        manuscripts,
+        submissions,
+        reviewerComments,
+      },
+      'stored snapshot',
+    )
+  }
+
+  /** Seeds only a truly empty physical database; suspicious orphan rows stop initialization. */
+  async initializeWorkspace(initialWorkspace: WorkspaceData): Promise<WorkspaceData> {
+    this.assertOpen()
+    const validatedInitialWorkspace = assertValidWorkspace(
+      initialWorkspace,
+      'initialization',
+    )
+
+    await this.database.transaction('rw', this.allTables, async () => {
+      const existing = await this.database.workspaces.toArray()
+      if (existing.length > 1) {
+        throw new WorkspaceStorageInvariantError(
+          'Cannot initialize a database with multiple workspace metadata rows.',
+        )
+      }
+      if (existing.length === 1) {
+        this.assertIdentity((existing[0] as WorkspaceMeta).id)
+        return
+      }
+      if (await this.hasOrphanRows()) {
+        throw new WorkspaceStorageInvariantError(
+          'Cannot initialize a database containing orphan research records.',
+        )
+      }
+      this.assertIdentity(validatedInitialWorkspace.workspace.id)
+      await this.writeSnapshot(validatedInitialWorkspace)
+    })
+
+    const snapshot = await this.getWorkspaceSnapshot()
+    if (!snapshot) {
+      throw new Error('Workspace initialization completed without a workspace record.')
+    }
+    return snapshot
+  }
+
+  /**
+   * Writes an exact snapshot into a migration/provisioning target. Callers must
+   * ensure the target is unpublished; normal user changes use replaceWorkspace.
+   */
+  async provisionWorkspace(snapshot: WorkspaceData): Promise<void> {
+    this.assertOpen()
+    const validated = assertValidWorkspace(snapshot, 'provisioning input')
+    this.assertIdentity(validated.workspace.id)
+    await this.database.transaction('rw', this.allTables, async () => {
+      const existing = await this.database.workspaces.toArray()
+      if (existing.length > 1) {
+        throw new WorkspaceStorageInvariantError(
+          'Cannot provision a database with multiple workspace metadata rows.',
+        )
+      }
+      if (existing.length === 1) {
+        if (!this.workspaceId) {
+          throw new WorkspaceStorageInvariantError(
+            'Reprovisioning an existing database requires an explicit workspace binding.',
+          )
+        }
+        const existingWorkspace = existing[0] as WorkspaceMeta
+        this.assertIdentity(existingWorkspace.id)
+        this.assertIdentity(validated.workspace.id, existingWorkspace.id)
+      } else if (await this.hasOrphanRows()) {
+        throw new WorkspaceStorageInvariantError(
+          'Cannot provision a database containing orphan research records.',
+        )
+      }
+      await this.clearAllTables()
+      await this.writeSnapshot(validated)
+    })
+  }
+
+  /** Returns a coherent point-in-time snapshot, or null before provisioning. */
+  async getWorkspaceSnapshot(): Promise<WorkspaceData | null> {
+    this.assertOpen()
+    await this.assertBoundStorageExists()
+    return this.database.transaction('r', this.allTables, () =>
+      this.readWorkspaceSnapshot(),
+    )
+  }
+
+  /** Atomically replaces this database only; workspace identity cannot change. */
+  async replaceWorkspace(snapshot: WorkspaceData, expectedRevision?: number): Promise<void> {
+    this.assertOpen()
+    await this.assertBoundStorageExists()
+    const validatedSnapshot = assertValidWorkspace(snapshot, 'replacement input')
+
+    await this.database.transaction('rw', this.allTables, async () => {
+      const currentWorkspaces = await this.database.workspaces.toArray()
+      if (currentWorkspaces.length > 1) {
+        throw new WorkspaceStorageInvariantError(
+          'Cannot replace a database with multiple workspace metadata rows.',
+        )
+      }
+      const currentWorkspace = currentWorkspaces[0] as WorkspaceMeta | undefined
+      const actualRevision = currentWorkspace?.revision ?? null
+      this.assertIdentity(validatedSnapshot.workspace.id, currentWorkspace?.id)
+
+      if (this.workspaceId && !currentWorkspace) {
+        throw new WorkspaceStorageInvariantError(
+          'A bound workspace repository cannot recreate missing storage through replacement.',
+        )
+      }
+
+      if (expectedRevision !== undefined && expectedRevision !== actualRevision) {
+        throw new WorkspaceConflictError(expectedRevision, actualRevision)
+      }
+
+      const prospectiveSnapshot = assertValidWorkspace(
+        {
+          ...validatedSnapshot,
+          workspace: {
+            ...validatedSnapshot.workspace,
+            revision:
+              currentWorkspace === undefined
+                ? validatedSnapshot.workspace.revision
+                : currentWorkspace.revision + 1,
+          },
+        },
+        'replacement commit',
+      )
+
+      await this.clearAllTables()
+      await this.writeSnapshot(prospectiveSnapshot)
+    })
+  }
+
+  /** Builds and validates a complete prospective merge inside this database. */
+  async mergeWorkspace(snapshot: WorkspaceData): Promise<MergeWorkspaceResult> {
+    this.assertOpen()
+    await this.assertBoundStorageExists()
+    const validatedIncoming = assertValidWorkspace(snapshot, 'merge input')
+
+    return this.database.transaction('rw', this.allTables, async () => {
+      const current = await this.readWorkspaceSnapshot()
+      if (!current) {
+        if (this.workspaceId) {
+          throw new WorkspaceStorageInvariantError(
+            'A bound workspace repository cannot recreate missing storage through merge.',
+          )
+        }
+        this.assertIdentity(validatedIncoming.workspace.id)
+        const prospectiveSnapshot = assertValidWorkspace(
+          {
+            ...validatedIncoming,
+            workspace: { ...validatedIncoming.workspace, revision: 0 },
+          },
+          'merge commit',
+        )
+        await this.clearAllTables()
+        await this.writeSnapshot(prospectiveSnapshot)
+        return {
+          added: snapshotCollectionCounts(prospectiveSnapshot),
+          skipped: emptyMergeCounts(),
+          preservedWorkspace: false,
+        }
+      }
+
+      const merged = buildMergedWorkspace(current, validatedIncoming)
+      await this.clearAllTables()
+      await this.writeSnapshot(merged.snapshot)
+
+      return merged.result
+    })
+  }
+
+  /** Clears only this physical workspace database. Registry deletion is separate. */
+  async clearWorkspace(): Promise<void> {
+    this.assertOpen()
+    await this.assertBoundStorageExists()
+    await this.database.transaction('rw', this.allTables, () => this.clearAllTables())
+  }
+
+  close(): void {
+    if (this.closed) return
+    this.closed = true
+    this.database.close()
+  }
+}
+
+async function withLegacyRepository<T>(
+  operation: (repository: StandardWorkspaceRepository) => Promise<T>,
+): Promise<T> {
+  const database = createWorkspaceDatabase(LEGACY_DATABASE_NAME)
+  const repository = new StandardWorkspaceRepository(database)
+  try {
+    return await operation(repository)
+  } finally {
+    repository.close()
+  }
+}
+
+/** Legacy singleton facade retained while the application shell adopts the registry. */
+export async function initializeWorkspace(
+  initialWorkspace: WorkspaceData = createDemoWorkspace(),
+): Promise<WorkspaceData> {
+  return withLegacyRepository((repository) =>
+    repository.initializeWorkspace(initialWorkspace),
+  )
+}
+
+export async function getWorkspaceSnapshot(): Promise<WorkspaceData | null> {
+  return withLegacyRepository((repository) => repository.getWorkspaceSnapshot())
+}
+
+export async function replaceWorkspace(
+  snapshot: WorkspaceData,
+  expectedRevision?: number,
+): Promise<void> {
+  return withLegacyRepository((repository) =>
+    repository.replaceWorkspace(snapshot, expectedRevision),
+  )
+}
+
+export async function mergeWorkspace(snapshot: WorkspaceData): Promise<MergeWorkspaceResult> {
+  return withLegacyRepository((repository) => repository.mergeWorkspace(snapshot))
+}
+
 export async function clearWorkspace(): Promise<void> {
-  await db.transaction('rw', allTables, clearAllTables)
+  return withLegacyRepository((repository) => repository.clearWorkspace())
 }

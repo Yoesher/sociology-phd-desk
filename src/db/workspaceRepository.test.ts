@@ -1,22 +1,46 @@
-import { beforeEach, describe, expect, it } from 'vitest'
-import { db } from './database'
+import Dexie from 'dexie'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { SociologyPhdDeskDatabase } from './database'
 import {
-  clearWorkspace,
-  getWorkspaceSnapshot,
-  initializeWorkspace,
-  mergeWorkspace,
-  replaceWorkspace,
+  buildMergedWorkspace,
+  StandardWorkspaceRepository,
   WorkspaceConflictError,
+  WorkspaceIdentityError,
+  WorkspaceStorageInvariantError,
 } from './workspaceRepository'
 import { createDemoWorkspace } from '../models/demo'
 import { validateWorkspace, WorkspaceValidationError } from '../utils/workspace-transfer'
+import {
+  createStandardWorkspaceDatabase,
+  deleteStandardWorkspaceDatabase,
+  standardWorkspaceDatabaseExists,
+} from './standardWorkspaceDatabase'
 
 const firstAnchor = new Date('2026-04-10T09:30:00.000Z')
 const laterTimestamp = '2026-04-11T09:30:00.000Z'
 
+let db: SociologyPhdDeskDatabase
+let repository: StandardWorkspaceRepository
+
+const initializeWorkspace = (snapshot = createDemoWorkspace()) =>
+  repository.initializeWorkspace(snapshot)
+const getWorkspaceSnapshot = () => repository.getWorkspaceSnapshot()
+const replaceWorkspace = (snapshot: Parameters<StandardWorkspaceRepository['replaceWorkspace']>[0], expectedRevision?: number) =>
+  repository.replaceWorkspace(snapshot, expectedRevision)
+const mergeWorkspace = (snapshot: Parameters<StandardWorkspaceRepository['mergeWorkspace']>[0]) =>
+  repository.mergeWorkspace(snapshot)
+const clearWorkspace = () => repository.clearWorkspace()
+
 describe('workspace repository', () => {
   beforeEach(async () => {
-    await clearWorkspace()
+    db = new SociologyPhdDeskDatabase(`workspace-repository-${crypto.randomUUID()}`)
+    repository = new StandardWorkspaceRepository(db)
+  })
+
+  afterEach(async () => {
+    const databaseName = db.name
+    repository.close()
+    await Dexie.delete(databaseName)
   })
 
   it('seeds only an empty database and preserves subsequent user edits', async () => {
@@ -36,10 +60,96 @@ describe('workspace repository', () => {
     expect(second.workspace.id).toBe(first.workspace.id)
   })
 
+  it('provisions only an empty target or the same explicitly bound staging identity', async () => {
+    const snapshot = createDemoWorkspace(firstAnchor)
+    const bound = new StandardWorkspaceRepository(db, snapshot.workspace.id)
+    await db.projects.put(snapshot.projects[0]!)
+    await expect(bound.provisionWorkspace(snapshot)).rejects.toBeInstanceOf(
+      WorkspaceStorageInvariantError,
+    )
+    expect(await db.projects.count()).toBe(1)
+
+    await db.projects.clear()
+    await bound.provisionWorkspace(snapshot)
+    const rewritten = structuredClone(snapshot)
+    rewritten.workspace.name = 'Same bound staging retry'
+    await bound.provisionWorkspace(rewritten)
+    expect((await bound.getWorkspaceSnapshot())?.workspace.name).toBe(
+      'Same bound staging retry',
+    )
+
+    const wrongIdentity = structuredClone(snapshot)
+    wrongIdentity.workspace.id = 'wrong-staging-identity'
+    await expect(bound.provisionWorkspace(wrongIdentity)).rejects.toBeInstanceOf(
+      WorkspaceIdentityError,
+    )
+    expect((await bound.getWorkspaceSnapshot())?.workspace.id).toBe(snapshot.workspace.id)
+  })
+
+  it('never recreates missing storage through a bound replace or merge', async () => {
+    const snapshot = createDemoWorkspace(firstAnchor)
+    const bound = new StandardWorkspaceRepository(db, snapshot.workspace.id)
+
+    await expect(
+      bound.replaceWorkspace(snapshot, snapshot.workspace.revision),
+    ).rejects.toBeInstanceOf(WorkspaceStorageInvariantError)
+    await expect(bound.mergeWorkspace(snapshot)).rejects.toBeInstanceOf(
+      WorkspaceStorageInvariantError,
+    )
+    expect(await Dexie.exists(db.name)).toBe(false)
+  })
+
+  it('poisons closed or deleted standard repositories without recreating storage', async () => {
+    const closedStorageId = crypto.randomUUID()
+    const closedRepository = new StandardWorkspaceRepository(
+      createStandardWorkspaceDatabase(closedStorageId),
+      'closed-standard-workspace',
+    )
+    const closedSnapshot = createDemoWorkspace(firstAnchor)
+    closedSnapshot.workspace.id = 'closed-standard-workspace'
+    await closedRepository.provisionWorkspace(closedSnapshot)
+    closedRepository.close()
+
+    await expect(closedRepository.getWorkspaceSnapshot()).rejects.toBeInstanceOf(
+      WorkspaceStorageInvariantError,
+    )
+    await expect(
+      closedRepository.replaceWorkspace(closedSnapshot, 0),
+    ).rejects.toBeInstanceOf(WorkspaceStorageInvariantError)
+    await expect(closedRepository.mergeWorkspace(closedSnapshot)).rejects.toBeInstanceOf(
+      WorkspaceStorageInvariantError,
+    )
+    await expect(closedRepository.clearWorkspace()).rejects.toBeInstanceOf(
+      WorkspaceStorageInvariantError,
+    )
+
+    const deletedStorageId = crypto.randomUUID()
+    const deletedSnapshot = createDemoWorkspace(firstAnchor)
+    deletedSnapshot.workspace.id = 'deleted-standard-workspace'
+    const deletedRepository = new StandardWorkspaceRepository(
+      createStandardWorkspaceDatabase(deletedStorageId),
+      deletedSnapshot.workspace.id,
+    )
+    await deletedRepository.provisionWorkspace(deletedSnapshot)
+    await deleteStandardWorkspaceDatabase(deletedStorageId)
+    expect(await standardWorkspaceDatabaseExists(deletedStorageId)).toBe(false)
+
+    await expect(deletedRepository.getWorkspaceSnapshot()).rejects.toBeTruthy()
+    expect(await standardWorkspaceDatabaseExists(deletedStorageId)).toBe(false)
+    await expect(
+      deletedRepository.replaceWorkspace(deletedSnapshot, 0),
+    ).rejects.toBeTruthy()
+    expect(await standardWorkspaceDatabaseExists(deletedStorageId)).toBe(false)
+    await expect(deletedRepository.mergeWorkspace(deletedSnapshot)).rejects.toBeTruthy()
+    expect(await standardWorkspaceDatabaseExists(deletedStorageId)).toBe(false)
+
+    deletedRepository.close()
+    await deleteStandardWorkspaceDatabase(closedStorageId)
+  })
+
   it('atomically replaces all persisted workspace collections', async () => {
     await initializeWorkspace(createDemoWorkspace(firstAnchor))
     const replacement = createDemoWorkspace(new Date(laterTimestamp))
-    replacement.workspace.id = 'replacement-workspace'
     replacement.workspace.name = 'Replacement workspace'
     replacement.tasks = replacement.tasks.slice(0, 1)
     replacement.evidence = []
@@ -47,9 +157,20 @@ describe('workspace repository', () => {
     await replaceWorkspace(replacement)
     const persisted = await getWorkspaceSnapshot()
 
-    expect(persisted?.workspace.id).toBe('replacement-workspace')
+    expect(persisted?.workspace.id).toBe(createDemoWorkspace(firstAnchor).workspace.id)
     expect(persisted?.tasks).toHaveLength(1)
     expect(persisted?.evidence).toEqual([])
+  })
+
+  it('rejects replacement with another workspace identity', async () => {
+    const current = await initializeWorkspace(createDemoWorkspace(firstAnchor))
+    const replacement = createDemoWorkspace(new Date(laterTimestamp))
+    replacement.workspace.id = 'another-workspace'
+
+    await expect(
+      replaceWorkspace(replacement, current.workspace.revision),
+    ).rejects.toBeInstanceOf(WorkspaceIdentityError)
+    expect((await getWorkspaceSnapshot())?.workspace.id).toBe(current.workspace.id)
   })
 
   it('rejects a stale full-snapshot write without losing the winning write', async () => {
@@ -143,6 +264,42 @@ describe('workspace repository', () => {
     )
     expect(persisted?.projects.some((item) => item.id === 'new-imported-project')).toBe(true)
     expect(persisted?.workspace.revision).toBe(current.workspace.revision + 1)
+  })
+
+  it('builds the same validated merge in memory without mutating either input', () => {
+    const current = createDemoWorkspace(firstAnchor)
+    const incoming = structuredClone(current)
+    const sourceProject = incoming.projects[0]
+    if (!sourceProject) throw new Error('Expected a demo project.')
+    incoming.projects.push({
+      ...sourceProject,
+      id: 'pure-merge-project',
+      title: 'Pure merge project',
+      shortTitle: 'Pure merge',
+    })
+    const beforeCurrent = structuredClone(current)
+    const beforeIncoming = structuredClone(incoming)
+
+    const built = buildMergedWorkspace(
+      current,
+      incoming,
+      new Date('2026-04-12T09:30:00.000Z'),
+    )
+
+    expect(built.snapshot.projects.some((project) => project.id === 'pure-merge-project')).toBe(true)
+    expect(built.snapshot.workspace.revision).toBe(current.workspace.revision + 1)
+    expect(built.result.added.projects).toBe(1)
+    expect(built.result.skipped.projects).toBe(current.projects.length)
+    expect(current).toEqual(beforeCurrent)
+    expect(incoming).toEqual(beforeIncoming)
+  })
+
+  it('rejects a pure merge across workspace identities', () => {
+    const current = createDemoWorkspace(firstAnchor)
+    const incoming = createDemoWorkspace(firstAnchor)
+    incoming.workspace.id = 'another-pure-merge-workspace'
+
+    expect(() => buildMergedWorkspace(current, incoming)).toThrow(WorkspaceIdentityError)
   })
 
   it('atomically rejects a colliding claim ID with different semantic text', async () => {

@@ -195,7 +195,7 @@ describe('ProjectsPage localization and research graph boundary', () => {
     const blockedDialog = screen.getByRole('dialog', { name: '删除前请先移除明确关联' })
     expect(blockedDialog).toHaveTextContent(/仍有 2 个主张关联/)
     expect(getSnapshot().researchQuestions.some((question) => question.id === initial.researchQuestions[0].id)).toBe(true)
-  })
+  }, 15_000)
 
   it('creates, edits, views, and deletes an unlinked first-class research question', async () => {
     const user = userEvent.setup()

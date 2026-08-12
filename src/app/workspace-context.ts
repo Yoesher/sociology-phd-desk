@@ -6,7 +6,7 @@ export interface WorkspaceContextValue {
   data: WorkspaceData | null
   loading: boolean
   saving: boolean
-  error: string | null
+  error: WorkspacePersistenceErrorCode | null
   updateData: (updater: (current: WorkspaceData) => WorkspaceData) => Promise<void>
   setActiveProject: (projectId?: string) => Promise<void>
   replaceWith: (workspace: WorkspaceData) => Promise<void>
@@ -15,5 +15,10 @@ export interface WorkspaceContextValue {
   refresh: () => Promise<void>
   clearError: () => void
 }
+
+export type WorkspacePersistenceErrorCode =
+  | 'workspace-conflict'
+  | 'workspace-unavailable'
+  | 'save-failed'
 
 export const WorkspaceContext = createContext<WorkspaceContextValue | null>(null)

@@ -4,9 +4,11 @@
 
 JSON export and import provide backup, inspection, and migration for a browser-local workspace. They are not cloud synchronization and do not make the exported file encrypted.
 
+Verified public `main` currently implements portable workspace v3. The local-workspace registry and `.sociologydesk` encrypted-backup sections below describe the unmerged Phase 3C candidate. Its final local automated gate, real-browser smoke, and independent P0/P1 review passed; Pull Request, exact-head CI, merge, exact-`main` CI, Pages, and public interaction remain pending.
+
 ## Export envelope
 
-A portable export should contain:
+An ordinary portable JSON export contains:
 
 - application identifier;
 - portable format version;
@@ -15,6 +17,25 @@ A portable export should contain:
 - validated collections of supported research objects.
 
 It should not contain analytics IDs, machine credentials, secrets, source file contents, or a hidden remote identifier. Local path references may still be sensitive and should be reviewed before sharing.
+
+Ordinary JSON is plaintext even when it was exported from an unlocked encrypted workspace. The UI must warn before producing it; the `.json` path remains useful for inspection and migration but is not an encrypted backup.
+
+Before either export path is generated, the active snapshot and registry route are refreshed and the registry's canonical `displayName` is copied into the output payload. This export-only copy does not rewrite the active research database or advance `workspace.revision`. Best-effort `lastExportedAt` bookkeeping happens separately in registry metadata and may advance only `registryRevision`.
+
+## Encrypted `.sociologydesk` backup
+
+The Phase 3C candidate defines a separate encrypted-backup container v1. It is not a portable JSON envelope renamed with a custom extension:
+
+- the file extension is `.sociologydesk` and the encrypted-backup purpose is authenticated in its protected header;
+- the payload is a complete, strictly validated portable-v3 workspace;
+- each backup uses a fresh PBKDF2 salt and AES-GCM IV, independent from the local vault and every other backup;
+- the protected header intentionally omits workspace name, logical/binding ID, and research timestamp, although the authenticated/decrypted portable payload contains the canonical exported workspace name;
+- the exact transport wrapper uses canonical JSON field order (`protected`, `iv`, `ciphertext`) and canonical unpadded base64url, but its contents are an authenticated ciphertext container rather than inspectable portable JSON;
+- the wrapper/header is rejected if fields, bytes, encoding, size, or versions are missing, unknown, noncanonical, or unsupported;
+- authentication, complete portable-v3 validation, and workspace-identity checks happen before any destination registry or database write;
+- restore always creates a new logical workspace ID and a new encrypted-vault binding; it never overwrites the source workspace merely because the backup carries the same decrypted identity.
+
+The protected header is limited to 8 KiB and ciphertext to 64 MiB. Content is not compressed. The operating system and filesystem can still expose file name, size, location, and file timestamps. There is no password reset or recovery key.
 
 ## Import sequence
 
@@ -26,6 +47,8 @@ It should not contain analytics IDs, machine credentials, secrets, source file c
 6. Report the exact result; do not treat skipped or failed records as imported.
 
 Malformed or incompatible input must not produce a partial workspace.
+
+When ordinary JSON carries a different workspace ID, the local-workspace flow creates a new personal workspace with a new local route rather than writing through the currently bound repository. Same-workspace import may use the existing previewed merge or explicit replacement semantics. Encrypted restore always uses the authenticated restore-as-new path described above.
 
 ## Merge mode
 
@@ -64,6 +87,52 @@ Malformed legacy graph fields are rejected rather than silently discarded. Unsup
 
 Unsupported future versions should fail safely with an actionable message. Old supported formats should migrate through tested transformations.
 
+### Independent Phase 3C version axes
+
+The candidate does not advance portable workspace beyond v3:
+
+| Version domain | Candidate version | Scope |
+| --- | ---: | --- |
+| Portable workspace | 3 | Plaintext research payload and JSON import/export |
+| Standard workspace database | 3 | Per-workspace 17-table IndexedDB adapter |
+| Registry database | 1 | Plaintext routing/recovery metadata only |
+| Encrypted-vault database | 1 | One ciphertext record and CAS coordinates |
+| Encrypted container / backup | 1 | Local-vault and encrypted-backup cryptographic envelopes with distinct authenticated purposes |
+
+These numbers are not the package version. A future change to cryptography, the registry, or portable semantics must advance the affected axis explicitly rather than reinterpret v1/v3 in place.
+
+## Legacy singleton migration
+
+The previous physical singleton database is named `sociology-phd-desk`. Phase 3C migration treats it as a recovery source, not a target to mutate:
+
+1. Discover and read the supported v1/v2/v3 source without changing it.
+2. Compose the existing database/portable migrations into one valid portable-v3 snapshot.
+3. Reserve a fresh opaque standard-workspace target only after checking registry routes, conversion/recovery locators, migration ledgers, reserved names, and physical existence; an unknown or aliased database is never cleared for reuse.
+4. Write the complete snapshot, close/reopen the physical target, read it back, validate it, and compare it semantically with the source.
+5. Re-read the legacy source and publish a ready registry route only if its identity, revision, and complete content are unchanged; otherwise record a recoverable failure and retain the source.
+6. A repeated bootstrap recognizes the same source identity/revision and returns the same verified result. Concurrent first boots use deterministic seed routes and convergent provisioning rather than duplicating personal/demo workspaces.
+
+The legacy database is never automatically deleted. A migration cannot classify arbitrary user data as the bundled demo: only the exact pristine synthetic fixture is `demo`. An edited legacy demo is migrated as `personal`, and bootstrap creates a separate pristine demo with a non-colliding deterministic identity. On a fresh installation, empty personal and synthetic demo workspaces are likewise provisioned separately.
+
+## Standard-to-encrypted conversion
+
+Conversion is a two-stage operation coordinated per physical workspace:
+
+1. Under a cross-tab-safe exclusive lock, refresh the latest standard snapshot, preflight a fresh encrypted database name, and durably attach an `encryptedConversion` reservation to the standard route **before** target creation. Create the vault, read back its actual ciphertext, authenticate/decrypt it, strictly validate portable v3, compare it semantically, and re-read the still-current standard source. Only then promote the registry route to encrypted mode and record the standard source as retained.
+2. After a later successful encrypted reopen, the user may request separate plaintext cleanup. Pending research writes are flushed first. The manager then requires the current unlocked encrypted session and takes stable lexically ordered exclusive locks on the encrypted target and plaintext source using their actual physical database names. While both locks remain held, it refreshes/authenticates the current vault, rechecks the route, proves that the source database name is not shared or aliased, and reads the source identity before deletion. Failure before or during physical deletion leaves the source recorded as pending. Failure after physical deletion but before registry finalization may leave a conservative `cleanup-pending` marker until an idempotent retry verifies absence. Even successful IndexedDB deletion is logical deletion, not a secure-erasure guarantee.
+
+The reservation makes interrupted staging explicit:
+
+- if the reserved vault exists, a retry must authenticate it with the supplied passphrase, verify the logical workspace identity, and compare it with the current standard source before it can be promoted;
+- if an existing staged vault is to be discarded, the passphrase and identity proof are still required before deleting that vault;
+- if physical inspection confirms that the reserved vault is absent, the empty reservation may be cleared without a passphrase before a new target is reserved.
+
+A stale standard session may not recreate or write the old database after promotion or cleanup. Missing standard storage, a missing encrypted-vault record, authenticated tamper, route invalidation, or manager close poisons the relevant session and clears its cached snapshot. Encrypted async operations carry a lifecycle generation across each storage/crypto await; close or lock advances it, so a delayed refresh fails closed instead of repopulating a closed runtime. If the browser cannot provide cross-tab-safe destructive coordination, conversion, cleanup, and deletion fail closed. Random logical IDs, non-bootstrap locators/tokens, encrypted bindings, salts, and IVs also fail closed when cryptographically secure randomness is unavailable.
+
+## Workspace deletion recovery
+
+Workspace deletion publishes a `deleting` registry tombstone before touching physical storage. Database-name ownership and workspace identity are rechecked, only the owned database is removed, and the registry entry is finalized only after absence is verified. Bootstrap automatically retries unresolved tombstones when cross-tab-safe locking is available; otherwise they stay discoverable in Workspace Center with an explicit retry action. This recovery state reports what the application has verified and is not a secure-erasure claim.
+
 ## Research-graph deletion safety
 
 Portable validation rejects missing link endpoints, cross-project links, and duplicate Claim–ResearchQuestion pairs before any write. Repository replacement and merge use the same relationship validation.
@@ -88,3 +157,18 @@ A question or claim referenced by `ClaimQuestionLink` is protected from deletion
 - database or validation failure does not leave partial state;
 - demo markers and relationship IDs survive round trip;
 - sensitive-path warning is visible in the UI.
+- idempotent v1/v2/v3 legacy-singleton copy, physical read-back, semantic equality, and failure retention;
+- target-storage collision, orphaned target, interrupted provisioning, and retry behavior without deleting an unrelated database;
+- deterministic concurrent bootstrap convergence and edited-legacy-demo classification as personal beside a separate pristine demo;
+- fresh empty personal workspace and separate exact synthetic demo workspace, including demo-only reset and deleted-demo behavior;
+- same entity IDs in separate physical databases remain isolated and cross-workspace endpoints are rejected;
+- stale standard sessions cannot recreate or modify plaintext after conversion, cleanup, or deletion;
+- encrypted local/backup round trips, independent salt/IV generation, wrong-passphrase and tamper generic failures, strict canonical wrapper parsing, and authentication-before-write;
+- lock, reload, auto-lock, lock-epoch delayed-write rejection, and cross-tab route transition behavior;
+- plaintext JSON export from standard/encrypted workspaces remains visibly distinct from `.sociologydesk` encrypted backup;
+- canonical registry-name export copies do not persist a domain rename or advance the workspace-data revision;
+- encrypted restore creates a new logical workspace identity and wrong-password/corrupt restore creates no registry or vault record;
+- interrupted encrypted conversion requires authentication before retry/discard of an existing target, while a confirmed-absent target can be cleared without a passphrase;
+- retained plaintext is removed only through a current authenticated encrypted session plus source-identity/alias checks; cleanup/deletion failures retain UI-discoverable recoverable state.
+
+See the bilingual threat model for what portability and encryption do not protect: [中文](zh-CN/privacy-model.md) / [English](en/privacy-model.md).

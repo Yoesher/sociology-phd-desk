@@ -22,6 +22,7 @@ import type {
 import { migrateV2ResearchGraphCollections } from '../utils/workspace-transfer'
 
 export const DATABASE_SCHEMA_VERSION = 3 as const
+export const LEGACY_DATABASE_NAME = 'sociology-phd-desk' as const
 
 const databaseStoresV1 = {
   workspaces: '&id, updatedAt',
@@ -111,5 +112,10 @@ export class SociologyPhdDeskDatabase extends Dexie {
   }
 }
 
-/** The single browser-local database used by the application. */
-export const db = new SociologyPhdDeskDatabase()
+/**
+ * Opens a database adapter without introducing a module-level runtime
+ * singleton. Phase 3C binds each repository instance to one physical database.
+ */
+export function createWorkspaceDatabase(databaseName: string): SociologyPhdDeskDatabase {
+  return new SociologyPhdDeskDatabase(databaseName)
+}

@@ -8,7 +8,7 @@ Manage the full research lifecycle—from literature and fieldwork to quantitati
 
 **Live demo:** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
 
-> **Early public software:** the latest formal release remains `v0.1.0`; `main` and the live demo also contain merged but unreleased Phase 3A / 3B work, with evidence and limitations recorded in [PROJECT_STATE.md](PROJECT_STATE.md). The project has not yet been tested by external researchers. Do not use it as the only copy of irreplaceable research material. Public availability or a Star does not imply adoption.
+> **Early public software:** the latest formal release remains `v0.1.0`; `main` and the live demo also contain merged but unreleased Phase 3A / 3B work. Phase 3C private local workspaces currently exist only on an unmerged candidate branch: the Pull Request, CI, `main`, and Pages gates have not passed, and the feature is not in the public demo. Evidence and limitations are recorded in [PROJECT_STATE.md](PROJECT_STATE.md). The project has not yet been tested by external researchers. Do not use it as the only copy of irreplaceable research material. Public availability or a Star does not imply adoption.
 
 ## Why Sociology PhD Desk?
 
@@ -63,6 +63,21 @@ Phase 3B was merged into `main` through [PR #11](https://github.com/Yoesher/soci
 
 This is not a new-version release claim: Phase 3B is merged and deployed but remains `Unreleased`; the formal release and package version remain `v0.1.0` / `0.1.0`. Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) remains OPEN. Its explicit Evidence↔Claim relationship is not part of Phase 3B, and v3 does not add an evidence `claimId`. The public URL returned HTTP 200 and its deployed asset names/hashes matched the final local build; real public interaction smoke was not run because browser control returned `instances=[]`, so that check is not reported as passing. See [PROJECT_STATE.md](PROJECT_STATE.md) for the evidence record.
 
+### Phase 3C local candidate (not merged or released)
+
+The local candidate for Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) replaces one ambiguous singleton database with an explicit local registry and separate physical databases. It is not a sign-in system and does not create network accounts:
+
+- Ordinary personal workspaces and the explicitly synthetic demo workspace are stored separately. An entity in one workspace cannot refer to an entity in another. Concurrent first boots converge on the same deterministic initial routes instead of creating duplicate seed workspaces.
+- A **standard local workspace** stores queryable research tables as plaintext structures in IndexedDB. Its interface lock hides the application UI but does not encrypt those tables.
+- An **encrypted local workspace** uses browser Web Crypto PBKDF2-HMAC-SHA-256 and AES-256-GCM to store the complete portable-v3 workspace as authenticated ciphertext. Neither passphrase nor derived key is persisted; reload or lock requires another unlock.
+- The registry keeps display names, timestamps, mode, auto-lock setting, migration state, and opaque storage locators in plaintext so it can select and recover local workspaces. It does not contain research content, passphrases, derived keys, or content verifiers. Its display name is canonical: export copies that name into the generated JSON or encrypted-backup payload without rewriting active research data or advancing the workspace-data revision.
+- Ordinary JSON export remains **plaintext** portable v3. Encrypted backup uses a distinct, versioned `.sociologydesk` container. Container v1, portable v3, standard database v3, registry database v1, and encrypted-vault database v1 are independent version axes.
+- Legacy-singleton migration and standard-to-encrypted conversion are non-destructive staged operations. Only an exactly pristine synthetic fixture remains a demo; an edited legacy demo migrates as personal data and a separate pristine demo is created.
+- Conversion durably reserves its target locator before creating the encrypted vault. If an interrupted target still exists, either continuing conversion or discarding that target requires passphrase authentication and a workspace-identity check. Only a confirmed-absent target allows the empty reservation to be cleared without a passphrase. After route promotion, plaintext cleanup flushes queued writes first, then requires the currently unlocked session and rereads the encrypted vault plus verifies the source identity while both physical databases are locked.
+- Deletion first leaves a recoverable registry marker. Bootstrap retries it automatically, and unresolved items remain visible in Workspace Center with an explicit retry action. Every such browser deletion is logical deletion, not secure erasure.
+
+There is no cloud password reset or recovery key. Applications deployed at different paths under one GitHub Pages origin also share an origin trust boundary; separate browser databases are not separate security origins. Read the [English privacy and encryption model](docs/en/privacy-model.md); [中文版](docs/zh-CN/privacy-model.md). These capabilities remain a local candidate and do not establish delivery on public `main`, the live demo, or a new release.
+
 ## Why sociology-specific?
 
 The product is for sociology doctoral researchers first: quantitative, qualitative, mixed-methods, and theoretical work, including population, labour, family, organizational, and youth research. Adjacent empirical researchers may find it useful, but the product will not trade away its sociology identity for generic productivity features.
@@ -78,15 +93,16 @@ A proposed feature should answer a simple question: **does it solve a distinctiv
 
 ## Local-first and privacy
 
-- Core research records are stored in the browser with IndexedDB.
+- Core research records are stored in the browser with IndexedDB. Separate workspaces use separate physical databases, but remain inside one Web-origin trust boundary.
 - No account, default cloud synchronization, analytics, or third-party tracker is required.
 - Local file fields are references; the application is not a secure vault for source datasets or transcripts.
-- JSON export is the portability and backup path. Store exports in a location appropriate to their sensitivity.
+- Standard workspaces and ordinary JSON exports are plaintext. Only an explicitly encrypted workspace or `.sociologydesk` backup uses application-layer encryption.
+- Workspace names, timestamps, mode, auto-lock state, and opaque storage-locator metadata remain visible in the plaintext registry. Encryption does not hide approximate database or backup size.
 - AI is not a core dependency. Any future AI suggestion must remain visibly separate from source evidence.
 
-Local-first does **not** mean risk-free. Browser storage can be cleared, devices can fail, and exported workspaces can contain sensitive notes. Maintain encrypted backups and follow your institution's research-ethics, consent, retention, and data-protection requirements.
+Local-first does **not** mean risk-free. Browser storage can be cleared, devices can fail, an unlocked workspace can be read by malicious same-origin code or a compromised device, and ordinary JSON may contain sensitive notes. An interface lock is not encryption, and deleting IndexedDB is not verifiable secure erasure. Maintain and test appropriate backups and follow your institution's research-ethics, consent, retention, and data-protection requirements.
 
-Read [Security](SECURITY.md) and the [research ethics guidance](docs/research-workflows/research-ethics.md) before entering fieldwork or interview metadata.
+Read [Security](SECURITY.md), the [privacy and encryption model](docs/en/privacy-model.md), and the [research ethics guidance](docs/research-workflows/research-ethics.md) before entering fieldwork or interview metadata.
 
 ## Screenshots
 
@@ -136,13 +152,15 @@ These commands are also the required CI sequence. A command is not considered pa
 
 ### Back up or move a workspace
 
-Use the in-app JSON export action and inspect the destination before sharing the file. On import, validate the preview and choose the intended merge behavior. Replacement must be an explicit action; it must never happen silently.
+Ordinary JSON export is an inspectable, portable, **plaintext** workspace. Treat it according to its most sensitive record, and inspect the destination before sharing the file. On import, validate the preview and choose the intended merge behavior. Replacement must be an explicit action; it must never happen silently.
 
 The current merged implementation exports portable v3 and continues to accept supported v1 and v2 files by applying the explicit v1 → v2 → v3 transformation before the same strict validation. See [data portability](docs/data-portability.md) for migration details and the research-graph boundary.
 
+The Phase 3C candidate adds `.sociologydesk` encrypted backup for encrypted workspaces. It is a separate container-v1 format, not ordinary JSON with a different extension. Restore authenticates and validates the entire backup before creating an independent workspace with a new logical workspace ID. A wrong passphrase or damaged ciphertext writes no destination workspace. See [data portability](docs/data-portability.md) and the [privacy and encryption model](docs/en/privacy-model.md) for the format and failure boundaries.
+
 ## Architecture
 
-The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith. Merged Phase 3B adds research questions, analytical claims, and their explicit links within this boundary while preserving project scope and protected deletion.
+The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith. Merged Phase 3B adds research questions, analytical claims, and their explicit links. The Phase 3C candidate adds a metadata-only registry, per-workspace database adapters, a session gate, and a Web Crypto vault outside the domain workspace; portable workspace remains v3.
 
 See [architecture overview](docs/architecture/overview.md), [data model](docs/architecture/data-model.md), and [decisions](DECISIONS.md).
 
@@ -165,7 +183,7 @@ Researchers, research software engineers, designers, and documentation contribut
 
 **Do not store directly identifying participant information here.** Use aliases and anonymous identifiers such as `participant_id`, `case_id`, and `interview_id`. Do not enter names, phone numbers, government identifiers, precise home addresses, signatures, or complete consent forms.
 
-Sociology PhD Desk is a workflow tool, not an ethics review, consent-management, de-identification, encryption, or institutional repository system. Researchers remain responsible for lawful and ethical use.
+Sociology PhD Desk is a workflow tool, not an ethics review, consent-management, de-identification, or institutional repository system. Optional application-layer encryption does not establish institutional approval, legal compliance, or absolute protection on a compromised device. Researchers remain responsible for lawful and ethical use.
 
 ## Project integrity
 

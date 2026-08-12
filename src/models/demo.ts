@@ -20,6 +20,8 @@ import type {
 } from './domain'
 
 const DEMO_PROJECT_ID = 'demo-project-employment-mobility'
+export const DEMO_WORKSPACE_ID = 'sociology-phd-desk-demo-workspace'
+export const DEMO_WORKSPACE_DISPLAY_NAME = 'Sociology PhD Desk — Demo Workspace'
 const DEMO_RESEARCH_QUESTION_ID = 'demo-question-employment-mobility'
 const DEMO_LITERATURE_CLAIM_ID = 'demo-claim-literature-proposition'
 const DEMO_QUANTITATIVE_CLAIM_ID = 'demo-claim-quantitative-expectation'
@@ -402,8 +404,8 @@ export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {
     exportedAt: timestamp,
     workspace: {
       ...entityMetadata,
-      id: 'sociology-phd-desk-demo-workspace',
-      name: 'Sociology PhD Desk — Demo Workspace',
+      id: DEMO_WORKSPACE_ID,
+      name: DEMO_WORKSPACE_DISPLAY_NAME,
       description:
         'A fully synthetic orientation workspace. It contains no real citations, people, research data, findings, or submissions.',
       activeProjectId: DEMO_PROJECT_ID,
@@ -431,4 +433,57 @@ export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {
     submissions,
     reviewerComments,
   }
+}
+
+function canonicalDemoValue(value: unknown, topLevel = false): unknown {
+  if (Array.isArray(value)) {
+    const normalized = value.map((item) => canonicalDemoValue(item))
+    if (
+      normalized.every(
+        (item) =>
+          typeof item === 'object' &&
+          item !== null &&
+          !Array.isArray(item) &&
+          typeof (item as Record<string, unknown>)['id'] === 'string',
+      )
+    ) {
+      return [...normalized].sort((left, right) =>
+        String((left as Record<string, unknown>)['id']).localeCompare(
+          String((right as Record<string, unknown>)['id']),
+        ),
+      )
+    }
+    return normalized
+  }
+  if (typeof value !== 'object' || value === null) return value
+
+  const record = value as Record<string, unknown>
+  return Object.fromEntries(
+    Object.keys(record)
+      .filter((key) => !(topLevel && key === 'exportedAt'))
+      .sort()
+      .map((key) => [key, canonicalDemoValue(record[key])]),
+  )
+}
+
+/**
+ * Only an exact, untouched bundled fixture is classified as a pristine demo.
+ * A mixed or edited legacy workspace must be retained as personal research.
+ */
+export function isPristineDemoWorkspace(workspace: WorkspaceData): boolean {
+  if (
+    workspace.workspace.id !== DEMO_WORKSPACE_ID ||
+    workspace.workspace.revision !== 0 ||
+    !workspace.workspace.isDemo
+  ) {
+    return false
+  }
+
+  const createdAt = new Date(workspace.workspace.createdAt)
+  if (Number.isNaN(createdAt.getTime())) return false
+  const expected = createDemoWorkspace(createdAt)
+  return (
+    JSON.stringify(canonicalDemoValue(workspace, true)) ===
+    JSON.stringify(canonicalDemoValue(expected, true))
+  )
 }
