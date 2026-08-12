@@ -1,6 +1,6 @@
 # Screenshot Register
 
-These captures document the `0.1.0` application interface. They are screenshots of the running application, not design mockups, and their privacy review was repeated before public release.
+These captures document the running application rather than design mockups. The `v0.2.0` set was captured from the actual release candidate; the earlier `0.1.0` set remains available as historical release evidence.
 
 ## Capture rules
 
@@ -10,6 +10,30 @@ These captures document the `0.1.0` application interface. They are screenshots 
 - Capture the actual release candidate and record the privacy review here.
 
 ## Registered captures
+
+### `v0.2.0` release candidate
+
+- Application/package version: `0.2.0`
+- Candidate branch: `release/0.2.0`
+- Navigation base: merged PR #20, exact `main` `1cbedd2f045c99e40f71bbec434c5c14cae7bb58`
+- Capture date: 2026-08-12
+- Browser review width: 1280 CSS pixels
+- Release boundary: candidate only; no `v0.2.0` tag or GitHub Release is claimed
+
+| File | View | Privacy review |
+| --- | --- | --- |
+| [`v0.2.0/01-today-zh.jpg`](v0.2.0/01-today-zh.jpg) | Chinese Today research desk | 1265 × 712; PASS — bundled synthetic Demo only |
+| [`v0.2.0/02-navigation-expanded-zh.jpg`](v0.2.0/02-navigation-expanded-zh.jpg) | Expanded Chinese two-level navigation | 1265 × 712; PASS — no personal workspace or research material |
+| [`v0.2.0/03-theory-overview-zh.jpg`](v0.2.0/03-theory-overview-zh.jpg) | Chinese Theory Research overview | 1265 × 712; PASS — minimal synthetic theory records only |
+| [`v0.2.0/04-theory-concepts-zh.jpg`](v0.2.0/04-theory-concepts-zh.jpg) | Chinese Theory core-concepts view | 1265 × 712; PASS — no real citation, finding, or theory claim |
+| [`v0.2.0/05-research-graph-zh.jpg`](v0.2.0/05-research-graph-zh.jpg) | Chinese Research Question–Claim graph | 1280 × 720; PASS — bundled synthetic graph only |
+| [`v0.2.0/06-publishing-revision-zh.jpg`](v0.2.0/06-publishing-revision-zh.jpg) | Chinese Publishing revision Smart View in its honest empty state | 1265 × 712; PASS — no manuscript, submission, or review content exposed |
+| [`v0.2.0/07-privacy-lock-zh.jpg`](v0.2.0/07-privacy-lock-zh.jpg) | Chinese Privacy Center explaining standard-workspace and lock boundaries | 1280 × 720; PASS — no passphrase, locator, export, or private research content |
+| [`v0.2.0/08-interface-en.jpg`](v0.2.0/08-interface-en.jpg) | Complete English interface | 1265 × 712; PASS — bundled synthetic Demo only |
+
+All eight files are JPEG captures taken from a 1280 × 720 release-candidate viewport. The application content image is 1265 × 712 where the browser reserves scrollbar space and 1280 × 720 for the modal captures. They contain no browser chrome, local machine paths, credentials, notifications, real participant information, or real research data. The empty Revision view is retained because it truthfully demonstrates a derived workflow view without fabricating a submission; the privacy capture documents the standard-workspace boundary rather than implying encrypted storage.
+
+### `0.1.0` historical release
 
 - Application version: `0.1.0`
 - Release reference: [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0), commit `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994`

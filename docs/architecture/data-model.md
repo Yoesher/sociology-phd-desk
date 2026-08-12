@@ -1,6 +1,6 @@
 # Data Model
 
-This document separates verified public `main` [`ca4429f`](https://github.com/Yoesher/sociology-phd-desk/commit/ca4429facfa124e85c3dba37f9ce7da270a82601)—Phase 3B conceptual objects, Phase 3C local-workspace metadata, and portable workspace v3—from the current Phase 3E **local unmerged candidate**, which adds `TheoryMemo` and advances portable/standard storage to v4. Types and migrations in the code are authoritative for a particular revision; reconcile this document whenever the stored schema changes. The formal release remains v0.1.0 until every v0.2.0 gate passes.
+This document describes verified public `main` [`1cbedd2f`](https://github.com/Yoesher/sociology-phd-desk/commit/1cbedd2f045c99e40f71bbec434c5c14cae7bb58), including the Phase 3B conceptual graph, Phase 3C local-workspace metadata, merged Phase 3E `TheoryMemo` and portable/standard v4, and Phase 3F hierarchical navigation plus integrated publishing presentation. Phase 3C's portable/standard v3 baseline remains relevant migration history. Types and migrations in the code are authoritative for a particular revision; reconcile this document whenever the stored schema changes. The `release/0.2.0` candidate has package version `0.2.0`, while the formal GitHub Release remains `v0.1.0` until every `v0.2.0` gate passes.
 
 ## Shared conventions
 
@@ -45,7 +45,7 @@ A migration ledger identifies the legacy database/workspace revision and intende
 
 ### Standard workspace representation
 
-A standard workspace uses one physical IndexedDB database named from an opaque locator. Public `main` uses the schema-v3 17-table domain model; the unmerged Theory candidate uses schema v4 with an eighteenth `theoryMemos` table. Its content is ordinary structured plaintext. A UI lock does not change this representation and must not be described as encryption.
+A standard workspace uses one physical IndexedDB database named from an opaque locator. Current `main` uses the schema-v4 18-table domain model, including `theoryMemos`; Phase 3C originally established the per-workspace boundary at schema v3 with 17 tables. Its content is ordinary structured plaintext. A UI lock does not change this representation and must not be described as encryption.
 
 Every bound repository verifies the logical workspace ID before reads and writes. Once a registry route is converted, deleted, or no longer ready, a stale session rejects the operation, closes, and clears its cached snapshot rather than recreating the missing old database. Physical disappearance or a structurally invalid/mismatched bound database likewise poisons the standard session. Standard writes and destructive transitions are coordinated per storage locator; conversion, plaintext cleanup, and deletion require a cross-tab-safe coordinator.
 
@@ -53,7 +53,7 @@ Every bound repository verifies the logical workspace ID before reads and writes
 
 An encrypted workspace uses a separate schema-v1 vault database containing exactly one authenticated ciphertext record. The record has no research-domain tables or plaintext workspace name. Outside the ciphertext it contains only a fixed record ID, protected format bytes, IV, ciphertext, `storageRevision`, `lockEpoch`, `keyInvocation`, and an encryption-attempt counter used to avoid exceeding/reusing the AES-GCM invocation space.
 
-The decrypted payload is a complete portable `WorkspaceData` snapshot. Public `main` writes portable v3; the candidate writes v4 and accepts authenticated v3 payloads only through explicit in-memory migration plus verified atomic rewrite. The derived key and plaintext snapshot exist only in an unlocked runtime session. Lock advances `lockEpoch` and clears the cooperating application's session state; reload requires a new unlock. Each asynchronous refresh/save/backup/lock path captures a runtime lifecycle generation and checks it after every awaited storage/crypto boundary. Close or lock advances the generation before clearing key/plaintext state, so a delayed decrypt cannot publish its result back into or revive the closed runtime. A missing unique vault record, authenticated tamper, stale storage generation, invalidated route, or manager close likewise poisons/closes the runtime and clears its manager-owned snapshot. This does not guarantee physical memory zeroization or protect an unlocked device/runtime.
+The decrypted payload is a complete portable `WorkspaceData` snapshot. Current `main` writes portable v4 and accepts authenticated v3 payloads only through explicit in-memory migration plus verified atomic rewrite. The derived key and plaintext snapshot exist only in an unlocked runtime session. Lock advances `lockEpoch` and clears the cooperating application's session state; reload requires a new unlock. Each asynchronous refresh/save/backup/lock path captures a runtime lifecycle generation and checks it after every awaited storage/crypto boundary. Close or lock advances the generation before clearing key/plaintext state, so a delayed decrypt cannot publish its result back into or revive the closed runtime. A missing unique vault record, authenticated tamper, stale storage generation, invalidated route, or manager close likewise poisons/closes the runtime and clears its manager-owned snapshot. This does not guarantee physical memory zeroization or protect an unlocked device/runtime.
 
 ### Demo separation
 
@@ -71,7 +71,7 @@ All non-bootstrap logical IDs, opaque storage locators, provisioning tokens, enc
 
 ### Research Project
 
-Fields include project ID, title, short title, topic, method, status, start date, target date, and notes. Since portable v3, research questions are separate objects rather than a `Project.researchQuestion` string; candidate v4 preserves that model.
+Fields include project ID, title, short title, topic, method, status, start date, target date, and notes. Since portable v3, research questions are separate objects rather than a `Project.researchQuestion` string; current v4 preserves that model.
 
 Methods: Quantitative, Qualitative, Mixed Methods, Theoretical.
 
@@ -103,7 +103,7 @@ The interface explains this boundary as: “分析主张是研究过程中形成
 
 Both endpoints must exist and must share the link's project. Cross-project links, missing endpoints, and duplicate claim–question pairs are invalid. The relationship uses stable IDs rather than text, and no relationship is inferred from matching or similar prose.
 
-### Theory memo (Phase 3E local candidate)
+### Theory memo (Phase 3E)
 
 `TheoryMemo` is the only new theory-specific entity. Fields are stable memo ID, project ID, locale-neutral `memoType`, user-authored title and content, arrays of related question/claim/literature IDs, creation/update times, and the shared synthetic/demo marker.
 
@@ -113,7 +113,7 @@ Every related endpoint must exist and share the memo's project. Duplicate IDs wi
 
 ### Task and Today planning
 
-A research task records title, date/deadline, completion state, category, priority, and a required project link. Categories distinguish reading, writing, analysis, fieldwork/interview, submission, the candidate raw value `Theory / Conceptual Work`, and other research work. Today's goals are a short prioritized focus, not a second unbounded task database.
+A research task records title, date/deadline, completion state, category, priority, and a required project link. Categories distinguish reading, writing, analysis, fieldwork/interview, submission, the raw value `Theory / Conceptual Work`, and other research work. Today's goals are a short prioritized focus, not a second unbounded task database.
 
 ### Literature item
 
@@ -159,7 +159,7 @@ Support levels: Strong, Moderate, Weak, Contradictory, Unclear.
 
 A support level is a researcher's documented judgment. It is not an automated truth score. Locator and limitations are essential provenance fields.
 
-Portable v3 introduced retention of the existing `Evidence.claim` text so migration cannot discard or rewrite source context; candidate v4 preserves it unchanged. Phase 3B does not add an evidence `claimId` or an Evidence↔Claim relationship; that remains separate Issue #2 work. Claim–question links and Theory Memo links must never be inferred from evidence text.
+Portable v3 introduced retention of the existing `Evidence.claim` text so migration cannot discard or rewrite source context; current v4 preserves it unchanged. Phase 3B does not add an evidence `claimId` or an Evidence↔Claim relationship; that remains separate Issue #2 work. Claim–question links and Theory Memo links must never be inferred from evidence text.
 
 ### Research log entry
 
@@ -207,7 +207,7 @@ All relationships above are scoped to one portable workspace snapshot and one ph
 
 Prefer archival states for research history. Before deleting an object, identify incoming links and explain the effect. Cascading deletion of research records is unsafe unless the relationship and recovery behavior are explicit and tested.
 
-Research questions and claims use protected deletion: a record with an incoming `ClaimQuestionLink` cannot be deleted until the user explicitly removes that link. In the Theory candidate, incoming memo references likewise protect questions, claims, literature, and projects. Deleting a project is blocked while its questions, claims, claim–question links, or theory memos remain; these records are not silently cascade-deleted.
+Research questions and claims use protected deletion: a record with an incoming `ClaimQuestionLink` cannot be deleted until the user explicitly removes that link. Incoming Theory Memo references likewise protect questions, claims, literature, and projects. Deleting a project is blocked while its questions, claims, claim–question links, or theory memos remain; these records are not silently cascade-deleted.
 
 ## Schema evolution
 
@@ -217,21 +217,21 @@ Research questions and claims use protected deletion: a record with an incoming 
 - Update portable format versions independently when export semantics change.
 - Record durable changes in `DECISIONS.md` and current limitations in `PROJECT_STATE.md`.
 
-The Phase 3E local candidate keeps every version domain separate:
+The current Phase 3E architecture keeps every version domain separate:
 
-| Version domain | Candidate version | Meaning |
+| Version domain | Current version | Meaning |
 | --- | ---: | --- |
-| Portable workspace | 4 | Candidate validated research payload and v1 → v2 → v3 → v4 import/export contract |
-| Standard workspace IndexedDB | 4 | Candidate 18-table model with `theoryMemos` and explicit v3 → v4 upgrade |
+| Portable workspace | 4 | Validated research payload and v1 → v2 → v3 → v4 import/export contract |
+| Standard workspace IndexedDB | 4 | 18-table model with `theoryMemos` and explicit v3 → v4 upgrade |
 | Local workspace registry IndexedDB | 1 | Routing, lifecycle, migration, and cleanup metadata only |
 | Encrypted vault IndexedDB | 1 | One authenticated ciphertext record and CAS coordinates |
 | Encrypted container / `.sociologydesk` | 1 | Authenticated cryptographic envelope; not an application version |
 
 Changing one axis does not automatically change the others or the package version.
 
-### Portable workspace v3 and candidate v4 migration
+### Portable workspace v3 to current v4 migration
 
-- Compose candidate supported upgrades deterministically as v1 → v2 → v3 → v4 rather than skipping version-specific semantics.
+- Compose supported upgrades deterministically as v1 → v2 → v3 → v4 rather than skipping version-specific semantics.
 - Migrate each non-empty legacy `Project.researchQuestion` into a first-class `ResearchQuestion` under the same project, then omit the legacy project field from v3.
 - Preserve every legacy `Evidence.claim` string as source-context text in v3.
 - Create first-class claims from non-empty legacy evidence claim text deterministically within each project. Grouping is allowed only for byte-for-byte equal values after trimming; do not perform semantic or fuzzy merging and do not rewrite the text.

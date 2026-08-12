@@ -4,7 +4,7 @@
 
 JSON export and import provide backup, inspection, and migration for a browser-local workspace. They are not cloud synchronization and do not make the exported file encrypted.
 
-Verified public `main` [`ca4429f`](https://github.com/Yoesher/sociology-phd-desk/commit/ca4429facfa124e85c3dba37f9ce7da270a82601) implements portable workspace v3 plus the Phase 3C local-workspace registry and `.sociologydesk` container. The current Phase 3E **local unmerged candidate** advances portable and standard storage to v4 while keeping encrypted container v1, encrypted-vault database v1, and registry database v1. Candidate final full-suite/build/browser/PR/CI/merge/Pages evidence remains pending; `PROJECT_STATE.md` is the factual gate record.
+Verified public `main` [`1cbedd2`](https://github.com/Yoesher/sociology-phd-desk/commit/1cbedd2f045c99e40f71bbec434c5c14cae7bb58) includes the merged Theory Research, hierarchical navigation, and integrated publishing work. It uses portable and standard storage v4 while encrypted container v1, encrypted-vault database v1, and registry database v1 remain independently versioned. The `release/0.2.0` branch packages this state as a `0.2.0` release candidate; the latest formal GitHub Release remains `v0.1.0`, and the release PR, `v0.2.0` tag, and GitHub Release remain pending. `PROJECT_STATE.md` is the factual gate record.
 
 ## Export envelope
 
@@ -27,7 +27,7 @@ Before either export path is generated, the active snapshot and registry route a
 Phase 3C defines a separate encrypted-backup container v1. It is not a portable JSON envelope renamed with a custom extension:
 
 - the file extension is `.sociologydesk` and the encrypted-backup purpose is authenticated in its protected header;
-- new candidate backups contain a complete, strictly validated portable-v4 workspace; authenticated legacy portable-v3 payloads are supported only through explicit in-memory migration;
+- new backups on current `main` and the release candidate contain a complete, strictly validated portable-v4 workspace; authenticated legacy portable-v3 payloads are supported only through explicit in-memory migration;
 - each backup uses a fresh PBKDF2 salt and AES-GCM IV, independent from the local vault and every other backup;
 - the protected header intentionally omits workspace name, logical/binding ID, and research timestamp, although the authenticated/decrypted portable payload contains the canonical exported workspace name;
 - the exact transport wrapper uses canonical JSON field order (`protected`, `iv`, `ciphertext`) and canonical unpadded base64url, but its contents are an authenticated ciphertext container rather than inspectable portable JSON;
@@ -69,9 +69,9 @@ Replace is a separate destructive operation. It must:
 
 Database schema and portable format versions solve different problems. An internal IndexedDB migration need not change the portable format if its meaning is unchanged; an export semantic change may require a new portable version even without a database migration.
 
-Public `main` uses IndexedDB schema v3 and portable workspace v3. The unmerged Theory candidate advances both axes to v4 for its new `theoryMemos` collection, but they remain independent versions and are unrelated to the unchanged package version `0.1.0`.
+Public `main` uses IndexedDB schema v4 and portable workspace v4, including the `theoryMemos` collection merged in Phase 3E. These axes remain independent from each other and from the `0.2.0` release-candidate package version.
 
-Candidate portable import composes supported migration explicitly as v1 → v2 → v3 → v4:
+Current portable import composes supported migration explicitly as v1 → v2 → v3 → v4:
 
 1. v1 → v2 supplies the application discriminator and initial optimistic revision that the pre-release v1 envelope did not contain.
 2. v2 → v3 removes the legacy `Project.researchQuestion` field after creating a stable-ID `ResearchQuestion` under the same project for each non-empty value.
@@ -90,14 +90,14 @@ Malformed legacy graph or theory fields are rejected rather than silently discar
 
 Unsupported future versions should fail safely with an actionable message. Old supported formats should migrate through tested transformations.
 
-### Independent candidate version axes
+### Independent current version axes
 
-Phase 3C shipped the v3/v3/v1/v1/v1 baseline. The current local candidate changes only the first two axes:
+Phase 3C established the v3/v3/v1/v1/v1 baseline. Merged Phase 3E advanced only the first two axes to v4; current `main` and the release candidate use:
 
-| Version domain | Candidate version | Scope |
+| Version domain | Current version | Scope |
 | --- | ---: | --- |
-| Portable workspace | 4 | Candidate plaintext research payload and JSON import/export |
-| Standard workspace database | 4 | Candidate per-workspace 18-table IndexedDB adapter |
+| Portable workspace | 4 | Current plaintext research payload and JSON import/export |
+| Standard workspace database | 4 | Current per-workspace 18-table IndexedDB adapter |
 | Registry database | 1 | Plaintext routing/recovery metadata only |
 | Encrypted-vault database | 1 | One ciphertext record and CAS coordinates |
 | Encrypted container / backup | 1 | Local-vault and encrypted-backup cryptographic envelopes with distinct authenticated purposes |
@@ -142,7 +142,7 @@ Portable validation rejects missing link endpoints, cross-project links, and dup
 
 A question or claim referenced by `ClaimQuestionLink` is protected from deletion until the relationship is explicitly removed. Project deletion is likewise blocked while questions, claims, or link records remain. Import, merge, and replacement must not silently cascade-delete these records or leave orphaned links.
 
-In the candidate, Theory Memo references add the same protection for their project, question, claim, and literature endpoints. Deleting a memo removes only that memo; import, merge, replacement, and deletion must not cascade through its relationships.
+Theory Memo references on current `main` add the same protection for their project, question, claim, and literature endpoints. Deleting a memo removes only that memo; import, merge, replacement, and deletion must not cascade through its relationships.
 
 ## Required tests
 

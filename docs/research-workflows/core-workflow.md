@@ -1,6 +1,6 @@
 # Core Sociology Research Workflow
 
-This document explains the research lifecycle the product is intended to coordinate. It does not prescribe a single method or linear research practice.
+This document explains the research lifecycle the product is intended to coordinate. It does not prescribe a single method or linear research practice. Verified public `main` `1cbedd2` includes the merged Theory Research, hierarchical navigation, and integrated Manuscripts & Publishing work; the `release/0.2.0` branch packages it as a `0.2.0` release candidate, while the latest formal GitHub Release remains `v0.1.0`.
 
 ## Lifecycle map
 
@@ -32,7 +32,7 @@ The flow can loop. A reviewer comment can change a model, a field memo can chang
 
 A project supplies scope, method, status, dates, and the organizing question. Tasks, literature, fieldwork, analysis, evidence, logs, manuscripts, and submissions should retain a project link where applicable.
 
-The question is not just a title. First-class questions allow several questions per project and explicit links to claims. The local Theory candidate also lets a project-scoped memo reference same-project questions, claims, and literature without turning text into a foreign key.
+The question is not just a title. First-class questions allow several questions per project and explicit links to claims. The merged Theory implementation also lets a project-scoped memo reference same-project questions, claims, and literature without turning text into a foreign key.
 
 ## Literature
 
@@ -45,7 +45,7 @@ The literature workflow records:
 
 Bibliographic completeness and citation insertion remain Zotero's responsibility. A DOI field is metadata, not proof that the source or citation has been verified.
 
-## Theory Research (local candidate)
+## Theory Research
 
 Theory work is organized around explicit project-scoped memos for concepts, mechanisms, theoretical dialogue, counterarguments, boundary conditions, and synthesis. A memo may link to existing ResearchQuestion, Claim, and Literature records by stable ID; theoretical writing continues in Manuscript.
 
@@ -92,10 +92,10 @@ It is a decision audit trail, not a personal diary or automated activity feed.
 
 ## Manuscript, submission, and revision
 
-The manuscript pipeline tracks writing status, target journal, word count, next action, and deadline. A submission records the exact version and editorial state. Reviewer comments are decomposed into a response and revision action with a transparent state, including `Rejected with Rationale` when the author does not adopt a suggestion.
+The merged Manuscripts & Publishing presentation tracks manuscript writing status, target journal, word count, next action, and deadline alongside submission and reviewer workflows while retaining separate underlying entities and histories. A submission records the exact version and editorial state. Reviewer comments are decomposed into a response and revision action with a transparent state, including `Rejected with Rationale` when the author does not adopt a suggestion.
 
 The long-term goal is a reviewer-response matrix connected to manuscript locations, evidence, and revised analysis runs.
 
 ## Today
 
-Today is a cross-cutting view, not a generic todo product. It should surface the current project, up to three meaningful research goals, overdue work, category-specific tasks—including the candidate raw category `Theory / Conceptual Work`—today's research log, and completed work. Every task should link to a project whenever one exists.
+Today is a cross-cutting view, not a generic todo product. It should surface the current project, up to three meaningful research goals, overdue work, category-specific tasks—including the current raw category `Theory / Conceptual Work`—today's research log, and completed work. Every task should link to a project whenever one exists.

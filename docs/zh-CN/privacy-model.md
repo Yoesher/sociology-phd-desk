@@ -4,7 +4,7 @@ Sociology PhD Desk 采用本地优先设计：核心功能不要求账户或云�
 
 下面区分四个容易混淆的保护层级。
 
-版本说明：已核验的公开 `main` `ca4429f` 使用 portable/standard v3。当前 Theory 实现仅为本地未合并候选，它把 portable 与标准存储推进到 v4，而 encrypted container v1、encrypted-vault database v1 和 registry database v1 均保持不变；最终发布门禁仍待完成。
+版本说明：已核验的公开 `main` `1cbedd2` 已包含合并后的理论研究、分层导航与论文投稿整合，并使用 portable/standard v4。`release/0.2.0` 分支把这一状态打包为 `0.2.0` 发布候选；encrypted container v1、encrypted-vault database v1 和 registry database v1 均保持不变。最新正式 GitHub Release 仍是 `v0.1.0`；发布 PR、`v0.2.0` tag 与 GitHub Release 仍待完成。
 
 ## A. 浏览器隔离
 
@@ -30,7 +30,7 @@ Sociology PhD Desk 采用本地优先设计：核心功能不要求账户或云�
 
 加密 `.sociologydesk` 备份会独立于本地工作台以及其他备份重新生成盐和 IV。其受保护头部不含工作台名称、绑定 ID 或研究时间戳，但解密后的 portable 载荷会包含导出时从注册表复制的规范显示名称；普通 JSON 导出也会明文复制同一名称。这种仅用于导出的复制不会重写活动研究快照，也不会增加工作台数据修订号。操作系统和文件系统仍可能暴露文件名、大小、位置和文件时间。恢复时先认证并严格验证整个备份，再使用新的逻辑工作台 ID 创建存储修订号为 0 的独立工作台；认证失败不会写入目标记录。
 
-在本地候选中，新建加密库与备份承载 portable v4。已有 portable-v3 密文必须先通过认证再迁移；本地加密库只有在完整 v4 容器写入并读回核验后才发布新状态。口令错误、篡改、加密失败、存储失败或读回失败都会保留旧密文。恢复 v3 备份只在内存中迁移，认证与完整验证通过后才写入新的 v4 加密库。container、vault database 与 registry database 的版本号仍是 1，不能与 portable 载荷版本混为一谈。
+在当前 `main` 与发布候选中，新建加密库与备份承载 portable v4。已有 portable-v3 密文必须先通过认证再迁移；本地加密库只有在完整 v4 容器写入并读回核验后才发布新状态。口令错误、篡改、加密失败、存储失败或读回失败都会保留旧密文。恢复 v3 备份只在内存中迁移，认证与完整验证通过后才写入新的 v4 加密库。container、vault database 与 registry database 的版本号仍是 1，不能与 portable 载荷版本混为一谈。
 
 新建逻辑 ID、非首次启动的存储定位符与所有权令牌、加密绑定 ID、盐和 IV 都要求浏览器提供密码学安全随机数；缺少该能力时会直接失败。确定性的初始路由只用于让并发首次启动收敛，并不是秘密。
 
