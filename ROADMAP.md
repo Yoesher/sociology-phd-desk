@@ -25,7 +25,7 @@ The product remains sociology-specific and complements, rather than replaces, sp
 
 Phase 3 uses independently verified increments. Listing an increment here does not mean it has shipped; verified status remains in [PROJECT_STATE.md](PROJECT_STATE.md).
 
-**Current finalization scope:** Phase 3A, Phase 3B, Phase 3C, Phase 3E, and Phase 3F are complete on `main`; navigation PR #20 squash-merged as [`1cbedd2f`](https://github.com/Yoesher/sociology-phd-desk/commit/1cbedd2f045c99e40f71bbec434c5c14cae7bb58) and exact-main CI/Pages passed. The Phase 3D China Research Map source/compliance review remains a merged documentation-only deferral; Issue #8 is `CLOSED_NOT_PLANNED`, all four map gates remain **BLOCKED**, and no map asset or implementation shipped. Feature freeze is active on `release/0.2.0`; package `0.2.0`, local automated gates, and eight synthetic-Demo screenshots are ready, while the release PR, final exact-main/public gates, tag, and GitHub Release remain pending. See the retained bilingual source register: [简体中文](docs/zh-CN/map-data-sources.md) / [English](docs/en/map-data-sources.md).
+**Current release scope:** Phase 3A, Phase 3B, Phase 3C, Phase 3E, and Phase 3F are included in formal [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0), published from exact release SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db) after release PR #21, exact-main CI, Pages, annotated tag, and Release gates passed. The Phase 3D China Research Map source/compliance review remains a documentation-only deferral; Issue #8 is `CLOSED_NOT_PLANNED`, all four map gates remain **BLOCKED**, and no map asset or implementation shipped. No `v0.3.0` work has started. See the retained bilingual source register: [简体中文](docs/zh-CN/map-data-sources.md) / [English](docs/en/map-data-sources.md).
 
 Every implemented increment follows the same evidence chain: scoped Issue → dedicated feature branch → implementation and tests → Pull Request → passing PR CI → maintainer self-review → squash merge → passing `main` CI → GitHub Pages verification. The map's blocked gate applies to the map alone; each non-map increment must pass its own complete gate before the next begins.
 
@@ -40,7 +40,7 @@ Every implemented increment follows the same evidence chain: scoped Issue → de
 
 - Promote Research Question and Claim to first-class, versioned domain objects rather than storing them only as incidental text.
 - Represent the explicit, inspectable many-to-many relationship between research questions and analytical claims with stable IDs and same-project integrity.
-- Keep the merged research-graph v3 migration and introduce candidate schema v4 only through explicit v1 → v2 → v3 → v4 migration, import/export compatibility, graph/theory integrity, and protected-delete tests.
+- Keep the merged research-graph v3 migration and advance to released schema v4 only through explicit v1 → v2 → v3 → v4 migration, import/export compatibility, graph/theory integrity, and protected-delete tests.
 - Preserve legacy question and claim text through deterministic migration without semantic matching, automatic rewriting, or inferred claim-to-question links.
 - Keep this work focused on research traceability; it is not a generic visual knowledge-graph editor.
 
@@ -62,15 +62,15 @@ Every implemented increment follows the same evidence chain: scoped Issue → de
 
 The 2026-08-12 review found every mandatory map gate blocked. China Research Map is deferred and excluded from `v0.2.0`; the retained evidence prevents an unverified substitute dataset or fabricated UI from shipping. If source and approval conditions change in a later release cycle, the feature may be reconsidered only after all four gates are independently verified.
 
-### Phase 3E — Theory Research workspace (complete on `main`; unreleased)
+### Phase 3E — Theory Research workspace (released in `v0.2.0`)
 
 - The merged implementation adds one first-class `TheoryMemo` object for conceptual definitions, mechanisms, theoretical dialogue, counterarguments, boundary conditions, and synthesis while reusing existing ResearchQuestion, Claim, Literature, and Manuscript objects.
 - Every memo relationship is stable-ID based, same-project, locale-neutral, explicit, duplicate-free, and deletion-protected; UI prompts guide reasoning but never become stored research content automatically.
 - Portable and standard workspace data advance through explicit v1 → v2 → v3 → v4 migration. Encrypted container v1, encrypted-vault database v1, and registry database v1 remain independent; authenticated portable-v3 ciphertext and backups upgrade only after authentication and verification.
 - The merged implementation provides Chinese and English Theory views, full memo CRUD, project/type/date filters, the stable `Theory / Conceptual Work` task category, and two clearly synthetic demo memos.
-- PR #18 passed final-head CI, P0 = 0 / P1 = 0 self-review, squash merge, exact-main CI, and Pages deployment. It remains unreleased until `v0.2.0` stabilization completes.
+- PR #18 passed final-head CI, P0 = 0 / P1 = 0 self-review, squash merge, exact-main CI, and Pages deployment; it is included in `v0.2.0`.
 
-### Phase 3F — Hierarchical navigation and information architecture (complete on `main`; unreleased)
+### Phase 3F — Hierarchical navigation and information architecture (released in `v0.2.0`)
 
 - Organize primary navigation around research-work domains and secondary navigation around workflows or derived smart views within those domains.
 - Keep the main sidebar to at most two levels; concrete projects, manuscripts, interviews, regions, and other objects continue their drill-down in the content area.
@@ -79,15 +79,15 @@ The 2026-08-12 review found every mandatory map gate blocked. China Research Map
 - Preserve old routes, deep links, keyboard and screen-reader semantics, responsive access, both languages, and unchanged user-authored content through the navigation migration.
 - PR #20 passed exact-head CI and P0 = 0 / P1 = 0 self-review, squash-merged as `1cbedd2f`, closed Issue #19, and passed exact-main CI plus Pages. Complete public interaction verification remained limited by a browser-bridge timeout and is not recorded as a full PASS.
 
-### Phase 3G — Stabilization and v0.2.0 release
+### Phase 3G — Stabilization and v0.2.0 release (complete)
 
-- Feature freeze is active after the navigation merge. Only P0/P1 release bugs, documentation, screenshots, version/changelog, accessibility, migration, security, and release-process fixes may enter the candidate.
-- `release/0.2.0` carries package `0.2.0`, reconciled candidate documentation, and eight privacy-reviewed screenshots from the real 1280-wide candidate using only synthetic Demo data.
+- Feature freeze was active after the navigation merge; only release-scoped changes entered the candidate.
+- `release/0.2.0` carried package `0.2.0`, reconciled documentation, and eight privacy-reviewed screenshots from the real 1280-wide candidate using only synthetic Demo data.
 - Integrate and audit the research graph, Theory, private/encrypted workspaces, navigation, publishing, accessibility, responsive, migration, and bilingual boundaries as a whole.
 - Run migration paths, import/export, protected deletion, local workspace isolation and encryption checks where implemented, production builds, browser smoke tests, and the complete CI and Pages release gate.
 - Reconcile bilingual documentation, architecture decisions, privacy records, retained map deferral evidence, changelog, project state, screenshots, and release notes with the verified revision.
-- Open and merge the release PR only with P0 = 0 / P1 = 0, then pass exact-main CI/Pages/public verification.
-- Create the `v0.2.0` annotated tag and formal release only after all remaining release gates pass; do not move the existing `v0.1.0` tag.
+- Release PR #21 passed exact-head CI and P0 = 0 / P1 = 0 review, then squash-merged as exact `main` `eb399f7`; exact-main CI and Pages passed, and public browser verification recorded its explicit LIMITED PASS boundary.
+- Annotated `v0.2.0` and the latest non-draft/non-prerelease formal Release point to exact release SHA `eb399f7`; existing `v0.1.0` remains unmoved. Stop after closeout and do not begin `v0.3.0` without separate scope.
 
 ## `0.1.0` — usable local foundation
 

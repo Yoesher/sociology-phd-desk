@@ -6,11 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-No user-visible changes recorded after the `v0.2.0` release candidate was cut.
+No user-visible changes recorded after the `v0.2.0` release.
 
 ## [0.2.0] - 2026-08-12
-
-> Release-candidate record: package version `0.2.0` and the feature set are frozen. This changelog entry does not claim that the annotated tag or GitHub Release exists; those remain gated on the release Pull Request, exact-`main` CI/Pages, and public verification.
 
 ### Added
 

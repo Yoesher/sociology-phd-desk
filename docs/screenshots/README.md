@@ -18,7 +18,7 @@ These captures document the running application rather than design mockups. The 
 - Navigation base: merged PR #20, exact `main` `1cbedd2f045c99e40f71bbec434c5c14cae7bb58`
 - Capture date: 2026-08-12
 - Browser review width: 1280 CSS pixels
-- Release boundary: candidate only; no `v0.2.0` tag or GitHub Release is claimed
+- Capture boundary: these files were recorded before publication from the candidate; the resulting [`v0.2.0` Release](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) is published at exact release SHA `eb399f7da0a1f3142f7c8361492fa86b08db77db`
 
 | File | View | Privacy review |
 | --- | --- | --- |

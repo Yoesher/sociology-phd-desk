@@ -4,7 +4,7 @@ Sociology PhD Desk is local-first: its core does not require an account or a clo
 
 This page separates four protection levels that are easy to confuse.
 
-Version note: verified public `main` `1cbedd2` includes merged Theory Research, hierarchical navigation, and integrated publishing and stores portable/standard v4. The `release/0.2.0` branch packages this state as a `0.2.0` release candidate, while encrypted container v1, encrypted-vault database v1, and registry database v1 remain unchanged. The latest formal GitHub Release remains `v0.1.0`; the release PR, `v0.2.0` tag, and GitHub Release remain pending.
+Version note: published [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0), at exact release SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db), includes Theory Research, hierarchical navigation, and integrated publishing and stores portable/standard v4. Encrypted container v1, encrypted-vault database v1, and registry database v1 remain unchanged.
 
 ## A. Browser isolation
 
@@ -30,7 +30,7 @@ The encrypted vault record still exposes non-research coordination values: a ran
 
 An encrypted `.sociologydesk` backup uses a fresh salt and IV independently of the local workspace and of every other backup. Its protected header has no workspace name, binding ID, or research timestamp, but its decrypted portable payload includes the canonical registry display name copied at export time. Ordinary JSON export makes the same name copy in plaintext. These export-only copies do not rewrite the active research snapshot or advance its workspace-data revision. The operating system and filesystem can still reveal the file name, size, location, and file timestamps. Restoring first authenticates and validates the whole backup and then creates a workspace with a new logical workspace ID and storage revision zero; a failed authentication writes no destination record.
 
-On current `main` and the release candidate, new vaults and backups contain portable v4. Existing portable-v3 ciphertext is authenticated before any migration. Local-vault upgrade writes and reads back a complete v4 container before publishing the new state; wrong passphrase, tamper, encryption failure, storage failure, or read-back failure leaves the old ciphertext available. Restoring a v3 backup migrates only in memory and writes a new v4 vault only after authentication and complete validation. The container, vault-database, and registry-database version numbers remain 1; they must not be confused with the portable payload version.
+On the exact `v0.2.0` release revision, new vaults and backups contain portable v4. Existing portable-v3 ciphertext is authenticated before any migration. Local-vault upgrade writes and reads back a complete v4 container before publishing the new state; wrong passphrase, tamper, encryption failure, storage failure, or read-back failure leaves the old ciphertext available. Restoring a v3 backup migrates only in memory and writes a new v4 vault only after authentication and complete validation. The container, vault-database, and registry-database version numbers remain 1; they must not be confused with the portable payload version.
 
 New logical IDs, non-bootstrap storage locators and ownership tokens, encrypted binding IDs, salts, and IVs require cryptographically secure browser randomness and fail closed if it is unavailable. Deterministic initial routes only coordinate concurrent first boot and are not secrets.
 
