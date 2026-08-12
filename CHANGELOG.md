@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-> Candidate boundary: the Phase 3D compliance closeout is merged and deployed at exact `main` `ca4429f`; it contains no map implementation. The Theory entries below describe the current local unmerged candidate. Its latest exact-tree independent audit recorded P0 = 0 / P1 = 0, but final full-suite, build, browser, PR/CI, merge, exact-`main`, Pages, and public-verification gates remain pending.
+> Candidate boundary: the Phase 3D compliance closeout is merged and deployed at exact `main` `ca4429f`; it contains no map implementation. The Theory entries below describe unmerged PR #18. Local full-suite, build, browser, and initial exact-head push/PR CI passed; final corrected-head CI, maintainer review, merge, exact-`main`, Pages, and public-verification gates remain pending.
 
 ### Added
 
@@ -82,7 +82,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Encrypted storage cannot protect an unlocked session from hostile same-origin code, compromised dependencies or extensions, malware, administrators, screenshots, clipboard capture, or operating-system compromise.
 - Phase 3C is merged and deployed but remains unreleased; it is not part of the formal `v0.1.0` release.
 - The China Research Map is deferred and excluded from `v0.2.0` after its official-source review found no verified combination of source scope, public-redistribution rights, project-specific approval metadata, and testable national completeness. No production map asset or implementation has shipped; the recorded gate blocks the map itself, not the non-map release work.
-- Theory Research remains a local unmerged candidate. Final full automated, build, browser, review, PR/CI, merge, exact-`main`, Pages, and public-verification evidence is still pending; hierarchical navigation remains blocked until those gates pass.
+- Theory Research remains an unmerged PR #18 candidate. Local automated/build/browser gates and initial exact-head push/PR CI passed; corrected-head CI, maintainer review, merge, exact-`main`, Pages, and public verification remain pending. Hierarchical navigation remains blocked until those gates pass.
 
 ## [0.1.0] - 2026-08-11
 
