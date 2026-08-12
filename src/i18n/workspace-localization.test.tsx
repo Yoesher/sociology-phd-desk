@@ -177,7 +177,7 @@ describe('workspace localization boundaries', () => {
     const chineseNav = screen.getByRole('navigation', {
       name: messages['zh-CN']['navigation.aria'],
     })
-    expect(within(chineseNav).getAllByRole('link')).toHaveLength(9)
+    expect(within(chineseNav).getAllByRole('link')).toHaveLength(10)
     for (const item of navigationItems) {
       expect(
         within(chineseNav).getByRole('link', { name: messages['zh-CN'][item.labelKey] }),
@@ -192,7 +192,7 @@ describe('workspace localization boundaries', () => {
     await user.click(within(topbar).getByRole('button', { name: 'English' }))
 
     const englishNav = screen.getByRole('navigation', { name: messages.en['navigation.aria'] })
-    expect(within(englishNav).getAllByRole('link')).toHaveLength(9)
+    expect(within(englishNav).getAllByRole('link')).toHaveLength(10)
     for (const item of navigationItems) {
       expect(
         within(englishNav).getByRole('link', { name: messages.en[item.labelKey] }),

@@ -257,7 +257,7 @@ describe('workspace repository', () => {
     const persisted = await getWorkspaceSnapshot()
 
     expect(result.added.projects).toBe(1)
-    expect(result.skipped.projects).toBe(1)
+    expect(result.skipped.projects).toBe(current.projects.length)
     expect(result.preservedWorkspace).toBe(true)
     expect(persisted?.projects.find((item) => item.id === originalProject.id)?.title).toBe(
       'Local title must win',
@@ -398,6 +398,7 @@ describe('workspace repository', () => {
     incoming.researchQuestions = []
     incoming.claims = []
     incoming.claimQuestionLinks = []
+    incoming.theoryMemos = []
     incoming.tasks = []
     incoming.literature = []
     incoming.fieldSites = [{ ...collidingSite, projectId: incomingProjectId }]
@@ -426,6 +427,110 @@ describe('workspace repository', () => {
     expect(persisted?.projects).toEqual(current.projects)
     expect(persisted?.fieldSites).toEqual(current.fieldSites)
     expect(persisted?.interviews).toEqual(current.interviews)
+  })
+
+  it('persists, counts, and merges a new theory memo', async () => {
+    const current = await initializeWorkspace(createDemoWorkspace(firstAnchor))
+    const incoming = structuredClone(current)
+    const source = incoming.theoryMemos[0]
+    if (!source) throw new Error('Expected a demo theory memo.')
+    incoming.theoryMemos.push({
+      ...source,
+      id: 'incoming-theory-memo',
+      memoType: 'synthesis',
+      title: 'Imported synthesis memo',
+      content: 'An explicit imported memo body.',
+    })
+
+    const result = await mergeWorkspace(incoming)
+    const persisted = await getWorkspaceSnapshot()
+
+    expect(result.added.theoryMemos).toBe(1)
+    expect(result.skipped.theoryMemos).toBe(current.theoryMemos.length)
+    expect(
+      persisted?.theoryMemos.some((memo) => memo.id === 'incoming-theory-memo'),
+    ).toBe(true)
+    expect(await db.theoryMemos.count()).toBe(current.theoryMemos.length + 1)
+  })
+
+  it('atomically rejects a colliding theory memo with different semantic identity', async () => {
+    const current = await initializeWorkspace(createDemoWorkspace(firstAnchor))
+    const incoming = structuredClone(current)
+    const memo = incoming.theoryMemos[0]
+    if (!memo) throw new Error('Expected a demo theory memo.')
+    memo.content = 'A different body must not be skipped under the same memo ID.'
+    incoming.theoryMemos.push({
+      ...incoming.theoryMemos[1]!,
+      id: 'memo-that-must-not-commit',
+      title: 'This addition must roll back',
+    })
+    expect(validateWorkspace(incoming).success).toBe(true)
+
+    await expect(mergeWorkspace(incoming)).rejects.toBeInstanceOf(
+      WorkspaceValidationError,
+    )
+
+    const persisted = await getWorkspaceSnapshot()
+    expect(persisted?.theoryMemos).toEqual(current.theoryMemos)
+    expect(persisted?.workspace.revision).toBe(current.workspace.revision)
+  })
+
+  it('protects a question, claim, and literature item while a memo references them', async () => {
+    const current = await initializeWorkspace(createDemoWorkspace(firstAnchor))
+    const memo = current.theoryMemos[0]
+    const theoryProjectId = memo?.projectId
+    const theoryClaim = current.claims.find((claim) => claim.projectId === theoryProjectId)
+    const theoryQuestion = current.researchQuestions.find(
+      (question) => question.projectId === theoryProjectId,
+    )
+    const sourceLiterature = current.literature[0]
+    if (!memo || !theoryClaim || !theoryQuestion || !sourceLiterature) {
+      throw new Error('Expected related theory records.')
+    }
+
+    const withLiterature = structuredClone(current)
+    const theoryLiterature = {
+      ...sourceLiterature,
+      id: 'theory-literature-for-delete-protection',
+      projectId: theoryProjectId,
+      title: 'Theory literature deletion-protection fixture',
+    }
+    withLiterature.literature.push(theoryLiterature)
+    withLiterature.theoryMemos[0]!.relatedLiteratureIds = [theoryLiterature.id]
+    await replaceWorkspace(withLiterature, current.workspace.revision)
+    const persistedWithLinks = await getWorkspaceSnapshot()
+    if (!persistedWithLinks) throw new Error('Expected persisted workspace.')
+
+    const deletions = [
+      () => {
+        const invalid = structuredClone(persistedWithLinks)
+        invalid.researchQuestions = invalid.researchQuestions.filter(
+          (question) => question.id !== theoryQuestion.id,
+        )
+        return invalid
+      },
+      () => {
+        const invalid = structuredClone(persistedWithLinks)
+        invalid.claims = invalid.claims.filter((claim) => claim.id !== theoryClaim.id)
+        return invalid
+      },
+      () => {
+        const invalid = structuredClone(persistedWithLinks)
+        invalid.literature = invalid.literature.filter(
+          (item) => item.id !== theoryLiterature.id,
+        )
+        return invalid
+      },
+    ]
+
+    for (const invalid of deletions.map((create) => create())) {
+      await expect(
+        replaceWorkspace(invalid, persistedWithLinks.workspace.revision),
+      ).rejects.toBeInstanceOf(WorkspaceValidationError)
+    }
+    expect((await getWorkspaceSnapshot())?.theoryMemos).toEqual(
+      persistedWithLinks.theoryMemos,
+    )
   })
 
   it('supports project CRUD through the typed Dexie table', async () => {

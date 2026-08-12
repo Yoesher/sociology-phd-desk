@@ -6,7 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+> Candidate boundary: the Phase 3D compliance closeout is merged and deployed at exact `main` `ca4429f`; it contains no map implementation. The Theory entries below describe unmerged PR #18. Local full-suite, build, browser, and initial exact-head push/PR CI passed; final corrected-head CI, maintainer review, merge, exact-`main`, Pages, and public-verification gates remain pending.
+
 ### Added
+
+- A bilingual Theory Research workspace that reuses Research Questions, Claims, Literature, and Manuscripts while adding project-scoped Theory Memos for concepts, mechanisms, dialogue, counterarguments, boundary conditions, and synthesis.
+- UI-only structured theory prompts, complete Theory Memo CRUD with explicit stable-ID links, the locale-neutral `Theory / Conceptual Work` task category, and a minimal clearly synthetic Theory demo.
 
 - A metadata-only local workspace registry with explicit create, select, rename, lock, export, and delete workflows, plus physically separate databases for each personal or synthetic-demo workspace.
 - Standard local workspaces and optional encrypted local workspaces, with a workspace access gate that unmounts research routes while locked and auto-lock choices of Never, 5, 15, 30, or 60 minutes.
@@ -27,7 +32,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
-- Replaced the runtime singleton-database assumption with session-bound standard/encrypted repository adapters while keeping portable workspace data at v3.
+- Advanced portable workspaces and standard per-workspace IndexedDB storage from v3 to v4 by adding the `theoryMemos` collection. Supported migration now composes explicitly as v1 → v2 → v3 → v4 without inferring research content.
+- Kept encrypted container v1, encrypted-vault database v1, and registry database v1 independent from portable v4. Existing authenticated portable-v3 ciphertext and backups upgrade only after authentication and read-back verification.
+
+- Replaced the runtime singleton-database assumption with session-bound standard/encrypted repository adapters. Phase 3C initially kept portable data at v3; the current unmerged Theory candidate advances portable and standard storage to v4.
 - Moved the bundled synthetic demo into its own local workspace and made fresh-install personal data empty. Concurrent first boots converge on deterministic seed routes; only an exact pristine legacy fixture remains demo, while an edited legacy demo is personal data beside a separate pristine demo.
 - Made legacy singleton discovery and standard-to-encrypted conversion staged and non-destructive: physical targets are preflighted, a conversion target is reserved before creation, and a destination must be read back, strictly validated, and semantically matched before its route is published, while old plaintext remains recorded until a later cleanup action.
 - Kept ordinary JSON import/export as the inspectable plaintext portability path; encrypted backup now has a separate container version and custom extension.
@@ -49,6 +57,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Preserve legacy `Evidence.claim` source-context text during migration rather than silently rewriting or discarding it.
 - Preserved user-authored research content exactly during language changes; no automatic translation is performed.
 - Recorded a permanent compliance gate requiring authoritative, legally usable provenance before any public China Research Map boundary asset can ship.
+- Merged the Phase 3D documentation-only closeout as `ca4429f`, closed Issue #8 as `not planned`, and kept every map gate BLOCKED; no map asset, catalog, service call, or implementation shipped.
 
 ### Privacy
 
@@ -59,10 +68,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Migration
 
+- Added strict v3 → v4 migration that introduces only `theoryMemos: []`; it never converts research logs, notes, or other text into theory memos.
+
 - Added idempotent v1/v2/v3 legacy-singleton copy and read-back verification without automatically deleting the source `sociology-phd-desk` database.
 - Added separately recorded `retained`, `cleanup-pending`, and `removed` plaintext-source states for migration and standard-to-encrypted recovery.
 - Added `encryptedConversion` target reservations and `deleting` tombstone recovery: existing staged ciphertext needs passphrase/identity proof before retry or discard, confirmed-absent staging can be cleared without a passphrase, and unresolved deletion remains available to bootstrap and explicit UI retry.
-- Kept portable workspace v3, standard IndexedDB schema v3, registry database schema v1, encrypted-vault database schema v1, and encrypted container v1 as independent version axes.
+- Advanced candidate portable workspace and standard IndexedDB storage to v4 while keeping registry database schema v1, encrypted-vault database schema v1, and encrypted container v1 as independent version axes.
 
 ### Known limitations
 
@@ -71,6 +82,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Encrypted storage cannot protect an unlocked session from hostile same-origin code, compromised dependencies or extensions, malware, administrators, screenshots, clipboard capture, or operating-system compromise.
 - Phase 3C is merged and deployed but remains unreleased; it is not part of the formal `v0.1.0` release.
 - The China Research Map is deferred and excluded from `v0.2.0` after its official-source review found no verified combination of source scope, public-redistribution rights, project-specific approval metadata, and testable national completeness. No production map asset or implementation has shipped; the recorded gate blocks the map itself, not the non-map release work.
+- Theory Research remains an unmerged PR #18 candidate. Local automated/build/browser gates and initial exact-head push/PR CI passed; corrected-head CI, maintainer review, merge, exact-`main`, Pages, and public verification remain pending. Hierarchical navigation remains blocked until those gates pass.
 
 ## [0.1.0] - 2026-08-11
 

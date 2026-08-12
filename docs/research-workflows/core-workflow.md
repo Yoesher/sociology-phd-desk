@@ -9,6 +9,8 @@ Project and research question
           ↓
 Literature relevance and theoretical judgment
           ↓
+Theory memo: concept / mechanism / dialogue / boundary
+          ↓
 Research design
    ↙ qualitative        quantitative ↘
 Field site / interview   dataset / variable / model
@@ -30,7 +32,7 @@ The flow can loop. A reviewer comment can change a model, a field memo can chang
 
 A project supplies scope, method, status, dates, and the organizing question. Tasks, literature, fieldwork, analysis, evidence, logs, manuscripts, and submissions should retain a project link where applicable.
 
-The question is not just a title. Future first-class question objects should allow several questions per project and connect them to literature and evidence.
+The question is not just a title. First-class questions allow several questions per project and explicit links to claims. The local Theory candidate also lets a project-scoped memo reference same-project questions, claims, and literature without turning text into a foreign key.
 
 ## Literature
 
@@ -42,6 +44,14 @@ The literature workflow records:
 - whether that judgment enters an argument.
 
 Bibliographic completeness and citation insertion remain Zotero's responsibility. A DOI field is metadata, not proof that the source or citation has been verified.
+
+## Theory Research (local candidate)
+
+Theory work is organized around explicit project-scoped memos for concepts, mechanisms, theoretical dialogue, counterarguments, boundary conditions, and synthesis. A memo may link to existing ResearchQuestion, Claim, and Literature records by stable ID; theoretical writing continues in Manuscript.
+
+The workflow supports defining a concept, specifying a mechanism, comparing authors or traditions, testing an alternative explanation, stating scope conditions, and synthesizing an argument. Structured prompt questions are interface guidance only. They never insert or generate stored prose, and migration never turns logs, notes, claims, or reading annotations into theory memos.
+
+All linked endpoints must belong to the memo's project. Missing, duplicate, or cross-project links are invalid. Remove a relationship explicitly before deleting its endpoint; deleting a memo preserves every linked research object. The synthetic demo is explanatory only and makes no claim about real sources, findings, or theoretical validity.
 
 ## Fieldwork and interviews
 
@@ -88,4 +98,4 @@ The long-term goal is a reviewer-response matrix connected to manuscript locatio
 
 ## Today
 
-Today is a cross-cutting view, not a generic todo product. It should surface the current project, up to three meaningful research goals, overdue work, category-specific tasks, today's research log, and completed work. Every task should link to a project whenever one exists.
+Today is a cross-cutting view, not a generic todo product. It should surface the current project, up to three meaningful research goals, overdue work, category-specific tasks—including the candidate raw category `Theory / Conceptual Work`—today's research log, and completed work. Every task should link to a project whenever one exists.

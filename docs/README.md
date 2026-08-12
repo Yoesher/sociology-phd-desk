@@ -2,6 +2,8 @@
 
 This directory contains durable product, architecture, workflow, release, and project-integrity documentation.
 
+Current status boundary: public `main`/Pages are verified through `ca4429f` and contain no Theory implementation or map feature. Theory/v4 documentation describes the current local unmerged candidate. Its latest exact-tree audit recorded P0 = 0 / P1 = 0, but final full-suite, build, browser, PR/CI, merge, and Pages gates remain pending. See [`../PROJECT_STATE.md`](../PROJECT_STATE.md).
+
 ## Architecture
 
 - [Architecture overview](architecture/overview.md)

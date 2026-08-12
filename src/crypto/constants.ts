@@ -1,5 +1,12 @@
 export const ENCRYPTED_CONTAINER_VERSION = 1 as const
-export const ENCRYPTED_PAYLOAD_VERSION = 3 as const
+export const LEGACY_ENCRYPTED_PAYLOAD_VERSION = 3 as const
+export const ENCRYPTED_PAYLOAD_VERSION = 4 as const
+export const SUPPORTED_ENCRYPTED_PAYLOAD_VERSIONS = [
+  LEGACY_ENCRYPTED_PAYLOAD_VERSION,
+  ENCRYPTED_PAYLOAD_VERSION,
+] as const
+export type SupportedEncryptedPayloadVersion =
+  (typeof SUPPORTED_ENCRYPTED_PAYLOAD_VERSIONS)[number]
 
 export const LOCAL_WORKSPACE_PURPOSE = 'encrypted-local-workspace' as const
 export const ENCRYPTED_BACKUP_PURPOSE = 'encrypted-backup' as const

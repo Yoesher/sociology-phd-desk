@@ -13,6 +13,14 @@ export type WorkspaceKind = (typeof WORKSPACE_KINDS)[number]
 export const WORKSPACE_ENCRYPTION_MODES = ['standard', 'encrypted'] as const
 export type WorkspaceEncryptionMode = (typeof WORKSPACE_ENCRYPTION_MODES)[number]
 
+export const LEGACY_WORKSPACE_SCHEMA_VERSION = 3 as const
+export const SUPPORTED_WORKSPACE_SCHEMA_VERSIONS = [
+  LEGACY_WORKSPACE_SCHEMA_VERSION,
+  WORKSPACE_SCHEMA_VERSION,
+] as const
+export type SupportedWorkspaceSchemaVersion =
+  (typeof SUPPORTED_WORKSPACE_SCHEMA_VERSIONS)[number]
+
 export const WORKSPACE_REGISTRY_STATES = [
   'provisioning',
   'ready',
@@ -69,7 +77,7 @@ export interface WorkspaceRegistryEntry {
   updatedAt: ISODateTime
   lastOpenedAt?: ISODateTime
   /** Version of the portable WorkspaceData payload stored by this workspace. */
-  schemaVersion: typeof WORKSPACE_SCHEMA_VERSION
+  schemaVersion: SupportedWorkspaceSchemaVersion
   /** Internal schema of the selected storage adapter. */
   storageSchemaVersion: number
   /** Optimistic revision for registry-only metadata changes. */

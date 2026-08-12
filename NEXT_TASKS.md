@@ -57,21 +57,26 @@
 - [x] Record the 2026-08-12 gate honestly: `MAP_SOURCE_VERIFIED=BLOCKED`, `MAP_LICENSE_VERIFIED=BLOCKED`, `MAP_APPROVAL_METADATA=BLOCKED`, and `NATIONAL_MAP_COMPLETENESS=BLOCKED/NOT TESTABLE`.
 - [x] Keep the blocked branch free of map geometry, production administrative master data, external map services, unverified region persistence, and fabricated national-map UI.
 - [x] Open documentation-only [Draft PR #16](https://github.com/Yoesher/sociology-phd-desk/pull/16), pass its recorded exact-head CI checks, and retain the [P0 = 0 / P1 = 0 documentation review](https://github.com/Yoesher/sociology-phd-desk/pull/16#issuecomment-5261353262) without changing any map gate to PASS.
-- [ ] Reconcile the final exact PR head so the audit remains `BLOCKED` while explicitly deferring and excluding China Research Map from `v0.2.0`; keep the diff documentation-only and pass CI.
-- [ ] Mark PR #16 ready, complete an exact-head maintainer self-review, and squash-merge the compliance record without describing it as a map implementation.
-- [ ] Close Issue #8 as `not planned` with a maintainer note explaining the unverified open-repository/Pages source, redistribution, transformation, and approval chain and the conditions for a future reopen.
-- [ ] Preserve the future map requirements—written redistribution rights, project-specific approval, authoritative hierarchy, county-level privacy boundary, and full national completeness—but do not implement or continue source hunting in this release cycle.
+- [x] Reconcile the final exact PR head so the audit remains `BLOCKED` while explicitly deferring and excluding China Research Map from `v0.2.0`; keep the diff documentation-only and pass CI.
+- [x] Mark PR #16 ready, complete an exact-head maintainer self-review, and squash-merge the compliance record as [`ca4429f`](https://github.com/Yoesher/sociology-phd-desk/commit/ca4429facfa124e85c3dba37f9ce7da270a82601) without describing it as a map implementation.
+- [x] Close Issue #8 with reason `not planned`; retain the unverified open-repository/Pages source, redistribution, transformation, and approval chain plus future-reopen conditions in the bilingual source register.
+- [x] Verify exact-`main` [CI run 31567658853 / job 94022736509](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31567658853/job/94022736509) and [Pages run 31567658866](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31567658866), build job `94022736462`, deploy job `94022889244`, and deployment `5863903867` on exact `ca4429f`.
+- [x] Preserve the future map requirements—written redistribution rights, project-specific approval, authoritative hierarchy, county-level privacy boundary, and full national completeness—but do not implement or continue source hunting in this release cycle.
 
 ## P0 — Phase 3E Theory Research workspace
 
-- [ ] Search for or create `feat: add a theory research workspace for conceptual sociology`, then branch `feat/theory-research-workspace` from the latest verified `main` after the documentation closeout.
-- [ ] Add only `TheoryMemo` as a new research entity; reuse ResearchQuestion, Claim, Literature, and Manuscript with stable, same-project ID relationships and protected deletion.
-- [ ] Implement complete bilingual Theory CRUD and views for overview, questions/propositions, concepts, mechanisms, dialogue, counterarguments/boundaries, all memos, and theoretical manuscripts. Keep structured prompts UI-only.
-- [ ] Add the locale-neutral Theory task category and minimal clearly synthetic demo memos without converting old tasks, logs, or notes.
-- [ ] Advance portable and standard workspace schemas to v4 with explicit v1 → v2 → v3 → v4 migration; keep encrypted container v1 independent and support authenticated encrypted portable-v3 workspace and backup migration without damaging old ciphertext on failure.
-- [ ] Pass clean install, lint, typecheck, full tests, build, bilingual desktop/mobile real-browser verification, exact PR CI, self-review, squash merge, exact-`main` CI, and Pages before navigation work begins.
+- [x] Create Theory Research Issue [#17](https://github.com/Yoesher/sociology-phd-desk/issues/17), then branch `feat/theory-research-workspace` from exact verified `main` `ca4429facfa124e85c3dba37f9ce7da270a82601` after the documentation closeout.
+- [x] Assemble the local candidate with only `TheoryMemo` as a new research entity; reuse ResearchQuestion, Claim, Literature, and Manuscript with stable, same-project ID relationships and protected deletion. **Local candidate only; not merged or deployed.**
+- [x] Assemble complete bilingual Theory CRUD and views for overview, questions/propositions, concepts, mechanisms, dialogue, counterarguments/boundaries, all memos, and theoretical manuscripts. Keep structured prompts UI-only. **Local candidate only; not merged or deployed.**
+- [x] Add the locale-neutral Theory task category and minimal clearly synthetic demo memos without converting old tasks, logs, or notes. **Local candidate only; not merged or deployed.**
+- [x] Advance candidate portable and standard workspace schemas to v4 with explicit v1 → v2 → v3 → v4 migration; keep encrypted container, encrypted-vault database, and registry database at v1; support authenticated encrypted portable-v3 workspace and backup migration without damaging old ciphertext on failure. **Local candidate only; not merged or deployed.**
+- [x] Freeze the final shared revision with P0 = 0 / P1 = 0; pass lint with zero warnings, typecheck, 25 files / 249 tests, production build, diff/relative-link/secret/private-path QA, and real Chinese/English desktop plus 390 × 844 mobile Theory smoke. Browser QA covered CRUD, same-project links, UI-only prompts, preserved user text, task filtering, reload, standard/encrypted isolation, lock/wrong-pass/correct-unlock/reload-lock, no horizontal overflow, zero console warnings/errors, and complete synthetic-workspace cleanup. Old encrypted-backup restore was not run manually and remains automated-test evidence.
+- [x] Open Theory [PR #18](https://github.com/Yoesher/sociology-phd-desk/pull/18) after the local gate passed; its initial head `b478875587982d51b049100333c0dfc44c2f5ceb` passed [push CI 31575636028 / job 94047000462](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31575636028/job/94047000462) and [PR CI 31575666773 / job 94047095608](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31575666773/job/94047095608).
+- [ ] Pass exact-head CI again after the PR evidence correction; complete maintainer P0/P1 review, merge, exact-`main` CI, Pages, and public verification before any navigation work begins.
 
 ## P0 — Phase 3F hierarchical navigation and integrated publishing, only after Theory passes
+
+**BLOCKED:** do not implement or open this phase while any Phase 3E final automated, browser, review, PR/CI, merge, exact-`main`, Pages, or public-verification gate remains pending.
 
 - [ ] Implement at most two sidebar levels: primary research-work domains and secondary workflows or derived smart views.
 - [ ] Keep secondary navigation decoupled from database enums; do not add persisted states merely to mirror menu labels.

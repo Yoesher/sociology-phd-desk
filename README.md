@@ -8,7 +8,7 @@
 
 **在线演示：** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
 
-> **早期公开软件：** 当前正式 Release 仍是 `v0.1.0`；`main` 与在线演示还包含已经合并但尚未发布的 Phase 3A / 3B / 3C 功能。Phase 3C 本地私密工作空间已经通过 Pull Request、CI、`main` 与 Pages 门禁并部署，但尚未形成新 Release。核验证据与限制记录在 [PROJECT_STATE.md](PROJECT_STATE.md)。项目尚未经过外部研究者测试。请勿把不可替代的研究材料只保存在本软件中；公开可用或获得 Star 不代表已经获得真实采用。
+> **早期公开软件：** 当前正式 Release 仍是 `v0.1.0`。公开 `main` 与 Pages 已核验到 [`ca4429f`](https://github.com/Yoesher/sociology-phd-desk/commit/ca4429facfa124e85c3dba37f9ce7da270a82601)，包含已合并但尚未发布的 Phase 3A / 3B / 3C，以及不含地图实现的 Phase 3D 合规收口。下面的 Theory Research 功能目前仅存在于本地未合并候选；尽管最近一次 exact-tree 独立审计记录为 P0 = 0 / P1 = 0，它仍尚未通过最终全量测试、生产构建、真实浏览器、PR/CI、合并或 Pages 门禁，也不在在线演示中。核验证据与限制见 [PROJECT_STATE.md](PROJECT_STATE.md)。项目尚未经过外部研究者测试；请勿把不可替代的研究材料只保存在本软件中。公开可用或获得 Star 不代表已经获得真实采用。
 
 ## 为什么需要 Sociology PhD Desk？
 
@@ -69,14 +69,26 @@ Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) 的已合�
 
 - 普通个人工作台与明确标注的合成演示工作台分别存储；一个工作台内的实体不能引用另一个工作台的实体。并发的首次启动会收敛到同一组确定性初始路由，而不是各自创建重复工作台。
 - **标准本地工作台**把可查询的研究表以明文结构保存在 IndexedDB。界面锁定只隐藏应用界面，不会加密这些表。
-- **加密本地工作台**使用浏览器 Web Crypto 的 PBKDF2-HMAC-SHA-256 与 AES-256-GCM，把完整 portable v3 工作台保存为经过认证的密文；口令和派生密钥不持久化，重新加载或锁定后需要再次解锁。
+- **加密本地工作台**使用浏览器 Web Crypto 的 PBKDF2-HMAC-SHA-256 与 AES-256-GCM 保存经过认证的完整工作台密文；公开 `main` 载荷为 portable v3，本地 Theory 候选的新写入为 portable v4。口令和派生密钥不持久化，重新加载或锁定后需要再次解锁。
 - 注册表为了本地选择和恢复会明文保存工作台显示名称、时间、模式、自动锁定设置、迁移状态与不透明存储定位符；它不保存研究正文、口令、派生密钥或内容校验值。注册表显示名称是当前规范名称；导出时只把它复制到生成的 JSON 或加密备份载荷，不重写活动研究数据，也不增加工作台数据修订号。
-- 普通 JSON 导出仍是**明文** portable v3 文件。加密备份使用不同的、版本化的 `.sociologydesk` 容器；container v1 与 portable v3、普通数据库 v3、注册表数据库 v1、加密库数据库 v1 是独立版本轴。
+- 普通 JSON 导出始终是**明文**。公开 `main` 使用 portable/standard v3；本地 Theory 候选使用 portable/standard v4。加密备份使用不同的、版本化的 `.sociologydesk` 容器；container v1、注册表数据库 v1 与加密库数据库 v1 是独立版本轴。
 - 旧单一数据库的迁移和标准工作台转加密都采用非破坏性的分阶段流程。只有完全未改动的合成夹具会继续归类为演示；被编辑过的旧演示会迁移为个人工作台，并另建一个纯净演示工作台。
 - 转换在创建加密库前先持久保留目标定位符。若中断后目标加密库仍存在，继续转换或丢弃该目标都必须用口令认证并核对工作台身份；只有已确认目标不存在时，才可无口令清除空预留。加密路由发布后，明文清理会先提交排队写入，再要求当前已解锁会话，并在同时锁定加密目标与明文来源期间重新读回加密库、核对来源身份。
 - 删除先留下可恢复的登记标记；启动时会自动重试，未完成项也会在工作台中心显示明确的重试入口。所有这些浏览器删除都只是逻辑删除，不等于安全擦除。
 
 遗失口令后没有云端重置或恢复密钥。GitHub Pages 上以不同路径托管的应用也共享来源信任边界；浏览器数据库分离不是独立安全来源。完整边界见[中文隐私与加密模型](docs/zh-CN/privacy-model.md)；[English version](docs/en/privacy-model.md)。上述功能已经进入公开 `main` 与在线演示，但仍属 `Unreleased`，不能据此推断新 Release 已经交付。
+
+### Phase 3E Theory Research（仅本地候选，未合并、未部署）
+
+当前 `feat/theory-research-workspace` 本地候选为概念社会学工作增加一个新实体 `TheoryMemo`，并复用现有 ResearchQuestion、Claim、Literature 与 Manuscript：
+
+- memo 必须属于一个项目，类型为稳定且不随语言变化的 `concept`、`mechanism`、`dialogue`、`counterargument`、`boundary` 或 `synthesis`；
+- memo 可通过稳定 ID 显式关联同一项目的研究问题、主张和文献。缺失端点、跨项目关系以及同一关联数组中的重复 ID 都会被拒绝；被引用端点与项目受到删除保护，删除 memo 不会删除关联对象；
+- 中英文界面提供概览、问题与命题、核心概念、机制、理论对话、反论证与边界条件、全部 memo 和理论稿件视图，以及 memo 的创建、查看、编辑、删除和项目/类型/更新时间筛选；
+- 结构化提示问题只提供界面引导，绝不自动写入正文；理论写作继续使用 Manuscript，任务使用稳定原始值 `Theory / Conceptual Work`；
+- 合成演示仅增加 2 条 Theory Memo；整个 fixture 含 2 个项目、2 个研究问题、3 个主张和 3 条 `ClaimQuestionLink`（经验项目 2 条、理论项目 1 条）。Concept memo 引用 1 个研究问题，Mechanism memo 引用同一问题和 1 个主张，两条 memo 都不引用文献；它不伪造真实文献、发现或理论结论。空白个人工作台不会自动生成这些记录。
+
+该候选把 portable workspace 与标准 IndexedDB 存储推进到 v4；v3 → v4 只增加空的 `theoryMemos` 集合，不从日志、备注或其他文本推断理论内容。encrypted container v1、encrypted-vault database v1 与 registry database v1 保持独立。已有已认证的 portable-v3 密文或备份只有在认证、迁移与读回验证成功后才升级。以上均是**本地候选描述，不是已合并或已部署声明**。
 
 ## 为什么是社会学专用？
 
@@ -154,13 +166,13 @@ CI 也执行这组命令。只有在当前修订上实际成功运行后，才�
 
 普通 JSON 导出是可检查、可迁移的明文 portable workspace；请把它视为其中最敏感记录，并在分享前检查目标文件。导入时请核对预览并选择预期的合并方式。替换必须是明确操作，绝不能静默发生。
 
-当前已合并实现导出 portable v3，并继续接受受支持的 v1、v2 文件，通过显式 v1 → v2 → v3 转换后再执行同一套严格验证。迁移细节与研究图谱边界见[数据迁移说明](docs/data-portability.md)。
+公开 `main` `ca4429f` 仍导出 portable v3。当前未合并 Theory 候选导出 portable v4，并继续接受受支持的 v1、v2、v3 文件，通过显式 v1 → v2 → v3 → v4 转换后再执行同一套严格验证；v3 → v4 只创建空 `theoryMemos` 集合。迁移细节与研究图谱边界见[数据迁移说明](docs/data-portability.md)。
 
 Phase 3C 为加密工作台增加 `.sociologydesk` 加密备份。它是独立的 container v1 格式，而不是换扩展名的普通 JSON；恢复时先认证和验证完整备份，再用新的逻辑工作台 ID 创建独立工作台。口令错误或密文损坏不会写入目标工作台。格式与失败边界见[数据迁移说明](docs/data-portability.md)和[隐私与加密模型](docs/zh-CN/privacy-model.md)。
 
 ## 架构
 
-当前基础采用 React、TypeScript 和 Vite。Dexie 提供 IndexedDB 数据层，Zod 验证可迁移数据，Vitest 覆盖可测试的应用逻辑。持久化与领域逻辑和页面组件保持分离，使研究对象能够演进，而不把应用外壳变成单体组件。已合并的 Phase 3B 在这一边界内增加研究问题、分析主张及其显式关系。已合并的 Phase 3C 在领域工作台之外增加只含路由元数据的注册表、每工作台数据库适配器、会话门与 Web Crypto 加密库；portable workspace 仍保持 v3。
+当前基础采用 React、TypeScript 和 Vite。Dexie 提供 IndexedDB 数据层，Zod 验证可迁移数据，Vitest 覆盖可测试的应用逻辑。持久化与领域逻辑和页面组件保持分离，使研究对象能够演进，而不把应用外壳变成单体组件。已合并的 Phase 3B 在这一边界内增加研究问题、分析主张及其显式关系。已合并的 Phase 3C 在领域工作台之外增加只含路由元数据的注册表、每工作台数据库适配器、会话门与 Web Crypto 加密库。当前未合并 Theory 候选增加 `TheoryMemo`，并将 portable/standard 两条版本轴从 v3 推进到 v4；container/vault/registry 仍各自为 v1。
 
 参阅[架构概览](docs/architecture/overview.md)、[数据模型](docs/architecture/data-model.md)和[架构决策](DECISIONS.md)。
 

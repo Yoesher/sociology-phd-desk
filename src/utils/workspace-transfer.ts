@@ -18,6 +18,7 @@ import {
   SUPPORT_LEVELS,
   TASK_CATEGORIES,
   TASK_STATUSES,
+  THEORY_MEMO_TYPES,
   WORK_PRODUCT_STATUSES,
   WORKSPACE_APPLICATION,
   WORKSPACE_SCHEMA_VERSION,
@@ -139,6 +140,18 @@ const claimQuestionLinkSchema = entityMetadataSchema
     projectId: idSchema,
     claimId: idSchema,
     researchQuestionId: idSchema,
+  })
+  .strict()
+
+const theoryMemoSchema = entityMetadataSchema
+  .extend({
+    projectId: idSchema,
+    memoType: z.enum(THEORY_MEMO_TYPES),
+    title: titleSchema,
+    content: textSchema,
+    relatedQuestionIds: z.array(idSchema),
+    relatedClaimIds: z.array(idSchema),
+    relatedLiteratureIds: z.array(idSchema),
   })
   .strict()
 
@@ -308,6 +321,7 @@ const workspaceDataSchema = z
     researchQuestions: z.array(researchQuestionSchema),
     claims: z.array(claimSchema),
     claimQuestionLinks: z.array(claimQuestionLinkSchema),
+    theoryMemos: z.array(theoryMemoSchema),
     tasks: z.array(taskSchema),
     literature: z.array(literatureSchema),
     fieldSites: z.array(fieldSiteSchema),
@@ -350,6 +364,7 @@ function relationshipIssues(data: WorkspaceData): WorkspaceValidationIssue[] {
     data.researchQuestions.map((question) => [question.id, question]),
   )
   const claimById = new Map(data.claims.map((claim) => [claim.id, claim]))
+  const literatureById = new Map(data.literature.map((item) => [item.id, item]))
   const fieldSiteById = new Map(data.fieldSites.map((site) => [site.id, site]))
   const datasetById = new Map(data.datasets.map((dataset) => [dataset.id, dataset]))
   const manuscriptById = new Map(data.manuscripts.map((manuscript) => [manuscript.id, manuscript]))
@@ -376,6 +391,9 @@ function relationshipIssues(data: WorkspaceData): WorkspaceValidationIssue[] {
     requireProject('researchQuestions', index, record.projectId),
   )
   data.claims.forEach((record, index) => requireProject('claims', index, record.projectId))
+  data.theoryMemos.forEach((record, index) =>
+    requireProject('theoryMemos', index, record.projectId),
+  )
   data.literature.forEach((record, index) => requireProject('literature', index, record.projectId))
   data.fieldSites.forEach((record, index) => requireProject('fieldSites', index, record.projectId))
   data.datasets.forEach((record, index) => requireProject('datasets', index, record.projectId))
@@ -421,6 +439,56 @@ function relationshipIssues(data: WorkspaceData): WorkspaceValidationIssue[] {
       })
     }
     linkedPairs.add(pairKey)
+  })
+
+  data.theoryMemos.forEach((memo, index) => {
+    const validateRelatedIds = <T extends { projectId: string }>(
+      field:
+        | 'relatedQuestionIds'
+        | 'relatedClaimIds'
+        | 'relatedLiteratureIds',
+      ids: string[],
+      recordsById: Map<string, T>,
+      objectLabel: string,
+    ): void => {
+      const seen = new Set<string>()
+      ids.forEach((id, relatedIndex) => {
+        if (seen.has(id)) {
+          issues.push({
+            path: ['theoryMemos', index, field, relatedIndex],
+            message: `Duplicate ${objectLabel} ID "${id}" in this theory memo.`,
+          })
+        }
+        seen.add(id)
+
+        const related = recordsById.get(id)
+        if (!related) {
+          issues.push({
+            path: ['theoryMemos', index, field, relatedIndex],
+            message: `Unknown ${objectLabel} ID "${id}".`,
+          })
+        } else if (related.projectId !== memo.projectId) {
+          issues.push({
+            path: ['theoryMemos', index, field, relatedIndex],
+            message: `The theory memo and its ${objectLabel} belong to different projects.`,
+          })
+        }
+      })
+    }
+
+    validateRelatedIds(
+      'relatedQuestionIds',
+      memo.relatedQuestionIds,
+      researchQuestionById,
+      'research-question',
+    )
+    validateRelatedIds('relatedClaimIds', memo.relatedClaimIds, claimById, 'claim')
+    validateRelatedIds(
+      'relatedLiteratureIds',
+      memo.relatedLiteratureIds,
+      literatureById,
+      'literature',
+    )
   })
 
   data.interviews.forEach((record, index) => {
@@ -752,6 +820,8 @@ export function migrateWorkspaceV1ToV2(input: unknown): unknown {
   }
 }
 
+const WORKSPACE_SCHEMA_VERSION_V3 = 3 as const
+
 /** v2 introduces revisions; v3 introduces the first-class research graph. */
 export function migrateWorkspaceV2ToV3(input: unknown): unknown {
   if (!isRecord(input) || input['version'] !== 2) {
@@ -771,7 +841,7 @@ export function migrateWorkspaceV2ToV3(input: unknown): unknown {
   const projects = input['projects']
   const evidence = input['evidence']
   if (!Array.isArray(projects) || !Array.isArray(evidence)) {
-    return { ...input, version: WORKSPACE_SCHEMA_VERSION }
+    return { ...input, version: WORKSPACE_SCHEMA_VERSION_V3 }
   }
 
   // A v2 project always carried this required field. Keep a malformed legacy
@@ -784,7 +854,7 @@ export function migrateWorkspaceV2ToV3(input: unknown): unknown {
   const graph = migrateV2ResearchGraphCollections(projects, evidence)
   return {
     ...input,
-    version: WORKSPACE_SCHEMA_VERSION,
+    version: WORKSPACE_SCHEMA_VERSION_V3,
     projects: graph.projects,
     researchQuestions: graph.researchQuestions,
     claims: graph.claims,
@@ -792,8 +862,29 @@ export function migrateWorkspaceV2ToV3(input: unknown): unknown {
   }
 }
 
+/** v4 adds an empty TheoryMemo collection without inferring research content. */
+export function migrateWorkspaceV3ToV4(input: unknown): unknown {
+  if (!isRecord(input) || input['version'] !== WORKSPACE_SCHEMA_VERSION_V3) {
+    return input
+  }
+
+  // TheoryMemo did not exist in v3. Refuse an ambiguous/tampered envelope
+  // rather than silently replacing data that claims to use the old version.
+  if (Object.prototype.hasOwnProperty.call(input, 'theoryMemos')) {
+    return input
+  }
+
+  return {
+    ...input,
+    version: WORKSPACE_SCHEMA_VERSION,
+    theoryMemos: [],
+  }
+}
+
 function migrateLegacyWorkspace(input: unknown): unknown {
-  return migrateWorkspaceV2ToV3(migrateWorkspaceV1ToV2(input))
+  return migrateWorkspaceV3ToV4(
+    migrateWorkspaceV2ToV3(migrateWorkspaceV1ToV2(input)),
+  )
 }
 
 /**
@@ -821,6 +912,7 @@ export function validateWorkspace(input: unknown): WorkspaceValidationResult {
     ...duplicateIdIssues('researchQuestions', data.researchQuestions),
     ...duplicateIdIssues('claims', data.claims),
     ...duplicateIdIssues('claimQuestionLinks', data.claimQuestionLinks),
+    ...duplicateIdIssues('theoryMemos', data.theoryMemos),
     ...duplicateIdIssues('tasks', data.tasks),
     ...duplicateIdIssues('literature', data.literature),
     ...duplicateIdIssues('fieldSites', data.fieldSites),

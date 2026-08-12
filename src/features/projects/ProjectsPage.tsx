@@ -160,7 +160,8 @@ export function ProjectsPage() {
       data.submissions.filter((item) => item.projectId === id).length +
       data.researchQuestions.filter((item) => item.projectId === id).length +
       data.claims.filter((item) => item.projectId === id).length +
-      data.claimQuestionLinks.filter((item) => item.projectId === id).length
+      data.claimQuestionLinks.filter((item) => item.projectId === id).length +
+      data.theoryMemos.filter((item) => item.projectId === id).length
     if (dependencyCount > 0) return
     await updateData((current) => ({
       ...current,
@@ -195,7 +196,8 @@ export function ProjectsPage() {
       data.submissions.filter((item) => item.projectId === deleting.id).length +
       data.researchQuestions.filter((item) => item.projectId === deleting.id).length +
       data.claims.filter((item) => item.projectId === deleting.id).length +
-      data.claimQuestionLinks.filter((item) => item.projectId === deleting.id).length
+      data.claimQuestionLinks.filter((item) => item.projectId === deleting.id).length +
+      data.theoryMemos.filter((item) => item.projectId === deleting.id).length
     : 0
 
   const linked = detail
@@ -214,6 +216,7 @@ export function ProjectsPage() {
         submissions: data.submissions.filter((item) => item.projectId === detail.id),
         questions: data.researchQuestions.filter((item) => item.projectId === detail.id),
         claims: data.claims.filter((item) => item.projectId === detail.id),
+        theoryMemos: data.theoryMemos.filter((item) => item.projectId === detail.id),
       }
     : null
 
@@ -385,6 +388,7 @@ export function ProjectsPage() {
                   [t('projects.detail.submissions'), formatNumber(linked.submissions.length)],
                   [t('projects.graph.questions.title'), formatNumber(linked.questions.length)],
                   [t('projects.graph.claims.title'), formatNumber(linked.claims.length)],
+                  [t('projects.detail.theoryMemos'), formatNumber(linked.theoryMemos.length)],
                 ].map(([label, count]) => (
                   <div key={label}><span>{label}</span><strong>{count}</strong></div>
                 ))}

@@ -26,6 +26,10 @@ import {
   GENERIC_AUTHENTICATION_FAILURE_MESSAGE,
   PassphrasePolicyError,
 } from './errors'
+import {
+  createSyntheticLegacyV3Backup,
+  createSyntheticLegacyV3LocalContainer,
+} from './legacyV3TestFixture.test-helper'
 
 const PASSPHRASE = 'Correct horse battery staple 2026'
 const OTHER_PASSPHRASE = 'correct horse battery staple 2026'
@@ -82,6 +86,44 @@ async function expectGenericAuthenticationFailure(promise: Promise<unknown>): Pr
 }
 
 describe('encrypted container contract', () => {
+  it('authenticates v3 local and backup payloads before migrating them in memory', async () => {
+    const workspace = createDemoWorkspace(ANCHOR)
+    const expected = localExpectations()
+    const legacyLocal = await createSyntheticLegacyV3LocalContainer(
+      workspace,
+      PASSPHRASE,
+      expected,
+    )
+    const opened = await openLocalWorkspaceContainer(
+      legacyLocal,
+      PASSPHRASE,
+      expected,
+    )
+    expect(opened.payloadVersion).toBe(3)
+    expect(opened.workspace).toEqual({ ...workspace, theoryMemos: [] })
+    opened.session.dispose()
+
+    const legacyBackup = await createSyntheticLegacyV3Backup(workspace, PASSPHRASE)
+    expect(await openEncryptedBackup(legacyBackup, PASSPHRASE)).toEqual({
+      ...workspace,
+      theoryMemos: [],
+    })
+    await expectGenericAuthenticationFailure(
+      openEncryptedBackup(legacyBackup, OTHER_PASSPHRASE),
+    )
+    const tampered = JSON.parse(legacyBackup) as Record<string, string>
+    const ciphertext = decodeBase64Url(
+      tampered['ciphertext']!,
+      MAX_CIPHERTEXT_BYTES,
+      'ciphertext',
+    )
+    ciphertext[0] ^= 1
+    tampered['ciphertext'] = encodeBase64Url(ciphertext)
+    await expectGenericAuthenticationFailure(
+      openEncryptedBackup(JSON.stringify(tampered), PASSPHRASE),
+    )
+  })
+
   it('round-trips a local workspace with fixed protected metadata', async () => {
     const workspace = createDemoWorkspace(ANCHOR)
     const expected = localExpectations()
@@ -91,6 +133,7 @@ describe('encrypted container contract', () => {
     expect(header.bindingId).toBe(expected.bindingId)
     expect(header.storageRevision).toBe(0)
     expect(header.keyInvocation).toBe(1)
+    expect(header.payloadVersion).toBe(4)
     expect(header.kdf.iterations).toBe(600_000)
     expect(header.cipher.keyLength).toBe(256)
     expect(created.container.iv).toHaveLength(12)
@@ -101,6 +144,7 @@ describe('encrypted container contract', () => {
       expected,
     )
     expect(opened.workspace).toEqual(workspace)
+    expect(opened.payloadVersion).toBe(4)
     expect(opened.session.disposed).toBe(false)
     opened.session.dispose()
     created.session.dispose()
@@ -225,6 +269,7 @@ describe('encrypted container contract', () => {
   it('round-trips encrypted backups and rejects noncanonical wrappers and illegal base64url', async () => {
     const workspace = createDemoWorkspace(ANCHOR)
     const backup = await createEncryptedBackup(workspace, PASSPHRASE)
+    expect(inspectBackupProtectedHeader(backup).payloadVersion).toBe(4)
     expect(await openEncryptedBackup(backup, PASSPHRASE)).toEqual(workspace)
     await expectGenericAuthenticationFailure(openEncryptedBackup(backup, OTHER_PASSPHRASE))
     expect(() => parseEncryptedBackupContainer(` ${backup}`)).toThrow(

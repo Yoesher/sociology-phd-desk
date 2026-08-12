@@ -13,7 +13,7 @@ import {
   createDemoWorkspace,
 } from '../models/demo'
 import { createEmptyWorkspace } from '../models/empty-workspace'
-import type { WorkspaceData } from '../models/domain'
+import { WORKSPACE_SCHEMA_VERSION, type WorkspaceData } from '../models/domain'
 import {
   createOpaqueStorageId,
   hasRetainedPlaintextSource,
@@ -824,6 +824,33 @@ export class LocalWorkspaceManager {
     }
   }
 
+  private async reconcileVerifiedStorageVersions(
+    entry: WorkspaceRegistryEntry,
+    snapshot: WorkspaceData,
+    verifiedStorageSchemaVersion: number,
+  ): Promise<WorkspaceRegistryEntry> {
+    if (snapshot.version !== WORKSPACE_SCHEMA_VERSION) {
+      throw new LocalWorkspaceManagerError(
+        'invalid-workspace',
+        'The persisted workspace schema was not upgraded to the current version.',
+      )
+    }
+    if (
+      entry.schemaVersion === WORKSPACE_SCHEMA_VERSION &&
+      entry.storageSchemaVersion === verifiedStorageSchemaVersion
+    ) {
+      return entry
+    }
+    return this.registry.reconcileVerifiedWorkspaceStorageVersions(
+      entry.id,
+      entry.registryRevision,
+      entry.storageId,
+      entry.encryptionMode,
+      snapshot.version,
+      verifiedStorageSchemaVersion,
+    )
+  }
+
   private requireCrossTabCoordinator(): void {
     if (!this.dependencies.coordinator.crossTabSafe) {
       throw new LocalWorkspaceManagerError(
@@ -992,6 +1019,13 @@ export class LocalWorkspaceManager {
       repository.close()
       throw error
     }
+    if (entry.schemaVersion !== snapshot.version) {
+      repository.close()
+      throw new LocalWorkspaceManagerError(
+        'invalid-workspace',
+        'Standard storage schema does not match its verified registry route.',
+      )
+    }
     const state = new WorkspaceSessionState(snapshot)
     let port: StandardWorkspacePort
     port = new StandardWorkspacePort(
@@ -1027,6 +1061,13 @@ export class LocalWorkspaceManager {
       throw new LocalWorkspaceManagerError(
         'invalid-workspace',
         'Encrypted storage identity does not match its registry route.',
+      )
+    }
+    if (entry.schemaVersion !== runtime.workspace.version) {
+      runtime.close()
+      throw new LocalWorkspaceManagerError(
+        'invalid-workspace',
+        'Encrypted storage schema does not match its verified registry route.',
       )
     }
     const state = new WorkspaceSessionState(structuredClone(runtime.workspace))
@@ -1161,7 +1202,12 @@ export class LocalWorkspaceManager {
               )
             }
             this.assertOpen()
-            const entry = await this.touchOpened(current)
+            const reconciled = await this.reconcileVerifiedStorageVersions(
+              current,
+              snapshot,
+              database.verno,
+            )
+            const entry = await this.touchOpened(reconciled)
             if (
               entry.encryptionMode !== 'standard' ||
               entry.storageId !== current.storageId
@@ -1219,7 +1265,12 @@ export class LocalWorkspaceManager {
               'Encrypted storage identity does not match its registry route.',
             )
           }
-          const entry = await this.touchOpened(current)
+          const reconciled = await this.reconcileVerifiedStorageVersions(
+            current,
+            runtime.workspace,
+            ENCRYPTED_VAULT_DATABASE_VERSION,
+          )
+          const entry = await this.touchOpened(reconciled)
           if (
             entry.encryptionMode !== 'encrypted' ||
             entry.storageId !== current.storageId
@@ -1520,7 +1571,12 @@ export class LocalWorkspaceManager {
                 entry.id,
                 entry.registryRevision,
               )
-              return this.standardSession(ready, snapshot, repository)
+              const reconciled = await this.reconcileVerifiedStorageVersions(
+                ready,
+                snapshot,
+                database.verno,
+              )
+              return this.standardSession(reconciled, snapshot, repository)
             } catch (error) {
               repository.close()
               throw error
@@ -1546,7 +1602,12 @@ export class LocalWorkspaceManager {
               entry.id,
               entry.registryRevision,
             )
-            return this.encryptedSession(ready, runtime)
+            const reconciled = await this.reconcileVerifiedStorageVersions(
+              ready,
+              runtime.workspace,
+              ENCRYPTED_VAULT_DATABASE_VERSION,
+            )
+            return this.encryptedSession(reconciled, runtime)
           } catch (error) {
             runtime?.close()
             throw error
@@ -1726,6 +1787,11 @@ export class LocalWorkspaceManager {
                 'The local workspace route changed concurrently.',
               )
             }
+            currentRoute = await this.reconcileVerifiedStorageVersions(
+              currentRoute,
+              snapshot,
+              sourceDatabase.verno,
+            )
 
             const staged = currentRoute.encryptedConversion
             if (staged) {

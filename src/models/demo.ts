@@ -16,6 +16,7 @@ import type {
   ResearchTask,
   ReviewerComment,
   Submission,
+  TheoryMemo,
   WorkspaceData,
 } from './domain'
 
@@ -29,6 +30,9 @@ const DEMO_SITE_ID = 'demo-field-site-a'
 const DEMO_DATASET_ID = 'demo-dataset-national-panel'
 const DEMO_MANUSCRIPT_ID = 'demo-manuscript-employment-mobility'
 const DEMO_SUBMISSION_ID = 'demo-submission-planning-record'
+const DEMO_THEORY_PROJECT_ID = 'demo-project-platform-work-theory'
+const DEMO_THEORY_QUESTION_ID = 'demo-question-employment-uncertainty'
+const DEMO_THEORY_CLAIM_ID = 'demo-claim-institutional-buffering'
 
 function toIsoDate(date: Date): string {
   return date.toISOString().slice(0, 10)
@@ -46,7 +50,7 @@ function offsetDate(anchor: Date, days: number): string {
  * Nothing in this snapshot is a real citation, interview, field observation,
  * dataset, analysis result, journal submission, or reviewer exchange.
  */
-export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {
+function createDemoWorkspaceFixture(now: Date, includeTheory: boolean): WorkspaceData {
   const timestamp = now.toISOString()
   const entityMetadata = {
     createdAt: timestamp,
@@ -68,6 +72,23 @@ export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {
       notes:
         'Synthetic orientation project. It contains no real participants, citations, research data, or findings.',
     },
+    ...(includeTheory
+      ? [
+          {
+            ...entityMetadata,
+            id: DEMO_THEORY_PROJECT_ID,
+            title: 'Platform Work and Employment Uncertainty — DEMO',
+            shortTitle: 'Platform work theory — DEMO',
+            topic: 'Conceptual workflow example for platform work and employment uncertainty',
+            method: 'Theoretical' as const,
+            status: 'Writing' as const,
+            startDate: offsetDate(now, -30),
+            targetDate: offsetDate(now, 120),
+            notes:
+              'Synthetic theory-workflow orientation project. It contains no verified proposition, citation, empirical result, or real institution.',
+          },
+        ]
+      : []),
   ]
 
   const researchQuestions: ResearchQuestion[] = [
@@ -79,6 +100,18 @@ export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {
       status: 'active',
       notes: 'Synthetic research question for product orientation; it does not describe a completed study.',
     },
+    ...(includeTheory
+      ? [
+          {
+            ...entityMetadata,
+            id: DEMO_THEORY_QUESTION_ID,
+            projectId: DEMO_THEORY_PROJECT_ID,
+            text: 'DEMO question: How could institutional arrangements shape employment uncertainty in platform work?',
+            status: 'active' as const,
+            notes: 'Synthetic theoretical question for demonstrating the workflow; it is not a research conclusion.',
+          },
+        ]
+      : []),
   ]
 
   const claims: Claim[] = [
@@ -98,6 +131,18 @@ export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {
       status: 'draft',
       notes: 'Synthetic analytical expectation. No analysis has been run.',
     },
+    ...(includeTheory
+      ? [
+          {
+            ...entityMetadata,
+            id: DEMO_THEORY_CLAIM_ID,
+            projectId: DEMO_THEORY_PROJECT_ID,
+            text: 'DEMO proposition: institutional buffering is a mechanism to examine, not an established explanation.',
+            status: 'draft' as const,
+            notes: 'Synthetic theoretical proposition. It has not been evaluated against evidence.',
+          },
+        ]
+      : []),
   ]
 
   const claimQuestionLinks: ClaimQuestionLink[] = [
@@ -115,7 +160,47 @@ export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {
       claimId: DEMO_QUANTITATIVE_CLAIM_ID,
       researchQuestionId: DEMO_RESEARCH_QUESTION_ID,
     },
+    ...(includeTheory
+      ? [
+          {
+            ...entityMetadata,
+            id: 'demo-link-theory-claim-question',
+            projectId: DEMO_THEORY_PROJECT_ID,
+            claimId: DEMO_THEORY_CLAIM_ID,
+            researchQuestionId: DEMO_THEORY_QUESTION_ID,
+          },
+        ]
+      : []),
   ]
+
+  const theoryMemos: TheoryMemo[] = includeTheory
+    ? [
+        {
+          ...entityMetadata,
+          id: 'demo-theory-memo-employment-uncertainty',
+          projectId: DEMO_THEORY_PROJECT_ID,
+          memoType: 'concept',
+          title: 'Employment uncertainty — DEMO',
+          content:
+            'Synthetic concept-development placeholder for demonstrating the theory workflow. It is not a validated definition or a summary of a real publication.',
+          relatedQuestionIds: [DEMO_THEORY_QUESTION_ID],
+          relatedClaimIds: [],
+          relatedLiteratureIds: [],
+        },
+        {
+          ...entityMetadata,
+          id: 'demo-theory-memo-institutional-buffering',
+          projectId: DEMO_THEORY_PROJECT_ID,
+          memoType: 'mechanism',
+          title: 'Institutional buffering mechanism — DEMO',
+          content:
+            'Synthetic mechanism-planning placeholder. It records no observed process, empirical finding, or accepted theoretical result.',
+          relatedQuestionIds: [DEMO_THEORY_QUESTION_ID],
+          relatedClaimIds: [DEMO_THEORY_CLAIM_ID],
+          relatedLiteratureIds: [],
+        },
+      ]
+    : []
 
   const tasks: ResearchTask[] = [
     {
@@ -173,6 +258,21 @@ export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {
       priority: 'Low',
       notes: 'DEMO only; no journal received this manuscript.',
     },
+    ...(includeTheory
+      ? [
+          {
+            ...entityMetadata,
+            id: 'demo-task-theory-concept',
+            projectId: DEMO_THEORY_PROJECT_ID,
+            title: 'Review the synthetic concept boundary prompts',
+            category: 'Theory / Conceptual Work' as const,
+            status: 'To Do' as const,
+            dueDate: offsetDate(now, 4),
+            priority: 'Medium' as const,
+            notes: 'DEMO task for a synthetic theory workflow; it contains no generated research content.',
+          },
+        ]
+      : []),
   ]
 
   const literature: LiteratureItem[] = [
@@ -420,6 +520,7 @@ export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {
     researchQuestions,
     claims,
     claimQuestionLinks,
+    theoryMemos,
     tasks,
     literature,
     fieldSites,
@@ -433,6 +534,10 @@ export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {
     submissions,
     reviewerComments,
   }
+}
+
+export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {
+  return createDemoWorkspaceFixture(now, true)
 }
 
 function canonicalDemoValue(value: unknown, topLevel = false): unknown {
@@ -482,8 +587,11 @@ export function isPristineDemoWorkspace(workspace: WorkspaceData): boolean {
   const createdAt = new Date(workspace.workspace.createdAt)
   if (Number.isNaN(createdAt.getTime())) return false
   const expected = createDemoWorkspace(createdAt)
+  const historicalV3FixtureMigratedToV4 = createDemoWorkspaceFixture(createdAt, false)
   return (
     JSON.stringify(canonicalDemoValue(workspace, true)) ===
-    JSON.stringify(canonicalDemoValue(expected, true))
+      JSON.stringify(canonicalDemoValue(expected, true)) ||
+    JSON.stringify(canonicalDemoValue(workspace, true)) ===
+      JSON.stringify(canonicalDemoValue(historicalV3FixtureMigratedToV4, true))
   )
 }

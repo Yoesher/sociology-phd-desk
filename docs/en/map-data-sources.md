@@ -2,7 +2,8 @@
 
 > Status: **BLOCKED**
 > Reviewed: 2026-08-12
-> Scope: Phase 3D / Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8)
+> Scope: Phase 3D / Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8), now `CLOSED_NOT_PLANNED`
+> Closeout: documentation-only [PR #16](https://github.com/Yoesher/sociology-phd-desk/pull/16) merged as [`ca4429f`](https://github.com/Yoesher/sociology-phd-desk/commit/ca4429facfa124e85c3dba37f9ce7da270a82601); exact-`main` CI and Pages passed. No map shipped.
 
 This file records the provenance, licensing, map-review, and completeness evidence required before the China Research Map may ship any production administrative catalog, boundary geometry, or public interactive map. It is not legal advice. Public map display, data redistribution, and format conversion still require formal confirmation from the competent authority or a qualified mapping provider.
 
@@ -108,4 +109,4 @@ Phase 3D may resume only after all of the following evidence is committed and ma
 
 ## Current repository boundary
 
-This BLOCKED closeout adds only this document, its Chinese counterpart, and project-state records. The repository must not gain `public/map/**`, a China SVG/GeoJSON/TopoJSON asset, a production administrative catalog, an external map request, or production code that stores unverified region references. Phase 3D remains deferred until its own gates pass and is not part of `v0.2.0`; non-map release work may proceed independently.
+This BLOCKED closeout added only documentation and project-state records. PR #16 is merged and Issue #8 is closed as not planned; those workflow states do not turn any gate into PASS. The repository must not gain `public/map/**`, a China SVG/GeoJSON/TopoJSON asset, a production administrative catalog, an external map request, or production code that stores unverified region references. Phase 3D remains deferred until its own gates pass and is not part of `v0.2.0`; non-map release work may proceed independently.

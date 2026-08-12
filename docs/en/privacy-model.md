@@ -4,6 +4,8 @@ Sociology PhD Desk is local-first: its core does not require an account or a clo
 
 This page separates four protection levels that are easy to confuse.
 
+Version note: verified public `main` `ca4429f` stores portable/standard v3. The current Theory implementation is a local unmerged candidate that advances portable and standard storage to v4 while encrypted container v1, encrypted-vault database v1, and registry database v1 remain unchanged. Its final release gates remain pending.
+
 ## A. Browser isolation
 
 A standard workspace is stored as ordinary structured data in IndexedDB. The browser’s same-origin policy normally separates it from unrelated origins and browser profiles, but every script and service worker allowed to run under the application’s origin is part of the trust boundary. Applications hosted at different paths on one shared origin are not isolated origins.
@@ -27,6 +29,8 @@ An encrypted local workspace stores one authenticated ciphertext container inste
 The encrypted vault record still exposes non-research coordination values: a random binding ID, storage revision, lock epoch, committed key invocation, total encryption-attempt count, algorithm parameters, and ciphertext length. That vault record does not contain the workspace name or a password verifier. Separately, the application keeps an unencrypted routing registry containing logical workspace IDs, canonical display names, storage locators, encryption mode and lifecycle state, revisions, timestamps, auto-lock settings, and migration, cleanup, provisioning, pending-deletion, and interrupted-conversion status. The registry contains no research body and no content-derived hash or password verifier, but its names and activity times may themselves be sensitive. A wrong passphrase and authenticated-data damage intentionally return the same generic failure.
 
 An encrypted `.sociologydesk` backup uses a fresh salt and IV independently of the local workspace and of every other backup. Its protected header has no workspace name, binding ID, or research timestamp, but its decrypted portable payload includes the canonical registry display name copied at export time. Ordinary JSON export makes the same name copy in plaintext. These export-only copies do not rewrite the active research snapshot or advance its workspace-data revision. The operating system and filesystem can still reveal the file name, size, location, and file timestamps. Restoring first authenticates and validates the whole backup and then creates a workspace with a new logical workspace ID and storage revision zero; a failed authentication writes no destination record.
+
+In the local candidate, new vaults and backups contain portable v4. Existing portable-v3 ciphertext is authenticated before any migration. Local-vault upgrade writes and reads back a complete v4 container before publishing the new state; wrong passphrase, tamper, encryption failure, storage failure, or read-back failure leaves the old ciphertext available. Restoring a v3 backup migrates only in memory and writes a new v4 vault only after authentication and complete validation. The container, vault-database, and registry-database version numbers remain 1; they must not be confused with the portable payload version.
 
 New logical IDs, non-bootstrap storage locators and ownership tokens, encrypted binding IDs, salts, and IVs require cryptographically secure browser randomness and fail closed if it is unavailable. Deterministic initial routes only coordinate concurrent first boot and are not secrets.
 

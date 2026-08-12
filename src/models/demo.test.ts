@@ -11,7 +11,7 @@ describe('createDemoWorkspace', () => {
 
     expect(validation.success).toBe(true)
     expect(demo.application).toBe('sociology-phd-desk')
-    expect(demo.version).toBe(3)
+    expect(demo.version).toBe(4)
     expect(demo.workspace.revision).toBe(0)
     expect(demo.workspace.todayGoals).toHaveLength(3)
     expect(demo.projects[0]?.method).toBe('Mixed Methods')
@@ -19,9 +19,10 @@ describe('createDemoWorkspace', () => {
     expect(demo.interviews).toHaveLength(2)
     expect(demo.datasets).toHaveLength(1)
     expect(demo.manuscripts).toHaveLength(1)
-    expect(demo.researchQuestions).toHaveLength(1)
-    expect(demo.claims).toHaveLength(2)
-    expect(demo.claimQuestionLinks).toHaveLength(2)
+    expect(demo.researchQuestions).toHaveLength(2)
+    expect(demo.claims).toHaveLength(3)
+    expect(demo.claimQuestionLinks).toHaveLength(3)
+    expect(demo.theoryMemos).toHaveLength(2)
     expect('researchQuestion' in (demo.projects[0] ?? {})).toBe(false)
   })
 
@@ -31,7 +32,15 @@ describe('createDemoWorkspace', () => {
 
     expect(question?.status).toBe('active')
     expect(demo.claims.every((claim) => claim.status === 'draft')).toBe(true)
-    expect(demo.claimQuestionLinks.every((link) => link.projectId === question?.projectId)).toBe(true)
+    expect(
+      demo.claimQuestionLinks.every((link) =>
+        demo.researchQuestions.some(
+          (candidate) =>
+            candidate.id === link.researchQuestionId &&
+            candidate.projectId === link.projectId,
+        ),
+      ),
+    ).toBe(true)
     expect(
       demo.claimQuestionLinks.every((link) =>
         demo.claims.some(
@@ -39,11 +48,12 @@ describe('createDemoWorkspace', () => {
         ),
       ),
     ).toBe(true)
-    expect(
-      demo.claimQuestionLinks.every((link) => link.researchQuestionId === question?.id),
-    ).toBe(true)
     expect(demo.evidence.map((item) => item.claim)).toEqual(
-      expect.arrayContaining(demo.claims.map((claim) => claim.text)),
+      expect.arrayContaining(
+        demo.claims
+          .filter((claim) => claim.projectId === question?.projectId)
+          .map((claim) => claim.text),
+      ),
     )
   })
 
@@ -54,6 +64,7 @@ describe('createDemoWorkspace', () => {
       demo.researchQuestions,
       demo.claims,
       demo.claimQuestionLinks,
+      demo.theoryMemos,
       demo.tasks,
       demo.literature,
       demo.fieldSites,
@@ -76,6 +87,34 @@ describe('createDemoWorkspace', () => {
     expect(demo.analysisRuns[0]?.resultSummary).toContain('No result')
   })
 
+  it('ships synthetic theory memos with explicit same-project links only', () => {
+    const demo = createDemoWorkspace(anchor)
+
+    expect(demo.theoryMemos.map((memo) => memo.memoType)).toEqual([
+      'concept',
+      'mechanism',
+    ])
+    expect(
+      demo.theoryMemos.every((memo) =>
+        memo.relatedQuestionIds.every((id) =>
+          demo.researchQuestions.some(
+            (question) => question.id === id && question.projectId === memo.projectId,
+          ),
+        ),
+      ),
+    ).toBe(true)
+    expect(
+      demo.theoryMemos.every((memo) =>
+        memo.relatedClaimIds.every((id) =>
+          demo.claims.some((claim) => claim.id === id && claim.projectId === memo.projectId),
+        ),
+      ),
+    ).toBe(true)
+    expect(
+      demo.tasks.some((task) => task.category === 'Theory / Conceptual Work'),
+    ).toBe(true)
+  })
+
   it('derives planning dates from the supplied anchor for deterministic tests', () => {
     const demo = createDemoWorkspace(anchor)
 
@@ -96,5 +135,44 @@ describe('createDemoWorkspace', () => {
     const edited = structuredClone(pristine)
     edited.projects[0]!.notes = 'A user edit must be preserved as personal research.'
     expect(isPristineDemoWorkspace(edited)).toBe(false)
+  })
+
+  it('continues recognizing the historical pristine v3 demo after its empty v4 migration', () => {
+    const historical = createDemoWorkspace(anchor)
+    const theoryProjectIds = new Set(
+      historical.theoryMemos.map((memo) => memo.projectId),
+    )
+    const theoryQuestionIds = new Set(
+      historical.researchQuestions
+        .filter((question) => theoryProjectIds.has(question.projectId))
+        .map((question) => question.id),
+    )
+    const theoryClaimIds = new Set(
+      historical.claims
+        .filter((claim) => theoryProjectIds.has(claim.projectId))
+        .map((claim) => claim.id),
+    )
+    historical.projects = historical.projects.filter(
+      (project) => !theoryProjectIds.has(project.id),
+    )
+    historical.researchQuestions = historical.researchQuestions.filter(
+      (question) => !theoryQuestionIds.has(question.id),
+    )
+    historical.claims = historical.claims.filter(
+      (claim) => !theoryClaimIds.has(claim.id),
+    )
+    historical.claimQuestionLinks = historical.claimQuestionLinks.filter(
+      (link) => !theoryProjectIds.has(link.projectId),
+    )
+    historical.tasks = historical.tasks.filter(
+      (task) => !theoryProjectIds.has(task.projectId),
+    )
+    historical.theoryMemos = []
+
+    expect(validateWorkspace(historical).success).toBe(true)
+    expect(isPristineDemoWorkspace(historical)).toBe(true)
+
+    historical.projects[0]!.notes = 'A historical fixture edit must be preserved.'
+    expect(isPristineDemoWorkspace(historical)).toBe(false)
   })
 })

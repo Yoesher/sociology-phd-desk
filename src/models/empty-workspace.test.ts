@@ -19,6 +19,7 @@ describe('createEmptyWorkspace', () => {
     })
     expect(snapshot.workspace.todayGoals).toEqual([])
     expect(snapshot.projects).toEqual([])
+    expect(snapshot.theoryMemos).toEqual([])
     expect(snapshot.reviewerComments).toEqual([])
   })
 })

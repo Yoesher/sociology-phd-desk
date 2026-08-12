@@ -3,7 +3,9 @@ import { validateWorkspace, WorkspaceValidationError } from '../utils/workspace-
 import {
   EncryptedContainerAuthenticationError,
   EncryptedContainerFormatError,
+  ENCRYPTED_PAYLOAD_VERSION,
   EncryptedPayloadValidationError,
+  LEGACY_ENCRYPTED_PAYLOAD_VERSION,
   LocalWorkspaceCryptoSession,
   MAX_KEY_INVOCATIONS,
   WebCryptoUnavailableError,
@@ -12,6 +14,8 @@ import {
   inspectLocalProtectedHeader,
   openEncryptedBackup,
   openLocalWorkspaceContainer,
+  type BinaryEncryptedContainer,
+  type OpenedLocalWorkspaceContainer,
 } from '../crypto'
 import {
   ENCRYPTED_VAULT_RECORD_ID,
@@ -47,6 +51,11 @@ export interface RestoreEncryptedBackupOptions extends CreateEncryptedWorkspaceO
   /** A fresh logical workspace ID; the backup's ID is never reused implicitly. */
   newWorkspaceId: string
   newWorkspaceName?: string
+}
+
+export interface UnlockEncryptedWorkspaceOptions {
+  /** Dependency injection seam used by atomic-upgrade storage tests. */
+  databaseFactory?: (bindingId: string) => EncryptedVaultDatabase
 }
 
 export class EncryptedWorkspaceNotFoundError extends Error {
@@ -117,6 +126,25 @@ function coordinatesMatch(
   return (
     committedCoordinatesMatch(left, right) &&
     left.encryptionAttempts === right.encryptionAttempts
+  )
+}
+
+function bytesEqual(left: Uint8Array, right: Uint8Array): boolean {
+  if (left.byteLength !== right.byteLength) return false
+  for (let index = 0; index < left.byteLength; index += 1) {
+    if (left[index] !== right[index]) return false
+  }
+  return true
+}
+
+function containersEqual(
+  left: BinaryEncryptedContainer,
+  right: BinaryEncryptedContainer,
+): boolean {
+  return (
+    bytesEqual(left.protected, right.protected) &&
+    bytesEqual(left.iv, right.iv) &&
+    bytesEqual(left.ciphertext, right.ciphertext)
   )
 }
 
@@ -220,6 +248,151 @@ export async function inspectEncryptedWorkspaceRecord(
     return await readRecord(database)
   } finally {
     database.close()
+  }
+}
+
+/**
+ * Re-encrypts an authenticated v3 payload as v4 without changing the logical
+ * workspace revision. The old ciphertext remains the committed value until a
+ * fully authenticated candidate has won the vault CAS and been read back in
+ * that same transaction. A failed post-commit authentication restores the old
+ * ciphertext when the candidate is still the current generation.
+ */
+async function upgradeLegacyEncryptedWorkspace(
+  database: EncryptedVaultDatabase,
+  bindingId: string,
+  originalRecord: EncryptedVaultRecord,
+  opened: OpenedLocalWorkspaceContainer,
+): Promise<{
+  record: EncryptedVaultRecord
+  workspace: WorkspaceData
+}> {
+  if (opened.payloadVersion !== LEGACY_ENCRYPTED_PAYLOAD_VERSION) {
+    throw new EncryptedContainerAuthenticationError()
+  }
+
+  const expected = recordCoordinates(bindingId, originalRecord)
+  let reservedInvocation = 0
+  await database.transaction('rw', database.vaults, async () => {
+    const records = await database.vaults.toArray()
+    if (records.length !== 1) throw new EncryptedContainerAuthenticationError()
+    const persisted = validatePersistedRecord(records[0])
+    assertPersistedGeneration(persisted, opened.session, bindingId)
+    const header = inspectLocalProtectedHeader(persisted)
+    const actual = recordCoordinates(bindingId, persisted)
+    if (
+      header.payloadVersion !== LEGACY_ENCRYPTED_PAYLOAD_VERSION ||
+      !committedCoordinatesMatch(expected, actual)
+    ) {
+      throw new EncryptedWorkspaceConflictError(expected, actual)
+    }
+    if (persisted.encryptionAttempts >= MAX_KEY_INVOCATIONS) {
+      throw new EncryptedContainerAuthenticationError()
+    }
+    reservedInvocation = persisted.encryptionAttempts + 1
+    await database.vaults.put({
+      ...persisted,
+      encryptionAttempts: reservedInvocation,
+    })
+  })
+
+  const upgradedContainer = await opened.session.encrypt(
+    opened.workspace,
+    expected.storageRevision,
+    reservedInvocation,
+  )
+  const candidateCoordinates: EncryptedWorkspaceCoordinates = {
+    ...expected,
+    keyInvocation: reservedInvocation,
+    encryptionAttempts: reservedInvocation,
+  }
+  const verifiedCandidate = await opened.session.decrypt(
+    upgradedContainer,
+    candidateCoordinates,
+  )
+  if (
+    inspectLocalProtectedHeader(upgradedContainer).payloadVersion !==
+      ENCRYPTED_PAYLOAD_VERSION ||
+    !workspaceSnapshotsEqual(opened.workspace, verifiedCandidate)
+  ) {
+    throw new EncryptedContainerAuthenticationError()
+  }
+
+  let committedRecord: EncryptedVaultRecord | null = null
+  await database.transaction('rw', database.vaults, async () => {
+    const records = await database.vaults.toArray()
+    if (records.length !== 1) throw new EncryptedContainerAuthenticationError()
+    const persisted = validatePersistedRecord(records[0])
+    assertPersistedGeneration(persisted, opened.session, bindingId)
+    const actual = recordCoordinates(bindingId, persisted)
+    if (!committedCoordinatesMatch(expected, actual)) {
+      throw new EncryptedWorkspaceConflictError(expected, actual)
+    }
+    if (persisted.encryptionAttempts < reservedInvocation) {
+      throw new EncryptedContainerAuthenticationError()
+    }
+
+    const candidate: EncryptedVaultRecord = {
+      id: ENCRYPTED_VAULT_RECORD_ID,
+      storageRevision: expected.storageRevision,
+      lockEpoch: expected.lockEpoch,
+      keyInvocation: reservedInvocation,
+      encryptionAttempts: persisted.encryptionAttempts,
+      ...upgradedContainer,
+    }
+    await database.vaults.put(candidate)
+    const readBack = await database.vaults.get(ENCRYPTED_VAULT_RECORD_ID)
+    if (!readBack) throw new EncryptedContainerAuthenticationError()
+    const validatedReadBack = validatePersistedRecord(readBack)
+    const readBackHeader = inspectLocalProtectedHeader(validatedReadBack)
+    if (
+      readBackHeader.payloadVersion !== ENCRYPTED_PAYLOAD_VERSION ||
+      !coordinatesMatch(
+        recordCoordinates(bindingId, candidate),
+        recordCoordinates(bindingId, validatedReadBack),
+      ) ||
+      !containersEqual(candidate, validatedReadBack)
+    ) {
+      throw new EncryptedContainerAuthenticationError()
+    }
+    committedRecord = validatedReadBack
+  })
+
+  if (!committedRecord) throw new EncryptedContainerAuthenticationError()
+  try {
+    const committedCoordinates = recordCoordinates(bindingId, committedRecord)
+    const readBackWorkspace = await opened.session.decrypt(
+      committedRecord,
+      committedCoordinates,
+    )
+    if (!workspaceSnapshotsEqual(opened.workspace, readBackWorkspace)) {
+      throw new EncryptedContainerAuthenticationError()
+    }
+    return { record: committedRecord, workspace: readBackWorkspace }
+  } catch (error) {
+    // This rollback is itself a CAS: never overwrite a later legitimate save.
+    await database.transaction('rw', database.vaults, async () => {
+      const currentInput = await database.vaults.get(ENCRYPTED_VAULT_RECORD_ID)
+      if (!currentInput) return
+      const current = validatePersistedRecord(currentInput)
+      if (
+        committedRecord &&
+        coordinatesMatch(
+          recordCoordinates(bindingId, committedRecord),
+          recordCoordinates(bindingId, current),
+        ) &&
+        containersEqual(committedRecord, current)
+      ) {
+        await database.vaults.put({
+          ...originalRecord,
+          encryptionAttempts: Math.max(
+            originalRecord.encryptionAttempts,
+            current.encryptionAttempts,
+          ),
+        })
+      }
+    })
+    throw error
   }
 }
 
@@ -598,24 +771,38 @@ export async function createEncryptedWorkspace(
 export async function unlockEncryptedWorkspace(
   bindingIdInput: string,
   passphrase: string,
+  options: UnlockEncryptedWorkspaceOptions = {},
 ): Promise<UnlockedEncryptedWorkspace> {
   const bindingId = bindingIdInput.toLowerCase()
   if (!(await encryptedVaultDatabaseExists(bindingId))) {
     throw new EncryptedWorkspaceNotFoundError(bindingId)
   }
-  const database = new EncryptedVaultDatabase(bindingId)
+  const database = options.databaseFactory?.(bindingId) ?? new EncryptedVaultDatabase(bindingId)
+  let opened: OpenedLocalWorkspaceContainer | null = null
   try {
     const record = await readRecord(database)
     if (!record) throw new EncryptedWorkspaceNotFoundError(bindingId)
-    const coordinates = recordCoordinates(bindingId, record)
-    const opened = await openLocalWorkspaceContainer(record, passphrase, coordinates)
+    let coordinates = recordCoordinates(bindingId, record)
+    opened = await openLocalWorkspaceContainer(record, passphrase, coordinates)
+    let workspace = opened.workspace
+    if (opened.payloadVersion === LEGACY_ENCRYPTED_PAYLOAD_VERSION) {
+      const upgraded = await upgradeLegacyEncryptedWorkspace(
+        database,
+        bindingId,
+        record,
+        opened,
+      )
+      coordinates = recordCoordinates(bindingId, upgraded.record)
+      workspace = upgraded.workspace
+    }
     return new UnlockedEncryptedWorkspace(
       database,
       opened.session,
-      opened.workspace,
+      workspace,
       coordinates,
     )
   } catch (error) {
+    opened?.session.dispose()
     database.close()
     throw error
   }

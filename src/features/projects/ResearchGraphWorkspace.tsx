@@ -80,7 +80,11 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
   const [viewingClaim, setViewingClaim] = useState<Claim | null>(null)
   const [deletingQuestion, setDeletingQuestion] = useState<ResearchQuestion | null>(null)
   const [deletingClaim, setDeletingClaim] = useState<Claim | null>(null)
-  const [blockedDelete, setBlockedDelete] = useState<{ kind: 'question' | 'claim'; count: number } | null>(null)
+  const [blockedDelete, setBlockedDelete] = useState<{
+    kind: 'question' | 'claim'
+    source: 'graph' | 'memo'
+    count: number
+  } | null>(null)
   const [questionDraft, setQuestionDraft] = useState<QuestionDraft>(emptyQuestionDraft)
   const [claimDraft, setClaimDraft] = useState<ClaimDraft>(emptyClaimDraft)
 
@@ -236,7 +240,12 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
   const requestQuestionDelete = (question: ResearchQuestion) => {
     const count = projectLinks.filter((link) => link.researchQuestionId === question.id).length
     if (count) {
-      setBlockedDelete({ kind: 'question', count })
+      setBlockedDelete({ kind: 'question', source: 'graph', count })
+      return
+    }
+    const memoCount = data.theoryMemos.filter((memo) => memo.relatedQuestionIds.includes(question.id)).length
+    if (memoCount) {
+      setBlockedDelete({ kind: 'question', source: 'memo', count: memoCount })
       return
     }
     setDeletingQuestion(question)
@@ -245,7 +254,12 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
   const requestClaimDelete = (claim: Claim) => {
     const count = projectLinks.filter((link) => link.claimId === claim.id).length
     if (count) {
-      setBlockedDelete({ kind: 'claim', count })
+      setBlockedDelete({ kind: 'claim', source: 'graph', count })
+      return
+    }
+    const memoCount = data.theoryMemos.filter((memo) => memo.relatedClaimIds.includes(claim.id)).length
+    if (memoCount) {
+      setBlockedDelete({ kind: 'claim', source: 'memo', count: memoCount })
       return
     }
     setDeletingClaim(claim)
@@ -255,7 +269,10 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
     if (!deletingQuestion) return
     const questionId = deletingQuestion.id
     await updateData((current) => {
-      if (current.claimQuestionLinks.some((link) => link.researchQuestionId === questionId)) return current
+      if (
+        current.claimQuestionLinks.some((link) => link.researchQuestionId === questionId) ||
+        current.theoryMemos.some((memo) => memo.relatedQuestionIds.includes(questionId))
+      ) return current
       return {
         ...current,
         researchQuestions: current.researchQuestions.filter(
@@ -271,7 +288,10 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
     if (!deletingClaim) return
     const claimId = deletingClaim.id
     await updateData((current) => {
-      if (current.claimQuestionLinks.some((link) => link.claimId === claimId)) return current
+      if (
+        current.claimQuestionLinks.some((link) => link.claimId === claimId) ||
+        current.theoryMemos.some((memo) => memo.relatedClaimIds.includes(claimId))
+      ) return current
       return {
         ...current,
         claims: current.claims.filter((claim) => !(claim.id === claimId && claim.projectId === projectId)),
@@ -570,7 +590,16 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
         open={Boolean(blockedDelete)}
         title={t('projects.graph.delete.blockedTitle')}
         description={blockedDelete
-          ? t(blockedDelete.kind === 'question' ? 'projects.graph.delete.blockedQuestion' : 'projects.graph.delete.blockedClaim', { count: formatNumber(blockedDelete.count) })
+          ? t(
+              blockedDelete.source === 'memo'
+                ? blockedDelete.kind === 'question'
+                  ? 'projects.graph.delete.blockedQuestionMemo'
+                  : 'projects.graph.delete.blockedClaimMemo'
+                : blockedDelete.kind === 'question'
+                  ? 'projects.graph.delete.blockedQuestion'
+                  : 'projects.graph.delete.blockedClaim',
+              { count: formatNumber(blockedDelete.count) },
+            )
           : undefined}
         onClose={() => setBlockedDelete(null)}
         size="sm"

@@ -48,6 +48,8 @@ Validate imports before writing. Default to non-destructive merge and visible co
 
 AI may later assist triage, decomposition, explanation, and maintenance, but it remains optional. Generated content must be labeled, reviewable, and distinct from source evidence.
 
+Theory prompts follow the same boundary even when no AI is involved: a structured question may guide reflection in the interface, but it must never auto-populate or rewrite the researcher's memo content. Conceptual claims remain authored research judgments.
+
 ## 11. Demonstrate truthfully
 
 Demo data must be obviously synthetic. Product metrics, users, adoption, issues, tests, and releases must be verifiable. The project should earn an open-source history rather than manufacture one.

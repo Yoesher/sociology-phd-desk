@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import { act, cleanup, render, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { WorkspaceExperience } from '../App'
@@ -151,7 +151,7 @@ function Probe({
   const context = useWorkspaceSession()
   const { registerResearchRuntime, session } = context
   latest = context
-  useEffect(() => registerResearchRuntime({
+  useLayoutEffect(() => registerResearchRuntime({
     workspaceId: session?.entry.id ?? '',
     storageId: session?.storageId ?? '',
     flushPendingWrites: flush,
@@ -622,7 +622,8 @@ describe('WorkspaceSessionProvider flush boundaries', () => {
     fixture.manager.list.mockResolvedValue([reopenedEntry])
     const factory = () => fixture.manager as unknown as WorkspaceSessionManager
     const noChannel = () => null
-    render(
+    const visibilityListeners = vi.spyOn(document, 'addEventListener')
+    const rendered = render(
       <I18nProvider>
         <WorkspaceSessionProvider
           managerFactory={factory}
@@ -635,6 +636,10 @@ describe('WorkspaceSessionProvider flush boundaries', () => {
       </I18nProvider>,
     )
     await waitFor(() => expect(getContext().accessState).toBe('unlocked'))
+    await waitFor(() => expect(rendered.container.querySelector('.app-shell')).not.toBeNull())
+    await waitFor(() => expect(
+      visibilityListeners.mock.calls.filter(([type]) => type === 'visibilitychange').length,
+    ).toBeGreaterThanOrEqual(2))
 
     act(() => document.dispatchEvent(new Event('visibilitychange')))
     await waitFor(

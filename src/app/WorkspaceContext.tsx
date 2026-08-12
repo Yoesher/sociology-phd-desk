@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -72,6 +73,7 @@ function markUserChanges(current: WorkspaceData, next: WorkspaceData): Workspace
     researchQuestions: markEditedRecords(current.researchQuestions, next.researchQuestions),
     claims: markEditedRecords(current.claims, next.claims),
     claimQuestionLinks: markEditedRecords(current.claimQuestionLinks, next.claimQuestionLinks),
+    theoryMemos: markEditedRecords(current.theoryMemos, next.theoryMemos),
     tasks: markEditedRecords(current.tasks, next.tasks),
     literature: markEditedRecords(current.literature, next.literature),
     fieldSites: markEditedRecords(current.fieldSites, next.fieldSites),
@@ -278,7 +280,7 @@ export function WorkspaceProvider({
     }
   }, [channelFactory, refresh, repository, storageId, workspaceId])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!registerRuntime) return undefined
     return registerRuntime({
       workspaceId,

@@ -46,6 +46,7 @@ export function createEmptyWorkspace(options: EmptyWorkspaceOptions = {}): Works
     researchQuestions: [],
     claims: [],
     claimQuestionLinks: [],
+    theoryMemos: [],
     tasks: [],
     literature: [],
     fieldSites: [],
