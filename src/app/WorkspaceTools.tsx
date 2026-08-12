@@ -5,13 +5,14 @@ import type {
   MergeWorkspaceResult,
   WorkspaceCollectionName,
 } from '../db/workspaceRepository'
-import { exportWorkspaceJson, importWorkspaceJson } from '../utils/workspace-transfer'
-import { downloadTextFile, todayIso } from './format'
+import { importWorkspaceJson } from '../utils/workspace-transfer'
+import { todayIso } from './format'
 import { useWorkspace } from '../hooks/useWorkspace'
+import { useWorkspaceSession } from '../hooks/useWorkspaceSession'
 import { Badge, Button, ConfirmDialog, LocalDataNotice, Modal } from '../components/ui'
 import { useI18n, type MessageKey } from '../i18n'
 
-type PendingAction = 'merge' | 'replace' | 'reset' | null
+type PendingAction = 'merge' | 'replace' | 'isolate' | 'reset' | 'export-plaintext' | null
 type WorkspaceStatusMessage =
   | { kind: 'translated'; key: MessageKey; parameters?: Record<string, string | number> }
   | { kind: 'merge'; result: MergeWorkspaceResult }
@@ -58,15 +59,22 @@ const matchingIdCounts = (current: WorkspaceData, incoming: WorkspaceData) =>
   })
 
 export function WorkspaceTools({ compact = false }: { compact?: boolean }) {
-  const { data, mergeWith, replaceWith, resetDemo, saving } = useWorkspace()
+  const { data, mergeWith, replaceWith, refresh, saving } = useWorkspace()
+  const workspaceSession = useWorkspaceSession()
   const { locale, t, formatNumber } = useI18n()
   const [open, setOpen] = useState(false)
   const [pendingImport, setPendingImport] = useState<WorkspaceData | null>(null)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
   const [message, setMessage] = useState<WorkspaceStatusMessage>(null)
+  const [actionInFlight, setActionInFlight] = useState(false)
+  const actionInFlightRef = useRef(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const collisions = data && pendingImport ? matchingIdCounts(data, pendingImport) : []
   const collisionTotal = collisions.reduce((total, [, count]) => total + count, 0)
+  const sameWorkspaceIdentity = Boolean(
+    data && pendingImport && data.workspace.id === pendingImport.workspace.id,
+  )
+  const activeWorkspace = workspaceSession.activeWorkspace
 
   const formatMergeResult = (result: MergeWorkspaceResult) => {
     const added = collectionNames.filter((name) => result.added[name] > 0)
@@ -88,15 +96,25 @@ export function WorkspaceTools({ compact = false }: { compact?: boolean }) {
     })
   }
 
-  const exportWorkspace = () => {
-    if (!data) return
+  const exportWorkspace = async () => {
+    if (actionInFlightRef.current) return
+    if (!data || !activeWorkspace) return
+    if (activeWorkspace.encryptionMode === 'encrypted') {
+      setPendingAction('export-plaintext')
+      return
+    }
+    actionInFlightRef.current = true
+    setActionInFlight(true)
     try {
       const filename = `sociology-phd-desk-${todayIso()}.json`
-      downloadTextFile(exportWorkspaceJson(data), filename)
+      await workspaceSession.exportPlaintextWorkspace(activeWorkspace.id)
       setMessage({ kind: 'translated', key: 'workspace.exported', parameters: { filename } })
     } catch (exportError) {
       void exportError
       setMessage({ kind: 'translated', key: 'workspace.error.export' })
+    } finally {
+      actionInFlightRef.current = false
+      setActionInFlight(false)
     }
   }
 
@@ -116,23 +134,41 @@ export function WorkspaceTools({ compact = false }: { compact?: boolean }) {
   }
 
   const completeAction = async () => {
+    if (actionInFlightRef.current) return
+    actionInFlightRef.current = true
+    setActionInFlight(true)
+    const action = pendingAction
+    const imported = pendingImport
+    const workspace = activeWorkspace
     try {
-      if (pendingAction === 'reset') {
-        await resetDemo()
+      if (action === 'reset' && workspace?.kind === 'demo') {
+        await workspaceSession.resetDemoWorkspace(workspace.id)
+        await refresh()
         setMessage({ kind: 'translated', key: 'workspace.reset.complete' })
-      } else if (pendingAction === 'merge' && pendingImport) {
-        const result = await mergeWith(pendingImport)
+      } else if (action === 'merge' && imported) {
+        const result = await mergeWith(imported)
         setMessage({ kind: 'merge', result })
         setPendingImport(null)
-      } else if (pendingAction === 'replace' && pendingImport) {
-        await replaceWith(pendingImport)
+      } else if (action === 'replace' && imported) {
+        await replaceWith(imported)
         setMessage({ kind: 'translated', key: 'workspace.replace.complete' })
         setPendingImport(null)
+      } else if (action === 'isolate' && imported) {
+        await workspaceSession.importPlaintextWorkspaceAsNew(imported)
+        setMessage({ kind: 'translated', key: 'workspace.import.isolatedComplete' })
+        setPendingImport(null)
+        setOpen(false)
+      } else if (action === 'export-plaintext' && workspace) {
+        const filename = `sociology-phd-desk-${todayIso()}.json`
+        await workspaceSession.exportPlaintextWorkspace(workspace.id)
+        setMessage({ kind: 'translated', key: 'workspace.exported', parameters: { filename } })
       }
     } catch (actionError) {
       void actionError
       setMessage({ kind: 'translated', key: 'workspace.error.action' })
     } finally {
+      actionInFlightRef.current = false
+      setActionInFlight(false)
       setPendingAction(null)
     }
   }
@@ -162,7 +198,7 @@ export function WorkspaceTools({ compact = false }: { compact?: boolean }) {
               <p>{t('workspace.portable.description')}</p>
             </div>
             <div className="button-row">
-              <Button icon={<Download size={15} />} onClick={exportWorkspace} disabled={!data}>
+              <Button icon={<Download size={15} />} onClick={() => void exportWorkspace()} disabled={!data}>
                 {t('workspace.action.exportJson')}
               </Button>
               <Button icon={<Upload size={15} />} onClick={() => fileRef.current?.click()}>
@@ -197,30 +233,42 @@ export function WorkspaceTools({ compact = false }: { compact?: boolean }) {
                 ))}
               </div>
               <p className="import-preview__warning">
-                {t('workspace.import.neverAutomatic')} {collisionTotal > 0
-                  ? t('workspace.import.collision', { count: formatNumber(collisionTotal) })
-                  : t('workspace.import.noCollision')}
+                {sameWorkspaceIdentity
+                  ? <>{t('workspace.import.neverAutomatic')} {collisionTotal > 0
+                    ? t('workspace.import.collision', { count: formatNumber(collisionTotal) })
+                    : t('workspace.import.noCollision')}</>
+                  : t('workspace.import.differentIdentity')}
               </p>
               <div className="button-row">
-                <Button variant="primary" onClick={() => setPendingAction('merge')} disabled={saving}>
-                  {t('workspace.action.reviewMerge')}
-                </Button>
-                <Button variant="danger" onClick={() => setPendingAction('replace')} disabled={saving}>
-                  {t('workspace.action.reviewReplacement')}
-                </Button>
+                {sameWorkspaceIdentity ? (
+                  <>
+                    <Button variant="primary" onClick={() => setPendingAction('merge')} disabled={saving}>
+                      {t('workspace.action.reviewMerge')}
+                    </Button>
+                    <Button variant="danger" onClick={() => setPendingAction('replace')} disabled={saving}>
+                      {t('workspace.action.reviewReplacement')}
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="primary" onClick={() => setPendingAction('isolate')} disabled={saving}>
+                    {t('workspace.action.createIsolated')}
+                  </Button>
+                )}
               </div>
             </section>
           )}
 
-          <section className="workspace-tools__section workspace-tools__section--danger">
-            <div>
-              <h3>{t('workspace.reset.title')}</h3>
-              <p>{t('workspace.reset.description')}</p>
-            </div>
-            <Button variant="danger" icon={<RotateCcw size={15} />} onClick={() => setPendingAction('reset')}>
-              {t('workspace.action.resetDemo')}
-            </Button>
-          </section>
+          {activeWorkspace?.kind === 'demo' && (
+            <section className="workspace-tools__section workspace-tools__section--danger">
+              <div>
+                <h3>{t('workspace.reset.title')}</h3>
+                <p>{t('workspace.reset.description')}</p>
+              </div>
+              <Button variant="danger" icon={<RotateCcw size={15} />} onClick={() => setPendingAction('reset')}>
+                {t('workspace.action.resetDemo')}
+              </Button>
+            </section>
+          )}
           {message && (
             <p className="workspace-tools__message" role="status">
               {message.kind === 'merge'
@@ -237,6 +285,17 @@ export function WorkspaceTools({ compact = false }: { compact?: boolean }) {
         description={t('workspace.confirm.merge.description')}
         confirmLabel={t('workspace.confirm.merge.label')}
         tone="primary"
+        busy={actionInFlight}
+        onCancel={() => setPendingAction(null)}
+        onConfirm={completeAction}
+      />
+      <ConfirmDialog
+        open={pendingAction === 'isolate'}
+        title={t('workspace.confirm.isolate.title')}
+        description={t('workspace.confirm.isolate.description')}
+        confirmLabel={t('workspace.action.createIsolated')}
+        tone="primary"
+        busy={actionInFlight}
         onCancel={() => setPendingAction(null)}
         onConfirm={completeAction}
       />
@@ -245,6 +304,16 @@ export function WorkspaceTools({ compact = false }: { compact?: boolean }) {
         title={t('workspace.confirm.replace.title')}
         description={t('workspace.confirm.replace.description')}
         confirmLabel={t('workspace.confirm.replace.label')}
+        busy={actionInFlight}
+        onCancel={() => setPendingAction(null)}
+        onConfirm={completeAction}
+      />
+      <ConfirmDialog
+        open={pendingAction === 'export-plaintext'}
+        title={t('localWorkspaces.backup.plaintextWarningTitle')}
+        description={t('localWorkspaces.backup.plaintextWarningBody')}
+        confirmLabel={t('localWorkspaces.backup.plaintextWarningConfirm')}
+        busy={actionInFlight}
         onCancel={() => setPendingAction(null)}
         onConfirm={completeAction}
       />
@@ -253,6 +322,7 @@ export function WorkspaceTools({ compact = false }: { compact?: boolean }) {
         title={t('workspace.confirm.reset.title')}
         description={t('workspace.confirm.reset.description')}
         confirmLabel={t('workspace.confirm.reset.label')}
+        busy={actionInFlight}
         onCancel={() => setPendingAction(null)}
         onConfirm={completeAction}
       />

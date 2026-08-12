@@ -9,19 +9,16 @@ import { LanguageControl } from '../components/LanguageControl'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { createDemoWorkspace } from '../models/demo'
 import type { WorkspaceData } from '../models/domain'
+import type { WorkspaceRepositoryPort } from '../db/localWorkspaceManager'
 import { exportWorkspaceJson } from '../utils/workspace-transfer'
 import { I18nProvider, useI18n } from './index'
 import { messages } from './messages'
 import { navigationItems } from '../app/navigation'
 
-const repositoryMocks = vi.hoisted(() => ({
-  getWorkspaceSnapshot: vi.fn(),
-  initializeWorkspace: vi.fn(),
-  mergeWorkspace: vi.fn(),
-  replaceWorkspace: vi.fn(),
+const sessionHook = vi.hoisted(() => ({ value: {} as Record<string, unknown> }))
+vi.mock('../hooks/useWorkspaceSession', () => ({
+  useWorkspaceSession: () => sessionHook.value,
 }))
-
-vi.mock('../db/workspaceRepository', () => repositoryMocks)
 
 let latestWorkspace: WorkspaceData | null = null
 
@@ -52,7 +49,10 @@ function WorkspaceLocaleProbe() {
   )
 }
 
-function contextValue(data: WorkspaceData, error: string | null): WorkspaceContextValue {
+function contextValue(
+  data: WorkspaceData,
+  error: WorkspaceContextValue['error'],
+): WorkspaceContextValue {
   return {
     data,
     loading: false,
@@ -76,6 +76,21 @@ describe('workspace localization boundaries', () => {
     vi.stubGlobal('BroadcastChannel', undefined)
     vi.stubGlobal('scrollTo', vi.fn())
     vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: false }))
+    sessionHook.value = {
+      activeWorkspace: {
+        id: 'demo-workspace',
+        storageId: 'demo-storage',
+        displayName: 'Synthetic demo',
+        kind: 'demo',
+        encryptionMode: 'standard',
+        autoLock: 'never',
+      },
+      lockActiveWorkspace: vi.fn(),
+      openWorkspaceCenter: vi.fn(),
+      exportPlaintextWorkspace: vi.fn(),
+      importPlaintextWorkspaceAsNew: vi.fn(),
+      resetDemoWorkspace: vi.fn(),
+    }
   })
 
   afterEach(() => {
@@ -86,13 +101,24 @@ describe('workspace localization boundaries', () => {
   it('keeps the complete demo workspace and portable JSON semantics unchanged when language changes', async () => {
     const demo = createDemoWorkspace(new Date('2026-08-11T00:00:00.000Z'))
     demo.workspace.revision = 37
-    repositoryMocks.initializeWorkspace.mockResolvedValue(undefined)
-    repositoryMocks.getWorkspaceSnapshot.mockResolvedValue(demo)
+    const repository: WorkspaceRepositoryPort = {
+      getWorkspaceSnapshot: vi.fn(async () => demo),
+      replaceWorkspace: vi.fn(async (snapshot) => snapshot),
+      mergeWorkspace: vi.fn(),
+      refresh: vi.fn(async () => demo),
+      close: vi.fn(),
+    }
     const user = userEvent.setup()
 
     render(
       <I18nProvider>
-        <WorkspaceProvider>
+        <WorkspaceProvider
+          repository={repository}
+          initialSnapshot={demo}
+          workspaceId={demo.workspace.id}
+          storageId="demo-storage"
+          onExternalLock={vi.fn()}
+        >
           <WorkspaceLocaleProbe />
         </WorkspaceProvider>
       </I18nProvider>,
@@ -136,7 +162,7 @@ describe('workspace localization boundaries', () => {
     const user = userEvent.setup()
     const { container } = render(
       <I18nProvider>
-        <WorkspaceContext.Provider value={contextValue(demo, sensitiveInternalError)}>
+        <WorkspaceContext.Provider value={contextValue(demo, 'save-failed')}>
           <MemoryRouter initialEntries={['/projects']}>
             <Routes>
               <Route element={<AppShell />}>
@@ -157,8 +183,8 @@ describe('workspace localization boundaries', () => {
         within(chineseNav).getByRole('link', { name: messages['zh-CN'][item.labelKey] }),
       ).toBeInTheDocument()
     }
-    expect(screen.getByText(messages['zh-CN']['shell.privateByDefault'])).toBeInTheDocument()
-    expect(screen.getByRole('alert')).toHaveTextContent(messages['zh-CN']['shell.workspaceError'])
+    expect(screen.getAllByText(messages['zh-CN']['shell.workspaceMode.standard']).length).toBeGreaterThan(0)
+    expect(screen.getByRole('alert')).toHaveTextContent(messages['zh-CN']['localWorkspaces.error.save-failed'])
     expect(screen.queryByText(sensitiveInternalError)).not.toBeInTheDocument()
 
     const topbar = container.querySelector<HTMLElement>('.topbar')
@@ -172,8 +198,8 @@ describe('workspace localization boundaries', () => {
         within(englishNav).getByRole('link', { name: messages.en[item.labelKey] }),
       ).toBeInTheDocument()
     }
-    expect(screen.getByText(messages.en['shell.privateByDefault'])).toBeInTheDocument()
-    expect(screen.getByRole('alert')).toHaveTextContent(messages.en['shell.workspaceError'])
+    expect(screen.getAllByText(messages.en['shell.workspaceMode.standard']).length).toBeGreaterThan(0)
+    expect(screen.getByRole('alert')).toHaveTextContent(messages.en['localWorkspaces.error.save-failed'])
     expect(screen.queryByText(sensitiveInternalError)).not.toBeInTheDocument()
   })
 })

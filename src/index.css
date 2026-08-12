@@ -3,6 +3,7 @@
 @import './styles/layout.css';
 @import './styles/components.css';
 @import './styles/pages.css';
+@import './styles/workspaces.css';
 
 @layer legacy {
 :root {

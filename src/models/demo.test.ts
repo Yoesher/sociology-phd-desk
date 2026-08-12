@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createDemoWorkspace } from './demo'
+import { createDemoWorkspace, isPristineDemoWorkspace } from './demo'
 import { validateWorkspace } from '../utils/workspace-transfer'
 
 describe('createDemoWorkspace', () => {
@@ -82,5 +82,19 @@ describe('createDemoWorkspace', () => {
     expect(demo.exportedAt).toBe(anchor.toISOString())
     expect(demo.tasks.find((task) => task.id === 'demo-task-reading')?.dueDate).toBe('2026-04-10')
     expect(demo.tasks.find((task) => task.id === 'demo-task-analysis')?.dueDate).toBe('2026-04-11')
+  })
+
+  it('recognizes only the exact pristine fixture, independent of export time and row order', () => {
+    const pristine = createDemoWorkspace(anchor)
+    const reordered = structuredClone(pristine)
+    reordered.exportedAt = '2026-08-12T00:00:00.000Z'
+    reordered.tasks.reverse()
+
+    expect(isPristineDemoWorkspace(pristine)).toBe(true)
+    expect(isPristineDemoWorkspace(reordered)).toBe(true)
+
+    const edited = structuredClone(pristine)
+    edited.projects[0]!.notes = 'A user edit must be preserved as personal research.'
+    expect(isPristineDemoWorkspace(edited)).toBe(false)
   })
 })

@@ -1,10 +1,16 @@
-import { lazy, Suspense, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useRef, type ReactNode } from 'react'
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { BookMarked } from 'lucide-react'
 import { AppShell } from './app/AppShell'
+import { WorkspaceAccessGate } from './app/WorkspaceAccessGate'
+import { WorkspaceCenter } from './app/WorkspaceCenter'
 import { WorkspaceProvider } from './app/WorkspaceContext'
-import { useWorkspace } from './hooks/useWorkspace'
+import { WorkspaceSessionProvider } from './app/WorkspaceSessionContext'
+import { readMountableSnapshot } from './app/session-snapshot'
+import type { OpenedLocalWorkspaceSession } from './db/localWorkspaceManager'
+import { useWorkspaceSession } from './hooks/useWorkspaceSession'
 import { I18nProvider, useI18n } from './i18n'
+import { ENCRYPTED_CONTAINER_VERSION } from './crypto'
+import type { WorkspaceData } from './models/domain'
 
 const TodayPage = lazy(() => import('./features/today/TodayPage').then((module) => ({ default: module.TodayPage })))
 const ProjectsPage = lazy(() => import('./features/projects/ProjectsPage').then((module) => ({ default: module.ProjectsPage })))
@@ -34,35 +40,7 @@ function RouteBoundary({ children }: { children: ReactNode }) {
   )
 }
 
-function WorkspaceGate() {
-  const { loading, data } = useWorkspace()
-  const { t } = useI18n()
-
-  if (loading) {
-    return (
-      <div className="boot-screen">
-        <span className="boot-screen__mark"><BookMarked size={25} /></span>
-        <p className="eyebrow">Sociology PhD Desk</p>
-        <h1>{t('boot.opening.title')}</h1>
-        <span className="boot-screen__progress" aria-label={t('boot.opening.aria')}><i /></span>
-      </div>
-    )
-  }
-
-  if (!data) {
-    return (
-      <div className="boot-screen boot-screen--error">
-        <span className="boot-screen__mark"><BookMarked size={25} /></span>
-        <p className="eyebrow">{t('boot.error.eyebrow')}</p>
-        <h1>{t('boot.error.title')}</h1>
-        <p>{t('boot.error.description')}</p>
-        <button className="button button--primary button--md" type="button" onClick={() => window.location.reload()}>
-          <span>{t('boot.reload')}</span>
-        </button>
-      </div>
-    )
-  }
-
+function ResearchRoutes() {
   return (
     <HashRouter>
       <Routes>
@@ -83,12 +61,150 @@ function WorkspaceGate() {
   )
 }
 
+export function WorkspaceExperience() {
+  const workspaceSession = useWorkspaceSession()
+  const {
+    accessState,
+    activeWorkspace,
+    activeWorkspaceId,
+    busy,
+    error,
+    invalidateActiveSession,
+    session,
+    sessionGeneration,
+    workspaces,
+  } = workspaceSession
+  const mountableSnapshot = readMountableSnapshot(session)
+  const mountSnapshotRef = useRef<{
+    session: OpenedLocalWorkspaceSession
+    snapshot: WorkspaceData
+  } | null>(null)
+  if (!session) {
+    mountSnapshotRef.current = null
+  } else if (mountableSnapshot && mountSnapshotRef.current?.session !== session) {
+    mountSnapshotRef.current = {
+      session,
+      snapshot: structuredClone(mountableSnapshot),
+    }
+  }
+  const transitionSnapshot = session && accessState === 'locking' &&
+    mountSnapshotRef.current?.session === session
+    ? mountSnapshotRef.current.snapshot
+    : null
+  const providerSnapshot = mountableSnapshot ?? transitionSnapshot
+  const sessionMountable = Boolean(session && mountableSnapshot)
+  const renderedAccessState = accessState === 'unlocked' && !sessionMountable
+    ? 'locking'
+    : accessState
+
+  useEffect(() => {
+    if (
+      session && !mountableSnapshot && accessState !== 'locking'
+    ) invalidateActiveSession(
+      session.entry.id,
+      session.storageId,
+      sessionGeneration,
+    )
+  }, [accessState, invalidateActiveSession, mountableSnapshot, session, sessionGeneration])
+
+  const activeSessionOpen = Boolean(
+    renderedAccessState === 'unlocked' && sessionMountable &&
+    session && activeWorkspace && session.entry.id === activeWorkspace.id,
+  )
+  const sharedOriginWarning = window.location.hostname === 'yoesher.github.io'
+
+  const workspaceCenter = (
+    <WorkspaceCenter
+      open={workspaceSession.workspaceCenterOpen}
+      workspaces={workspaces}
+      recoverableProvisioning={workspaceSession.recoverableProvisioning}
+      pendingDeletions={workspaceSession.pendingDeletions}
+      activeWorkspaceId={activeWorkspaceId}
+      activeWorkspaceUnlocked={activeSessionOpen}
+      initialSection={workspaceSession.workspaceCenterSection}
+      busy={busy}
+      error={error}
+      encryptedContainerVersion={ENCRYPTED_CONTAINER_VERSION}
+      sharedOriginWarning={sharedOriginWarning}
+      onClose={workspaceSession.closeWorkspaceCenter}
+      onSelect={workspaceSession.selectWorkspace}
+      onCreate={workspaceSession.createWorkspace}
+      onRecoverProvisioning={workspaceSession.recoverProvisioning}
+      onDiscardProvisioning={workspaceSession.discardProvisioning}
+      onRetryFinalizeDeletion={workspaceSession.retryFinalizeDeletion}
+      onRename={workspaceSession.renameWorkspace}
+      onDelete={workspaceSession.deleteWorkspace}
+      onResetDemo={workspaceSession.resetDemoWorkspace}
+      onAutoLockChange={workspaceSession.updateWorkspaceAutoLock}
+      onConvertToEncrypted={
+        activeWorkspace?.kind === 'personal' && activeWorkspace.encryptionMode === 'standard'
+          ? workspaceSession.convertWorkspaceToEncrypted
+          : undefined
+      }
+      onDiscardEncryptedConversion={workspaceSession.discardEncryptedConversion}
+      onCleanupPlaintextSource={
+        activeSessionOpen && session?.mode === 'encrypted'
+          ? workspaceSession.cleanupPlaintextSource
+          : undefined
+      }
+      onExportPlaintext={activeSessionOpen
+        ? workspaceSession.exportPlaintextWorkspace
+        : undefined}
+      onExportEncrypted={
+        activeSessionOpen && session?.mode === 'encrypted'
+          ? workspaceSession.exportEncryptedWorkspace
+          : undefined
+      }
+      onImportPlaintext={workspaceSession.importPlaintextWorkspaceFile}
+      onImportEncrypted={workspaceSession.importEncryptedWorkspaceFile}
+    />
+  )
+
+  const accessGate = (
+    <WorkspaceAccessGate
+      state={renderedAccessState}
+      activeWorkspace={activeWorkspace}
+      error={error}
+      onOpenStandard={workspaceSession.openActiveStandard}
+      onUnlockEncrypted={workspaceSession.unlockActiveEncrypted}
+      onOpenWorkspacePicker={() => workspaceSession.openWorkspaceCenter('workspaces')}
+      pickerContent={null}
+    >
+      <ResearchRoutes />
+    </WorkspaceAccessGate>
+  )
+
+  return (
+    <>
+      {session && providerSnapshot ? (
+        <WorkspaceProvider
+          key={`${session.entry.id}:${session.storageId}:${sessionGeneration}`}
+          repository={session.repository}
+          initialSnapshot={providerSnapshot}
+          workspaceId={session.entry.id}
+          storageId={session.storageId}
+          onExternalLock={() => invalidateActiveSession(
+            session.entry.id,
+            session.storageId,
+            sessionGeneration,
+          )}
+          onResetDemo={() => workspaceSession.resetDemoWorkspace(session.entry.id)}
+          registerRuntime={workspaceSession.registerResearchRuntime}
+        >
+          {accessGate}
+        </WorkspaceProvider>
+      ) : accessGate}
+      {workspaceCenter}
+    </>
+  )
+}
+
 function App() {
   return (
     <I18nProvider>
-      <WorkspaceProvider>
-        <WorkspaceGate />
-      </WorkspaceProvider>
+      <WorkspaceSessionProvider>
+        <WorkspaceExperience />
+      </WorkspaceSessionProvider>
     </I18nProvider>
   )
 }

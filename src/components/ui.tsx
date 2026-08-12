@@ -35,25 +35,74 @@ interface ModalStackEntry {
 const modalStack: ModalStackEntry[] = []
 let modalKeydownAttached = false
 
-function focusFirstInteractive(dialog: HTMLElement) {
-  const target = Array.from(dialog.querySelectorAll<HTMLElement>(focusableSelector)).find(
-    (element) => element.getAttribute('aria-hidden') !== 'true' && !element.hidden,
+function getFocusableElements(dialog: HTMLElement) {
+  return Array.from(dialog.querySelectorAll<HTMLElement>(focusableSelector)).filter(
+    (element) =>
+      element.getAttribute('aria-hidden') !== 'true' &&
+      !element.hidden &&
+      !(element instanceof HTMLInputElement && element.type === 'hidden') &&
+      !element.closest('[inert]'),
   )
+}
+
+function focusFirstInteractive(dialog: HTMLElement) {
+  const target = getFocusableElements(dialog)[0]
   ;(target ?? dialog).focus({ preventScroll: true })
 }
 
 function handleModalKeyDown(event: KeyboardEvent) {
-  if (event.key !== 'Escape') return
   const topmostModal = modalStack.at(-1)
   if (!topmostModal) return
-  event.preventDefault()
-  event.stopPropagation()
-  topmostModal.onClose()
+
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    event.stopPropagation()
+    topmostModal.onClose()
+    return
+  }
+
+  if (event.key !== 'Tab' || event.altKey || event.ctrlKey || event.metaKey) return
+  const focusableElements = getFocusableElements(topmostModal.dialog)
+  if (focusableElements.length === 0) {
+    event.preventDefault()
+    topmostModal.dialog.focus({ preventScroll: true })
+    return
+  }
+
+  const first = focusableElements[0]
+  const last = focusableElements.at(-1)!
+  const activeElement = document.activeElement
+  const focusIsOutsideTopmost =
+    !(activeElement instanceof Node) || !topmostModal.dialog.contains(activeElement)
+
+  if (event.shiftKey && (activeElement === first || focusIsOutsideTopmost)) {
+    event.preventDefault()
+    last.focus({ preventScroll: true })
+  } else if (!event.shiftKey && (activeElement === last || focusIsOutsideTopmost)) {
+    event.preventDefault()
+    first.focus({ preventScroll: true })
+  }
+}
+
+function syncModalLayers() {
+  const topmostModal = modalStack.at(-1)
+  modalStack.forEach((entry) => {
+    const isTopmost = entry === topmostModal
+    entry.dialog.toggleAttribute('inert', !isTopmost)
+    if (isTopmost) {
+      entry.dialog.removeAttribute('aria-hidden')
+      entry.dialog.setAttribute('aria-modal', 'true')
+    } else {
+      entry.dialog.setAttribute('aria-hidden', 'true')
+      entry.dialog.setAttribute('aria-modal', 'false')
+    }
+  })
 }
 
 function syncModalEnvironment() {
   const hasOpenModal = modalStack.length > 0
   document.body.classList.toggle('modal-open', hasOpenModal)
+  syncModalLayers()
 
   if (hasOpenModal && !modalKeydownAttached) {
     document.addEventListener('keydown', handleModalKeyDown)
@@ -73,8 +122,8 @@ function registerModal(entry: Omit<ModalStackEntry, 'restoreTargets'>) {
   ].filter((element, index, elements) => elements.indexOf(element) === index)
 
   modalStack.push({ ...entry, restoreTargets })
-  syncModalEnvironment()
   focusFirstInteractive(entry.dialog)
+  syncModalEnvironment()
 }
 
 function unregisterModal(id: string) {
@@ -292,6 +341,7 @@ export function ConfirmDialog({
   description,
   confirmLabel,
   tone = 'danger',
+  busy = false,
   onConfirm,
   onCancel,
 }: {
@@ -300,6 +350,7 @@ export function ConfirmDialog({
   description: string
   confirmLabel: string
   tone?: 'danger' | 'primary'
+  busy?: boolean
   onConfirm: () => void | Promise<void>
   onCancel: () => void
 }) {
@@ -309,12 +360,12 @@ export function ConfirmDialog({
       open={open}
       title={title}
       description={description}
-      onClose={onCancel}
+      onClose={busy ? () => undefined : onCancel}
       size="sm"
       footer={
         <>
-          <Button onClick={onCancel}>{t('common.cancel')}</Button>
-          <Button variant={tone} onClick={() => void onConfirm()}>
+          <Button disabled={busy} onClick={onCancel}>{t('common.cancel')}</Button>
+          <Button variant={tone} disabled={busy} aria-busy={busy} onClick={() => void onConfirm()}>
             {confirmLabel}
           </Button>
         </>

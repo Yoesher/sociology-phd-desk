@@ -25,6 +25,8 @@ The product remains sociology-specific and complements, rather than replaces, sp
 
 Phase 3 is planned as six gated increments. Each increment must be implemented, tested, reviewed, and verified in production before work advances to the next one. Listing an increment here does not mean it has shipped; verified status remains in [PROJECT_STATE.md](PROJECT_STATE.md).
 
+**Current gate:** Phase 3A and Phase 3B are complete on `main`. Phase 3C has an unmerged local candidate on `codex/private-local-workspaces`; its Pull Request, CI, review, merge, exact-`main` CI, and Pages gates remain pending. Phase 3D has not begun and stays blocked until every Phase 3C gate passes.
+
 Every Phase 3 increment follows the same evidence chain: scoped Issue → dedicated feature branch → implementation and tests → Pull Request → passing PR CI → maintainer self-review → squash merge → passing `main` CI → GitHub Pages verification. A later increment must not begin while any earlier gate is incomplete.
 
 ### Phase 3A — Chinese-first bilingual foundation

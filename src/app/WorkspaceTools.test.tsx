@@ -1,11 +1,16 @@
-import { render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LanguageControl } from '../components/LanguageControl'
 import { I18nProvider } from '../i18n'
 import { createDemoWorkspace } from '../models/demo'
 import { WorkspaceContext, type WorkspaceContextValue } from './workspace-context'
 import { WorkspaceTools } from './WorkspaceTools'
+
+const sessionHook = vi.hoisted(() => ({ value: {} as Record<string, unknown> }))
+vi.mock('../hooks/useWorkspaceSession', () => ({
+  useWorkspaceSession: () => sessionHook.value,
+}))
 
 function renderWorkspaceTools() {
   const value: WorkspaceContextValue = {
@@ -33,7 +38,23 @@ function renderWorkspaceTools() {
 }
 
 describe('WorkspaceTools localization', () => {
-  beforeEach(() => window.localStorage.clear())
+  afterEach(cleanup)
+
+  beforeEach(() => {
+    window.localStorage.clear()
+    sessionHook.value = {
+      activeWorkspace: {
+        id: 'demo-workspace',
+        storageId: 'demo-storage',
+        displayName: 'Synthetic demo',
+        kind: 'demo',
+        encryptionMode: 'standard',
+      },
+      exportPlaintextWorkspace: vi.fn(),
+      importPlaintextWorkspaceAsNew: vi.fn(),
+      resetDemoWorkspace: vi.fn(),
+    }
+  })
 
   it('localizes the workspace and destructive confirmation dialogs immediately', async () => {
     const user = userEvent.setup()
@@ -50,6 +71,42 @@ describe('WorkspaceTools localization', () => {
     await user.click(screen.getByRole('button', { name: 'English' }))
     expect(screen.getByRole('dialog', { name: 'Restore demo data?' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Restore demo data' })).toBeInTheDocument()
-    expect(screen.getByRole('dialog', { name: 'Workspace data' })).toBeInTheDocument()
+    expect(workspaceDialog).toHaveTextContent('Workspace data')
+    expect(workspaceDialog).toHaveAttribute('inert')
+    expect(workspaceDialog).toHaveAttribute('aria-hidden', 'true')
+  })
+
+  it('guards a deferred isolated import against repeated confirmation clicks', async () => {
+    const user = userEvent.setup()
+    let release!: () => void
+    const importAsNew = vi.fn(() => new Promise<void>((resolve) => { release = resolve }))
+    sessionHook.value = {
+      ...sessionHook.value,
+      importPlaintextWorkspaceAsNew: importAsNew,
+    }
+    renderWorkspaceTools()
+    await user.click(screen.getByRole('button', { name: 'English' }))
+    await user.click(screen.getByRole('button', { name: 'Workspace' }))
+
+    const incoming = createDemoWorkspace(new Date('2026-08-12T00:00:00.000Z'))
+    incoming.workspace.id = 'different-imported-workspace'
+    const file = new File([JSON.stringify(incoming)], 'different.json', {
+      type: 'application/json',
+    })
+    Object.defineProperty(file, 'text', {
+      value: vi.fn(async () => JSON.stringify(incoming)),
+    })
+    await user.upload(screen.getByLabelText('Choose import'), file)
+    await user.click(screen.getByRole('button', { name: 'Create isolated workspace' }))
+
+    const confirm = screen.getByRole('dialog', { name: 'Create a separate workspace?' })
+    const confirmButton = within(confirm).getByRole('button', { name: 'Create isolated workspace' })
+    fireEvent.click(confirmButton)
+    fireEvent.click(confirmButton)
+    expect(importAsNew).toHaveBeenCalledTimes(1)
+    expect(confirmButton).toBeDisabled()
+
+    release()
+    await waitFor(() => expect(confirm).not.toBeInTheDocument())
   })
 })

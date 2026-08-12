@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- A metadata-only local workspace registry with explicit create, select, rename, lock, export, and delete workflows, plus physically separate databases for each personal or synthetic-demo workspace.
+- Standard local workspaces and optional encrypted local workspaces, with a workspace access gate that unmounts research routes while locked and auto-lock choices of Never, 5, 15, 30, or 60 minutes.
+- A separate, clearly synthetic demo workspace that can be reset without mixing or replacing personal research records.
+- A bilingual Workspace Center and Privacy Center for workspace mode, local storage, last-export time, auto-lock, retained-plaintext cleanup state, backups, and threat-model boundaries.
+- Durable recovery records and user-visible retry paths for interrupted provisioning, encrypted conversion, plaintext cleanup, and workspace deletion.
+- Versioned `.sociologydesk` encrypted backup and authenticated restore-as-new-workspace flows, distinct from ordinary portable JSON.
+- Chinese and English privacy-model documentation covering browser isolation, interface locking, encrypted storage, shared-origin code, device compromise, password loss, logical deletion, and backup limits.
 - First-class `ResearchQuestion`, `Claim`, and `ClaimQuestionLink` records with stable IDs, project-scoped many-to-many relationships, and locale-neutral status values.
 - Bilingual Research Questions, Claims, and Research Graph workflows in project detail for creating, inspecting, editing, explicitly linking, and safely deleting graph objects.
 - IndexedDB v3 stores and portable workspace v3 collections for research questions, claims, and their explicit links.
@@ -20,6 +27,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- Replaced the runtime singleton-database assumption with session-bound standard/encrypted repository adapters while keeping portable workspace data at v3.
+- Moved the bundled synthetic demo into its own local workspace and made fresh-install personal data empty. Concurrent first boots converge on deterministic seed routes; only an exact pristine legacy fixture remains demo, while an edited legacy demo is personal data beside a separate pristine demo.
+- Made legacy singleton discovery and standard-to-encrypted conversion staged and non-destructive: physical targets are preflighted, a conversion target is reserved before creation, and a destination must be read back, strictly validated, and semantically matched before its route is published, while old plaintext remains recorded until a later cleanup action.
+- Kept ordinary JSON import/export as the inspectable plaintext portability path; encrypted backup now has a separate container version and custom extension.
+- Made the plaintext registry display name canonical for generated JSON/encrypted payload copies without rewriting the active research snapshot or advancing its workspace-data revision.
 - Portable import now composes supported legacy migration explicitly as v1 → v2 → v3. Legacy `Project.researchQuestion` text becomes a first-class research question; same-project exact-trimmed legacy `Evidence.claim` text produces deterministic claim objects while the original evidence text remains unchanged.
 - Research-graph migration performs no semantic or fuzzy merge, automatic rewriting, or inferred Claim↔ResearchQuestion linking. Explicit Evidence↔Claim linking remains outside this change under Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2); v3 does not add an evidence `claimId`.
 - Project deletion now treats research questions, claims, and claim–question links as dependent research records, while linked questions and claims must be explicitly unlinked before deletion.
@@ -29,10 +41,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Security
 
+- Added Web Crypto authenticated encryption for encrypted workspaces and backups: PBKDF2-HMAC-SHA-256 with 600,000 iterations and a fresh 16-byte salt derives a non-extractable AES-256-GCM key; each encryption uses a fresh 12-byte IV, a 128-bit tag, and authenticated canonical metadata.
+- Kept passphrases and derived keys out of persistent storage and cross-tab messages; wrong passphrases and authenticated-data damage share one generic failure path.
+- Added lock-epoch, optimistic revision, invocation-reservation, workspace-identity, read-back, and cross-workspace guards to reject delayed, stale, colliding, or cross-boundary writes.
+- Added CSPRNG fail-closed identity/locator generation, physical database-name ownership and alias guards, authenticated existing-target conversion retry/discard, flush-before-cleanup with current-session authentication and stable real-database-name double locking, lifecycle-generation checks that prevent delayed refresh after close/lock, and session poisoning/cleared caches after route, storage, or integrity failures.
 - Reject missing graph endpoints, cross-project claim–question relationships, duplicate relationship pairs, and deletes that would orphan explicit research links.
 - Preserve legacy `Evidence.claim` source-context text during migration rather than silently rewriting or discarding it.
 - Preserved user-authored research content exactly during language changes; no automatic translation is performed.
 - Recorded a permanent compliance gate requiring authoritative, legally usable provenance before any public China Research Map boundary asset can ship.
+
+### Privacy
+
+- Standard workspaces and ordinary JSON exports remain plaintext; an interface lock is not described as encryption.
+- The local registry exposes workspace display names, timestamps, modes, auto-lock settings, migration/cleanup state, schema versions, and opaque storage locators, but not research content, passphrases, keys, verifiers, or content digests.
+- Encrypted workspaces store one authenticated ciphertext record instead of plaintext domain tables. Lock or reload discards the current application key reference, without claiming physical memory zeroization.
+- Documented that same-origin scripts and Service Workers, an unlocked or compromised device, browser-profile deletion, storage size, and logical-deletion remnants remain outside the protection provided by encryption at rest.
+
+### Migration
+
+- Added idempotent v1/v2/v3 legacy-singleton copy and read-back verification without automatically deleting the source `sociology-phd-desk` database.
+- Added separately recorded `retained`, `cleanup-pending`, and `removed` plaintext-source states for migration and standard-to-encrypted recovery.
+- Added `encryptedConversion` target reservations and `deleting` tombstone recovery: existing staged ciphertext needs passphrase/identity proof before retry or discard, confirmed-absent staging can be cleared without a passphrase, and unresolved deletion remains available to bootstrap and explicit UI retry.
+- Kept portable workspace v3, standard IndexedDB schema v3, registry database schema v1, encrypted-vault database schema v1, and encrypted container v1 as independent version axes.
+
+### Known limitations
+
+- There is no account, cloud synchronization, password reset, recovery key, or secure-erasure guarantee.
+- Different applications deployed under paths on the same GitHub Pages origin are not separate security origins.
+- Encrypted storage cannot protect an unlocked session from hostile same-origin code, compromised dependencies or extensions, malware, administrators, screenshots, clipboard capture, or operating-system compromise.
+- The Phase 3C work remains an unmerged local candidate until its PR, CI, review, merge, exact-`main` CI, and Pages gates pass; it is not part of the formal `v0.1.0` release.
 
 ## [0.1.0] - 2026-08-11
 

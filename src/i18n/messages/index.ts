@@ -2,6 +2,7 @@ import { commonMessages } from './common'
 import { evidenceMessages } from './evidence'
 import { fieldworkMessages } from './fieldwork'
 import { literatureMessages } from './literature'
+import { localWorkspacesMessages } from './localWorkspaces'
 import { manuscriptsMessages } from './manuscripts'
 import { projectsMessages } from './projects'
 import { quantitativeMessages } from './quantitative'
@@ -15,6 +16,7 @@ const en = {
   ...commonMessages.en,
   ...shellMessages.en,
   ...workspaceMessages.en,
+  ...localWorkspacesMessages.en,
   ...todayMessages.en,
   ...projectsMessages.en,
   ...literatureMessages.en,
@@ -32,6 +34,7 @@ const zhCN: Record<MessageKey, string> = {
   ...commonMessages['zh-CN'],
   ...shellMessages['zh-CN'],
   ...workspaceMessages['zh-CN'],
+  ...localWorkspacesMessages['zh-CN'],
   ...todayMessages['zh-CN'],
   ...projectsMessages['zh-CN'],
   ...literatureMessages['zh-CN'],
