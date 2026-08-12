@@ -70,7 +70,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Different applications deployed under paths on the same GitHub Pages origin are not separate security origins.
 - Encrypted storage cannot protect an unlocked session from hostile same-origin code, compromised dependencies or extensions, malware, administrators, screenshots, clipboard capture, or operating-system compromise.
 - Phase 3C is merged and deployed but remains unreleased; it is not part of the formal `v0.1.0` release.
-- Phase 3D is blocked after its official-source review found no verified combination of source scope, public-redistribution rights, project-specific approval metadata, and testable national completeness. No production map asset or implementation has shipped, and Phase 3E/3F plus `v0.2.0` remain blocked.
+- The China Research Map is deferred and excluded from `v0.2.0` after its official-source review found no verified combination of source scope, public-redistribution rights, project-specific approval metadata, and testable national completeness. No production map asset or implementation has shipped; the recorded gate blocks the map itself, not the non-map release work.
 
 ## [0.1.0] - 2026-08-11
 

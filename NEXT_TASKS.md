@@ -48,35 +48,45 @@
 - [x] Open scoped [PR #14](https://github.com/Yoesher/sociology-phd-desk/pull/14) from exact feature head `a6681fff763c66692126775a341ba64cafe546fc`, pass [push CI run 31551522108 / job 93975026534](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551522108/job/93975026534) and [PR CI run 31551571303 / job 93975177107](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551571303/job/93975177107), and complete [maintainer self-review](https://github.com/Yoesher/sociology-phd-desk/pull/14#issuecomment-5260782671) with P0 = 0 and P1 = 0.
 - [x] Squash-merge PR #14 as [`f8b9ef9`](https://github.com/Yoesher/sociology-phd-desk/commit/f8b9ef94e67730955a4ab4b6fbe27f66ab3a5db9), close Issue #13, pass exact-`main` [CI run 31551698246 / job 93975560577](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551698246/job/93975560577), and pass [Pages run 31551698215](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551698215) build/deploy jobs `93975560485` / `93975708219` plus deployment `5861195664` at `https://yoesher.github.io/sociology-phd-desk/` on the same exact SHA.
 - [x] Verify public HTTP 200, deployed `index-d7Ca3tI7.js` and `index-MceaPGZ1.css` matching the final local build, and a limited real public browser check at 1280 × 720: expected title, `zh-CN`, Demo, all nine modules, and `scrollWidth` 1265 ≤ 1280. English, mobile, workspace-interactive flows, and console/CSP inspection were NOT RUN because the browser bridge timed out; do not call this a complete public smoke pass.
-- [x] Update the verified handoff and public evidence after the remote gates. Phase 3C is complete; keep it in `Unreleased`, leave package/release at `0.1.0` / `v0.1.0`, and require Phase 3D to pass its independent source/compliance gate before implementation.
+- [x] Update the verified handoff and public evidence after the remote gates. Phase 3C is complete; keep it in `Unreleased`, leave package/release at `0.1.0` / `v0.1.0`, and require the independent source/compliance gate before any future map implementation.
 
-## P0 — Phase 3D China Research Map (source/compliance gate BLOCKED)
+## P0 — Phase 3D China Research Map compliance closeout (feature deferred from v0.2.0)
 
 - [x] Start Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8) on `codex/china-research-map` with an independent source/legal gate before any production map implementation.
 - [x] Record the official-source review in [Chinese](docs/zh-CN/map-data-sources.md) and [English](docs/en/map-data-sources.md), including provider, URL, dataset, level, version, terms, redistribution, approval metadata, transformations, limitations, and update path.
 - [x] Record the 2026-08-12 gate honestly: `MAP_SOURCE_VERIFIED=BLOCKED`, `MAP_LICENSE_VERIFIED=BLOCKED`, `MAP_APPROVAL_METADATA=BLOCKED`, and `NATIONAL_MAP_COMPLETENESS=BLOCKED/NOT TESTABLE`.
 - [x] Keep the blocked branch free of map geometry, production administrative master data, external map services, unverified region persistence, and fabricated national-map UI.
-- [x] Open documentation-only [Draft PR #16](https://github.com/Yoesher/sociology-phd-desk/pull/16), pass exact-head [push CI 31556499910](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31556499910) and [PR CI 31556578385](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31556578385), and record the [P0 = 0 / P1 = 0 documentation review](https://github.com/Yoesher/sociology-phd-desk/pull/16#issuecomment-5261353262) without marking it ready, closing Issue #8, or changing any map gate to PASS.
-- [ ] Obtain written rights that expressly cover GitHub, Pages, global public access, forks, archives, extraction, format conversion, simplification, recoloring, responsive scaling, and interactive rendering.
-- [ ] Obtain project-specific map-review approval for the final desktop/mobile/zoom/overlay/interaction output; record the review number, approved specimen, date, validity period, renewal owner, and exact asset hashes.
-- [ ] Freeze authoritative, versioned national and Hong Kong/Macao/Taiwan hierarchy sources without inventing missing levels; document official English-name or deterministic transliteration provenance separately.
-- [ ] Only after all source gates PASS, implement the first-class bilingual module and v4 migration/compatibility contract, including immutable source catalog, workspace-local geographic notes, optional source-qualified FieldSite region links, protected project deletion, standard/encrypted isolation, and v1 → v2 → v3 → v4 migration.
-- [ ] Verify exact national completeness, hierarchy, keyboard/list parity, responsive no-cropping, offline asset fallback, privacy, JSON/encrypted round trips, and real browser behavior before making the PR ready or deploying it.
-- [ ] Stop geographic organization at county level, never require or expose participant coordinates or exact locations, and never upload user notes or fieldwork data to GitHub Pages or a map service.
+- [x] Open documentation-only [Draft PR #16](https://github.com/Yoesher/sociology-phd-desk/pull/16), pass its recorded exact-head CI checks, and retain the [P0 = 0 / P1 = 0 documentation review](https://github.com/Yoesher/sociology-phd-desk/pull/16#issuecomment-5261353262) without changing any map gate to PASS.
+- [ ] Reconcile the final exact PR head so the audit remains `BLOCKED` while explicitly deferring and excluding China Research Map from `v0.2.0`; keep the diff documentation-only and pass CI.
+- [ ] Mark PR #16 ready, complete an exact-head maintainer self-review, and squash-merge the compliance record without describing it as a map implementation.
+- [ ] Close Issue #8 as `not planned` with a maintainer note explaining the unverified open-repository/Pages source, redistribution, transformation, and approval chain and the conditions for a future reopen.
+- [ ] Preserve the future map requirements—written redistribution rights, project-specific approval, authoritative hierarchy, county-level privacy boundary, and full national completeness—but do not implement or continue source hunting in this release cycle.
 
-## P1 — Phase 3E hierarchical navigation, only after Phase 3D passes
+## P0 — Phase 3E Theory Research workspace
 
-- [ ] **BLOCKED by Phase 3D. Do not start until all four map gates, implementation, PR/CI/review, merge, exact-`main` CI, Pages, and public verification pass.**
+- [ ] Search for or create `feat: add a theory research workspace for conceptual sociology`, then branch `feat/theory-research-workspace` from the latest verified `main` after the documentation closeout.
+- [ ] Add only `TheoryMemo` as a new research entity; reuse ResearchQuestion, Claim, Literature, and Manuscript with stable, same-project ID relationships and protected deletion.
+- [ ] Implement complete bilingual Theory CRUD and views for overview, questions/propositions, concepts, mechanisms, dialogue, counterarguments/boundaries, all memos, and theoretical manuscripts. Keep structured prompts UI-only.
+- [ ] Add the locale-neutral Theory task category and minimal clearly synthetic demo memos without converting old tasks, logs, or notes.
+- [ ] Advance portable and standard workspace schemas to v4 with explicit v1 → v2 → v3 → v4 migration; keep encrypted container v1 independent and support authenticated encrypted portable-v3 workspace and backup migration without damaging old ciphertext on failure.
+- [ ] Pass clean install, lint, typecheck, full tests, build, bilingual desktop/mobile real-browser verification, exact PR CI, self-review, squash merge, exact-`main` CI, and Pages before navigation work begins.
+
+## P0 — Phase 3F hierarchical navigation and integrated publishing, only after Theory passes
+
 - [ ] Implement at most two sidebar levels: primary research-work domains and secondary workflows or derived smart views.
 - [ ] Keep secondary navigation decoupled from database enums; do not add persisted states merely to mirror menu labels.
-- [ ] Preserve routes, deep links, bilingual parity, responsive/keyboard access, and content-area drill-down through the migration.
+- [ ] Fix the nine primary modules as Today, Projects, Literature, Theory Research, Fieldwork, Quantitative, Evidence, Research Log, and Manuscripts & Publishing; keep workspace/settings separate at the bottom.
+- [ ] Add the specified smart views, badges, breadcrumbs, compact flyouts, mobile accordion, deep-link query views, restrained context-aware Quick Add, and truly-empty personal-workspace onboarding without mutating research data merely by switching views.
+- [ ] Present Manuscript, Submission, and ReviewerComment together while keeping their schemas independent; preserve `#/manuscripts` and `#/submissions` through compatibility redirects.
+- [ ] Pass the full automated and real Chinese/English desktop/mobile browser gate, exact PR CI, self-review, squash merge, exact-`main` CI, and Pages before release work begins.
 
-## P1 — Phase 3F stabilization and v0.2.0 release, only after Phase 3E passes
+## P0 — Phase 3G v0.2.0 stabilization and release, only after navigation passes
 
-- [ ] **BLOCKED by Phase 3D and Phase 3E. Do not create, move, or publish a `v0.2.0` tag or Release.**
-- [ ] Run the integrated data, privacy, map, navigation, migration, accessibility, responsive, bilingual, CI, Pages, and public-browser release gates.
-- [ ] Reconcile bilingual documentation, privacy and map-source records, architecture decisions, changelog, screenshots, project state, and release notes with the exact verified revision.
-- [ ] Create the v0.2.0 tag and formal release only after all earlier Phase 3 gates pass; never move `v0.1.0`.
+- [ ] Declare `FEATURE FREEZE FOR v0.2.0`; accept only P0/P1 release bugs, documentation, screenshots, version/changelog, accessibility, migration, and security fixes.
+- [ ] Create `release/0.2.0` from verified `main`, update package/lockfile to `0.2.0`, and keep portable schema, standard database schema, encrypted vault schema, encrypted container, and package version as independently documented axes.
+- [ ] Run the integrated bilingual, graph, Theory, private/encrypted workspace, lock/backup, navigation, publishing, old-route, v4 migration, accessibility, responsive, secret-audit, CI, Pages, and public-browser release gates.
+- [ ] Reconcile bilingual README, privacy records, retained map deferral evidence, architecture decisions, changelog, screenshots, project state, evidence register, and release notes with the exact verified revision.
+- [ ] Merge the release PR only with P0 = 0 and P1 = 0, verify exact `main` CI/Pages/public behavior, then create an annotated `v0.2.0` tag and a non-draft, non-prerelease GitHub Release; never move `v0.1.0`.
 
 ## P2 — separate research-traceability backlog (not completed by Phase 3B)
 

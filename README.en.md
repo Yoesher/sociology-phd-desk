@@ -166,7 +166,7 @@ See [architecture overview](docs/architecture/overview.md), [data model](docs/ar
 
 ## Roadmap
 
-The `0.1` line establishes the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure. Phase 3 follows a gated sequence: 3A Chinese-first bilingual foundation, 3B Research Question–Claim graph, 3C private local workspaces, 3D China Research Map, 3E hierarchical navigation and information architecture, and 3F stabilization plus the v0.2.0 release. Work does not advance while an earlier gate remains incomplete.
+The `0.1` line establishes the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure. The frozen `v0.2.0` finalization scope includes the merged Chinese-first bilingual foundation, Research Question–Claim graph, and private local workspaces, followed by the Theory Research workspace, hierarchical navigation, integrated Manuscripts & Publishing UI, and release stabilization. The China Research Map is deferred and excluded from `v0.2.0` because a verifiable public-source, redistribution, and map-approval chain has not been established; it may resume only if those compliance conditions change and are reviewed again.
 
 See [ROADMAP.md](ROADMAP.md). Roadmap entries are intentions, not delivery promises.
 

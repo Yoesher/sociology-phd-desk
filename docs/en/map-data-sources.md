@@ -15,7 +15,7 @@ This file records the provenance, licensing, map-review, and completeness eviden
 | `MAP_APPROVAL_METADATA` | `BLOCKED` | The project has no approval file, map-review number, approved specimen, date, or validity period for its final desktop, mobile, zoom, color, and interaction design. |
 | `NATIONAL_MAP_COMPLETENESS` | `BLOCKED / NOT TESTABLE` | Without an approved final asset, the province–prefecture–county hierarchy, Hong Kong, Macao, Taiwan, South China Sea islands, Diaoyu Dao, and no-cropping requirements cannot be tested. |
 
-If any gate is not `PASS`, Phase 3D cannot merge or deploy, Phase 3E/3F cannot begin, and `v0.2.0` cannot be created.
+If any gate is not `PASS`, the Phase 3D map implementation cannot merge or deploy. The China Research Map is therefore deferred and excluded from `v0.2.0`; these findings do not block the release's non-map Theory, navigation, publishing, or stabilization work.
 
 ## Candidate-source review
 
@@ -108,4 +108,4 @@ Phase 3D may resume only after all of the following evidence is committed and ma
 
 ## Current repository boundary
 
-This BLOCKED closeout adds only this document, its Chinese counterpart, and project-state records. The repository must not gain `public/map/**`, a China SVG/GeoJSON/TopoJSON asset, a production administrative catalog, an external map request, or production code that stores unverified region references. Phase 3D, Phase 3E, Phase 3F, and `v0.2.0` remain blocked.
+This BLOCKED closeout adds only this document, its Chinese counterpart, and project-state records. The repository must not gain `public/map/**`, a China SVG/GeoJSON/TopoJSON asset, a production administrative catalog, an external map request, or production code that stores unverified region references. Phase 3D remains deferred until its own gates pass and is not part of `v0.2.0`; non-map release work may proceed independently.
