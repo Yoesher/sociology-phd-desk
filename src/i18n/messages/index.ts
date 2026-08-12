@@ -10,6 +10,7 @@ import { researchLogMessages } from './researchLog'
 import { shellMessages } from './shell'
 import { submissionsMessages } from './submissions'
 import { todayMessages } from './today'
+import { theoryMessages } from './theory'
 import { workspaceMessages } from './workspace'
 
 const en = {
@@ -18,6 +19,7 @@ const en = {
   ...workspaceMessages.en,
   ...localWorkspacesMessages.en,
   ...todayMessages.en,
+  ...theoryMessages.en,
   ...projectsMessages.en,
   ...literatureMessages.en,
   ...fieldworkMessages.en,
@@ -36,6 +38,7 @@ const zhCN: Record<MessageKey, string> = {
   ...workspaceMessages['zh-CN'],
   ...localWorkspacesMessages['zh-CN'],
   ...todayMessages['zh-CN'],
+  ...theoryMessages['zh-CN'],
   ...projectsMessages['zh-CN'],
   ...literatureMessages['zh-CN'],
   ...fieldworkMessages['zh-CN'],

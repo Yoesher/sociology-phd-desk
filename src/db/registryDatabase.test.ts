@@ -98,6 +98,54 @@ describe('workspace registry', () => {
     ).rejects.toBeInstanceOf(WorkspaceRegistryValidationError)
   })
 
+  it('accepts v3 routing metadata and reconciles it monotonically after verification', async () => {
+    const legacy = entry({ schemaVersion: 3 })
+    await registry.beginProvisioning(legacy)
+    const ready = await registry.markReady(legacy.id, legacy.registryRevision)
+
+    await expect(
+      registry.reconcileVerifiedWorkspaceStorageVersions(
+        ready.id,
+        ready.registryRevision,
+        'storage-wrongroute',
+        ready.encryptionMode,
+        WORKSPACE_SCHEMA_VERSION,
+        4,
+      ),
+    ).rejects.toBeInstanceOf(WorkspaceRegistryValidationError)
+    await expect(
+      registry.reconcileVerifiedWorkspaceStorageVersions(
+        ready.id,
+        ready.registryRevision,
+        ready.storageId,
+        ready.encryptionMode,
+        3,
+        4,
+      ),
+    ).rejects.toBeInstanceOf(WorkspaceRegistryValidationError)
+
+    const reconciled = await registry.reconcileVerifiedWorkspaceStorageVersions(
+      ready.id,
+      ready.registryRevision,
+      ready.storageId,
+      ready.encryptionMode,
+      WORKSPACE_SCHEMA_VERSION,
+      4,
+    )
+    expect(reconciled.schemaVersion).toBe(4)
+    expect(reconciled.storageSchemaVersion).toBe(4)
+    expect(reconciled.registryRevision).toBe(ready.registryRevision + 1)
+    const idempotent = await registry.reconcileVerifiedWorkspaceStorageVersions(
+      reconciled.id,
+      reconciled.registryRevision,
+      reconciled.storageId,
+      reconciled.encryptionMode,
+      WORKSPACE_SCHEMA_VERSION,
+      4,
+    )
+    expect(idempotent).toEqual(reconciled)
+  })
+
   it('never activates provisioning or deleting entries', async () => {
     const provisioning = await registry.beginProvisioning(entry())
     await expect(registry.setActiveWorkspace(provisioning.id)).rejects.toBeInstanceOf(

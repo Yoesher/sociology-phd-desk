@@ -5,8 +5,10 @@ import type {
   Claim,
   ClaimQuestionLink,
   EntityMetadata,
+  LiteratureItem,
   ResearchProject,
   ResearchQuestion,
+  TheoryMemo,
   WorkspaceData,
   WorkspaceMeta,
 } from '../models/domain'
@@ -22,6 +24,7 @@ export const WORKSPACE_COLLECTIONS = [
   'researchQuestions',
   'claims',
   'claimQuestionLinks',
+  'theoryMemos',
   'tasks',
   'literature',
   'fieldSites',
@@ -102,6 +105,7 @@ function emptyMergeCounts(): WorkspaceMergeCounts {
     researchQuestions: 0,
     claims: 0,
     claimQuestionLinks: 0,
+    theoryMemos: 0,
     tasks: 0,
     literature: 0,
     fieldSites: 0,
@@ -123,6 +127,7 @@ function snapshotCollectionCounts(snapshot: WorkspaceData): WorkspaceMergeCounts
     researchQuestions: snapshot.researchQuestions.length,
     claims: snapshot.claims.length,
     claimQuestionLinks: snapshot.claimQuestionLinks.length,
+    theoryMemos: snapshot.theoryMemos.length,
     tasks: snapshot.tasks.length,
     literature: snapshot.literature.length,
     fieldSites: snapshot.fieldSites.length,
@@ -160,14 +165,21 @@ function mergeRecords<T extends EntityMetadata>(
 }
 
 function graphIdentityIssues<T extends EntityMetadata>(
-  collection: 'researchQuestions' | 'claims' | 'claimQuestionLinks',
+  collection:
+    | 'researchQuestions'
+    | 'claims'
+    | 'claimQuestionLinks'
+    | 'literature'
+    | 'theoryMemos',
   localRecords: T[],
   incomingRecords: T[],
   identity: (record: T) => string,
+  shouldCheck: (record: T) => boolean = () => true,
 ): WorkspaceValidationError['issues'] {
   const localById = new Map(localRecords.map((record) => [record.id, record]))
   const issues: WorkspaceValidationError['issues'] = []
   incomingRecords.forEach((record, index) => {
+    if (!shouldCheck(record)) return
     const local = localById.get(record.id)
     if (local && identity(local) !== identity(record)) {
       issues.push({
@@ -179,7 +191,7 @@ function graphIdentityIssues<T extends EntityMetadata>(
   return issues
 }
 
-/** Prevent imported links from silently attaching to different local graph parents. */
+/** Prevent imported relations from silently attaching to different local parents. */
 function assertGraphMergeCollisionsSafe(
   current: WorkspaceData,
   incoming: WorkspaceData,
@@ -188,6 +200,10 @@ function assertGraphMergeCollisionsSafe(
   const localQuestionIds = new Set(current.researchQuestions.map((question) => question.id))
   const localClaimIds = new Set(current.claims.map((claim) => claim.id))
   const localLinkIds = new Set(current.claimQuestionLinks.map((link) => link.id))
+  const localTheoryMemoIds = new Set(current.theoryMemos.map((memo) => memo.id))
+  const incomingMemoLiteratureIds = new Set(
+    incoming.theoryMemos.flatMap((memo) => memo.relatedLiteratureIds),
+  )
   const projectIdentity = (project: ResearchProject) =>
     JSON.stringify([
       project.title,
@@ -211,6 +227,9 @@ function assertGraphMergeCollisionsSafe(
       ) ||
       incoming.claimQuestionLinks.some(
         (link) => link.projectId === project.id && !localLinkIds.has(link.id),
+      ) ||
+      incoming.theoryMemos.some(
+        (memo) => memo.projectId === project.id && !localTheoryMemoIds.has(memo.id),
       )
     if (hasNewGraphChild) {
       projectIssues.push({
@@ -239,6 +258,37 @@ function assertGraphMergeCollisionsSafe(
       current.claimQuestionLinks,
       incoming.claimQuestionLinks,
       (link) => JSON.stringify([link.projectId, link.claimId, link.researchQuestionId]),
+    ),
+    ...graphIdentityIssues<LiteratureItem>(
+      'literature',
+      current.literature,
+      incoming.literature,
+      (item) =>
+        JSON.stringify([
+          item.projectId,
+          item.title,
+          item.authors,
+          item.year,
+          item.journal,
+          item.doi,
+          item.url,
+        ]),
+      (item) => incomingMemoLiteratureIds.has(item.id),
+    ),
+    ...graphIdentityIssues<TheoryMemo>(
+      'theoryMemos',
+      current.theoryMemos,
+      incoming.theoryMemos,
+      (memo) =>
+        JSON.stringify([
+          memo.projectId,
+          memo.memoType,
+          memo.title,
+          memo.content,
+          [...memo.relatedQuestionIds].sort(),
+          [...memo.relatedClaimIds].sort(),
+          [...memo.relatedLiteratureIds].sort(),
+        ]),
     ),
   ]
   if (issues.length > 0) {
@@ -317,6 +367,7 @@ export function buildMergedWorkspace(
     current.claimQuestionLinks,
     incoming.claimQuestionLinks,
   )
+  const theoryMemos = mergeRecords(current.theoryMemos, incoming.theoryMemos)
   const tasks = mergeRecords(current.tasks, incoming.tasks)
   const literature = mergeRecords(current.literature, incoming.literature)
   const fieldSites = mergeRecords(current.fieldSites, incoming.fieldSites)
@@ -348,6 +399,7 @@ export function buildMergedWorkspace(
       researchQuestions: researchQuestions.records,
       claims: claims.records,
       claimQuestionLinks: claimQuestionLinks.records,
+      theoryMemos: theoryMemos.records,
       tasks: tasks.records,
       literature: literature.records,
       fieldSites: fieldSites.records,
@@ -372,6 +424,7 @@ export function buildMergedWorkspace(
         researchQuestions: researchQuestions.added,
         claims: claims.added,
         claimQuestionLinks: claimQuestionLinks.added,
+        theoryMemos: theoryMemos.added,
         tasks: tasks.added,
         literature: literature.added,
         fieldSites: fieldSites.added,
@@ -390,6 +443,7 @@ export function buildMergedWorkspace(
         researchQuestions: researchQuestions.skipped,
         claims: claims.skipped,
         claimQuestionLinks: claimQuestionLinks.skipped,
+        theoryMemos: theoryMemos.skipped,
         tasks: tasks.skipped,
         literature: literature.skipped,
         fieldSites: fieldSites.skipped,
@@ -471,6 +525,7 @@ export class StandardWorkspaceRepository {
       this.database.researchQuestions.bulkPut(snapshot.researchQuestions),
       this.database.claims.bulkPut(snapshot.claims),
       this.database.claimQuestionLinks.bulkPut(snapshot.claimQuestionLinks),
+      this.database.theoryMemos.bulkPut(snapshot.theoryMemos),
       this.database.tasks.bulkPut(snapshot.tasks),
       this.database.literature.bulkPut(snapshot.literature),
       this.database.fieldSites.bulkPut(snapshot.fieldSites),
@@ -502,6 +557,7 @@ export class StandardWorkspaceRepository {
       researchQuestions,
       claims,
       claimQuestionLinks,
+      theoryMemos,
       tasks,
       literature,
       fieldSites,
@@ -519,6 +575,7 @@ export class StandardWorkspaceRepository {
       this.database.researchQuestions.toArray(),
       this.database.claims.toArray(),
       this.database.claimQuestionLinks.toArray(),
+      this.database.theoryMemos.toArray(),
       this.database.tasks.toArray(),
       this.database.literature.toArray(),
       this.database.fieldSites.toArray(),
@@ -543,6 +600,7 @@ export class StandardWorkspaceRepository {
         researchQuestions,
         claims,
         claimQuestionLinks,
+        theoryMemos,
         tasks,
         literature,
         fieldSites,

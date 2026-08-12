@@ -24,6 +24,7 @@ const legacyCollections = [
   'researchQuestions',
   'claims',
   'claimQuestionLinks',
+  'theoryMemos',
   'tasks',
   'literature',
   'fieldSites',
@@ -91,7 +92,7 @@ export async function readLegacySingleton(
   try {
     await database.open()
     const databaseVersion = database.verno
-    if (![1, 2, 3].includes(databaseVersion)) {
+    if (![1, 2, 3, 4].includes(databaseVersion)) {
       throw new LegacyWorkspaceMigrationError(
         'unsupported-version',
         `Legacy database version ${databaseVersion} is not supported.`,
@@ -134,12 +135,16 @@ export async function readLegacySingleton(
       ) as Record<(typeof legacyCollections)[number], unknown[]>
 
       const legacyGraphCollections =
-        databaseVersion === 3
+        databaseVersion >= 3
           ? {
               researchQuestions: collections.researchQuestions,
               claims: collections.claims,
               claimQuestionLinks: collections.claimQuestionLinks,
             }
+          : {}
+      const legacyTheoryCollections =
+        databaseVersion === 4
+          ? { theoryMemos: collections.theoryMemos }
           : {}
       const input: Record<string, unknown> = {
         ...(databaseVersion === 1 ? {} : { application: WORKSPACE_APPLICATION }),
@@ -160,6 +165,7 @@ export async function readLegacySingleton(
         submissions: collections.submissions,
         reviewerComments: collections.reviewerComments,
         ...legacyGraphCollections,
+        ...legacyTheoryCollections,
       }
       const validation = validateWorkspace(input)
       if (!validation.success) {

@@ -276,6 +276,26 @@ describe('ProjectsPage localization and research graph boundary', () => {
     expect(blockedDialog).toHaveTextContent('必须先移动或删除 1 条关联记录')
   })
 
+  it('protects Research Question and Claim endpoints referenced by a theory memo', async () => {
+    const user = userEvent.setup()
+    const initial = createDemoWorkspace(new Date('2026-08-11T00:00:00.000Z'))
+    const theoryProject = initial.projects.find((project) => project.method === 'Theoretical')!
+    const isolated: WorkspaceData = {
+      ...initial,
+      claimQuestionLinks: initial.claimQuestionLinks.filter((link) => link.projectId !== theoryProject.id),
+    }
+    renderProjects(isolated)
+
+    await user.click(screen.getByRole('button', { name: new RegExp(theoryProject.title) }))
+    const projectDialog = screen.getByRole('dialog', { name: theoryProject.title })
+    await user.click(within(projectDialog).getByRole('button', { name: /删除问题：DEMO question/ }))
+    expect(screen.getByRole('dialog', { name: '删除前请先移除明确关联' })).toHaveTextContent('理论备忘引用')
+    await user.click(within(screen.getByRole('dialog', { name: '删除前请先移除明确关联' })).getByRole('button', { name: '保留记录' }))
+
+    await user.click(within(projectDialog).getByRole('button', { name: /删除主张：DEMO proposition/ }))
+    expect(screen.getByRole('dialog', { name: '删除前请先移除明确关联' })).toHaveTextContent('理论备忘引用')
+  })
+
   it('switches all graph chrome to English without translating user-authored content', async () => {
     const user = userEvent.setup()
     const initial = createDemoWorkspace(new Date('2026-08-11T00:00:00.000Z'))

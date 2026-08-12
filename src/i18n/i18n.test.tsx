@@ -23,6 +23,7 @@ import {
   SUPPORT_LEVELS,
   TASK_CATEGORIES,
   TASK_STATUSES,
+  THEORY_MEMO_TYPES,
   WORK_PRODUCT_STATUSES,
 } from '../models/domain'
 import { createDemoWorkspace } from '../models/demo'
@@ -39,6 +40,7 @@ const allDomainValues = [
   ...PROJECT_STATUSES,
   ...TASK_CATEGORIES,
   ...TASK_STATUSES,
+  ...THEORY_MEMO_TYPES,
   ...PRIORITIES,
   ...LITERATURE_STATUSES,
   ...FIELD_SITE_STATUSES,
@@ -143,8 +145,8 @@ describe('Chinese-first i18n', () => {
     }
   })
 
-  it('localizes all nine navigation items in both languages', () => {
-    expect(navigationItems).toHaveLength(9)
+  it('localizes the Theory-era primary navigation in both languages', () => {
+    expect(navigationItems).toHaveLength(10)
     for (const item of navigationItems) {
       expect(messages.en[item.labelKey]).toBeTruthy()
       expect(messages['zh-CN'][item.labelKey]).toBeTruthy()
@@ -155,6 +157,7 @@ describe('Chinese-first i18n', () => {
       '今日',
       '研究项目',
       '文献',
+      '理论研究',
       '田野与访谈',
       '定量分析',
       '证据',

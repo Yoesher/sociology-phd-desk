@@ -2,7 +2,8 @@
 
 > 状态：**BLOCKED**
 > 核验日期：2026-08-12
-> 适用范围：Phase 3D / Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8)
+> 适用范围：Phase 3D / Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8)，现为 `CLOSED_NOT_PLANNED`
+> 收口状态：仅文档 [PR #16](https://github.com/Yoesher/sociology-phd-desk/pull/16) 已合并为 [`ca4429f`](https://github.com/Yoesher/sociology-phd-desk/commit/ca4429facfa124e85c3dba37f9ce7da270a82601)，exact-`main` CI 与 Pages 通过；没有地图交付。
 
 本文件记录中国研究地图在提交任何生产行政区目录、边界几何或公开交互地图之前必须通过的来源、许可、审图和完整性核验。它不是法律意见；涉及地图公开展示、数据再分发或格式转换时，维护者仍需取得主管部门或合格地图服务机构的正式确认。
 
@@ -108,4 +109,4 @@ Phase 3D 只有在以下证据全部落盘并经维护者复核后才可继续�
 
 ## 当前仓库边界
 
-本次 BLOCKED 收口只提交本文件、英文对应文件和项目状态记录。仓库中不得新增 `public/map/**`、中国 SVG/GeoJSON/TopoJSON、行政区生产主数据、外部地图请求或启用地区写入的生产代码。Phase 3D 在自身门禁通过前保持暂缓且不属于 `v0.2.0`；非地图发布工作可以独立继续。
+本次 BLOCKED 收口只提交了文档与项目状态记录。PR #16 已合并，Issue #8 已按 not planned 关闭；这些流程状态不会把任何门禁改成 PASS。仓库中不得新增 `public/map/**`、中国 SVG/GeoJSON/TopoJSON、行政区生产主数据、外部地图请求或启用地区写入的生产代码。Phase 3D 在自身门禁通过前保持暂缓且不属于 `v0.2.0`；非地图发布工作可以独立继续。

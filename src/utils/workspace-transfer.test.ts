@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { createDemoWorkspace } from '../models/demo'
+import { THEORY_MEMO_TYPES } from '../models/domain'
 import {
   WorkspaceValidationError,
   exportWorkspaceJson,
   importWorkspaceJson,
   migrateWorkspaceV1ToV2,
   migrateWorkspaceV2ToV3,
+  migrateWorkspaceV3ToV4,
   validateWorkspace,
 } from './workspace-transfer'
 
@@ -25,6 +27,7 @@ function createLegacyV2Envelope(): Record<string, unknown> {
   delete legacy['researchQuestions']
   delete legacy['claims']
   delete legacy['claimQuestionLinks']
+  delete legacy['theoryMemos']
   return legacy
 }
 
@@ -39,13 +42,20 @@ describe('workspace JSON transfer', () => {
     expect(imported.researchQuestions).toEqual(demo.researchQuestions)
     expect(imported.claims).toEqual(demo.claims)
     expect(imported.claimQuestionLinks).toEqual(demo.claimQuestionLinks)
+    expect(imported.theoryMemos).toEqual(demo.theoryMemos)
     expect(imported.evidence).toEqual(demo.evidence)
     expect(imported.reviewerComments).toEqual(demo.reviewerComments)
     expect(new Date(imported.exportedAt).toString()).not.toBe('Invalid Date')
   })
 
-  it('imports v1 through the explicit v1-to-v2-to-v3 migration chain', () => {
+  it('imports v1 through the explicit v1-to-v2-to-v3-to-v4 migration chain', () => {
     const legacy = createLegacyV2Envelope()
+    const legacyProjects = legacy['projects'] as Array<Record<string, unknown>>
+    const expectedQuestionCount = legacyProjects.filter(
+      (project) =>
+        typeof project['researchQuestion'] === 'string' &&
+        project['researchQuestion'].trim().length > 0,
+    ).length
     legacy['version'] = 1
     delete legacy['application']
     const legacyWorkspace = legacy['workspace'] as Record<string, unknown>
@@ -53,14 +63,15 @@ describe('workspace JSON transfer', () => {
 
     const imported = importWorkspaceJson(JSON.stringify(legacy))
 
-    expect(imported.version).toBe(3)
+    expect(imported.version).toBe(4)
     expect(imported.application).toBe('sociology-phd-desk')
     expect(imported.workspace.revision).toBe(0)
-    expect(imported.projects).toHaveLength(1)
+    expect(imported.projects).toHaveLength(legacyProjects.length)
     expect(imported.interviews).toHaveLength(2)
-    expect(imported.researchQuestions).toHaveLength(1)
+    expect(imported.researchQuestions).toHaveLength(expectedQuestionCount)
     expect(imported.claims).toHaveLength(2)
     expect(imported.claimQuestionLinks).toEqual([])
+    expect(imported.theoryMemos).toEqual([])
     expect('researchQuestion' in (imported.projects[0] ?? {})).toBe(false)
 
     const v2 = migrateWorkspaceV1ToV2(legacy) as Record<string, unknown>
@@ -69,6 +80,136 @@ describe('workspace JSON transfer', () => {
     const v3 = migrateWorkspaceV2ToV3(v2) as Record<string, unknown>
     expect(v3['version']).toBe(3)
     expect(Array.isArray(v3['researchQuestions'])).toBe(true)
+    const v4 = migrateWorkspaceV3ToV4(v3) as Record<string, unknown>
+    expect(v4['version']).toBe(4)
+    expect(v4['theoryMemos']).toEqual([])
+  })
+
+  it('migrates a strict v3 workspace to an empty v4 theory collection without inference', () => {
+    const legacy = structuredClone(createDemoWorkspace(anchor)) as unknown as Record<
+      string,
+      unknown
+    >
+    legacy['version'] = 3
+    delete legacy['theoryMemos']
+    ;(legacy['researchLogs'] as Array<Record<string, unknown>>)[0]!['whatChanged'] =
+      'A concept, mechanism, and counterargument appear here but must not become memos.'
+
+    const migrated = migrateWorkspaceV3ToV4(legacy) as Record<string, unknown>
+    const imported = importWorkspaceJson(JSON.stringify(legacy))
+
+    expect(migrated['version']).toBe(4)
+    expect(migrated['theoryMemos']).toEqual([])
+    expect(imported.theoryMemos).toEqual([])
+  })
+
+  it('rejects an ambiguous v3 envelope that already contains theory memos', () => {
+    const legacy = structuredClone(createDemoWorkspace(anchor)) as unknown as Record<
+      string,
+      unknown
+    >
+    legacy['version'] = 3
+
+    expect(validateWorkspace(legacy).success).toBe(false)
+  })
+
+  it('accepts every raw theory memo type and the theory task category', () => {
+    const input = structuredClone(createDemoWorkspace(anchor))
+    const source = input.theoryMemos[0]
+    if (!source) throw new Error('Expected a demo theory memo.')
+    for (const memoType of THEORY_MEMO_TYPES) {
+      if (input.theoryMemos.some((memo) => memo.memoType === memoType)) continue
+      input.theoryMemos.push({
+        ...source,
+        id: `theory-memo-${memoType}`,
+        memoType,
+        title: `${memoType} memo`,
+      })
+    }
+
+    expect(validateWorkspace(input).success).toBe(true)
+    expect(input.tasks.some((task) => task.category === 'Theory / Conceptual Work')).toBe(
+      true,
+    )
+
+    const localized = input as unknown as {
+      theoryMemos: Array<{ memoType: string }>
+    }
+    localized.theoryMemos[0]!.memoType = '概念'
+    expect(validateWorkspace(localized).success).toBe(false)
+  })
+
+  it('allows an empirical project to use a theory memo with same-project links', () => {
+    const input = structuredClone(createDemoWorkspace(anchor))
+    const empiricalProject = input.projects.find(
+      (project) => project.method !== 'Theoretical',
+    )
+    const question = input.researchQuestions.find(
+      (item) => item.projectId === empiricalProject?.id,
+    )
+    const claim = input.claims.find((item) => item.projectId === empiricalProject?.id)
+    const literature = input.literature.find(
+      (item) => item.projectId === empiricalProject?.id,
+    )
+    const source = input.theoryMemos[0]
+    if (!empiricalProject || !question || !claim || !literature || !source) {
+      throw new Error('Expected empirical and theory demo records.')
+    }
+    input.theoryMemos.push({
+      ...source,
+      id: 'empirical-project-theory-memo',
+      projectId: empiricalProject.id,
+      memoType: 'dialogue',
+      title: 'Empirical project theoretical dialogue',
+      relatedQuestionIds: [question.id],
+      relatedClaimIds: [claim.id],
+      relatedLiteratureIds: [literature.id],
+    })
+
+    expect(validateWorkspace(input).success).toBe(true)
+  })
+
+  it('rejects duplicate, dangling, and cross-project theory memo links', () => {
+    const input = structuredClone(createDemoWorkspace(anchor))
+    const memo = input.theoryMemos[0]
+    const theoryProjectId = memo?.projectId
+    const theoryClaim = input.claims.find((claim) => claim.projectId === theoryProjectId)
+    const otherClaim = input.claims.find((claim) => claim.projectId !== theoryProjectId)
+    const otherLiterature = input.literature.find(
+      (item) => item.projectId !== theoryProjectId,
+    )
+    if (!memo || !theoryClaim || !otherClaim || !otherLiterature) {
+      throw new Error('Expected theory and cross-project demo records.')
+    }
+    const relatedQuestionId = memo.relatedQuestionIds[0]
+    if (!relatedQuestionId) throw new Error('Expected a related demo question.')
+
+    memo.relatedQuestionIds = [relatedQuestionId, relatedQuestionId, 'missing-question']
+    memo.relatedClaimIds = [theoryClaim.id, theoryClaim.id, 'missing-claim', otherClaim.id]
+    memo.relatedLiteratureIds = [
+      otherLiterature.id,
+      otherLiterature.id,
+      'missing-literature',
+    ]
+
+    const result = validateWorkspace(input)
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const paths = result.issues.map((issue) => issue.path.join('.'))
+      expect(paths).toEqual(
+        expect.arrayContaining([
+          'theoryMemos.0.relatedQuestionIds.1',
+          'theoryMemos.0.relatedQuestionIds.2',
+          'theoryMemos.0.relatedClaimIds.1',
+          'theoryMemos.0.relatedClaimIds.2',
+          'theoryMemos.0.relatedClaimIds.3',
+          'theoryMemos.0.relatedLiteratureIds.0',
+          'theoryMemos.0.relatedLiteratureIds.1',
+          'theoryMemos.0.relatedLiteratureIds.2',
+        ]),
+      )
+    }
   })
 
   it('migrates legacy text deterministically without rewriting evidence or inferring links', () => {
@@ -88,7 +229,7 @@ describe('workspace JSON transfer', () => {
       shortTitle: 'Project B',
       researchQuestion: '  A second exact question?  ',
     }
-    legacy['projects'] = [firstProject, secondProject]
+    legacy['projects'] = [...projects, secondProject]
     legacy['evidence'] = [
       { ...firstEvidence, id: 'legacy-evidence-a1', claim: '  Exact claim text  ' },
       { ...firstEvidence, id: 'legacy-evidence-a2', claim: 'Exact claim text' },
@@ -293,6 +434,7 @@ describe('workspace JSON transfer', () => {
       title: 'Graph project B',
       shortTitle: 'Graph B',
     })
+    const appendedLinkIndex = input.claimQuestionLinks.length
     input.claimQuestionLinks.push({ ...link, id: 'duplicate-graph-link' })
     input.claimQuestionLinks.push({
       ...link,
@@ -312,9 +454,10 @@ describe('workspace JSON transfer', () => {
       const paths = result.issues.map((issue) => issue.path.join('.'))
       expect(paths).toEqual(
         expect.arrayContaining([
-          'claimQuestionLinks.3.claimId',
-          'claimQuestionLinks.4.claimId',
-          'claimQuestionLinks.4.researchQuestionId',
+          `claimQuestionLinks.${appendedLinkIndex}.researchQuestionId`,
+          `claimQuestionLinks.${appendedLinkIndex + 1}.claimId`,
+          `claimQuestionLinks.${appendedLinkIndex + 2}.claimId`,
+          `claimQuestionLinks.${appendedLinkIndex + 2}.researchQuestionId`,
         ]),
       )
       expect(

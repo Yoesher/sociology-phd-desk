@@ -18,6 +18,7 @@ import type {
   SupportLevel,
   TaskCategory,
   TaskStatus,
+  TheoryMemoType,
   WorkProductStatus,
 } from '../models/domain'
 
@@ -28,6 +29,7 @@ export type LocalizedDomainValue =
   | ProjectStatus
   | TaskCategory
   | TaskStatus
+  | TheoryMemoType
   | Priority
   | LiteratureStatus
   | FieldSiteStatus
@@ -64,6 +66,13 @@ export const domainLabelKeys = {
   'Reading': 'enum.reading',
   'Fieldwork / Interview': 'enum.fieldworkInterview',
   'Research Administration': 'enum.researchAdministration',
+  'Theory / Conceptual Work': 'enum.theoryConceptualWork',
+  'concept': 'enum.theoryMemoConcept',
+  'mechanism': 'enum.theoryMemoMechanism',
+  'dialogue': 'enum.theoryMemoDialogue',
+  'counterargument': 'enum.theoryMemoCounterargument',
+  'boundary': 'enum.theoryMemoBoundary',
+  'synthesis': 'enum.theoryMemoSynthesis',
   'To Do': 'enum.toDo',
   'In Progress': 'enum.inProgress',
   'Done': 'enum.done',

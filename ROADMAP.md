@@ -25,7 +25,7 @@ The product remains sociology-specific and complements, rather than replaces, sp
 
 Phase 3 uses independently verified increments. Listing an increment here does not mean it has shipped; verified status remains in [PROJECT_STATE.md](PROJECT_STATE.md).
 
-**Current finalization scope:** Phase 3A, Phase 3B, and Phase 3C are complete on `main`. The Phase 3D China Research Map source/compliance review is complete with all four map gates **BLOCKED**, so the map feature is deferred and excluded from `v0.2.0`. No map asset or implementation may merge or deploy. The non-map release sequence is Theory Research workspace → hierarchical navigation and integrated publishing → stabilization and `v0.2.0`. See the retained bilingual source register: [简体中文](docs/zh-CN/map-data-sources.md) / [English](docs/en/map-data-sources.md).
+**Current finalization scope:** Phase 3A, Phase 3B, and Phase 3C are complete on `main`. The Phase 3D China Research Map source/compliance review is merged and deployed as documentation-only exact `main` [`ca4429f`](https://github.com/Yoesher/sociology-phd-desk/commit/ca4429facfa124e85c3dba37f9ce7da270a82601); PR #16 is merged, Issue #8 is `CLOSED_NOT_PLANNED`, and all four map gates remain **BLOCKED**. No map asset or implementation shipped. Phase 3E Theory Research is an unmerged local candidate whose final full-suite, build, browser, PR/CI, merge, and Pages gates remain pending. Phase 3F navigation is blocked until those Theory gates pass. The non-map release sequence remains Theory Research → hierarchical navigation and integrated publishing → stabilization and `v0.2.0`. See the retained bilingual source register: [简体中文](docs/zh-CN/map-data-sources.md) / [English](docs/en/map-data-sources.md).
 
 Every implemented increment follows the same evidence chain: scoped Issue → dedicated feature branch → implementation and tests → Pull Request → passing PR CI → maintainer self-review → squash merge → passing `main` CI → GitHub Pages verification. The map's blocked gate applies to the map alone; each non-map increment must pass its own complete gate before the next begins.
 
@@ -40,7 +40,7 @@ Every implemented increment follows the same evidence chain: scoped Issue → de
 
 - Promote Research Question and Claim to first-class, versioned domain objects rather than storing them only as incidental text.
 - Represent the explicit, inspectable many-to-many relationship between research questions and analytical claims with stable IDs and same-project integrity.
-- Introduce schema version 3 only with migration, import/export compatibility, graph-integrity, and protected-delete tests.
+- Keep the merged research-graph v3 migration and introduce candidate schema v4 only through explicit v1 → v2 → v3 → v4 migration, import/export compatibility, graph/theory integrity, and protected-delete tests.
 - Preserve legacy question and claim text through deterministic migration without semantic matching, automatic rewriting, or inferred claim-to-question links.
 - Keep this work focused on research traceability; it is not a generic visual knowledge-graph editor.
 
@@ -64,10 +64,11 @@ The 2026-08-12 review found every mandatory map gate blocked. China Research Map
 
 ### Phase 3E — Theory Research workspace
 
-- Add one first-class `TheoryMemo` object for conceptual definitions, mechanisms, theoretical dialogue, counterarguments, boundary conditions, and synthesis while reusing existing ResearchQuestion, Claim, Literature, and Manuscript objects.
-- Keep memo relationships stable-ID, same-project, locale-neutral, and explicit; UI prompts guide reasoning but never become stored research content automatically.
-- Advance portable and standard workspace data through an explicit v3 → v4 migration while keeping encrypted container v1 independent and supporting authenticated v3 encrypted-workspace/backup migration.
-- Provide complete Chinese and English Theory views, CRUD, task category, minimal synthetic demo records, and standard/encrypted workspace coverage.
+- The local candidate adds one first-class `TheoryMemo` object for conceptual definitions, mechanisms, theoretical dialogue, counterarguments, boundary conditions, and synthesis while reusing existing ResearchQuestion, Claim, Literature, and Manuscript objects.
+- Every memo relationship is stable-ID based, same-project, locale-neutral, explicit, duplicate-free, and deletion-protected; UI prompts guide reasoning but never become stored research content automatically.
+- Candidate portable and standard workspace data advance through explicit v1 → v2 → v3 → v4 migration. Encrypted container v1, encrypted-vault database v1, and registry database v1 remain independent; authenticated portable-v3 ciphertext and backups upgrade only after authentication and verification.
+- The local candidate provides Chinese and English Theory views, full memo CRUD, project/type/date filters, the stable `Theory / Conceptual Work` task category, and two clearly synthetic demo memos.
+- **Not delivered yet:** the latest exact-tree independent audit recorded P0 = 0 / P1 = 0, but final full automated suite, production build, bilingual desktop/mobile browser and accessibility smoke, review re-confirmation after any later change, PR/CI, merge, exact-`main` CI, Pages, and public verification remain pending.
 
 ### Phase 3F — Hierarchical navigation and information architecture
 

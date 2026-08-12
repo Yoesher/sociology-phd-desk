@@ -35,6 +35,16 @@ const storesV1 = {
 }
 
 const storesV2 = { ...storesV1, workspaces: '&id, revision, updatedAt' }
+const storesV3 = {
+  ...storesV2,
+  researchQuestions: '&id, projectId, status, updatedAt',
+  claims: '&id, projectId, status, updatedAt',
+  claimQuestionLinks: '&id, projectId, claimId, researchQuestionId, updatedAt',
+}
+const storesV4 = {
+  ...storesV3,
+  theoryMemos: '&id, projectId, memoType, updatedAt',
+}
 
 const legacyCollectionNames = [
   'tasks',
@@ -72,22 +82,51 @@ function legacyV2Data(anchor: Date): Record<string, unknown> {
 
 async function seedLegacyDatabase(
   databaseName: string,
-  version: 1 | 2 | 3,
+  version: 1 | 2 | 3 | 4,
   workspaceId?: string,
 ): Promise<void> {
   const anchor = new Date('2026-08-12T00:00:00.000Z')
-  if (version === 3) {
+  if (version >= 3) {
     const snapshot = createDemoWorkspace(anchor)
+    if (version === 3) {
+      const theoryProjectIds = new Set(snapshot.theoryMemos.map((memo) => memo.projectId))
+      snapshot.projects = snapshot.projects.filter(
+        (project) => !theoryProjectIds.has(project.id),
+      )
+      snapshot.researchQuestions = snapshot.researchQuestions.filter(
+        (question) => !theoryProjectIds.has(question.projectId),
+      )
+      snapshot.claims = snapshot.claims.filter(
+        (claim) => !theoryProjectIds.has(claim.projectId),
+      )
+      snapshot.claimQuestionLinks = snapshot.claimQuestionLinks.filter(
+        (link) => !theoryProjectIds.has(link.projectId),
+      )
+      snapshot.tasks = snapshot.tasks.filter(
+        (task) => !theoryProjectIds.has(task.projectId),
+      )
+      snapshot.theoryMemos = []
+    }
     if (workspaceId) {
       snapshot.workspace.id = workspaceId
       snapshot.workspace.name = 'Edited legacy workspace'
       snapshot.workspace.isDemo = false
       snapshot.workspace.revision = 2
     }
-    const database = new SociologyPhdDeskDatabase(databaseName)
-    const repository = new StandardWorkspaceRepository(database, snapshot.workspace.id)
-    await repository.provisionWorkspace(snapshot)
-    repository.close()
+    const database = new Dexie(databaseName)
+    database.version(version).stores(version === 3 ? storesV3 : storesV4)
+    await database.table('workspaces').put(snapshot.workspace)
+    await database.table('projects').bulkPut(snapshot.projects)
+    await database.table('researchQuestions').bulkPut(snapshot.researchQuestions)
+    await database.table('claims').bulkPut(snapshot.claims)
+    await database.table('claimQuestionLinks').bulkPut(snapshot.claimQuestionLinks)
+    if (version === 4) {
+      await database.table('theoryMemos').bulkPut(snapshot.theoryMemos)
+    }
+    for (const name of legacyCollectionNames) {
+      await database.table(name).bulkPut(snapshot[name])
+    }
+    database.close()
     return
   }
 
@@ -127,7 +166,7 @@ describe('legacy singleton migration', () => {
     await Promise.all(legacyNames.map((name) => Dexie.delete(name)))
   })
 
-  it.each([1, 2, 3] as const)(
+  it.each([1, 2, 3, 4] as const)(
     'copies and read-back verifies legacy database v%s without changing the source',
     async (version) => {
       const legacyName = `legacy-v${version}-${crypto.randomUUID()}`

@@ -15,6 +15,11 @@ Use this checklist for every release. A checked item means it was verified again
 - [ ] A fresh browser profile opens in Simplified Chinese; switching to English is immediate and survives reload.
 - [ ] Both languages cover every current route, validation message, dialog, empty state, accessible name, and responsive table label.
 - [ ] Language switching does not alter workspace revision, demo markers, user-authored content, enum values, or portable JSON semantics.
+- [ ] Theory Memo create/read/update/delete, project/type/date filters, all bilingual views, same-project question/claim/literature links, deletion protection, UI-only prompts, and theoretical-manuscript reuse work on the exact release revision.
+- [ ] `Theory / Conceptual Work` remains a locale-neutral raw task category while its display label and filters follow the selected language.
+- [ ] Fresh personal data remains empty; the demo's Theory records are minimal, explicitly synthetic, and make no real citation, finding, or theoretical-conclusion claim.
+- [ ] Portable and standard v4 round-trip; v1 → v2 → v3 → v4 migration adds no inferred theory; ambiguous, duplicate, dangling, and cross-project Theory relationships produce zero writes.
+- [ ] Container v1, encrypted-vault database v1, and registry database v1 remain distinct from portable/standard v4; authenticated legacy portable-v3 vaults/backups migrate safely and every failure retains old ciphertext or creates no target.
 
 ## Quality gates
 
@@ -27,6 +32,7 @@ Use this checklist for every release. A checked item means it was verified again
 - [ ] Light and dark theme review
 - [ ] Keyboard focus and basic accessibility review
 - [ ] Supported-browser smoke test
+- [ ] Theory desktop/mobile smoke covers create/edit/view/link/unlink/protected delete, filters, UI-only prompts, task category, reload persistence, empty state, both languages, keyboard/focus, ARIA names, and no horizontal overflow or application console errors.
 
 Attach or record exact outputs; do not infer success from an earlier revision.
 

@@ -46,10 +46,11 @@ describe('database migrations', () => {
     try {
       const migrated = await upgradedDatabase.workspaces.get(String(legacyWorkspace['id']))
       expect(migrated?.revision).toBe(0)
-      expect(upgradedDatabase.verno).toBe(3)
+      expect(upgradedDatabase.verno).toBe(4)
       expect(await upgradedDatabase.researchQuestions.count()).toBe(1)
       expect(await upgradedDatabase.claims.count()).toBe(1)
       expect(await upgradedDatabase.claimQuestionLinks.count()).toBe(0)
+      expect(await upgradedDatabase.theoryMemos.count()).toBe(0)
       expect((await upgradedDatabase.researchQuestions.toArray())[0]?.text).toBe(
         legacyGraph.project.researchQuestion.trim(),
       )
@@ -93,6 +94,40 @@ describe('database migrations', () => {
       expect(await upgradedDatabase.researchQuestions.count()).toBe(1)
       expect(await upgradedDatabase.claims.count()).toBe(1)
       expect(await upgradedDatabase.claimQuestionLinks.count()).toBe(0)
+      expect(await upgradedDatabase.theoryMemos.count()).toBe(0)
+    } finally {
+      upgradedDatabase.close()
+      await Dexie.delete(databaseName)
+    }
+  })
+
+  it('upgrades a direct v3 graph database to v4 with an empty theory-memo table', async () => {
+    const databaseName = `sociology-phd-desk-v3-migration-${crypto.randomUUID()}`
+    const graph = legacyGraphRecords()
+    const legacyDatabase = new Dexie(databaseName)
+    legacyDatabase.version(3).stores({
+      workspaces: '&id, revision, updatedAt',
+      projects: '&id, status, method, updatedAt',
+      researchQuestions: '&id, projectId, status, updatedAt',
+      claims: '&id, projectId, status, updatedAt',
+      claimQuestionLinks: '&id, projectId, claimId, researchQuestionId, updatedAt',
+    })
+    await legacyDatabase.table('workspaces').put(graph.demo.workspace)
+    await legacyDatabase.table('projects').put(graph.demo.projects[0])
+    await legacyDatabase.table('researchQuestions').put(graph.demo.researchQuestions[0])
+    await legacyDatabase.table('claims').put(graph.demo.claims[0])
+    await legacyDatabase.table('claimQuestionLinks').put(graph.demo.claimQuestionLinks[0])
+    legacyDatabase.close()
+
+    const upgradedDatabase = new SociologyPhdDeskDatabase(databaseName)
+    try {
+      await upgradedDatabase.open()
+      expect(upgradedDatabase.verno).toBe(4)
+      expect(await upgradedDatabase.projects.count()).toBe(1)
+      expect(await upgradedDatabase.researchQuestions.count()).toBe(1)
+      expect(await upgradedDatabase.claims.count()).toBe(1)
+      expect(await upgradedDatabase.claimQuestionLinks.count()).toBe(1)
+      expect(await upgradedDatabase.theoryMemos.count()).toBe(0)
     } finally {
       upgradedDatabase.close()
       await Dexie.delete(databaseName)

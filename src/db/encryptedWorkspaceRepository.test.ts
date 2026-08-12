@@ -5,9 +5,14 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import {
   createEncryptedBackup,
   inspectBackupProtectedHeader,
+  inspectLocalProtectedHeader,
   LocalWorkspaceCryptoSession,
   openEncryptedBackup,
 } from '../crypto'
+import {
+  createSyntheticLegacyV3Backup,
+  createSyntheticLegacyV3LocalContainer,
+} from '../crypto/legacyV3TestFixture.test-helper'
 import { createDemoWorkspace } from '../models/demo'
 import type { WorkspaceData } from '../models/domain'
 import {
@@ -84,7 +89,169 @@ function recordBytes(record: EncryptedVaultRecord): string {
   return new TextDecoder('latin1').decode(bytes)
 }
 
+async function installLegacyV3Vault(
+  id: string,
+  workspace: WorkspaceData,
+): Promise<EncryptedVaultRecord> {
+  const container = await createSyntheticLegacyV3LocalContainer(
+    workspace,
+    PASSPHRASE,
+    {
+      bindingId: id,
+      storageRevision: workspace.workspace.revision,
+      keyInvocation: 1,
+    },
+  )
+  const record: EncryptedVaultRecord = {
+    id: ENCRYPTED_VAULT_RECORD_ID,
+    storageRevision: workspace.workspace.revision,
+    lockEpoch: 0,
+    keyInvocation: 1,
+    encryptionAttempts: 1,
+    ...container,
+  }
+  const database = new EncryptedVaultDatabase(id)
+  await database.vaults.put(record)
+  database.close()
+  return cloneEncryptedVaultRecord(record)
+}
+
 describe('encrypted workspace repository', () => {
+  it('atomically upgrades an authenticated v3 vault once and reads back v4', async () => {
+    const id = bindingId()
+    const workspace = createDemoWorkspace(ANCHOR)
+    const legacy = await installLegacyV3Vault(id, workspace)
+
+    const first = track(await unlockEncryptedWorkspace(id, PASSPHRASE))
+    expect(first.workspace).toEqual({ ...workspace, theoryMemos: [] })
+    const upgraded = await inspectEncryptedWorkspaceRecord(id)
+    expect(upgraded).not.toBeNull()
+    expect(upgraded && inspectLocalProtectedHeader(upgraded).payloadVersion).toBe(4)
+    expect(upgraded?.storageRevision).toBe(legacy.storageRevision)
+    expect(upgraded?.keyInvocation).toBe(2)
+    first.close()
+
+    const second = track(await unlockEncryptedWorkspace(id, PASSPHRASE))
+    expect(second.coordinates.keyInvocation).toBe(2)
+    expect((await inspectEncryptedWorkspaceRecord(id))?.keyInvocation).toBe(2)
+  })
+
+  it('does not write a v3 vault when authentication fails or ciphertext is tampered', async () => {
+    for (const mode of ['wrong-passphrase', 'tampered'] as const) {
+      const id = bindingId()
+      const original = await installLegacyV3Vault(id, createDemoWorkspace(ANCHOR))
+      if (mode === 'tampered') {
+        const database = new EncryptedVaultDatabase(id)
+        const damaged = cloneEncryptedVaultRecord(original)
+        damaged.ciphertext[0] ^= 1
+        await database.vaults.put(damaged)
+        database.close()
+      }
+      const before = await inspectEncryptedWorkspaceRecord(id)
+      await expect(
+        unlockEncryptedWorkspace(
+          id,
+          mode === 'wrong-passphrase' ? WRONG_PASSPHRASE : PASSPHRASE,
+        ),
+      ).rejects.toMatchObject({ name: 'EncryptedContainerAuthenticationError' })
+      const after = await inspectEncryptedWorkspaceRecord(id)
+      expect(after?.keyInvocation).toBe(before?.keyInvocation)
+      expect(after?.encryptionAttempts).toBe(before?.encryptionAttempts)
+      expect(after && recordBytes(after)).toBe(before && recordBytes(before))
+    }
+  })
+
+  it('preserves the old ciphertext when legacy re-encryption fails', async () => {
+    const id = bindingId()
+    const original = await installLegacyV3Vault(id, createDemoWorkspace(ANCHOR))
+    const encrypt = vi
+      .spyOn(LocalWorkspaceCryptoSession.prototype, 'encrypt')
+      .mockRejectedValueOnce(new Error('synthetic encryption failure'))
+
+    await expect(unlockEncryptedWorkspace(id, PASSPHRASE)).rejects.toThrow(
+      'synthetic encryption failure',
+    )
+    encrypt.mockRestore()
+    const persisted = await inspectEncryptedWorkspaceRecord(id)
+    expect(persisted && recordBytes(persisted)).toBe(recordBytes(original))
+    expect(persisted?.keyInvocation).toBe(original.keyInvocation)
+    expect(persisted?.encryptionAttempts).toBe(original.encryptionAttempts + 1)
+    expect(persisted && inspectLocalProtectedHeader(persisted).payloadVersion).toBe(3)
+  })
+
+  it('aborts a failed legacy CAS put and leaves the old ciphertext committed', async () => {
+    const id = bindingId()
+    const original = await installLegacyV3Vault(id, createDemoWorkspace(ANCHOR))
+    let puts = 0
+    const databaseFactory = (candidate: string): EncryptedVaultDatabase => {
+      const database = new EncryptedVaultDatabase(candidate)
+      database.vaults.hook('updating', () => {
+        puts += 1
+        if (puts === 2) throw new Error('synthetic upgrade put failure')
+      })
+      return database
+    }
+
+    await expect(
+      unlockEncryptedWorkspace(id, PASSPHRASE, { databaseFactory }),
+    ).rejects.toThrow('synthetic upgrade put failure')
+    const persisted = await inspectEncryptedWorkspaceRecord(id)
+    expect(persisted && recordBytes(persisted)).toBe(recordBytes(original))
+    expect(persisted?.keyInvocation).toBe(original.keyInvocation)
+    expect(persisted?.encryptionAttempts).toBe(original.encryptionAttempts + 1)
+    expect(persisted && inspectLocalProtectedHeader(persisted).payloadVersion).toBe(3)
+  })
+
+  it('rolls back to the old ciphertext when post-commit authentication fails', async () => {
+    const id = bindingId()
+    const original = await installLegacyV3Vault(id, createDemoWorkspace(ANCHOR))
+    const decryptOriginal = LocalWorkspaceCryptoSession.prototype.decrypt
+    let decryptions = 0
+    const decrypt = vi
+      .spyOn(LocalWorkspaceCryptoSession.prototype, 'decrypt')
+      .mockImplementation(function (
+        this: LocalWorkspaceCryptoSession,
+        container,
+        expected,
+      ) {
+        decryptions += 1
+        if (decryptions === 3) {
+          return Promise.reject(new Error('synthetic post-commit read-back failure'))
+        }
+        return decryptOriginal.call(this, container, expected)
+      })
+
+    await expect(unlockEncryptedWorkspace(id, PASSPHRASE)).rejects.toThrow(
+      'synthetic post-commit read-back failure',
+    )
+    decrypt.mockRestore()
+    const persisted = await inspectEncryptedWorkspaceRecord(id)
+    expect(persisted && recordBytes(persisted)).toBe(recordBytes(original))
+    expect(persisted?.keyInvocation).toBe(original.keyInvocation)
+    expect(persisted?.encryptionAttempts).toBe(original.encryptionAttempts + 1)
+    expect(persisted && inspectLocalProtectedHeader(persisted).payloadVersion).toBe(3)
+  })
+
+  it('authenticates a v3 backup in memory and restores only a new v4 vault', async () => {
+    const workspace = createDemoWorkspace(ANCHOR)
+    const backup = await createSyntheticLegacyV3Backup(workspace, BACKUP_PASSPHRASE)
+    const restored = track(
+      await restoreEncryptedBackupAsNewWorkspace(
+        backup,
+        BACKUP_PASSPHRASE,
+        PASSPHRASE,
+        {
+          newWorkspaceId: crypto.randomUUID(),
+          bindingId: bindingId(),
+        },
+      ),
+    )
+    const record = await inspectEncryptedWorkspaceRecord(restored.bindingId)
+    expect(record && inspectLocalProtectedHeader(record).payloadVersion).toBe(4)
+    expect(restored.workspace.version).toBe(4)
+    expect(restored.workspace.theoryMemos).toEqual([])
+  })
+
   it('does not create an empty IndexedDB database for missing inspect or unlock', async () => {
     const id = bindingId()
     const databaseName = encryptedVaultDatabaseName(id)

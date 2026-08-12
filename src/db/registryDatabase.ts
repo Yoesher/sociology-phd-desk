@@ -7,9 +7,11 @@ import {
   WORKSPACE_KINDS,
   WORKSPACE_MIGRATION_STATUSES,
   WORKSPACE_REGISTRY_STATES,
+  SUPPORTED_WORKSPACE_SCHEMA_VERSIONS,
   isWorkspaceAutoLock,
   type PlaintextSourceReference,
   type EncryptedConversionReservation,
+  type WorkspaceEncryptionMode,
   type WorkspaceMigrationLedger,
   type WorkspaceRegistryEntry,
   type WorkspaceRegistrySettings,
@@ -160,7 +162,11 @@ export function validateRegistryEntry(entry: WorkspaceRegistryEntry): WorkspaceR
   if (!isWorkspaceAutoLock(entry.autoLock)) {
     throw new WorkspaceRegistryValidationError('Unknown auto-lock value.')
   }
-  if (entry.schemaVersion !== WORKSPACE_SCHEMA_VERSION) {
+  if (
+    !SUPPORTED_WORKSPACE_SCHEMA_VERSIONS.some(
+      (version) => version === entry.schemaVersion,
+    )
+  ) {
     throw new WorkspaceRegistryValidationError('Unsupported portable workspace schema version.')
   }
   if (!Number.isInteger(entry.storageSchemaVersion) || entry.storageSchemaVersion < 1) {
@@ -363,6 +369,79 @@ export class WorkspaceRegistryRepository {
         storageSchemaVersion: current.storageSchemaVersion,
         plaintextSources: current.plaintextSources,
         encryptedConversion: current.encryptedConversion,
+        registryRevision: current.registryRevision + 1,
+        updatedAt: new Date().toISOString(),
+      })
+      await this.database.workspaces.put(updated)
+      return updated
+    })
+  }
+
+  /**
+   * Advances routing metadata only after the caller has authenticated and
+   * read back a current-schema payload from the physical workspace storage.
+   * This transition is intentionally one-way and cannot manufacture a future
+   * or legacy schema claim.
+   */
+  async reconcileVerifiedWorkspaceStorageVersions(
+    id: string,
+    expectedRevision: number,
+    expectedStorageId: string,
+    expectedEncryptionMode: WorkspaceEncryptionMode,
+    verifiedSchemaVersion: number,
+    verifiedStorageSchemaVersion: number,
+  ): Promise<WorkspaceRegistryEntry> {
+    if (verifiedSchemaVersion !== WORKSPACE_SCHEMA_VERSION) {
+      throw new WorkspaceRegistryValidationError(
+        'Only the current verified workspace schema can be reconciled.',
+      )
+    }
+    if (
+      !Number.isInteger(verifiedStorageSchemaVersion) ||
+      verifiedStorageSchemaVersion < 1
+    ) {
+      throw new WorkspaceRegistryValidationError(
+        'The verified physical storage schema version is invalid.',
+      )
+    }
+
+    return this.database.transaction('rw', this.database.workspaces, async () => {
+      const current = await this.database.workspaces.get(id)
+      if (!current || current.registryRevision !== expectedRevision) {
+        throw new WorkspaceRegistryConflictError(
+          id,
+          expectedRevision,
+          current?.registryRevision ?? null,
+        )
+      }
+      if (
+        current.storageId !== expectedStorageId ||
+        current.encryptionMode !== expectedEncryptionMode ||
+        current.state !== 'ready'
+      ) {
+        throw new WorkspaceRegistryValidationError(
+          'Schema reconciliation requires the verified ready storage route.',
+        )
+      }
+      if (
+        current.schemaVersion > verifiedSchemaVersion ||
+        current.storageSchemaVersion > verifiedStorageSchemaVersion
+      ) {
+        throw new WorkspaceRegistryValidationError(
+          'Workspace storage metadata cannot be reconciled backwards.',
+        )
+      }
+      if (
+        current.schemaVersion === verifiedSchemaVersion &&
+        current.storageSchemaVersion === verifiedStorageSchemaVersion
+      ) {
+        return current
+      }
+
+      const updated = validateRegistryEntry({
+        ...current,
+        schemaVersion: verifiedSchemaVersion,
+        storageSchemaVersion: verifiedStorageSchemaVersion,
         registryRevision: current.registryRevision + 1,
         updatedAt: new Date().toISOString(),
       })

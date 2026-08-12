@@ -15,6 +15,7 @@ import type { WorkspaceData } from './models/domain'
 const TodayPage = lazy(() => import('./features/today/TodayPage').then((module) => ({ default: module.TodayPage })))
 const ProjectsPage = lazy(() => import('./features/projects/ProjectsPage').then((module) => ({ default: module.ProjectsPage })))
 const LiteraturePage = lazy(() => import('./features/literature/LiteraturePage').then((module) => ({ default: module.LiteraturePage })))
+const TheoryPage = lazy(() => import('./features/theory/TheoryPage').then((module) => ({ default: module.TheoryPage })))
 const FieldworkPage = lazy(() => import('./features/fieldwork/FieldworkPage').then((module) => ({ default: module.FieldworkPage })))
 const QuantitativePage = lazy(() => import('./features/quantitative/QuantitativePage').then((module) => ({ default: module.QuantitativePage })))
 const EvidencePage = lazy(() => import('./features/evidence/EvidencePage').then((module) => ({ default: module.EvidencePage })))
@@ -48,6 +49,7 @@ function ResearchRoutes() {
           <Route index element={<RouteBoundary><TodayPage /></RouteBoundary>} />
           <Route path="projects" element={<RouteBoundary><ProjectsPage /></RouteBoundary>} />
           <Route path="literature" element={<RouteBoundary><LiteraturePage /></RouteBoundary>} />
+          <Route path="theory" element={<RouteBoundary><TheoryPage /></RouteBoundary>} />
           <Route path="fieldwork" element={<RouteBoundary><FieldworkPage /></RouteBoundary>} />
           <Route path="quantitative" element={<RouteBoundary><QuantitativePage /></RouteBoundary>} />
           <Route path="evidence" element={<RouteBoundary><EvidencePage /></RouteBoundary>} />

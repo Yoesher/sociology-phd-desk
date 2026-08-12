@@ -21,6 +21,7 @@ type WorkspaceStatusMessage =
 const collectionCounts = (workspace: WorkspaceData): Array<[MessageKey, number]> => [
   ['workspace.collection.projects', workspace.projects.length],
   ['workspace.collection.researchGraph', workspace.researchQuestions.length + workspace.claims.length + workspace.claimQuestionLinks.length],
+  ['workspace.collection.theoryMemos', workspace.theoryMemos.length],
   ['workspace.collection.tasks', workspace.tasks.length],
   ['workspace.collection.literature', workspace.literature.length],
   ['workspace.collection.fieldRecords', workspace.fieldSites.length + workspace.interviews.length + workspace.fieldVisits.length],
@@ -36,6 +37,7 @@ const collectionLabelKeys: Record<WorkspaceCollectionName, MessageKey> = {
   researchQuestions: 'workspace.collection.researchQuestions',
   claims: 'workspace.collection.claims',
   claimQuestionLinks: 'workspace.collection.claimQuestionLinks',
+  theoryMemos: 'workspace.collection.theoryMemos',
   tasks: 'workspace.collection.tasks',
   literature: 'workspace.collection.literature',
   fieldSites: 'workspace.collection.fieldSites',

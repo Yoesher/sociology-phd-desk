@@ -10,6 +10,7 @@ import {
   ENCRYPTED_BACKUP_PURPOSE,
   ENCRYPTED_CONTAINER_VERSION,
   ENCRYPTED_PAYLOAD_VERSION,
+  LEGACY_ENCRYPTED_PAYLOAD_VERSION,
   LOCAL_WORKSPACE_PURPOSE,
   MAX_CIPHERTEXT_BYTES,
   MAX_KEY_INVOCATIONS,
@@ -19,6 +20,7 @@ import {
   MIN_NEW_PASSPHRASE_CODE_POINTS,
   PBKDF2_ITERATIONS,
   PBKDF2_SALT_BYTES,
+  type SupportedEncryptedPayloadVersion,
 } from './constants'
 import {
   bytesEqual,
@@ -60,7 +62,7 @@ export interface LocalProtectedHeader {
   application: typeof WORKSPACE_APPLICATION
   purpose: typeof LOCAL_WORKSPACE_PURPOSE
   containerVersion: typeof ENCRYPTED_CONTAINER_VERSION
-  payloadVersion: typeof ENCRYPTED_PAYLOAD_VERSION
+  payloadVersion: SupportedEncryptedPayloadVersion
   bindingId: string
   storageRevision: number
   keyInvocation: number
@@ -72,7 +74,7 @@ export interface BackupProtectedHeader {
   application: typeof WORKSPACE_APPLICATION
   purpose: typeof ENCRYPTED_BACKUP_PURPOSE
   containerVersion: typeof ENCRYPTED_CONTAINER_VERSION
-  payloadVersion: typeof ENCRYPTED_PAYLOAD_VERSION
+  payloadVersion: SupportedEncryptedPayloadVersion
   kdf: KdfHeader
   cipher: CipherHeader
 }
@@ -109,12 +111,17 @@ const cipherHeaderSchema = z
   })
   .strict()
 
+const encryptedPayloadVersionSchema = z.union([
+  z.literal(LEGACY_ENCRYPTED_PAYLOAD_VERSION),
+  z.literal(ENCRYPTED_PAYLOAD_VERSION),
+])
+
 const localProtectedHeaderSchema = z
   .object({
     application: z.literal(WORKSPACE_APPLICATION),
     purpose: z.literal(LOCAL_WORKSPACE_PURPOSE),
     containerVersion: z.literal(ENCRYPTED_CONTAINER_VERSION),
-    payloadVersion: z.literal(ENCRYPTED_PAYLOAD_VERSION),
+    payloadVersion: encryptedPayloadVersionSchema,
     bindingId: z.string().uuid(),
     storageRevision: z.number().int().nonnegative().safe(),
     keyInvocation: z.number().int().min(1).max(MAX_KEY_INVOCATIONS).safe(),
@@ -128,7 +135,7 @@ const backupProtectedHeaderSchema = z
     application: z.literal(WORKSPACE_APPLICATION),
     purpose: z.literal(ENCRYPTED_BACKUP_PURPOSE),
     containerVersion: z.literal(ENCRYPTED_CONTAINER_VERSION),
-    payloadVersion: z.literal(ENCRYPTED_PAYLOAD_VERSION),
+    payloadVersion: encryptedPayloadVersionSchema,
     kdf: kdfHeaderSchema,
     cipher: cipherHeaderSchema,
   })
@@ -234,7 +241,7 @@ function canonicalHeaderObject(header: ProtectedHeader): ProtectedHeader {
       application: WORKSPACE_APPLICATION,
       purpose: LOCAL_WORKSPACE_PURPOSE,
       containerVersion: ENCRYPTED_CONTAINER_VERSION,
-      payloadVersion: ENCRYPTED_PAYLOAD_VERSION,
+      payloadVersion: header.payloadVersion,
       bindingId: header.bindingId,
       storageRevision: header.storageRevision,
       keyInvocation: header.keyInvocation,
@@ -252,7 +259,7 @@ function canonicalHeaderObject(header: ProtectedHeader): ProtectedHeader {
     application: WORKSPACE_APPLICATION,
     purpose: ENCRYPTED_BACKUP_PURPOSE,
     containerVersion: ENCRYPTED_CONTAINER_VERSION,
-    payloadVersion: ENCRYPTED_PAYLOAD_VERSION,
+    payloadVersion: header.payloadVersion,
     kdf: {
       name: 'PBKDF2',
       hash: 'SHA-256',
@@ -365,15 +372,19 @@ function cloneAndValidateContainer(container: BinaryEncryptedContainer): BinaryE
   }
 }
 
-function validatedPayload(workspace: unknown, operation: string): WorkspaceData {
+function validatedPayload(
+  workspace: unknown,
+  authenticatedPayloadVersion: SupportedEncryptedPayloadVersion,
+  operation: string,
+): WorkspaceData {
   if (
     typeof workspace !== 'object' ||
     workspace === null ||
     Array.isArray(workspace) ||
-    (workspace as Record<string, unknown>)['version'] !== ENCRYPTED_PAYLOAD_VERSION
+    (workspace as Record<string, unknown>)['version'] !== authenticatedPayloadVersion
   ) {
     throw new EncryptedPayloadValidationError(
-      `The ${operation} payload is not portable workspace v${ENCRYPTED_PAYLOAD_VERSION}.`,
+      `The ${operation} payload does not match authenticated portable workspace v${authenticatedPayloadVersion}.`,
     )
   }
   const result = validateWorkspace(workspace)
@@ -384,7 +395,11 @@ function validatedPayload(workspace: unknown, operation: string): WorkspaceData 
 }
 
 function serializePayload(workspace: WorkspaceData): Uint8Array {
-  const validated = validatedPayload(workspace, 'encryption')
+  const validated = validatedPayload(
+    workspace,
+    ENCRYPTED_PAYLOAD_VERSION,
+    'encryption',
+  )
   const bytes = new TextEncoder().encode(JSON.stringify(validated))
   if (bytes.byteLength > MAX_PLAINTEXT_BYTES) {
     bytes.fill(0)
@@ -430,6 +445,7 @@ async function encryptBytes(
 async function decryptBytes(
   key: CryptoKey,
   container: BinaryEncryptedContainer,
+  authenticatedPayloadVersion: SupportedEncryptedPayloadVersion,
 ): Promise<WorkspaceData> {
   const cryptoApi = getWebCrypto()
   const iv = new Uint8Array(container.iv)
@@ -450,7 +466,7 @@ async function decryptBytes(
     plaintext = new Uint8Array(decrypted)
     const json = new TextDecoder('utf-8', { fatal: true }).decode(plaintext)
     const input = JSON.parse(json) as unknown
-    return validatedPayload(input, 'decrypted')
+    return validatedPayload(input, authenticatedPayloadVersion, 'decrypted')
   } catch (error) {
     if (error instanceof WebCryptoUnavailableError) throw error
     throw new EncryptedContainerAuthenticationError()
@@ -543,7 +559,7 @@ export class LocalWorkspaceCryptoSession {
     if (!key) throw new EncryptedContainerAuthenticationError()
     const container = cloneAndValidateContainer(containerInput)
     const header = parseProtectedHeader(container.protected, LOCAL_WORKSPACE_PURPOSE)
-    const workspace = await decryptBytes(key, container)
+    const workspace = await decryptBytes(key, container, header.payloadVersion)
     assertLocalPayloadMatches(workspace, header, expected)
     if (header.bindingId !== this.bindingId || header.kdf.salt !== this.salt) {
       throw new EncryptedContainerAuthenticationError()
@@ -560,6 +576,7 @@ export interface CreatedLocalWorkspaceContainer {
 export interface OpenedLocalWorkspaceContainer {
   workspace: WorkspaceData
   session: LocalWorkspaceCryptoSession
+  payloadVersion: SupportedEncryptedPayloadVersion
 }
 
 export async function createLocalWorkspaceContainer(
@@ -606,7 +623,7 @@ export async function openLocalWorkspaceContainer(
     const key = await deriveAesKey(normalized, salt)
     session = new LocalWorkspaceCryptoSession(key, header.bindingId, header.kdf.salt)
     const workspace = await session.decrypt(container, expected)
-    return { workspace, session }
+    return { workspace, session, payloadVersion: header.payloadVersion }
   } catch (error) {
     session?.dispose()
     if (
@@ -731,7 +748,7 @@ export async function openEncryptedBackup(
   const salt = decodeBase64Url(header.kdf.salt, PBKDF2_SALT_BYTES, 'kdf.salt')
   try {
     const key = await deriveAesKey(normalized, salt)
-    return await decryptBytes(key, container)
+    return await decryptBytes(key, container, header.payloadVersion)
   } catch (error) {
     if (
       error instanceof EncryptedContainerFormatError ||

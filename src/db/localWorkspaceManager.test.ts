@@ -7,6 +7,7 @@ import {
   LocalWorkspaceCryptoSession,
   WebCryptoUnavailableError,
 } from '../crypto'
+import { createSyntheticLegacyV3LocalContainer } from '../crypto/legacyV3TestFixture.test-helper'
 import { createDemoWorkspace } from '../models/demo'
 import { createEmptyWorkspace } from '../models/empty-workspace'
 import { isFullyEncryptedWorkspace, type WorkspaceRegistryEntry } from '../models/workspace-registry'
@@ -199,6 +200,70 @@ describe('LocalWorkspaceManager', () => {
     expect(unlock).not.toHaveBeenCalled()
   })
 
+  it('reconciles a legacy encrypted registry route only after its vault is verified as v4', async () => {
+    const service = manager()
+    const workspace = createEmptyWorkspace({
+      id: crypto.randomUUID(),
+      name: 'Legacy encrypted route',
+      now: ANCHOR,
+    })
+    const storageId = crypto.randomUUID()
+    encryptedStorageIds.add(storageId)
+    const container = await createSyntheticLegacyV3LocalContainer(
+      workspace,
+      PASSPHRASE,
+      {
+        bindingId: storageId,
+        storageRevision: workspace.workspace.revision,
+        keyInvocation: 1,
+      },
+    )
+    const vault = new EncryptedVaultDatabase(storageId)
+    await vault.vaults.put({
+      id: ENCRYPTED_VAULT_RECORD_ID,
+      storageRevision: workspace.workspace.revision,
+      lockEpoch: 0,
+      keyInvocation: 1,
+      encryptionAttempts: 1,
+      ...container,
+    })
+    vault.close()
+    const provisioning = await service.registry.beginProvisioning({
+      id: workspace.workspace.id,
+      storageId,
+      displayName: workspace.workspace.name,
+      kind: 'personal',
+      encryptionMode: 'encrypted',
+      createdAt: ANCHOR.toISOString(),
+      updatedAt: ANCHOR.toISOString(),
+      schemaVersion: 3,
+      storageSchemaVersion: 1,
+      registryRevision: 0,
+      autoLock: 15,
+      state: 'provisioning',
+    })
+    const ready = await service.registry.markReady(
+      provisioning.id,
+      provisioning.registryRevision,
+    )
+
+    await expectManagerCode(
+      service.unlockEncrypted(ready.id, WRONG_PASSPHRASE),
+      'authentication-failed',
+    )
+    expect((await service.registry.getWorkspace(ready.id))?.schemaVersion).toBe(3)
+
+    const opened = rememberSession(
+      await service.unlockEncrypted(ready.id, PASSPHRASE),
+    )
+    expect(opened.entry.schemaVersion).toBe(4)
+    expect(opened.entry.storageSchemaVersion).toBe(1)
+    expect(opened.snapshot.version).toBe(4)
+    const persisted = await service.registry.getWorkspace(ready.id)
+    expect(persisted?.schemaVersion).toBe(4)
+    expect(persisted?.storageSchemaVersion).toBe(1)
+  })
+
   it('converges concurrent first boot to one personal and one demo route', async () => {
     const databaseName = registryDatabase.name
     const secondRegistryDatabase = new WorkspaceRegistryDatabase(databaseName)
@@ -356,6 +421,67 @@ describe('LocalWorkspaceManager', () => {
       'manager-closed',
     )
     expect(await standardWorkspaceDatabaseExists(session.storageId)).toBe(false)
+  })
+
+  it('opens a real v3 standard database and atomically reconciles its route to 4/4', async () => {
+    const service = manager()
+    const workspace = createEmptyWorkspace({
+      id: crypto.randomUUID(),
+      name: 'Legacy standard route',
+      now: ANCHOR,
+    })
+    const storageId = crypto.randomUUID()
+    standardStorageIds.add(storageId)
+    const legacyDatabase = new Dexie(standardWorkspaceDatabaseName(storageId))
+    legacyDatabase.version(3).stores({
+      workspaces: '&id, revision, updatedAt',
+      projects: '&id, status, method, updatedAt',
+      researchQuestions: '&id, projectId, status, updatedAt',
+      claims: '&id, projectId, status, updatedAt',
+      claimQuestionLinks: '&id, projectId, claimId, researchQuestionId, updatedAt',
+      tasks: '&id, projectId, status, category, dueDate, priority',
+      literature: '&id, projectId, status, priority, year',
+      fieldSites: '&id, projectId, status',
+      interviews: '&id, projectId, fieldSiteId, status, interviewDate',
+      fieldVisits: '&id, projectId, fieldSiteId, date',
+      datasets: '&id, projectId, name',
+      analysisRuns: '&id, projectId, datasetId, status, date',
+      evidence: '&id, projectId, evidenceType, supportLevel',
+      researchLogs: '&id, projectId, date',
+      manuscripts: '&id, projectId, status, deadline',
+      submissions: '&id, projectId, manuscriptId, status, submissionDate',
+      reviewerComments: '&id, submissionId, status, severity',
+    })
+    await legacyDatabase.table('workspaces').put(workspace.workspace)
+    legacyDatabase.close()
+    const provisioning = await service.registry.beginProvisioning({
+      id: workspace.workspace.id,
+      storageId,
+      displayName: workspace.workspace.name,
+      kind: 'personal',
+      encryptionMode: 'standard',
+      createdAt: ANCHOR.toISOString(),
+      updatedAt: ANCHOR.toISOString(),
+      schemaVersion: 3,
+      storageSchemaVersion: 3,
+      registryRevision: 0,
+      autoLock: 'never',
+      state: 'provisioning',
+    })
+    await service.registry.markReady(provisioning.id, provisioning.registryRevision)
+
+    const opened = rememberSession(await service.openStandard(workspace.workspace.id))
+    expect(opened.entry.schemaVersion).toBe(4)
+    expect(opened.entry.storageSchemaVersion).toBe(4)
+    expect(opened.snapshot.version).toBe(4)
+    const persisted = await service.registry.getWorkspace(workspace.workspace.id)
+    expect(persisted?.schemaVersion).toBe(4)
+    expect(persisted?.storageSchemaVersion).toBe(4)
+
+    opened.repository.close()
+    const reopened = rememberSession(await service.openStandard(workspace.workspace.id))
+    expect(reopened.entry.registryRevision).toBe((persisted?.registryRevision ?? 0) + 1)
+    expect(reopened.entry.storageSchemaVersion).toBe(4)
   })
 
   it('never creates an empty database while opening or recovering a missing standard route', async () => {

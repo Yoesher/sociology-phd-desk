@@ -17,11 +17,12 @@ import type {
   ResearchTask,
   ReviewerComment,
   Submission,
+  TheoryMemo,
   WorkspaceMeta,
 } from '../models/domain'
 import { migrateV2ResearchGraphCollections } from '../utils/workspace-transfer'
 
-export const DATABASE_SCHEMA_VERSION = 3 as const
+export const DATABASE_SCHEMA_VERSION = 4 as const
 export const LEGACY_DATABASE_NAME = 'sociology-phd-desk' as const
 
 const databaseStoresV1 = {
@@ -53,12 +54,18 @@ const databaseStoresV3 = {
   claimQuestionLinks: '&id, projectId, claimId, researchQuestionId, updatedAt',
 }
 
+const databaseStoresV4 = {
+  ...databaseStoresV3,
+  theoryMemos: '&id, projectId, memoType, updatedAt',
+}
+
 export class SociologyPhdDeskDatabase extends Dexie {
   workspaces!: Table<WorkspaceMeta, string>
   projects!: Table<ResearchProject, string>
   researchQuestions!: Table<ResearchQuestion, string>
   claims!: Table<Claim, string>
   claimQuestionLinks!: Table<ClaimQuestionLink, string>
+  theoryMemos!: Table<TheoryMemo, string>
   tasks!: Table<ResearchTask, string>
   literature!: Table<LiteratureItem, string>
   fieldSites!: Table<FieldSite, string>
@@ -88,7 +95,7 @@ export class SociologyPhdDeskDatabase extends Dexie {
             }
           })
       })
-    this.version(DATABASE_SCHEMA_VERSION)
+    this.version(3)
       .stores(databaseStoresV3)
       .upgrade(async (transaction) => {
         const projectTable = transaction.table('projects')
@@ -109,6 +116,7 @@ export class SociologyPhdDeskDatabase extends Dexie {
           await transaction.table('claims').bulkPut(graph.claims)
         }
       })
+    this.version(DATABASE_SCHEMA_VERSION).stores(databaseStoresV4)
   }
 }
 

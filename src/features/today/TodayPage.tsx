@@ -48,6 +48,7 @@ export function TodayPage() {
   const [task, setTask] = useState(emptyTask)
   const [log, setLog] = useState(emptyLog)
   const [goals, setGoals] = useState<string[] | null>(null)
+  const [categoryFilter, setCategoryFilter] = useState<ResearchTask['category'] | ''>('')
 
   const today = todayIso()
   const dateLabel = new Intl.DateTimeFormat(locale, {
@@ -72,6 +73,7 @@ export function TodayPage() {
   const todayLogs = data?.researchLogs.filter((item) => item.date === today) ?? []
   const activeProject = data?.projects.find((item) => item.id === data.workspace.activeProjectId)
   const visibleGoals = goals ?? data?.workspace.todayGoals ?? []
+  const visibleTasks = relevantTasks.filter((item) => !categoryFilter || item.category === categoryFilter)
 
   const localizedProjectLabel = (projectId?: string) => {
     const project = data?.projects.find((item) => item.id === projectId)
@@ -225,7 +227,7 @@ export function TodayPage() {
             </div>
           </div>
           <div className="task-type-grid">
-            {TASK_CATEGORIES.slice(0, 5).map((category) => (
+            {TASK_CATEGORIES.map((category) => (
               <div key={category}>
                 <span>{labelEnum(category)}</span>
                 <strong>{formatNumber(relevantTasks.filter((item) => item.category === category && item.status !== 'Done').length)}</strong>
@@ -242,9 +244,16 @@ export function TodayPage() {
             description={t('today.tasks.description')}
             action={<Button size="sm" variant="ghost" onClick={openTaskForm}>{t('today.tasks.add')}</Button>}
           />
-          {relevantTasks.length ? (
+          <label className="today-task-filter">
+            <span className="sr-only">{t('today.tasks.categoryFilter')}</span>
+            <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value as ResearchTask['category'] | '')} aria-label={t('today.tasks.categoryFilter')}>
+              <option value="">{t('today.tasks.allCategories')}</option>
+              {TASK_CATEGORIES.map((category) => <option key={category} value={category}>{labelEnum(category)}</option>)}
+            </select>
+          </label>
+          {visibleTasks.length ? (
             <div className="check-list">
-              {relevantTasks.map((item) => (
+              {visibleTasks.map((item) => (
                 <CheckRow
                   key={item.id}
                   checked={item.status === 'Done'}
@@ -262,9 +271,11 @@ export function TodayPage() {
             </div>
           ) : (
             <EmptyState
-              title={t('today.tasks.emptyTitle')}
-              description={t('today.tasks.emptyDescription')}
-              action={<AddButton onClick={openTaskForm}>{t('today.tasks.emptyAction')}</AddButton>}
+              title={t(categoryFilter ? 'today.tasks.filteredEmptyTitle' : 'today.tasks.emptyTitle')}
+              description={t(categoryFilter ? 'today.tasks.filteredEmptyDescription' : 'today.tasks.emptyDescription')}
+              action={categoryFilter
+                ? <Button onClick={() => setCategoryFilter('')}>{t('today.tasks.clearCategoryFilter')}</Button>
+                : <AddButton onClick={openTaskForm}>{t('today.tasks.emptyAction')}</AddButton>}
             />
           )}
         </section>

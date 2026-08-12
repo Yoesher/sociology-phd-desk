@@ -53,6 +53,7 @@ export function AppShell() {
     data.researchQuestions,
     data.claims,
     data.claimQuestionLinks,
+    data.theoryMemos,
     data.tasks,
     data.literature,
     data.fieldSites,
