@@ -8,7 +8,7 @@
 
 **在线演示：** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
 
-> **`v0.2.0` 发布候选：** 包版本已更新为 `0.2.0`，功能已冻结。九个研究工作域的二级导航、理论研究、研究问题—主张图谱、本地私密/加密工作区，以及论文与投稿整合均已进入候选范围。导航 [PR #20](https://github.com/Yoesher/sociology-phd-desk/pull/20) 已合并并通过精确 `main` CI 与 Pages；当前候选在 `release/0.2.0` 上继续接受发布门禁。正式 GitHub Release 仍是 [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0)，尚无 `v0.2.0` tag 或 Release。中国研究地图因来源、再分发、审图元数据和全国完整性门禁均未通过而暂缓，**不属于 `v0.2.0`**。核验证据与限制见 [PROJECT_STATE.md](PROJECT_STATE.md)。
+> **[`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) 已正式发布：** 九个研究工作域的二级导航、理论研究、研究问题—主张图谱、本地私密/加密工作区，以及论文与投稿整合均已发布。Release PR [#21](https://github.com/Yoesher/sociology-phd-desk/pull/21) 通过精确 head CI 与 P0 = 0 / P1 = 0 审查后合并；精确发布 SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db) 的 CI 与 Pages 均通过，annotated tag 与 latest、非草稿、非预发布 GitHub Release 均指向该版本。中国研究地图因来源、再分发、审图元数据和全国完整性门禁均未通过而暂缓，**不属于 `v0.2.0`**。核验证据与限制见 [PROJECT_STATE.md](PROJECT_STATE.md)。
 
 项目尚未经过外部研究者测试。请勿把不可替代的研究材料只保存在本软件中；公开可用、获得 Star 或通过维护者自测都不等于真实采用。
 
@@ -33,7 +33,7 @@
 
 它是一层研究编排工具，而不是 Zotero、Word、Stata、R、Python、NVivo、MAXQDA 或期刊投稿系统的替代品。
 
-## `v0.2.0` 候选范围
+## `v0.2.0` 发布范围
 
 工作站围绕九个稳定的社会学研究工作域组织：
 
@@ -88,7 +88,7 @@
 
 ## 截图
 
-以下 `v0.2.0` 候选截图均来自 1280 像素宽的实际应用，只显示明确标注的合成 Demo。采集与隐私检查详见[截图登记](docs/screenshots/README.md)。
+以下 `v0.2.0` 发布截图均在发布候选阶段采集自 1280 像素宽的实际应用，只显示明确标注的合成 Demo。采集与隐私检查详见[截图登记](docs/screenshots/README.md)。
 
 ![中文今日工作台](docs/screenshots/v0.2.0/01-today-zh.jpg)
 
@@ -146,7 +146,7 @@ CI 也执行这组命令。只有在当前修订上实际成功运行后，才�
 
 普通 JSON 导出是可检查、可迁移的明文 portable workspace；请把它视为其中最敏感记录，并在分享前检查目标文件。导入时请核对预览并选择预期的合并方式。替换必须是明确操作，绝不能静默发生。
 
-`v0.2.0` 候选导出 portable v4，并继续接受受支持的 v1、v2、v3 文件，通过显式 v1 → v2 → v3 → v4 转换后再执行同一套严格验证；v3 → v4 只创建空 `theoryMemos` 集合。迁移细节与研究图谱边界见[数据迁移说明](docs/data-portability.md)。
+`v0.2.0` 导出 portable v4，并继续接受受支持的 v1、v2、v3 文件，通过显式 v1 → v2 → v3 → v4 转换后再执行同一套严格验证；v3 → v4 只创建空 `theoryMemos` 集合。迁移细节与研究图谱边界见[数据迁移说明](docs/data-portability.md)。
 
 Phase 3C 为加密工作台增加 `.sociologydesk` 加密备份。它是独立的 container v1 格式，而不是换扩展名的普通 JSON；恢复时先认证和验证完整备份，再用新的逻辑工作台 ID 创建独立工作台。口令错误或密文损坏不会写入目标工作台。格式与失败边界见[数据迁移说明](docs/data-portability.md)和[隐私与加密模型](docs/zh-CN/privacy-model.md)。
 
@@ -158,7 +158,7 @@ Phase 3C 为加密工作台增加 `.sociologydesk` 加密备份。它是独立�
 
 ## 路线图
 
-`0.1` 系列建立核心研究生命周期、安全导入导出、质量门禁和公开维护基础。`v0.2.0` 的功能范围已经冻结，包含简中优先双语基础、研究问题—主张图谱、本地私密/加密工作区、Theory Research、二级导航，以及论文与投稿整合；当前只进行发布稳定化。中国研究地图因公开地图来源、再分发与审图条件未形成可验证闭环而暂缓，不属于 `v0.2.0`；未来只有在合规条件变化并重新核验后才会恢复。
+`0.1` 系列建立核心研究生命周期、安全导入导出、质量门禁和公开维护基础。`v0.2.0` 已发布简中优先双语基础、研究问题—主张图谱、本地私密/加密工作区、Theory Research、二级导航，以及论文与投稿整合；本轮在发布后文档收尾处停止，不启动 `v0.3.0`。中国研究地图因公开地图来源、再分发与审图条件未形成可验证闭环而暂缓，不属于 `v0.2.0`；未来只有在合规条件变化并重新核验后才会恢复。
 
 详见 [ROADMAP.md](ROADMAP.md)。路线图描述方向，不是交付承诺。
 

@@ -1,6 +1,6 @@
 # Data Model
 
-This document describes verified public `main` [`1cbedd2f`](https://github.com/Yoesher/sociology-phd-desk/commit/1cbedd2f045c99e40f71bbec434c5c14cae7bb58), including the Phase 3B conceptual graph, Phase 3C local-workspace metadata, merged Phase 3E `TheoryMemo` and portable/standard v4, and Phase 3F hierarchical navigation plus integrated publishing presentation. Phase 3C's portable/standard v3 baseline remains relevant migration history. Types and migrations in the code are authoritative for a particular revision; reconcile this document whenever the stored schema changes. The `release/0.2.0` candidate has package version `0.2.0`, while the formal GitHub Release remains `v0.1.0` until every `v0.2.0` gate passes.
+This document describes published [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) at exact release SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db), including the Phase 3B conceptual graph, Phase 3C local-workspace metadata, Phase 3E `TheoryMemo` and portable/standard v4, and Phase 3F hierarchical navigation plus integrated publishing presentation. Phase 3C's portable/standard v3 baseline remains relevant migration history. Types and migrations in the code are authoritative for a particular revision; reconcile this document whenever the stored schema changes.
 
 ## Shared conventions
 

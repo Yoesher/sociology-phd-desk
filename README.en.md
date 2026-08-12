@@ -8,7 +8,7 @@ Manage the full research lifecycle—from literature and fieldwork to quantitati
 
 **Live demo:** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
 
-> **`v0.2.0` release candidate:** the package version is now `0.2.0` and the feature set is frozen. Two-level navigation across nine research domains, Theory Research, the Research Question–Claim graph, private/encrypted local workspaces, and integrated Manuscripts & Publishing are in candidate scope. Navigation [PR #20](https://github.com/Yoesher/sociology-phd-desk/pull/20) is merged and passed exact-`main` CI and Pages; the candidate continues through release gates on `release/0.2.0`. The latest formal GitHub Release is still [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0); no `v0.2.0` tag or Release exists yet. The China Research Map is deferred because its source, redistribution, approval-metadata, and national-completeness gates remain blocked, and is **not part of `v0.2.0`**. See [PROJECT_STATE.md](PROJECT_STATE.md) for exact evidence and limitations.
+> **[`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) is formally released:** two-level navigation across nine research domains, Theory Research, the Research Question–Claim graph, private/encrypted local workspaces, and integrated Manuscripts & Publishing are published. Release PR [#21](https://github.com/Yoesher/sociology-phd-desk/pull/21) passed exact-head CI and P0 = 0 / P1 = 0 review before merge; CI and Pages passed on exact release SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db), and both the annotated tag and the latest non-draft, non-prerelease GitHub Release identify that version. The China Research Map is deferred because its source, redistribution, approval-metadata, and national-completeness gates remain blocked, and is **not part of `v0.2.0`**. See [PROJECT_STATE.md](PROJECT_STATE.md) for exact evidence and limitations.
 
 The project has not yet been tested by external researchers. Do not keep the only copy of irreplaceable research material here; public availability, a Star, or maintainer self-testing does not establish adoption.
 
@@ -33,7 +33,7 @@ Research question
 
 It is an orchestration layer, not a replacement for Zotero, Word, Stata, R, Python, NVivo, MAXQDA, or a journal submission system.
 
-## `v0.2.0` candidate scope
+## `v0.2.0` release scope
 
 The workspace is organized around nine stable sociology research domains:
 
@@ -88,7 +88,7 @@ Read [Security](SECURITY.md), the [privacy and encryption model](docs/en/privacy
 
 ## Screenshots
 
-These `v0.2.0` candidate screenshots come from the real application at a 1280-pixel viewport and show only the explicitly synthetic Demo workspace. See the [screenshot register](docs/screenshots/README.md) for capture and privacy details.
+These `v0.2.0` release screenshots were captured from the real application at a 1280-pixel viewport during the candidate stage and show only the explicitly synthetic Demo workspace. See the [screenshot register](docs/screenshots/README.md) for capture and privacy details.
 
 ![Chinese Today research desk](docs/screenshots/v0.2.0/01-today-zh.jpg)
 
@@ -146,7 +146,7 @@ These commands are also the required CI sequence. A command is not considered pa
 
 Ordinary JSON export is an inspectable, portable, **plaintext** workspace. Treat it according to its most sensitive record, and inspect the destination before sharing the file. On import, validate the preview and choose the intended merge behavior. Replacement must be an explicit action; it must never happen silently.
 
-The `v0.2.0` candidate exports portable v4 and continues to accept supported v1, v2, and v3 files by applying explicit v1 → v2 → v3 → v4 transformations before the same strict validation; v3 → v4 creates only an empty `theoryMemos` collection. See [data portability](docs/data-portability.md) for migration details and the research-graph boundary.
+`v0.2.0` exports portable v4 and continues to accept supported v1, v2, and v3 files by applying explicit v1 → v2 → v3 → v4 transformations before the same strict validation; v3 → v4 creates only an empty `theoryMemos` collection. See [data portability](docs/data-portability.md) for migration details and the research-graph boundary.
 
 Phase 3C adds `.sociologydesk` encrypted backup for encrypted workspaces. It is a separate container-v1 format, not ordinary JSON with a different extension. Restore authenticates and validates the entire backup before creating an independent workspace with a new logical workspace ID. A wrong passphrase or damaged ciphertext writes no destination workspace. See [data portability](docs/data-portability.md) and the [privacy and encryption model](docs/en/privacy-model.md) for the format and failure boundaries.
 
@@ -158,7 +158,7 @@ See [architecture overview](docs/architecture/overview.md), [data model](docs/ar
 
 ## Roadmap
 
-The `0.1` line established the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure. The `v0.2.0` feature scope is frozen around the Chinese-first bilingual foundation, Research Question–Claim graph, private/encrypted local workspaces, Theory Research, hierarchical navigation, and integrated Manuscripts & Publishing; only release stabilization remains. The China Research Map is deferred and excluded because no verifiable public-source, redistribution, and map-approval chain has been established. It may resume only after those conditions change and are independently reviewed.
+The `0.1` line established the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure. `v0.2.0` has released the Chinese-first bilingual foundation, Research Question–Claim graph, private/encrypted local workspaces, Theory Research, hierarchical navigation, and integrated Manuscripts & Publishing. This cycle stops after post-release documentation closeout and does not start `v0.3.0`. The China Research Map is deferred and excluded because no verifiable public-source, redistribution, and map-approval chain has been established. It may resume only after those conditions change and are independently reviewed.
 
 See [ROADMAP.md](ROADMAP.md). Roadmap entries are intentions, not delivery promises.
 

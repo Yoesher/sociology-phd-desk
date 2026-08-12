@@ -4,7 +4,7 @@
 
 JSON export and import provide backup, inspection, and migration for a browser-local workspace. They are not cloud synchronization and do not make the exported file encrypted.
 
-Verified public `main` [`1cbedd2`](https://github.com/Yoesher/sociology-phd-desk/commit/1cbedd2f045c99e40f71bbec434c5c14cae7bb58) includes the merged Theory Research, hierarchical navigation, and integrated publishing work. It uses portable and standard storage v4 while encrypted container v1, encrypted-vault database v1, and registry database v1 remain independently versioned. The `release/0.2.0` branch packages this state as a `0.2.0` release candidate; the latest formal GitHub Release remains `v0.1.0`, and the release PR, `v0.2.0` tag, and GitHub Release remain pending. `PROJECT_STATE.md` is the factual gate record.
+Published [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0), at exact release SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db), includes Theory Research, hierarchical navigation, and integrated publishing. That release uses portable and standard storage v4 while encrypted container v1, encrypted-vault database v1, and registry database v1 remain independently versioned. `PROJECT_STATE.md` is the factual gate record.
 
 ## Export envelope
 
@@ -27,7 +27,7 @@ Before either export path is generated, the active snapshot and registry route a
 Phase 3C defines a separate encrypted-backup container v1. It is not a portable JSON envelope renamed with a custom extension:
 
 - the file extension is `.sociologydesk` and the encrypted-backup purpose is authenticated in its protected header;
-- new backups on current `main` and the release candidate contain a complete, strictly validated portable-v4 workspace; authenticated legacy portable-v3 payloads are supported only through explicit in-memory migration;
+- new backups on the exact `v0.2.0` release revision contain a complete, strictly validated portable-v4 workspace; authenticated legacy portable-v3 payloads are supported only through explicit in-memory migration;
 - each backup uses a fresh PBKDF2 salt and AES-GCM IV, independent from the local vault and every other backup;
 - the protected header intentionally omits workspace name, logical/binding ID, and research timestamp, although the authenticated/decrypted portable payload contains the canonical exported workspace name;
 - the exact transport wrapper uses canonical JSON field order (`protected`, `iv`, `ciphertext`) and canonical unpadded base64url, but its contents are an authenticated ciphertext container rather than inspectable portable JSON;
@@ -69,7 +69,7 @@ Replace is a separate destructive operation. It must:
 
 Database schema and portable format versions solve different problems. An internal IndexedDB migration need not change the portable format if its meaning is unchanged; an export semantic change may require a new portable version even without a database migration.
 
-Public `main` uses IndexedDB schema v4 and portable workspace v4, including the `theoryMemos` collection merged in Phase 3E. These axes remain independent from each other and from the `0.2.0` release-candidate package version.
+The exact `v0.2.0` release revision uses IndexedDB schema v4 and portable workspace v4, including the `theoryMemos` collection merged in Phase 3E. These axes remain independent from each other and from package version `0.2.0`.
 
 Current portable import composes supported migration explicitly as v1 → v2 → v3 → v4:
 
@@ -92,7 +92,7 @@ Unsupported future versions should fail safely with an actionable message. Old s
 
 ### Independent current version axes
 
-Phase 3C established the v3/v3/v1/v1/v1 baseline. Merged Phase 3E advanced only the first two axes to v4; current `main` and the release candidate use:
+Phase 3C established the v3/v3/v1/v1/v1 baseline. Merged Phase 3E advanced only the first two axes to v4; exact `v0.2.0` release SHA `eb399f7` uses:
 
 | Version domain | Current version | Scope |
 | --- | ---: | --- |
