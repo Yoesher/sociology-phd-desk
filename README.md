@@ -8,7 +8,9 @@
 
 **在线演示：** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
 
-> **早期公开软件：** 当前正式 Release 仍是 `v0.1.0`。公开 `main` 与 Pages 已核验到 [`b8c8c60`](https://github.com/Yoesher/sociology-phd-desk/commit/b8c8c60434b1d88c348f83c5d08f2d19770db78a)，包含已合并但尚未发布的 Phase 3A / 3B / 3C、没有地图实现的 Phase 3D 合规收口，以及 Phase 3E Theory Research。二级导航与论文/投稿整合目前只是本地未提交候选：它通过了本地门禁，但尚未经过其自身的 PR、CI、合并、Pages 或公开核验，不在在线演示中。核验证据与限制见 [PROJECT_STATE.md](PROJECT_STATE.md)。项目尚未经过外部研究者测试；请勿把不可替代的研究材料只保存在本软件中。公开可用或获得 Star 不代表已经获得真实采用。
+> **`v0.2.0` 发布候选：** 包版本已更新为 `0.2.0`，功能已冻结。九个研究工作域的二级导航、理论研究、研究问题—主张图谱、本地私密/加密工作区，以及论文与投稿整合均已进入候选范围。导航 [PR #20](https://github.com/Yoesher/sociology-phd-desk/pull/20) 已合并并通过精确 `main` CI 与 Pages；当前候选在 `release/0.2.0` 上继续接受发布门禁。正式 GitHub Release 仍是 [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0)，尚无 `v0.2.0` tag 或 Release。中国研究地图因来源、再分发、审图元数据和全国完整性门禁均未通过而暂缓，**不属于 `v0.2.0`**。核验证据与限制见 [PROJECT_STATE.md](PROJECT_STATE.md)。
+
+项目尚未经过外部研究者测试。请勿把不可替代的研究材料只保存在本软件中；公开可用、获得 Star 或通过维护者自测都不等于真实采用。
 
 ## 为什么需要 Sociology PhD Desk？
 
@@ -31,68 +33,32 @@
 
 它是一层研究编排工具，而不是 Zotero、Word、Stata、R、Python、NVivo、MAXQDA 或期刊投稿系统的替代品。
 
-## 功能
+## `v0.2.0` 候选范围
 
-`0.1.x` 工作站围绕社会学研究对象组织：
+工作站围绕九个稳定的社会学研究工作域组织：
 
 - **今日工作台**：研究目标、关联项目的任务、逾期事项与简明的当日研究日志。
 - **研究项目**：研究问题、方法、阶段、日期和关联研究活动。
 - **文献队列**：记录为什么要读、文献如何进入论证；参考文献库仍由 Zotero 管理。
+- **理论研究**：管理概念、机制、理论对话、反论证、边界条件与综合 memo，并显式关联同一项目的研究问题、主张和文献。
 - **田野与访谈**：用别名和匿名 ID 管理田野点、田野访问与访谈。
 - **定量分析**：登记数据集，以及 Stata、R、Python 和其他工具的分析运行。
 - **证据台账**：连接主张、来源定位、发现、局限、支持程度和论文位置。
 - **研究日志**：记录研究变化、判断、问题和下一步，形成可审计轨迹。
-- **论文与投稿**：跟踪写作阶段、期刊投稿、审稿意见、回复与修回行动。
+- **论文与投稿**：在统一界面中跟踪写作阶段、期刊投稿、审稿意见、回复与修回行动，同时保留各实体及其历史。
 - **可迁移工作区数据**：经过验证的 JSON 导入与导出，不静默替换已有数据。
 - **演示工作区**：只使用明确标注的合成记录来说明产品，不伪装真实论文、结果或访谈材料。
 
-产品优先服务桌面研究，支持响应式布局、明暗主题和离线友好使用；核心工作流不要求账号或应用服务器。
+产品优先服务桌面研究，支持响应式布局、明暗主题和离线友好使用；核心工作流不要求账号或应用服务器。`v0.2.0` 还带来：
 
-在 `0.1.0` 中，研究项目、证据台账与田野模块提供创建、查看、编辑和受保护删除流程；文献、定量分析、研究日志、论文、投稿与今日工作台提供聚焦的登记、新增、筛选和状态工作流。让每一种对象都具备完整编辑与删除能力属于后续工作。
+- 中文优先、完整英语替代界面；语言切换不改写用户研究文本或可迁移数据；
+- 一等 `ResearchQuestion`、`Claim` 与显式项目内关系，以及可视化研究图谱；
+- `TheoryMemo` 的完整中英文 CRUD、同项目关系保护和仅作界面引导的结构化提示；
+- 普通与加密本地工作区、锁定与 `.sociologydesk` 加密备份；普通 IndexedDB 与 JSON 导出仍为明文；
+- 至多两层、URL 可寻址且不改动数据的 Smart View，以及桌面/移动端一致的九域导航；
+- portable workspace 与标准 IndexedDB v4；v3 → v4 只增加空 `theoryMemos`，不推断或改写研究内容。
 
-### Phase 3B 已合并（尚未发布）
-
-Phase 3B 已通过 [PR #11](https://github.com/Yoesher/sociology-phd-desk/pull/11) 合并到 `main`，把研究问题和分析主张提升为项目内的一等研究对象：
-
-- `ResearchQuestion`、`Claim` 与 `ClaimQuestionLink` 使用稳定 ID；文本不是外键。
-- 研究问题与分析主张通过显式的项目内多对多关系连接，缺失端点、跨项目关系与重复关系会被拒绝。
-- 项目详情提供完整中英文的研究问题、分析主张与研究图谱界面，可创建、查看、编辑、连接和删除未被引用的对象。
-- 删除研究问题或主张前必须先明确移除其关系；删除项目也不会静默级联删除这些研究记录。
-- 已合并实现把 IndexedDB 与 portable workspace 升级到 v3，并显式执行 v1 → v2 → v3 迁移。旧 `Project.researchQuestion` 迁移为研究问题；旧 `Evidence.claim` 原文继续保留，并只在同一项目内按 exact-trimmed 文本确定性生成主张。
-- 迁移不会执行语义或模糊合并、自动改写，也不会推断某个主张回答哪个研究问题。
-
-这不是新版本发布声明：Phase 3B 已合并并部署，但仍属于 `Unreleased`，正式 Release 与包版本仍是 `v0.1.0` / `0.1.0`。Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) 仍为 OPEN；Evidence↔Claim 显式关系不属于 Phase 3B，当前 v3 没有新增 evidence `claimId`。公开 URL 已返回 HTTP 200，且部署资产名称/哈希与最终本地构建一致；由于浏览器控制当时返回 `instances=[]`，没有执行真实公共页面交互 smoke，不能把该项写成 PASS。完整证据见 [PROJECT_STATE.md](PROJECT_STATE.md)。
-
-### Phase 3C 本地私密工作空间（已合并部署，尚未发布）
-
-Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) 的已合并实现把一个模糊的单一数据库改为显式的本地工作台注册表和彼此独立的物理数据库。它不是用户登录系统，也不创建网络账号：
-
-- 普通个人工作台与明确标注的合成演示工作台分别存储；一个工作台内的实体不能引用另一个工作台的实体。并发的首次启动会收敛到同一组确定性初始路由，而不是各自创建重复工作台。
-- **标准本地工作台**把可查询的研究表以明文结构保存在 IndexedDB。界面锁定只隐藏应用界面，不会加密这些表。
-- **加密本地工作台**使用浏览器 Web Crypto 的 PBKDF2-HMAC-SHA-256 与 AES-256-GCM 保存经过认证的完整工作台密文；公开 `main` 载荷为 portable v3，本地 Theory 候选的新写入为 portable v4。口令和派生密钥不持久化，重新加载或锁定后需要再次解锁。
-- 注册表为了本地选择和恢复会明文保存工作台显示名称、时间、模式、自动锁定设置、迁移状态与不透明存储定位符；它不保存研究正文、口令、派生密钥或内容校验值。注册表显示名称是当前规范名称；导出时只把它复制到生成的 JSON 或加密备份载荷，不重写活动研究数据，也不增加工作台数据修订号。
-- 普通 JSON 导出始终是**明文**。公开 `main` 使用 portable/standard v3；本地 Theory 候选使用 portable/standard v4。加密备份使用不同的、版本化的 `.sociologydesk` 容器；container v1、注册表数据库 v1 与加密库数据库 v1 是独立版本轴。
-- 旧单一数据库的迁移和标准工作台转加密都采用非破坏性的分阶段流程。只有完全未改动的合成夹具会继续归类为演示；被编辑过的旧演示会迁移为个人工作台，并另建一个纯净演示工作台。
-- 转换在创建加密库前先持久保留目标定位符。若中断后目标加密库仍存在，继续转换或丢弃该目标都必须用口令认证并核对工作台身份；只有已确认目标不存在时，才可无口令清除空预留。加密路由发布后，明文清理会先提交排队写入，再要求当前已解锁会话，并在同时锁定加密目标与明文来源期间重新读回加密库、核对来源身份。
-- 删除先留下可恢复的登记标记；启动时会自动重试，未完成项也会在工作台中心显示明确的重试入口。所有这些浏览器删除都只是逻辑删除，不等于安全擦除。
-
-遗失口令后没有云端重置或恢复密钥。GitHub Pages 上以不同路径托管的应用也共享来源信任边界；浏览器数据库分离不是独立安全来源。完整边界见[中文隐私与加密模型](docs/zh-CN/privacy-model.md)；[English version](docs/en/privacy-model.md)。上述功能已经进入公开 `main` 与在线演示，但仍属 `Unreleased`，不能据此推断新 Release 已经交付。
-
-### Phase 3E Theory Research（已合并、已部署，尚未正式发布）
-
-当前 `feat/theory-research-workspace` 本地候选为概念社会学工作增加一个新实体 `TheoryMemo`，并复用现有 ResearchQuestion、Claim、Literature 与 Manuscript：
-
-- memo 必须属于一个项目，类型为稳定且不随语言变化的 `concept`、`mechanism`、`dialogue`、`counterargument`、`boundary` 或 `synthesis`；
-- memo 可通过稳定 ID 显式关联同一项目的研究问题、主张和文献。缺失端点、跨项目关系以及同一关联数组中的重复 ID 都会被拒绝；被引用端点与项目受到删除保护，删除 memo 不会删除关联对象；
-- 中英文界面提供概览、问题与命题、核心概念、机制、理论对话、反论证与边界条件、全部 memo 和理论稿件视图，以及 memo 的创建、查看、编辑、删除和项目/类型/更新时间筛选；
-- 结构化提示问题只提供界面引导，绝不自动写入正文；理论写作继续使用 Manuscript，任务使用稳定原始值 `Theory / Conceptual Work`；
-- 合成演示仅增加 2 条 Theory Memo；整个 fixture 含 2 个项目、2 个研究问题、3 个主张和 3 条 `ClaimQuestionLink`（经验项目 2 条、理论项目 1 条）。Concept memo 引用 1 个研究问题，Mechanism memo 引用同一问题和 1 个主张，两条 memo 都不引用文献；它不伪造真实文献、发现或理论结论。空白个人工作台不会自动生成这些记录。
-
-该实现把 portable workspace 与标准 IndexedDB 存储推进到 v4；v3 → v4 只增加空的 `theoryMemos` 集合，不从日志、备注或其他文本推断理论内容。encrypted container v1、encrypted-vault database v1 与 registry database v1 保持独立。已有已认证的 portable-v3 密文或备份只有在认证、迁移与读回验证成功后才升级。Theory [PR #18](https://github.com/Yoesher/sociology-phd-desk/pull/18) 已合并至 [`b8c8c60`](https://github.com/Yoesher/sociology-phd-desk/commit/b8c8c60434b1d88c348f83c5d08f2d19770db78a) 并部署；这不是新的正式 Release 声明。
-
-### Phase 3F 二级导航与论文/投稿整合（仅本地候选）
-
-当前 `feat/hierarchical-navigation` 候选将九个研究工作域组织为至多两层导航：Today、Projects、Literature、Theory Research、Fieldwork、Quantitative、Evidence、Research Log 与 Manuscripts & Publishing；第二层为不会改变数据的 URL 可寻址 Smart View。Manuscript、Submission 与 ReviewerComment 仍是独立实体，候选只统一其展示与流程入口，并保留旧的 manuscripts/submissions 链接重定向。该候选尚未建立 PR 或通过远端门禁，因此不是公开演示或正式发布功能。
+完整功能、迁移、安全边界与精确门禁证据见 [PROJECT_STATE.md](PROJECT_STATE.md)、[数据迁移说明](docs/data-portability.md)和[隐私与加密模型](docs/zh-CN/privacy-model.md)。Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) 的 Evidence↔Claim↔Manuscript 显式追踪仍未实现；各对象的完整编辑/删除能力也不完全一致。
 
 ## 为什么是社会学专用？
 
@@ -122,13 +88,23 @@ Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) 的已合�
 
 ## 截图
 
-以下截图只显示明确标注的合成演示记录。采集信息与隐私检查详见[截图登记](docs/screenshots/README.md)。
+以下 `v0.2.0` 候选截图均来自 1280 像素宽的实际应用，只显示明确标注的合成 Demo。采集与隐私检查详见[截图登记](docs/screenshots/README.md)。
 
-![浅色主题下的今日研究工作台](docs/screenshots/today-light.jpg)
+![中文今日工作台](docs/screenshots/v0.2.0/01-today-zh.jpg)
 
-![深色主题下的证据台账](docs/screenshots/evidence-dark.jpg)
+![展开的中文二级导航](docs/screenshots/v0.2.0/02-navigation-expanded-zh.jpg)
 
-![工作区备份、导入与演示数据重置对话框](docs/screenshots/workspace-data-light.jpg)
+![理论研究概览](docs/screenshots/v0.2.0/03-theory-overview-zh.jpg)
+
+![理论研究核心概念](docs/screenshots/v0.2.0/04-theory-concepts-zh.jpg)
+
+![研究问题—主张图谱](docs/screenshots/v0.2.0/05-research-graph-zh.jpg)
+
+![论文与投稿修回视图](docs/screenshots/v0.2.0/06-publishing-revision-zh.jpg)
+
+![隐私中心中的标准工作区边界](docs/screenshots/v0.2.0/07-privacy-lock-zh.jpg)
+
+![完整英语界面](docs/screenshots/v0.2.0/08-interface-en.jpg)
 
 ## 开始使用
 
@@ -170,19 +146,19 @@ CI 也执行这组命令。只有在当前修订上实际成功运行后，才�
 
 普通 JSON 导出是可检查、可迁移的明文 portable workspace；请把它视为其中最敏感记录，并在分享前检查目标文件。导入时请核对预览并选择预期的合并方式。替换必须是明确操作，绝不能静默发生。
 
-公开 `main` `b8c8c60` 导出 portable v4，并继续接受受支持的 v1、v2、v3 文件，通过显式 v1 → v2 → v3 → v4 转换后再执行同一套严格验证；v3 → v4 只创建空 `theoryMemos` 集合。迁移细节与研究图谱边界见[数据迁移说明](docs/data-portability.md)。
+`v0.2.0` 候选导出 portable v4，并继续接受受支持的 v1、v2、v3 文件，通过显式 v1 → v2 → v3 → v4 转换后再执行同一套严格验证；v3 → v4 只创建空 `theoryMemos` 集合。迁移细节与研究图谱边界见[数据迁移说明](docs/data-portability.md)。
 
 Phase 3C 为加密工作台增加 `.sociologydesk` 加密备份。它是独立的 container v1 格式，而不是换扩展名的普通 JSON；恢复时先认证和验证完整备份，再用新的逻辑工作台 ID 创建独立工作台。口令错误或密文损坏不会写入目标工作台。格式与失败边界见[数据迁移说明](docs/data-portability.md)和[隐私与加密模型](docs/zh-CN/privacy-model.md)。
 
 ## 架构
 
-当前基础采用 React、TypeScript 和 Vite。Dexie 提供 IndexedDB 数据层，Zod 验证可迁移数据，Vitest 覆盖可测试的应用逻辑。持久化与领域逻辑和页面组件保持分离，使研究对象能够演进，而不把应用外壳变成单体组件。已合并的 Phase 3B 在这一边界内增加研究问题、分析主张及其显式关系。已合并的 Phase 3C 在领域工作台之外增加只含路由元数据的注册表、每工作台数据库适配器、会话门与 Web Crypto 加密库。当前未合并 Theory 候选增加 `TheoryMemo`，并将 portable/standard 两条版本轴从 v3 推进到 v4；container/vault/registry 仍各自为 v1。
+当前基础采用 React、TypeScript 和 Vite。Dexie 提供 IndexedDB 数据层，Zod 验证可迁移数据，Vitest 覆盖可测试的应用逻辑。持久化、领域逻辑和页面组件保持分离。研究图谱增加稳定 ID 的研究问题、主张与显式关系；本地工作区层增加元数据注册表、每工作区数据库适配器、会话门与 Web Crypto 加密库；Theory 增加 `TheoryMemo`。portable/standard 为 v4，container/vault/registry 分别保持 v1。
 
 参阅[架构概览](docs/architecture/overview.md)、[数据模型](docs/architecture/data-model.md)和[架构决策](DECISIONS.md)。
 
 ## 路线图
 
-`0.1` 系列建立核心研究生命周期、安全导入导出、质量门禁和公开维护基础。`v0.2.0` 的冻结收口范围包括已经合并的简中优先双语基础、研究问题—主张图谱与本地私密工作空间，以及待交付的理论研究工作区、二级导航、论文与投稿整合和发布稳定化。中国研究地图因公开地图来源、再分发与审图条件未能形成可验证闭环，暂缓实施，不属于 `v0.2.0` 发布范围；未来只有在合规条件发生变化并重新核验后才会恢复。
+`0.1` 系列建立核心研究生命周期、安全导入导出、质量门禁和公开维护基础。`v0.2.0` 的功能范围已经冻结，包含简中优先双语基础、研究问题—主张图谱、本地私密/加密工作区、Theory Research、二级导航，以及论文与投稿整合；当前只进行发布稳定化。中国研究地图因公开地图来源、再分发与审图条件未形成可验证闭环而暂缓，不属于 `v0.2.0`；未来只有在合规条件变化并重新核验后才会恢复。
 
 详见 [ROADMAP.md](ROADMAP.md)。路线图描述方向，不是交付承诺。
 

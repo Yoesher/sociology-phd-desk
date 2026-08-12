@@ -25,7 +25,7 @@ The product remains sociology-specific and complements, rather than replaces, sp
 
 Phase 3 uses independently verified increments. Listing an increment here does not mean it has shipped; verified status remains in [PROJECT_STATE.md](PROJECT_STATE.md).
 
-**Current finalization scope:** Phase 3A, Phase 3B, Phase 3C, and Phase 3E are complete on `main`; Theory PR #18 was squash-merged as [`b8c8c60`](https://github.com/Yoesher/sociology-phd-desk/commit/b8c8c60434b1d88c348f83c5d08f2d19770db78a) and exact-main CI/Pages passed. The Phase 3D China Research Map source/compliance review remains a merged documentation-only deferral; Issue #8 is `CLOSED_NOT_PLANNED`, all four map gates remain **BLOCKED**, and no map asset or implementation shipped. Phase 3F navigation and integrated publishing is an uncommitted local candidate whose remote gates remain pending. The non-map release sequence remains hierarchical navigation and integrated publishing → stabilization and `v0.2.0`. See the retained bilingual source register: [简体中文](docs/zh-CN/map-data-sources.md) / [English](docs/en/map-data-sources.md).
+**Current finalization scope:** Phase 3A, Phase 3B, Phase 3C, Phase 3E, and Phase 3F are complete on `main`; navigation PR #20 squash-merged as [`1cbedd2f`](https://github.com/Yoesher/sociology-phd-desk/commit/1cbedd2f045c99e40f71bbec434c5c14cae7bb58) and exact-main CI/Pages passed. The Phase 3D China Research Map source/compliance review remains a merged documentation-only deferral; Issue #8 is `CLOSED_NOT_PLANNED`, all four map gates remain **BLOCKED**, and no map asset or implementation shipped. Feature freeze is active on `release/0.2.0`; package `0.2.0`, local automated gates, and eight synthetic-Demo screenshots are ready, while the release PR, final exact-main/public gates, tag, and GitHub Release remain pending. See the retained bilingual source register: [简体中文](docs/zh-CN/map-data-sources.md) / [English](docs/en/map-data-sources.md).
 
 Every implemented increment follows the same evidence chain: scoped Issue → dedicated feature branch → implementation and tests → Pull Request → passing PR CI → maintainer self-review → squash merge → passing `main` CI → GitHub Pages verification. The map's blocked gate applies to the map alone; each non-map increment must pass its own complete gate before the next begins.
 
@@ -70,21 +70,24 @@ The 2026-08-12 review found every mandatory map gate blocked. China Research Map
 - The merged implementation provides Chinese and English Theory views, full memo CRUD, project/type/date filters, the stable `Theory / Conceptual Work` task category, and two clearly synthetic demo memos.
 - PR #18 passed final-head CI, P0 = 0 / P1 = 0 self-review, squash merge, exact-main CI, and Pages deployment. It remains unreleased until `v0.2.0` stabilization completes.
 
-### Phase 3F — Hierarchical navigation and information architecture (local candidate)
+### Phase 3F — Hierarchical navigation and information architecture (complete on `main`; unreleased)
 
 - Organize primary navigation around research-work domains and secondary navigation around workflows or derived smart views within those domains.
 - Keep the main sidebar to at most two levels; concrete projects, manuscripts, interviews, regions, and other objects continue their drill-down in the content area.
 - Treat secondary navigation as presentation and filtering by default. Do not add persisted enum values merely to mirror menu labels.
 - Present Manuscript, Submission, and ReviewerComment through one Manuscripts & Publishing UI without merging the underlying entities.
 - Preserve old routes, deep links, keyboard and screen-reader semantics, responsive access, both languages, and unchanged user-authored content through the navigation migration.
-- The local candidate has passed its local automated and interaction/responsive browser gates; its navigation PR, remote CI, merge, Pages, and public verification remain pending.
+- PR #20 passed exact-head CI and P0 = 0 / P1 = 0 self-review, squash-merged as `1cbedd2f`, closed Issue #19, and passed exact-main CI plus Pages. Complete public interaction verification remained limited by a browser-bridge timeout and is not recorded as a full PASS.
 
 ### Phase 3G — Stabilization and v0.2.0 release
 
-- Freeze feature scope after the navigation merge. Integrate and audit the research graph, Theory, private/encrypted workspaces, navigation, publishing, accessibility, responsive, migration, and bilingual boundaries as a whole.
+- Feature freeze is active after the navigation merge. Only P0/P1 release bugs, documentation, screenshots, version/changelog, accessibility, migration, security, and release-process fixes may enter the candidate.
+- `release/0.2.0` carries package `0.2.0`, reconciled candidate documentation, and eight privacy-reviewed screenshots from the real 1280-wide candidate using only synthetic Demo data.
+- Integrate and audit the research graph, Theory, private/encrypted workspaces, navigation, publishing, accessibility, responsive, migration, and bilingual boundaries as a whole.
 - Run migration paths, import/export, protected deletion, local workspace isolation and encryption checks where implemented, production builds, browser smoke tests, and the complete CI and Pages release gate.
 - Reconcile bilingual documentation, architecture decisions, privacy records, retained map deferral evidence, changelog, project state, screenshots, and release notes with the verified revision.
-- Create the `v0.2.0` annotated tag and formal release only after the Theory, navigation, and release gates pass; do not move the existing `v0.1.0` tag.
+- Open and merge the release PR only with P0 = 0 / P1 = 0, then pass exact-main CI/Pages/public verification.
+- Create the `v0.2.0` annotated tag and formal release only after all remaining release gates pass; do not move the existing `v0.1.0` tag.
 
 ## `0.1.0` — usable local foundation
 

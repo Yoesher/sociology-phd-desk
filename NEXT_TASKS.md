@@ -1,6 +1,6 @@
 # Next Tasks
 
-> Verified handoff queue after the public [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0) release. Checked items have independent evidence; unchecked items remain future work.
+> Verified handoff queue for the `v0.2.0` release candidate. Checked items have independent evidence; unchecked items remain future work. The latest formal GitHub Release remains [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0).
 
 ## P0 — Phase 3A bilingual gate (complete)
 
@@ -76,7 +76,7 @@
 
 ## P0 — Phase 3F hierarchical navigation and integrated publishing
 
-**LOCAL CANDIDATE:** Theory is merged and deployed on `main`. The navigation work is currently uncommitted on `feat/hierarchical-navigation`; do not claim a navigation PR, CI, merge, Pages, or public deployment before those specific gates pass.
+**COMPLETE ON `main`:** navigation PR #20 is merged and its exact-head and exact-`main` remote gates passed. This is not yet a formal `v0.2.0` Release.
 
 - [x] Implement at most two sidebar levels: primary research-work domains and secondary workflows or derived smart views.
 - [x] Keep secondary navigation decoupled from database enums; do not add persisted states merely to mirror menu labels.
@@ -84,15 +84,21 @@
 - [x] Add the specified smart views, badges, breadcrumbs, compact flyouts, mobile accordion, deep-link query views, restrained context-aware Quick Add, and truly-empty personal-workspace onboarding without mutating research data merely by switching views.
 - [x] Present Manuscript, Submission, and ReviewerComment together while keeping their schemas independent; preserve `#/manuscripts` and `#/submissions` through compatibility redirects.
 - [x] Complete candidate local gates: `npm ci`, lint with 0 findings, typecheck, 28 files / 269 tests, 1,962-module production build, independent P0 = 0 / P1 = 0 audit, and real Chinese/English desktop/mobile/encrypted browser smoke with zero console warnings/errors.
-- [ ] Open a scoped navigation Pull Request; pass its exact-head CI and maintainer self-review, squash-merge it, then pass exact-`main` CI, Pages, and public verification before release work begins.
+- [x] Open navigation [PR #20](https://github.com/Yoesher/sociology-phd-desk/pull/20) at exact head `c4a257a3e9c784a6ae13716fb283b3de8b3001bd`; pass push CI `31584494256` / job `94075038357`, PR CI `31584573008` / job `94075295369`, and [P0 = 0 / P1 = 0 self-review](https://github.com/Yoesher/sociology-phd-desk/pull/20#issuecomment-5265145451).
+- [x] Squash-merge PR #20 as `1cbedd2f045c99e40f71bbec434c5c14cae7bb58`, close Issue #19 as completed, and pass exact-`main` CI `31585023271` / job `94076742782` plus Pages `31585023439`, jobs `94076743194` / `94077007208`, deployment `5867026274`.
+- [x] Record the public-navigation interaction limitation honestly: Pages deployment passed, but the browser bridge timed out before a complete public interaction smoke; do not relabel it as a full PASS.
 
 ## P0 — Phase 3G v0.2.0 stabilization and release, only after navigation passes
 
-- [ ] Declare `FEATURE FREEZE FOR v0.2.0`; accept only P0/P1 release bugs, documentation, screenshots, version/changelog, accessibility, migration, and security fixes.
-- [ ] Create `release/0.2.0` from verified `main`, update package/lockfile to `0.2.0`, and keep portable schema, standard database schema, encrypted vault schema, encrypted container, and package version as independently documented axes.
-- [ ] Run the integrated bilingual, graph, Theory, private/encrypted workspace, lock/backup, navigation, publishing, old-route, v4 migration, accessibility, responsive, secret-audit, CI, Pages, and public-browser release gates.
-- [ ] Reconcile bilingual README, privacy records, retained map deferral evidence, architecture decisions, changelog, screenshots, project state, evidence register, and release notes with the exact verified revision.
-- [ ] Merge the release PR only with P0 = 0 and P1 = 0, verify exact `main` CI/Pages/public behavior, then create an annotated `v0.2.0` tag and a non-draft, non-prerelease GitHub Release; never move `v0.1.0`.
+- [x] Declare `FEATURE FREEZE FOR v0.2.0`; accept only P0/P1 release bugs, documentation, screenshots, version/changelog, accessibility, migration, security, and release-process changes.
+- [x] Create `release/0.2.0` from verified `main`, update package/lockfile to `0.2.0`, and keep portable schema, standard database schema, encrypted vault schema, encrypted container, and package version as independently documented axes.
+- [x] Pass the final exact-candidate automated gate: `npm ci`; lint 0; typecheck; 28 files / 269 tests in 24.96 s; Vite build with 1,962 modules in 481 ms.
+- [x] Capture and register eight JPEG release-candidate screenshots from a 1280 × 720 viewport using only the explicitly synthetic Demo, with exact per-file 1265 × 712 or 1280 × 720 dimensions, covering Chinese Today/navigation/Theory/graph/publishing/privacy and the English interface.
+- [x] Reconcile the bilingual README, retained map deferral, changelog, project state, roadmap, screenshot register, release checklist, and evidence register with release-candidate facts. Continue to state that the tag and GitHub Release are pending.
+- [x] Complete the integrated release-candidate browser gate: standard create/project/question/Theory Memo/Theory task/reload persistence; plaintext-export action invocation; encrypted create/project/Theory Memo/lock/wrong-passphrase rejection and field clearing/correct unlock/persistence/encrypted-backup generation; all nine English primary routes; English 390 × 844 Theory and mobile More with `scrollWidth` 375 ≤ 390; zero console warnings/errors; and deletion of both synthetic QA workspaces. The in-app browser did not expose the plaintext download for file inspection, actual encrypted-backup import/restore was NOT RUN manually, and fresh Publishing status creation was not repeated; those boundaries remain automated-test evidence rather than fabricated manual evidence.
+- [x] Complete final diff/Markdown-link/secret/private-data/dependency/screenshot-truth audit on the exact release candidate; P0 = 0 and P1 = 0.
+- [ ] Open the release PR; pass exact-head CI; merge only with P0 = 0 / P1 = 0; verify exact-`main` CI, Pages, and public behavior.
+- [ ] Create the annotated `v0.2.0` tag and a non-draft, non-prerelease GitHub Release only after all release gates pass; never move `v0.1.0`.
 
 ## P2 — separate research-traceability backlog (not completed by Phase 3B)
 

@@ -2,6 +2,21 @@
 
 Use this checklist for every release. A checked item means it was verified against the exact release revision.
 
+## `v0.2.0` candidate checkpoint — 2026-08-12
+
+This checkpoint records only completed candidate work. It does not replace the reusable checklist below and does not claim that the release PR, final `main`, annotated tag, or GitHub Release exists.
+
+- [x] `FEATURE FREEZE FOR v0.2.0` is active on `release/0.2.0`.
+- [x] Package and lockfile version are `0.2.0`; portable/standard v4, encrypted container v1, encrypted-vault database v1, and registry database v1 remain independently documented axes.
+- [x] Navigation PR #20 merged as exact `main` `1cbedd2f045c99e40f71bbec434c5c14cae7bb58`; exact-head CI, P0 = 0 / P1 = 0 self-review, exact-main CI, and Pages passed.
+- [x] Candidate local gates passed: `npm ci`; lint 0; typecheck; 28 files / 269 tests in 24.96 s; Vite 1,962-module build in 481 ms.
+- [x] Eight JPEG candidate screenshots were captured from a 1280 × 720 real-application viewport using only the explicitly synthetic Demo; each registered image records its exact 1265 × 712 or 1280 × 720 dimensions and passed privacy review.
+- [x] China Research Map remains deferred and excluded; all four map gates remain `BLOCKED` / `NOT TESTABLE`, and no map implementation or asset shipped.
+- [x] Complete exact-candidate browser checks: standard create/project/question/Theory Memo/Theory task/reload; encrypted create/Theory Memo/lock/wrong-passphrase clear/correct unlock/persistence/encrypted-backup generation; English primary routes; 390 × 844 mobile More; zero console warnings/errors; and deletion of both synthetic QA workspaces. The browser invoked plaintext export but did not expose its downloaded file for inspection; encrypted-backup import/restore was NOT RUN manually and remains automated-test evidence. Publishing state mappings, legacy routes, keyboard behavior, and accessible names remain supported by the final automated suite and the unchanged application-source navigation smoke rather than a newly repeated full manual matrix.
+- [x] Complete final diff, Markdown-link, secret/private-data, dependency, screenshot-truth, and release-candidate review: P0 = 0, P1 = 0.
+- [ ] Open and pass the release PR, then verify exact-main CI/Pages and public behavior.
+- [ ] Create the annotated `v0.2.0` tag and non-draft/non-prerelease GitHub Release. Do not move `v0.1.0`.
+
 ## Product and data
 
 - [ ] Core routes open and their primary interactions work.

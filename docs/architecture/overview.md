@@ -4,7 +4,7 @@
 
 Sociology PhD Desk is a local-first browser application that coordinates research objects across the sociology lifecycle. The core must remain useful without an account, application server, cloud sync, analytics, or AI API.
 
-Verified public `main` is [`ca4429f`](https://github.com/Yoesher/sociology-phd-desk/commit/ca4429facfa124e85c3dba37f9ce7da270a82601). It includes the deployed Phase 3C workspace architecture and the documentation-only Phase 3D map deferral, but no Theory implementation. The Theory/v4 details below describe a **local unmerged candidate** whose final full-suite, build, browser, PR/CI, merge, and Pages gates remain pending. The formal release remains `v0.1.0`; evidence boundaries are recorded in `PROJECT_STATE.md`.
+Verified public `main` is [`1cbedd2f`](https://github.com/Yoesher/sociology-phd-desk/commit/1cbedd2f045c99e40f71bbec434c5c14cae7bb58). It includes the Phase 3C workspace architecture, the documentation-only Phase 3D map deferral, the merged Phase 3E Theory/v4 implementation, and the merged Phase 3F hierarchical navigation and integrated Manuscripts & Publishing presentation. The `release/0.2.0` candidate sets the package version to `0.2.0`; the formal GitHub Release remains `v0.1.0` until the remaining release gates pass. Evidence boundaries are recorded in `PROJECT_STATE.md`.
 
 ## Technology foundation
 
@@ -17,7 +17,7 @@ Verified public `main` is [`ca4429f`](https://github.com/Yoesher/sociology-phd-d
 - A schema-v1 local **workspace registry** routes opaque workspace IDs to separate standard or encrypted IndexedDB databases without storing research content.
 - The browser **Web Cryptography API** provides PBKDF2-HMAC-SHA-256 key derivation and AES-256-GCM authenticated encryption for optional encrypted workspaces and `.sociologydesk` backups.
 - **Zod** validates imported portable data and other untrusted boundaries.
-- **Vitest**, Testing Library, and `fake-indexeddb` test domain, portable-data, migration, conflict, persistence, queued context writes, and nested modal lifecycle. Full route and multi-viewport browser automation remains planned after `0.1.0`.
+- **Vitest**, Testing Library, and `fake-indexeddb` test domain, portable-data, migration, conflict, persistence, queued context writes, and nested modal lifecycle. Full route and multi-viewport browser automation remains planned as post-`v0.2.0` work.
 - **Oxlint** and the TypeScript compiler provide static quality gates.
 
 Package versions and executable scripts are authoritative in `package.json`; this document describes responsibilities rather than pinning duplicate version numbers.
@@ -36,7 +36,7 @@ Domain services, whole-workspace validation, import/export
 LocalWorkspaceManager and session-bound repository port
         ↓
 metadata-only registry DB v1
-        ├─ standard workspace DB v4 candidate (18 plaintext domain tables)
+        ├─ standard workspace DB v4 (18 plaintext domain tables)
         └─ encrypted vault DB v1 (one authenticated ciphertext record)
 ```
 
@@ -52,7 +52,7 @@ Application settings are not part of `WorkspaceData`, IndexedDB domain tables, o
 
 ### Feature modules
 
-Own workflows for Today, Projects, Literature, Fieldwork, Quantitative, Evidence, Research Log, Manuscripts, and Submissions. Project detail also owns the bilingual Research Questions, Claims, and Research Graph workspace merged in Phase 3B. The local candidate adds a bilingual Theory route with overview and filtered memo views plus a theoretical-manuscript view; it reuses existing project/graph/literature/manuscript objects rather than creating parallel copies. A feature may compose objects from several stores, but persistent writes should pass through domain/repository functions.
+Own workflows for Today, Projects, Literature, Theory Research, Fieldwork, Quantitative, Evidence, Research Log, and Manuscripts & Publishing. Project detail also owns the bilingual Research Questions, Claims, and Research Graph workspace merged in Phase 3B. The merged Theory route provides overview and filtered memo views plus a theoretical-manuscript view while reusing existing project/graph/literature/manuscript objects rather than creating parallel copies. The merged publishing presentation composes Manuscript, Submission, and ReviewerComment without collapsing their independent schemas. A feature may compose objects from several stores, but persistent writes should pass through domain/repository functions.
 
 ### Domain model and services
 
@@ -60,7 +60,7 @@ Own entity types, allowed states, relationships, ID generation, dates, validatio
 
 Phase 3B makes `ResearchQuestion`, `Claim`, and `ClaimQuestionLink` first-class objects. Questions and claims retain stable identity when their authored text or state changes. Their explicit many-to-many link is valid only when both endpoints and the link itself share one project; text is not an identifier. Linked parents and projects with graph dependents use protected deletion rather than silent cascading.
 
-The Phase 3E candidate adds only `TheoryMemo`, with six stable types and explicit arrays of same-project question, claim, and literature IDs. Missing, duplicate, and cross-project endpoints are invalid; memo references participate in protected deletion. Structured theory prompts are interface guidance only and never stored automatically. Theoretical writing continues to use Manuscript, and theory tasks use raw category `Theory / Conceptual Work`.
+Phase 3E adds only `TheoryMemo`, with six stable types and explicit arrays of same-project question, claim, and literature IDs. Missing, duplicate, and cross-project endpoints are invalid; memo references participate in protected deletion. Structured theory prompts are interface guidance only and never stored automatically. Theoretical writing continues to use Manuscript, and theory tasks use raw category `Theory / Conceptual Work`.
 
 ### Persistence
 
@@ -69,21 +69,21 @@ Owns Dexie schema versions, transactions, indexes, migrations, and repository me
 Phase 3C has three persistence roles:
 
 1. `sociology-phd-desk-registry` schema v1 stores workspace routing and recovery metadata only. Canonical display name, timestamps, kind, encryption mode, auto-lock, migration/cleanup state, an interrupted-conversion target reservation, schema versions, registry revision, and opaque storage locators are plaintext. Research content, passphrases, derived keys, verifiers, and content digests are forbidden.
-2. Each standard personal or synthetic-demo workspace uses a separate physical database. Public `main` uses IndexedDB schema v3 with 17 tables; the unmerged candidate uses schema v4 with an eighteenth `theoryMemos` table. The tables remain plaintext and candidate writes validate complete `WorkspaceData` v4 snapshots.
+2. Each standard personal or synthetic-demo workspace uses a separate physical database. Current `main` uses IndexedDB schema v4 with 18 tables, including `theoryMemos`. The tables remain plaintext and writes validate complete `WorkspaceData` v4 snapshots. Phase 3C originally established the per-workspace boundary at schema v3 with 17 tables; Phase 3E advanced only this axis to v4.
 3. Each encrypted workspace uses a separate encrypted-vault database v1 with exactly one ciphertext record plus plaintext `storageRevision`, `lockEpoch`, `keyInvocation`, and encryption-attempt coordinates. It has no domain tables or plaintext workspace name.
 
 Physical database separation prevents accidental cross-workspace joins in cooperating code, but all databases remain inside the browser origin's trust boundary. The repository also validates the snapshot's workspace identity and rejects cross-workspace endpoints. Physical preflight/ownership rules treat ready and incomplete routes, conversion reservations, retained sources, migration ledgers, the registry database, and reserved database-name prefixes as one alias space; an unexplained existing database is never cleared as if it were fresh staging.
 
 Random logical IDs, non-bootstrap locators, ownership tokens, encrypted bindings, salts, and IVs require cryptographically secure browser randomness and fail closed when it is unavailable. Deterministic initial seed routes are a narrow concurrency mechanism so simultaneous first boots converge; they are not secrets. Manager close, route invalidation, missing physical storage, or authenticated vault tamper poisons the affected session and clears its cached snapshot rather than allowing stale storage recreation. Encrypted async work rechecks a lifecycle generation after storage/crypto awaits; close or lock advances it, preventing a delayed refresh from restoring key/plaintext state to a closed runtime.
 
-IndexedDB schema v3 adds the Phase 3B stores for questions, claims, and claim–question links and migrates v2 project/evidence text deterministically through the same research-graph semantics used at the portable boundary. Candidate schema v4 adds only the `theoryMemos` store; it does not infer theory content.
+IndexedDB schema v3 added the Phase 3B stores for questions, claims, and claim–question links; its v2 → v3 upgrade migrates project/evidence text deterministically through the same research-graph semantics used at the portable boundary. Current schema v4 adds only the `theoryMemos` store; it does not infer theory content.
 
 ### Portability boundary
 
 Owns export envelopes, schema versions, validation, import previews, collision detection, merge, and explicit replacement. External input is untrusted even when it came from an earlier export.
 
-- Ordinary JSON is the inspectable, plaintext portable `WorkspaceData` format. Public `main` writes portable v3; the candidate writes v4 and composes v1 → v2 → v3 → v4, preserving legacy `Evidence.claim`, never inferring Claim↔Question links, and adding only an empty `theoryMemos` collection at v3 → v4.
-- `.sociologydesk` is a different encrypted-backup container. Container v1 remains unchanged. The candidate authenticates a legacy portable-v3 payload before in-memory migration and complete v4 validation; restore creates no target until that boundary passes, and local-vault upgrade publishes v4 ciphertext only after verified read-back.
+- Ordinary JSON is the inspectable, plaintext portable `WorkspaceData` format. Current `main` writes portable v4 and composes v1 → v2 → v3 → v4, preserving legacy `Evidence.claim`, never inferring Claim↔Question links, and adding only an empty `theoryMemos` collection at v3 → v4.
+- `.sociologydesk` is a different encrypted-backup container. Container v1 remains unchanged. The current implementation authenticates a legacy portable-v3 payload before in-memory migration and complete v4 validation; restore creates no target until that boundary passes, and local-vault upgrade publishes v4 ciphertext only after verified read-back.
 - At export, the current registry `displayName` is copied into the generated plaintext or encrypted payload after the active snapshot/route is refreshed. This does not rewrite the active domain database or advance its workspace-data revision; optional last-export bookkeeping is a separate registry update.
 - Portable version, standard database version, registry database version, encrypted-vault database version, and encrypted-container version are independent axes even when some currently use the same integer.
 
@@ -141,13 +141,13 @@ Priority order:
 6. Responsive, theme, accessibility, and browser-level checks.
 7. Message-key and interpolation parity, locale preference, raw enum values, locale-independent export semantics, and unchanged user research content.
 8. Registry isolation, legacy migration idempotence, provisioning/deletion recovery, standard/encrypted session identity, wrong-passphrase/tamper zero-write behavior, lock/reload/auto-lock, backup restore, retained-plaintext cleanup, demo separation, and cross-tab stale-session rejection.
-9. Candidate Theory memo CRUD/filter/view behavior, same-project links, deletion protection, raw task-category stability, UI-only prompts, v3 → v4 empty migration, and authenticated encrypted-v3 compatibility.
+9. Theory memo CRUD/filter/view behavior, same-project links, deletion protection, raw task-category stability, UI-only prompts, v3 → v4 empty migration, and authenticated encrypted-v3 compatibility.
 
 Every release revision must run lint, type checking, tests, and production build. Manual route review complements tests; it does not replace them.
 
 ## Planned extension points
 
-- Additional domain objects such as Variable, Model, Code, and Revision Task; `TheoryMemo` already exists in the unmerged Phase 3E candidate and must not be represented by a second generic memo type.
+- Additional domain objects such as Variable, Model, Code, and Revision Task; `TheoryMemo` already exists and must not be represented by a second generic memo type.
 - Explicit Evidence↔Claim and Claim↔manuscript-location navigation only after its separate schema, provenance, migration, and deletion semantics are implemented; retained free text is not such a relationship.
 - Adapters for Zotero and analysis-tool metadata after API/license/privacy review.
 - Document and reproducibility exports.

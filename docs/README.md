@@ -2,7 +2,7 @@
 
 This directory contains durable product, architecture, workflow, release, and project-integrity documentation.
 
-Current status boundary: public `main`/Pages are verified through `ca4429f` and contain no Theory implementation or map feature. Theory/v4 documentation describes the current local unmerged candidate. Its latest exact-tree audit recorded P0 = 0 / P1 = 0, but final full-suite, build, browser, PR/CI, merge, and Pages gates remain pending. See [`../PROJECT_STATE.md`](../PROJECT_STATE.md).
+Current status boundary: public `main`/Pages are verified through [`1cbedd2`](https://github.com/Yoesher/sociology-phd-desk/commit/1cbedd2f045c99e40f71bbec434c5c14cae7bb58) and include the merged Theory Research, hierarchical navigation, and integrated Manuscripts & Publishing work. Current `main` and the `release/0.2.0` candidate use portable/standard v4, while the package is a `0.2.0` release candidate. The latest formal GitHub Release remains `v0.1.0`; the release PR, `v0.2.0` tag, and GitHub Release remain pending. The China Research Map remains a documentation-only deferral and no map feature shipped. See [`../PROJECT_STATE.md`](../PROJECT_STATE.md).
 
 ## Architecture
 
