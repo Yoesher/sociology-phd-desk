@@ -1,6 +1,6 @@
 # Data Model
 
-This document describes the Phase 3B conceptual model merged into `main`, portable workspace v3, and the separate local-workspace metadata model in the unmerged Phase 3C candidate. Types and migrations in the code are authoritative for a particular revision; reconcile this document whenever the stored schema changes. Phase 3B remains unreleased, Phase 3C has not passed its publication gates, and the latest formal release remains v0.1.0 until the complete v0.2.0 release gate passes.
+This document describes the Phase 3B conceptual model and Phase 3C local-workspace metadata model merged into `main`, together with portable workspace v3. Types and migrations in the code are authoritative for a particular revision; reconcile this document whenever the stored schema changes. Phase 3B and Phase 3C remain unreleased, and the latest formal release remains v0.1.0 until the complete v0.2.0 release gate passes.
 
 ## Shared conventions
 
@@ -13,7 +13,7 @@ This document describes the Phase 3B conceptual model merged into `main`, portab
 - Local file paths are references only; the application does not ingest or secure the files they point to.
 - A portable `WorkspaceData` snapshot belongs to exactly one logical workspace. An imported snapshot must be explicitly reidentified when it creates a new workspace; entities never link across workspace boundaries.
 
-## Local workspace boundary (Phase 3C candidate)
+## Local workspace boundary (Phase 3C)
 
 The local workspace registry and encryption container are infrastructure metadata, not new research-domain collections inside portable `WorkspaceData`.
 
@@ -208,7 +208,7 @@ Research questions and claims use protected deletion: a record with an incoming 
 - Update portable format versions independently when export semantics change.
 - Record durable changes in `DECISIONS.md` and current limitations in `PROJECT_STATE.md`.
 
-The Phase 3C candidate keeps version domains separate:
+Phase 3C keeps version domains separate:
 
 | Version domain | Candidate version | Meaning |
 | --- | ---: | --- |

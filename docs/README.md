@@ -8,6 +8,7 @@ This directory contains durable product, architecture, workflow, release, and pr
 - [Data model](architecture/data-model.md)
 - [Data portability](data-portability.md)
 - Privacy and encryption model: [简体中文](zh-CN/privacy-model.md) / [English](en/privacy-model.md)
+- China Research Map source and compliance gate: [简体中文](zh-CN/map-data-sources.md) / [English](en/map-data-sources.md)
 - Durable architecture decisions: [`../DECISIONS.md`](../DECISIONS.md)
 
 ## Product and research workflows

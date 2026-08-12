@@ -8,7 +8,7 @@
 
 **在线演示：** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
 
-> **早期公开软件：** 当前正式 Release 仍是 `v0.1.0`；`main` 与在线演示还包含已经合并但尚未发布的 Phase 3A / 3B 功能。Phase 3C 本地私密工作空间目前只存在于未合并的候选分支，尚未通过 Pull Request、CI、`main` 与 Pages 门禁，也尚未进入公开演示。核验证据与限制记录在 [PROJECT_STATE.md](PROJECT_STATE.md)。项目尚未经过外部研究者测试。请勿把不可替代的研究材料只保存在本软件中；公开可用或获得 Star 不代表已经获得真实采用。
+> **早期公开软件：** 当前正式 Release 仍是 `v0.1.0`；`main` 与在线演示还包含已经合并但尚未发布的 Phase 3A / 3B / 3C 功能。Phase 3C 本地私密工作空间已经通过 Pull Request、CI、`main` 与 Pages 门禁并部署，但尚未形成新 Release。核验证据与限制记录在 [PROJECT_STATE.md](PROJECT_STATE.md)。项目尚未经过外部研究者测试。请勿把不可替代的研究材料只保存在本软件中；公开可用或获得 Star 不代表已经获得真实采用。
 
 ## 为什么需要 Sociology PhD Desk？
 
@@ -63,9 +63,9 @@ Phase 3B 已通过 [PR #11](https://github.com/Yoesher/sociology-phd-desk/pull/1
 
 这不是新版本发布声明：Phase 3B 已合并并部署，但仍属于 `Unreleased`，正式 Release 与包版本仍是 `v0.1.0` / `0.1.0`。Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) 仍为 OPEN；Evidence↔Claim 显式关系不属于 Phase 3B，当前 v3 没有新增 evidence `claimId`。公开 URL 已返回 HTTP 200，且部署资产名称/哈希与最终本地构建一致；由于浏览器控制当时返回 `instances=[]`，没有执行真实公共页面交互 smoke，不能把该项写成 PASS。完整证据见 [PROJECT_STATE.md](PROJECT_STATE.md)。
 
-### Phase 3C 本地候选（尚未合并或发布）
+### Phase 3C 本地私密工作空间（已合并部署，尚未发布）
 
-Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) 的本地候选把一个模糊的单一数据库改为显式的本地工作台注册表和彼此独立的物理数据库。它不是用户登录系统，也不创建网络账号：
+Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) 的已合并实现把一个模糊的单一数据库改为显式的本地工作台注册表和彼此独立的物理数据库。它不是用户登录系统，也不创建网络账号：
 
 - 普通个人工作台与明确标注的合成演示工作台分别存储；一个工作台内的实体不能引用另一个工作台的实体。并发的首次启动会收敛到同一组确定性初始路由，而不是各自创建重复工作台。
 - **标准本地工作台**把可查询的研究表以明文结构保存在 IndexedDB。界面锁定只隐藏应用界面，不会加密这些表。
@@ -76,7 +76,7 @@ Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) 的本地�
 - 转换在创建加密库前先持久保留目标定位符。若中断后目标加密库仍存在，继续转换或丢弃该目标都必须用口令认证并核对工作台身份；只有已确认目标不存在时，才可无口令清除空预留。加密路由发布后，明文清理会先提交排队写入，再要求当前已解锁会话，并在同时锁定加密目标与明文来源期间重新读回加密库、核对来源身份。
 - 删除先留下可恢复的登记标记；启动时会自动重试，未完成项也会在工作台中心显示明确的重试入口。所有这些浏览器删除都只是逻辑删除，不等于安全擦除。
 
-遗失口令后没有云端重置或恢复密钥。GitHub Pages 上以不同路径托管的应用也共享来源信任边界；浏览器数据库分离不是独立安全来源。完整边界见[中文隐私与加密模型](docs/zh-CN/privacy-model.md)；[English version](docs/en/privacy-model.md)。上述功能仍是本地候选，不能据此推断公开 `main`、在线演示或新 Release 已经交付。
+遗失口令后没有云端重置或恢复密钥。GitHub Pages 上以不同路径托管的应用也共享来源信任边界；浏览器数据库分离不是独立安全来源。完整边界见[中文隐私与加密模型](docs/zh-CN/privacy-model.md)；[English version](docs/en/privacy-model.md)。上述功能已经进入公开 `main` 与在线演示，但仍属 `Unreleased`，不能据此推断新 Release 已经交付。
 
 ## 为什么是社会学专用？
 
@@ -156,11 +156,11 @@ CI 也执行这组命令。只有在当前修订上实际成功运行后，才�
 
 当前已合并实现导出 portable v3，并继续接受受支持的 v1、v2 文件，通过显式 v1 → v2 → v3 转换后再执行同一套严格验证。迁移细节与研究图谱边界见[数据迁移说明](docs/data-portability.md)。
 
-Phase 3C 候选为加密工作台增加 `.sociologydesk` 加密备份。它是独立的 container v1 格式，而不是换扩展名的普通 JSON；恢复时先认证和验证完整备份，再用新的逻辑工作台 ID 创建独立工作台。口令错误或密文损坏不会写入目标工作台。格式与失败边界见[数据迁移说明](docs/data-portability.md)和[隐私与加密模型](docs/zh-CN/privacy-model.md)。
+Phase 3C 为加密工作台增加 `.sociologydesk` 加密备份。它是独立的 container v1 格式，而不是换扩展名的普通 JSON；恢复时先认证和验证完整备份，再用新的逻辑工作台 ID 创建独立工作台。口令错误或密文损坏不会写入目标工作台。格式与失败边界见[数据迁移说明](docs/data-portability.md)和[隐私与加密模型](docs/zh-CN/privacy-model.md)。
 
 ## 架构
 
-当前基础采用 React、TypeScript 和 Vite。Dexie 提供 IndexedDB 数据层，Zod 验证可迁移数据，Vitest 覆盖可测试的应用逻辑。持久化与领域逻辑和页面组件保持分离，使研究对象能够演进，而不把应用外壳变成单体组件。已合并的 Phase 3B 在这一边界内增加研究问题、分析主张及其显式关系。Phase 3C 候选在领域工作台之外增加只含路由元数据的注册表、每工作台数据库适配器、会话门与 Web Crypto 加密库；portable workspace 仍保持 v3。
+当前基础采用 React、TypeScript 和 Vite。Dexie 提供 IndexedDB 数据层，Zod 验证可迁移数据，Vitest 覆盖可测试的应用逻辑。持久化与领域逻辑和页面组件保持分离，使研究对象能够演进，而不把应用外壳变成单体组件。已合并的 Phase 3B 在这一边界内增加研究问题、分析主张及其显式关系。已合并的 Phase 3C 在领域工作台之外增加只含路由元数据的注册表、每工作台数据库适配器、会话门与 Web Crypto 加密库；portable workspace 仍保持 v3。
 
 参阅[架构概览](docs/architecture/overview.md)、[数据模型](docs/architecture/data-model.md)和[架构决策](DECISIONS.md)。
 

@@ -48,22 +48,31 @@
 - [x] Open scoped [PR #14](https://github.com/Yoesher/sociology-phd-desk/pull/14) from exact feature head `a6681fff763c66692126775a341ba64cafe546fc`, pass [push CI run 31551522108 / job 93975026534](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551522108/job/93975026534) and [PR CI run 31551571303 / job 93975177107](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551571303/job/93975177107), and complete [maintainer self-review](https://github.com/Yoesher/sociology-phd-desk/pull/14#issuecomment-5260782671) with P0 = 0 and P1 = 0.
 - [x] Squash-merge PR #14 as [`f8b9ef9`](https://github.com/Yoesher/sociology-phd-desk/commit/f8b9ef94e67730955a4ab4b6fbe27f66ab3a5db9), close Issue #13, pass exact-`main` [CI run 31551698246 / job 93975560577](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551698246/job/93975560577), and pass [Pages run 31551698215](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551698215) build/deploy jobs `93975560485` / `93975708219` plus deployment `5861195664` at `https://yoesher.github.io/sociology-phd-desk/` on the same exact SHA.
 - [x] Verify public HTTP 200, deployed `index-d7Ca3tI7.js` and `index-MceaPGZ1.css` matching the final local build, and a limited real public browser check at 1280 × 720: expected title, `zh-CN`, Demo, all nine modules, and `scrollWidth` 1265 ≤ 1280. English, mobile, workspace-interactive flows, and console/CSP inspection were NOT RUN because the browser bridge timed out; do not call this a complete public smoke pass.
-- [x] Update the verified handoff and public evidence after the remote gates. Phase 3C is complete and Phase 3D is unblocked; keep Phase 3C in `Unreleased` and leave package/release at `0.1.0` / `v0.1.0`.
+- [x] Update the verified handoff and public evidence after the remote gates. Phase 3C is complete; keep it in `Unreleased`, leave package/release at `0.1.0` / `v0.1.0`, and require Phase 3D to pass its independent source/compliance gate before implementation.
 
-## P1 — Phase 3D China Research Map (next; unblocked, not started)
+## P0 — Phase 3D China Research Map (source/compliance gate BLOCKED)
 
-- [ ] Execute the first-class, bilingual China Research Map Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8) on its own branch.
-- [ ] Verify authoritative/legal map provenance, license, approval metadata, and national-map completeness before committing or publicly deploying any boundary asset; keep the feature blocked if the evidence is incomplete.
+- [x] Start Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8) on `codex/china-research-map` with an independent source/legal gate before any production map implementation.
+- [x] Record the official-source review in [Chinese](docs/zh-CN/map-data-sources.md) and [English](docs/en/map-data-sources.md), including provider, URL, dataset, level, version, terms, redistribution, approval metadata, transformations, limitations, and update path.
+- [x] Record the 2026-08-12 gate honestly: `MAP_SOURCE_VERIFIED=BLOCKED`, `MAP_LICENSE_VERIFIED=BLOCKED`, `MAP_APPROVAL_METADATA=BLOCKED`, and `NATIONAL_MAP_COMPLETENESS=BLOCKED/NOT TESTABLE`.
+- [x] Keep the blocked branch free of map geometry, production administrative master data, external map services, unverified region persistence, and fabricated national-map UI.
+- [ ] Obtain written rights that expressly cover GitHub, Pages, global public access, forks, archives, extraction, format conversion, simplification, recoloring, responsive scaling, and interactive rendering.
+- [ ] Obtain project-specific map-review approval for the final desktop/mobile/zoom/overlay/interaction output; record the review number, approved specimen, date, validity period, renewal owner, and exact asset hashes.
+- [ ] Freeze authoritative, versioned national and Hong Kong/Macao/Taiwan hierarchy sources without inventing missing levels; document official English-name or deterministic transliteration provenance separately.
+- [ ] Only after all source gates PASS, implement the first-class bilingual module and v4 migration/compatibility contract, including immutable source catalog, workspace-local geographic notes, optional source-qualified FieldSite region links, protected project deletion, standard/encrypted isolation, and v1 → v2 → v3 → v4 migration.
+- [ ] Verify exact national completeness, hierarchy, keyboard/list parity, responsive no-cropping, offline asset fallback, privacy, JSON/encrypted round trips, and real browser behavior before making the PR ready or deploying it.
 - [ ] Stop geographic organization at county level, never require or expose participant coordinates or exact locations, and never upload user notes or fieldwork data to GitHub Pages or a map service.
 
 ## P1 — Phase 3E hierarchical navigation, only after Phase 3D passes
 
+- [ ] **BLOCKED by Phase 3D. Do not start until all four map gates, implementation, PR/CI/review, merge, exact-`main` CI, Pages, and public verification pass.**
 - [ ] Implement at most two sidebar levels: primary research-work domains and secondary workflows or derived smart views.
 - [ ] Keep secondary navigation decoupled from database enums; do not add persisted states merely to mirror menu labels.
 - [ ] Preserve routes, deep links, bilingual parity, responsive/keyboard access, and content-area drill-down through the migration.
 
 ## P1 — Phase 3F stabilization and v0.2.0 release, only after Phase 3E passes
 
+- [ ] **BLOCKED by Phase 3D and Phase 3E. Do not create, move, or publish a `v0.2.0` tag or Release.**
 - [ ] Run the integrated data, privacy, map, navigation, migration, accessibility, responsive, bilingual, CI, Pages, and public-browser release gates.
 - [ ] Reconcile bilingual documentation, privacy and map-source records, architecture decisions, changelog, screenshots, project state, and release notes with the exact verified revision.
 - [ ] Create the v0.2.0 tag and formal release only after all earlier Phase 3 gates pass; never move `v0.1.0`.

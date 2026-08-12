@@ -1,7 +1,7 @@
 # Project State
 
 > Last updated: 2026-08-12
-> Status: Phase 0, Phase 1, Phase 2, Phase 3A, Phase 3B, and Phase 3C are complete on `main`; Phase 3C was merged through [PR #14](https://github.com/Yoesher/sociology-phd-desk/pull/14) as exact verified `main` [`f8b9ef9`](https://github.com/Yoesher/sociology-phd-desk/commit/f8b9ef94e67730955a4ab4b6fbe27f66ab3a5db9), with feature-head CI, maintainer self-review, exact-`main` CI, Pages deployment, public HTTP/asset verification, and a limited public desktop browser check complete; Phase 3D is now unblocked but has not begun; `v0.1.0` remains the verified public release
+> Status: Phase 0, Phase 1, Phase 2, Phase 3A, Phase 3B, and Phase 3C are complete on `main`; Phase 3C was merged through [PR #14](https://github.com/Yoesher/sociology-phd-desk/pull/14) as exact verified `main` [`f8b9ef9`](https://github.com/Yoesher/sociology-phd-desk/commit/f8b9ef94e67730955a4ab4b6fbe27f66ab3a5db9), with feature-head CI, maintainer self-review, exact-`main` CI, Pages deployment, public HTTP/asset verification, and a limited public desktop browser check complete; Phase 3D source, license, approval-metadata, and national-completeness review has begun on `codex/china-research-map` and is **BLOCKED**; no map implementation or asset has shipped, Phase 3E/3F remain blocked, and `v0.1.0` remains the verified public release
 > Canonical local project path: `D:\phddesk`
 
 This file is the factual handoff record for maintainers and future Codex sessions. Update it at the end of every development session. Never infer passing checks, repository activity, users, or releases.
@@ -120,7 +120,20 @@ Recorded on 2026-08-12 against exact feature head `a6681fff763c66692126775a341ba
 | Public static deployment | PASS — the public URL returned HTTP 200; deployed `index-d7Ca3tI7.js` and `index-MceaPGZ1.css` matched the final local production assets |
 | Public desktop browser check | LIMITED PASS — at 1280 × 720, the deployed page showed the expected title, `zh-CN`, the Demo state, and all nine modules; `scrollWidth` was 1265 ≤ 1280. English, mobile, workspace-interactive flows, and console/CSP inspection were NOT RUN because the browser bridge timed out; this is not a complete public interaction smoke pass |
 
-Phase 3C is complete and Phase 3D is unblocked. Phase 3D has not begun.
+Phase 3C is complete. Phase 3D began with its mandatory source and compliance review, and that review is **BLOCKED**. No production map code, administrative catalog, or geometry was added.
+
+## Phase 3D source and compliance gate
+
+Recorded on 2026-08-12 on `codex/china-research-map`, based on local base `7078eaeddad236adf9b864e35ff20607e8c61768`. This is a source-gate result, not a completed feature or release gate.
+
+| Mandatory gate | Result | Evidence boundary |
+| --- | --- | --- |
+| `MAP_SOURCE_VERIFIED` | **BLOCKED** | Authoritative standard maps, national base geography, and administrative codes were identified, but no verified source set satisfies the required hierarchy, public redistribution, and interactive-transformation scope |
+| `MAP_LICENSE_VERIFIED` | **BLOCKED** | The reviewed national base-data terms do not authorize bundling in GitHub, Pages, public forks, or archives; local Hong Kong open data does not clear the national gate |
+| `MAP_APPROVAL_METADATA` | **BLOCKED** | The project has no project-specific approval file, review number, approved final specimen, date, validity period, or renewal record for the actual interactive output |
+| `NATIONAL_MAP_COMPLETENESS` | **BLOCKED / NOT TESTABLE** | Without an authorized final asset, the required 34 province-level units, Hong Kong, Macao, Taiwan, South China Sea islands, Diaoyu Dao, source-driven hierarchy, county endpoint, and no-cropping checks cannot be honestly run |
+
+The bilingual evidence register is [Chinese](docs/zh-CN/map-data-sources.md) / [English](docs/en/map-data-sources.md). It records the Ministry of Natural Resources Standard Map Service, the National Catalogue Service for Geographic Information, Ministry of Civil Affairs division codes, Hong Kong and Macao local sources, the applicable map-management rules, rejected shortcuts, and the exact unblocking evidence. The review did not download, transform, or commit map data. The branch must not add `public/map/**`, China SVG/GeoJSON/TopoJSON assets, production administrative master data, external tile/API calls, or production region-writing flows while any gate remains blocked.
 
 Recorded on 2026-08-11. The Phase 3A final candidate passed local verification after the final accessibility and responsive fixes. Pull Request final-head CI, maintainer self-review, squash merge, exact-`main` CI, Pages deployment, and bilingual public browser verification then passed. The published `v0.1.0` release and annotated tag remain unchanged; Phase 3A is merged on `main` but not presented as a new release.
 
@@ -175,6 +188,7 @@ A later audit added the generation-poison write queue and nested modal stack. Bo
 - The local registry intentionally exposes workspace display names, timestamps, modes, auto-lock settings, migration/cleanup state, versions, and opaque storage locators. Encrypted storage does not hide approximate database or backup size.
 - There is no account, cloud sync, password reset, recovery key, or secure-erasure guarantee. A forgotten passphrase and lost backups can make encrypted data unrecoverable.
 - Applications at different paths under the shared GitHub Pages origin are not separate security origins. Encryption at rest cannot protect an unlocked session or a compromised device/runtime.
+- Phase 3D is blocked on authoritative source rights, public-redistribution permission, project-specific map-review metadata, and testable national completeness. Phase 3E, Phase 3F, and `v0.2.0` cannot proceed while this remains unresolved.
 - Complete edit/delete parity is not yet implemented for Today, Literature, Quantitative, Research Log, Manuscripts, Submissions, and Reviewer Comments.
 - Automated tests cover domain, portable-data, repository, conflict, migration, the optimistic context queue, and nested modal lifecycle. They do not yet automate complete browser route workflows; multi-viewport end-to-end coverage is still needed.
 - Expand nested Workspace/confirmation Escape, scroll-lock, and focus-restoration coverage from the existing component test to automated browser tests.
@@ -213,6 +227,6 @@ A later audit added the generation-poison write queue and nested modal stack. Bo
 
 ## Next version objective
 
-Phase 3A, Phase 3B, and Phase 3C gates are complete. Phase 3C is merged on `main` and deployed but remains `Unreleased`; Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) is closed. Phase 3D is now unblocked and is the immediate next objective, but it has not begun. The China Research Map retains the source/provenance gate in Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8): do not commit or deploy boundary assets until authoritative source, permission, attribution, version, completeness, and update-path evidence passes. Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) remains separate, OPEN, and unimplemented. Do not create `v0.2.0`, move `v0.1.0`, translate user-authored research content, or claim external adoption without evidence.
+Phase 3A, Phase 3B, and Phase 3C gates are complete. Phase 3C is merged on `main` and deployed but remains `Unreleased`; Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) is closed. Phase 3D is the immediate objective, but its mandatory source review is **BLOCKED** under Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8). The next legitimate action is to obtain the written rights and project-specific approval evidence listed in the bilingual map-source register; implementation, merge, deployment, Phase 3E, and Phase 3F must wait. Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) remains separate, OPEN, and unimplemented. Do not create `v0.2.0`, move `v0.1.0`, translate user-authored research content, or claim external adoption without evidence.
 
 See [NEXT_TASKS.md](NEXT_TASKS.md) for the prioritized queue.

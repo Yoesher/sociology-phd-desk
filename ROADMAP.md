@@ -25,7 +25,7 @@ The product remains sociology-specific and complements, rather than replaces, sp
 
 Phase 3 is planned as six gated increments. Each increment must be implemented, tested, reviewed, and verified in production before work advances to the next one. Listing an increment here does not mean it has shipped; verified status remains in [PROJECT_STATE.md](PROJECT_STATE.md).
 
-**Current gate:** Phase 3A and Phase 3B are complete on `main`. Phase 3C has an unmerged local candidate on `codex/private-local-workspaces`; its Pull Request, CI, review, merge, exact-`main` CI, and Pages gates remain pending. Phase 3D has not begun and stays blocked until every Phase 3C gate passes.
+**Current gate:** Phase 3A, Phase 3B, and Phase 3C are complete on `main`. Phase 3D began with the mandatory source/compliance review on `codex/china-research-map`, and that review is **BLOCKED**: authoritative source scope, public-redistribution rights, project-specific map-approval metadata, and testable national completeness have not all been established. No production map asset or implementation may merge or deploy, and Phase 3E/3F may not begin. See the bilingual source register: [简体中文](docs/zh-CN/map-data-sources.md) / [English](docs/en/map-data-sources.md).
 
 Every Phase 3 increment follows the same evidence chain: scoped Issue → dedicated feature branch → implementation and tests → Pull Request → passing PR CI → maintainer self-review → squash merge → passing `main` CI → GitHub Pages verification. A later increment must not begin while any earlier gate is incomplete.
 
@@ -59,6 +59,8 @@ Every Phase 3 increment follows the same evidence chain: scoped Issue → dedica
 - Gate implementation on documented verification of an authoritative, legally usable public China map source, including provenance, permitted use, attribution, version, and update path.
 - Do not use an arbitrary third-party boundary file as a temporary substitute. If the source and legal conditions cannot be verified, the map remains planned rather than shipped.
 - Preserve local-first operation, never transmit user notes or fieldwork data to GitHub Pages or a map service, and provide a useful non-map fallback for linked regional research notes.
+
+The 2026-08-12 review found every mandatory map gate blocked. The next work is external rights and approval evidence, not a substitute dataset or fabricated UI. Architecture and migration design may remain documented, but production administrative data, geometry, region-writing workflows, and deployment wait until all four gates pass.
 
 ### Phase 3E — Hierarchical navigation and information architecture
 
