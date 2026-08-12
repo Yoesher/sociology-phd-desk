@@ -1,7 +1,7 @@
 # Project State
 
 > Last updated: 2026-08-12
-> Status: Phase 0, Phase 1, Phase 2, Phase 3A, and Phase 3B complete on `main`; Phase 3B was merged through [PR #11](https://github.com/Yoesher/sociology-phd-desk/pull/11) and its evidence closeout through [PR #12](https://github.com/Yoesher/sociology-phd-desk/pull/12), leaving exact verified `main` at [`4f3d615`](https://github.com/Yoesher/sociology-phd-desk/commit/4f3d615c62959e4c84d8d72751414e978f5b123b); Phase 3C Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) has an unmerged local candidate on `codex/private-local-workspaces` whose final local automated gate, independent P0/P1 audit, and real-browser smoke passed, while Pull Request, exact-head CI, merge, exact-`main` CI, Pages, and public interaction remain pending; Phase 3D has not begun; `v0.1.0` remains the verified public release
+> Status: Phase 0, Phase 1, Phase 2, Phase 3A, Phase 3B, and Phase 3C are complete on `main`; Phase 3C was merged through [PR #14](https://github.com/Yoesher/sociology-phd-desk/pull/14) as exact verified `main` [`f8b9ef9`](https://github.com/Yoesher/sociology-phd-desk/commit/f8b9ef94e67730955a4ab4b6fbe27f66ab3a5db9), with feature-head CI, maintainer self-review, exact-`main` CI, Pages deployment, public HTTP/asset verification, and a limited public desktop browser check complete; Phase 3D is now unblocked but has not begun; `v0.1.0` remains the verified public release
 > Canonical local project path: `D:\phddesk`
 
 This file is the factual handoff record for maintainers and future Codex sessions. Update it at the end of every development session. Never infer passing checks, repository activity, users, or releases.
@@ -10,7 +10,7 @@ This file is the factual handoff record for maintainers and future Codex session
 
 - Package version: `0.1.0`
 - Release status: [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0) published and verified
-- Next release target: gated `v0.2.0` after the remaining Phase 3C–3F work; no date is promised and no intermediate phase may create or move the tag
+- Next release target: gated `v0.2.0` after the remaining Phase 3D–3F work; no date is promised and no intermediate phase may create or move the tag
 
 ## Phase 0 audit
 
@@ -29,7 +29,7 @@ These facts do not prove that a similarly named remote repository cannot exist; 
 
 ## Current architecture
 
-The following bullets first describe verified `main` at `4f3d615`. The separate Phase 3C subsection records only the unmerged local candidate and must not be read as public-delivery evidence.
+The following bullets describe verified `main` at `f8b9ef94e67730955a4ab4b6fbe27f66ab3a5db9`, including the merged but unreleased Phase 3C implementation.
 
 - React + TypeScript + Vite client application.
 - Browser-local IndexedDB persistence through Dexie.
@@ -43,7 +43,7 @@ The following bullets first describe verified `main` at `4f3d615`. The separate 
 
 See [DECISIONS.md](DECISIONS.md) and [docs/architecture/overview.md](docs/architecture/overview.md).
 
-### Unmerged Phase 3C architecture candidate
+### Phase 3C architecture (merged and deployed; unreleased)
 
 - A schema-v1 `sociology-phd-desk-registry` database stores only local routing/recovery metadata. Canonical display name, timestamps, workspace kind/mode, auto-lock, migration/cleanup/deletion truth, interrupted-conversion reservation, schema versions, registry revision, and opaque storage locators remain plaintext; research content, passphrases, keys, verifiers, and content digests do not belong there.
 - Each standard personal or synthetic-demo workspace has a separate IndexedDB database using the existing 17-table schema v3 and portable `WorkspaceData` v3 validation. Concurrent first boots converge on deterministic seed routes. Fresh personal data is empty; only an exact pristine legacy fixture remains demo, while an edited legacy demo becomes personal and gets a separate pristine demo companion.
@@ -52,11 +52,11 @@ See [DECISIONS.md](DECISIONS.md) and [docs/architecture/overview.md](docs/archit
 - A session manager and access gate bind the UI to one ready workspace, keep encrypted keys runtime-only, unmount research routes while locked, and coordinate cooperating tabs without broadcasting passphrases, keys, or research content. Route invalidation, manager close, missing physical storage, or authenticated vault tamper poisons the affected session and clears its cached snapshot. Encrypted async operations recheck a lifecycle generation after awaited storage/crypto work, so close or lock prevents delayed refresh from reviving the runtime.
 - Legacy-singleton migration and standard-to-encrypted conversion use physical-name preflight plus staged copy/read-back/validation/publication. Conversion durably reserves its encrypted target before creation; an existing interrupted target requires passphrase authentication and workspace-identity proof for retry or discard, while a confirmed-absent target can have its empty reservation cleared without a passphrase. Plaintext cleanup first flushes pending writes, then requires the current authenticated encrypted session and holds stable lexically ordered locks on the encrypted target and source physical database names while checking route, source identity, and aliases. Plaintext sources remain recorded until cleanup succeeds; deletion is recoverable logical deletion rather than secure erasure.
 
-This architecture is a candidate only. Its final shared-revision local automated gate, real-browser smoke, and independent P0/P1 review passed on 2026-08-12; its Pull Request, exact-head CI, merge, exact-`main` CI, Pages, public interaction, and release status are not yet recorded as passing.
+This architecture was merged through PR #14 and deployed from exact `main` on 2026-08-12. It remains `Unreleased`: package version and the latest formal GitHub Release are still `0.1.0` / `v0.1.0`.
 
 ## Current functional state
 
-Verified `main` at [`4f3d615`](https://github.com/Yoesher/sociology-phd-desk/commit/4f3d615c62959e4c84d8d72751414e978f5b123b) contains the published `v0.1.0` foundation plus merged, unreleased Phase 3A bilingual and Phase 3B research-graph implementations; the Phase 3B product change itself was squash-merged as [`a51a10f`](https://github.com/Yoesher/sociology-phd-desk/commit/a51a10febfb3e186aa1774c0110c27fdceec9f0e):
+Verified `main` at [`f8b9ef9`](https://github.com/Yoesher/sociology-phd-desk/commit/f8b9ef94e67730955a4ab4b6fbe27f66ab3a5db9) contains the published `v0.1.0` foundation plus merged, unreleased Phase 3A bilingual, Phase 3B research-graph, and Phase 3C private-local-workspace implementations; the Phase 3B product change itself was squash-merged as [`a51a10f`](https://github.com/Yoesher/sociology-phd-desk/commit/a51a10febfb3e186aa1774c0110c27fdceec9f0e):
 
 - responsive application shell, desktop/mobile navigation, route-level code splitting, and persistent light/dark theme;
 - the merged Phase 3A implementation with Chinese as the fresh-install default, immediate persistent Chinese/English switching, locale-aware dates/numbers/validation, stable persisted enum values, and no automatic translation of user-authored content;
@@ -83,9 +83,9 @@ Merged, unreleased Phase 3B adds:
 
 Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) remains unimplemented: v3 retains `Evidence.claim` as source-context free text and does not add an evidence `claimId` or an explicit Evidence↔Claim relationship.
 
-### Unmerged Phase 3C functional candidate
+### Phase 3C functional state (merged and deployed; unreleased)
 
-The local `codex/private-local-workspaces` working tree currently contains candidate implementations for:
+The merged Phase 3C implementation provides:
 
 - creating, selecting, opening, renaming, exporting, and deleting isolated local workspaces through a metadata-only registry;
 - a separate empty personal workspace and resettable synthetic demo workspace, deterministic concurrent bootstrap, edited-legacy-demo preservation as personal data, and deletion tombstones with automatic/bootstrap plus UI-discoverable retry;
@@ -95,13 +95,13 @@ The local `codex/private-local-workspaces` working tree currently contains candi
 - ordinary plaintext JSON import/export plus distinct `.sociologydesk` encrypted backup/restore-as-new-workspace behavior; both payloads receive an export-only copy of the canonical registry display name without advancing the workspace-data revision;
 - a bilingual Workspace Center, Privacy Center, and threat-model documentation that distinguish browser isolation, interface locking, encrypted storage, shared-origin code, and device compromise.
 
-None of these bullets is a merge, release, or public Pages claim. The final local integration gate and independent audit passed; the candidate remains subject to Pull Request review, exact-head CI, merge, exact-`main` CI, Pages verification, and public interaction smoke.
+These features are present on `main` and Pages at exact SHA `f8b9ef94e67730955a4ab4b6fbe27f66ab3a5db9`. They remain outside the formal `v0.1.0` Release.
 
 ## Validation status
 
-### Phase 3C candidate — final local gate passed; remote publication gates pending
+### Phase 3C — complete on `main` and Pages; unreleased
 
-Recorded on 2026-08-12 against the final shared local candidate. These results establish local candidate quality only; they do not establish a Phase 3C Pull Request, GitHub CI result, merge, `main` delivery, Pages deployment, public interaction, or release.
+Recorded on 2026-08-12 against exact feature head `a6681fff763c66692126775a341ba64cafe546fc`, followed through squash merge and deployment at exact `main` `f8b9ef94e67730955a4ab4b6fbe27f66ab3a5db9`.
 
 | Phase 3C gate | Current factual state |
 | --- | --- |
@@ -113,10 +113,14 @@ Recorded on 2026-08-12 against the final shared local candidate. These results e
 | Workspace and privacy browser workflows | PASS — standard-workspace create, project CRUD, cross-workspace isolation, rename, lock/reload/reopen; standard→encrypted copy/read-back; encrypted backup generation; explicit second-confirmation retained-plaintext cleanup; encrypted lock/reload; generic wrong-passphrase failure with cleared input; correct unlock; truthful locked/unlocked Privacy Center state |
 | Browser hygiene and cleanup | PASS — CSP produced no console error; application console warnings/errors were 0; all synthetic QA workspaces and downloaded QA backups were deleted. Actual encrypted-backup import/restore was NOT RUN in the browser; its authenticated restore-as-new and zero-write failure behavior remains covered by automated tests rather than claimed as manual evidence |
 | Independent security and maintainer P0/P1 review | PASS — P0 = 0 and P1 = 0 |
-| Phase 3C Pull Request and exact-head CI | PENDING — no Phase 3C PR exists in this record |
-| Squash merge, exact-`main` CI, Pages, and public interaction | PENDING / NOT RUN |
+| Phase 3C Pull Request and feature-head CI | PASS — [PR #14](https://github.com/Yoesher/sociology-phd-desk/pull/14) used exact head `a6681fff763c66692126775a341ba64cafe546fc`; [push CI run 31551522108 / job 93975026534](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551522108/job/93975026534) and [PR CI run 31551571303 / job 93975177107](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551571303/job/93975177107) both completed successfully |
+| Maintainer self-review and merge | PASS — [self-review](https://github.com/Yoesher/sociology-phd-desk/pull/14#issuecomment-5260782671) recorded P0 = 0 and P1 = 0; PR #14 was squash-merged as [`f8b9ef9`](https://github.com/Yoesher/sociology-phd-desk/commit/f8b9ef94e67730955a4ab4b6fbe27f66ab3a5db9), and Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) is CLOSED |
+| Exact-`main` CI | PASS — [CI run 31551698246 / job 93975560577](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551698246/job/93975560577) succeeded on `f8b9ef94e67730955a4ab4b6fbe27f66ab3a5db9` |
+| Pages build and deployment | PASS — [Pages run 31551698215](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551698215) succeeded on the same exact SHA; build job `93975560485`, deploy job `93975708219`, and [deployment 5861195664](https://github.com/Yoesher/sociology-phd-desk/deployments/5861195664) published `https://yoesher.github.io/sociology-phd-desk/` |
+| Public static deployment | PASS — the public URL returned HTTP 200; deployed `index-d7Ca3tI7.js` and `index-MceaPGZ1.css` matched the final local production assets |
+| Public desktop browser check | LIMITED PASS — at 1280 × 720, the deployed page showed the expected title, `zh-CN`, the Demo state, and all nine modules; `scrollWidth` was 1265 ≤ 1280. English, mobile, workspace-interactive flows, and console/CSP inspection were NOT RUN because the browser bridge timed out; this is not a complete public interaction smoke pass |
 
-Phase 3D remains blocked while any row is pending.
+Phase 3C is complete and Phase 3D is unblocked. Phase 3D has not begun.
 
 Recorded on 2026-08-11. The Phase 3A final candidate passed local verification after the final accessibility and responsive fixes. Pull Request final-head CI, maintainer self-review, squash merge, exact-`main` CI, Pages deployment, and bilingual public browser verification then passed. The published `v0.1.0` release and annotated tag remain unchanged; Phase 3A is merged on `main` but not presented as a new release.
 
@@ -167,7 +171,7 @@ A later audit added the generation-poison write queue and nested modal stack. Bo
 ## Known issues and technical debt
 
 - Browser-local data still requires an explicit, tested backup practice. Ordinary JSON and standard-workspace IndexedDB are plaintext; `.sociologydesk` encryption does not create an automatic second copy.
-- Phase 3C is still an unmerged candidate. Its final local automated, browser, and independent-audit gates passed, but PR/CI/review/merge/exact-`main`/Pages/public-interaction gates remain pending, so public `main`, Pages, and `v0.1.0` must not be described as delivering private local workspaces.
+- Phase 3C is merged and deployed but remains unreleased. The public desktop browser check covered only title, `zh-CN`, Demo, all nine modules, and horizontal fit at 1280 × 720. English, mobile, workspace-interactive flows, and console/CSP inspection were NOT RUN publicly because the browser bridge timed out; local browser and automated evidence remain recorded separately and must not be relabeled as public interaction evidence.
 - The local registry intentionally exposes workspace display names, timestamps, modes, auto-lock settings, migration/cleanup state, versions, and opaque storage locators. Encrypted storage does not hide approximate database or backup size.
 - There is no account, cloud sync, password reset, recovery key, or secure-erasure guarantee. A forgotten passphrase and lost backups can make encrypted data unrecoverable.
 - Applications at different paths under the shared GitHub Pages origin are not separate security origins. Encryption at rest cannot protect an unlocked session or a compromised device/runtime.
@@ -192,7 +196,8 @@ A later audit added the generation-poison write queue and nested modal stack. Bo
 - Final Phase 3A base: local `main` and the locally recorded `origin/main` ref matched `d37f5d480932fe511cb505b16cb57adf29fc2805`, the squash merge of documentation-closeout PR #10. The product implementation itself was merged through PR #9 as `bad788fac457950dfe311dc1b539cec5e74bf65a`. The `v0.1.0` tag is unchanged and still dereferences to release commit `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994`.
 - Verified Phase 3B closeout base: local `main`, `origin/main`, and the Phase 3C branch point matched `4f3d615c62959e4c84d8d72751414e978f5b123b`, the squash merge of documentation-closeout PR [#12](https://github.com/Yoesher/sociology-phd-desk/pull/12). The underlying Phase 3B product merge remains `a51a10febfb3e186aa1774c0110c27fdceec9f0e` from PR #11.
 - Remote status: `origin` is restored to `https://github.com/Yoesher/sociology-phd-desk.git`. Phase 2 temporarily used a repository-scoped deploy key over GitHub's official SSH-over-443 transport because direct `github.com` Git HTTPS timed out; the key lived only under `.git`, was never tracked, and was revoked after the final status push.
-- Push/merge status: Phase 3A PRs #9/#10 and Phase 3B PRs [#11](https://github.com/Yoesher/sociology-phd-desk/pull/11)/[#12](https://github.com/Yoesher/sociology-phd-desk/pull/12) are merged. Issue [#1](https://github.com/Yoesher/sociology-phd-desk/issues/1) is CLOSED and Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) remains OPEN. Phase 3C Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) is assigned to local branch `codex/private-local-workspaces`; no Phase 3C PR, merge, exact-`main` CI, or Pages result is recorded yet.
+- Push/merge status: Phase 3A PRs #9/#10, Phase 3B PRs [#11](https://github.com/Yoesher/sociology-phd-desk/pull/11)/[#12](https://github.com/Yoesher/sociology-phd-desk/pull/12), and Phase 3C [PR #14](https://github.com/Yoesher/sociology-phd-desk/pull/14) are merged. Issues [#1](https://github.com/Yoesher/sociology-phd-desk/issues/1) and [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) are CLOSED; Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) remains OPEN. PR #14 exact feature head `a6681fff763c66692126775a341ba64cafe546fc` passed push and Pull Request CI, received a P0 = 0 / P1 = 0 maintainer self-review, and was squash-merged as `f8b9ef94e67730955a4ab4b6fbe27f66ab3a5db9`.
+- Phase 3C remote checks: exact-`main` [CI 31551698246](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551698246) and [Pages 31551698215](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551698215) succeeded on `f8b9ef94e67730955a4ab4b6fbe27f66ab3a5db9`; Pages deployment `5861195664` published the project URL. The public URL returned HTTP 200 and served final-local-matching `index-d7Ca3tI7.js` and `index-MceaPGZ1.css`.
 - Phase 3B remote checks: exact-`main` [CI 31508962634](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31508962634) and [Pages 31508962638](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31508962638) succeeded. The earlier release SHA `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994` remains the immutable `v0.1.0` target.
 - Phase 3B documentation-closeout checks: [Pages run 31511286350](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31511286350) succeeded on `4f3d615c62959e4c84d8d72751414e978f5b123b`; the sole `main` CI job `93845435745` completed successfully, while its outer workflow record still reported `in_progress` with no conclusion at the recorded check time. The job result is retained without rewriting the outer metadata anomaly as a completed run.
 
@@ -201,13 +206,13 @@ A later audit added the generation-poison write queue and nested modal stack. Bo
 - Current GitHub release: [Sociology PhD Desk v0.1.0](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0).
 - Published: `2026-08-11T10:42:22Z`; public, not a draft, and not a prerelease.
 - Annotated tag: `v0.1.0`; local and remote tag object `06a81e2b10a20cc71440a3027544345cef6a04a5` dereferences to release SHA `e9eadf2c2810c9a18a9f3a31ccdf659bd268c994`.
-- Phase 3A and Phase 3B changes remain merged but [`Unreleased`](CHANGELOG.md#unreleased). The local changelog also describes the unmerged Phase 3C candidate; that does not make it a public feature or release. No v0.2.0 tag or Release exists, and the v0.1.0 tag has not moved.
+- Phase 3A, Phase 3B, and Phase 3C changes remain merged but [`Unreleased`](CHANGELOG.md#unreleased). Deployment on `main` does not create a formal release. No v0.2.0 tag or Release exists, and the v0.1.0 tag has not moved.
 - Release assets: no custom binary assets; GitHub provides generated source archives.
-- Last fully source-backed metric snapshot recorded at the Phase 3B feature merge: 1 Star, 0 Forks, 6 open Issues, 2 closed Issues, 0 open Pull Requests, 3 merged Pull Requests, and 1 published Release. PR #12 was subsequently merged and Issue #13 subsequently created, so those counts are historical and are deliberately not relabeled “current” in this unmerged documentation pass. Refresh the exact public totals during Phase 3C remote closeout. A Star is repository activity, not evidence of a user, tester, endorsement, or adoption.
+- Source-backed metric snapshot on 2026-08-12 after Phase 3C merge: 1 Star, 0 Forks, 6 open Issues, 3 closed Issues, 0 open Pull Requests, 5 merged Pull Requests, and 1 published Release. A Star is repository activity, not evidence of a user, tester, endorsement, or adoption.
 - External users/testers: 0 verified in project records; the true number is unknown. Institutional adoption: none known.
 
 ## Next version objective
 
-Phase 3A and Phase 3B gates are complete. Phase 3B is merged on `main` and deployed but remains `Unreleased`; Issue [#1](https://github.com/Yoesher/sociology-phd-desk/issues/1) is closed. The Phase 3C candidate for Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) has passed its final local automated, real-browser, and independent P0/P1 gates without treating a local workspace as a network account. The immediate objective is its scoped Pull Request, exact-head CI, review, squash merge, exact-`main` CI, Pages verification, and public interaction smoke. Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) remains separate, OPEN, and unimplemented. The China Research Map remains Phase 3D, has not begun, and retains the source/provenance gate in Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8). Do not create `v0.2.0`, move `v0.1.0`, begin Phase 3D early, translate user-authored research content, or claim external adoption without evidence.
+Phase 3A, Phase 3B, and Phase 3C gates are complete. Phase 3C is merged on `main` and deployed but remains `Unreleased`; Issue [#13](https://github.com/Yoesher/sociology-phd-desk/issues/13) is closed. Phase 3D is now unblocked and is the immediate next objective, but it has not begun. The China Research Map retains the source/provenance gate in Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8): do not commit or deploy boundary assets until authoritative source, permission, attribution, version, completeness, and update-path evidence passes. Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) remains separate, OPEN, and unimplemented. Do not create `v0.2.0`, move `v0.1.0`, translate user-authored research content, or claim external adoption without evidence.
 
 See [NEXT_TASKS.md](NEXT_TASKS.md) for the prioritized queue.
