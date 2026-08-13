@@ -388,6 +388,43 @@ export function WorkspaceSessionProvider({
     await runtime.flushPendingWrites()
   }, [])
 
+  const prepareForApplicationUpdate = useCallback(async () => {
+    const current = sessionRef.current
+    if (!current) return
+    const runtime = researchRuntimeRef.current
+    if (
+      !runtime || runtime.workspaceId !== current.entry.id ||
+      runtime.storageId !== current.storageId
+    ) {
+      throw new LocalWorkspaceManagerError(
+        'revision-conflict',
+        'The active workspace runtime is not ready for an application update.',
+      )
+    }
+    const transitionGeneration = sessionTransitionGenerationRef.current
+    await runtime.flushPendingWrites()
+    if (
+      sessionRef.current !== current ||
+      sessionTransitionGenerationRef.current !== transitionGeneration
+    ) {
+      throw new LocalWorkspaceManagerError(
+        'revision-conflict',
+        'The local workspace session changed while preparing the application update.',
+      )
+    }
+    const latest = await runtime.refreshLatest()
+    if (
+      sessionRef.current !== current ||
+      sessionTransitionGenerationRef.current !== transitionGeneration ||
+      latest.workspace.id !== current.entry.id
+    ) {
+      throw new LocalWorkspaceManagerError(
+        'revision-conflict',
+        'The local workspace could not be verified before the application update.',
+      )
+    }
+  }, [])
+
   const adoptSession = useCallback(async (
     manager: WorkspaceSessionManager,
     opened: OpenedLocalWorkspaceSession,
@@ -1431,6 +1468,7 @@ export function WorkspaceSessionProvider({
     openActiveStandard,
     unlockActiveEncrypted,
     lockActiveWorkspace,
+    prepareForApplicationUpdate,
     invalidateActiveSession,
     selectWorkspace,
     createWorkspace,
@@ -1474,6 +1512,7 @@ export function WorkspaceSessionProvider({
     importPlaintextWorkspaceAsNew,
     importPlaintextWorkspaceFile,
     lockActiveWorkspace,
+    prepareForApplicationUpdate,
     invalidateActiveSession,
     openActiveStandard,
     renameWorkspace,

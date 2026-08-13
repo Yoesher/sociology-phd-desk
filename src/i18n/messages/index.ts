@@ -1,4 +1,5 @@
 import { commonMessages } from './common'
+import { distributionMessages } from './distribution'
 import { evidenceMessages } from './evidence'
 import { fieldworkMessages } from './fieldwork'
 import { literatureMessages } from './literature'
@@ -16,6 +17,7 @@ import { workspaceMessages } from './workspace'
 
 const en = {
   ...commonMessages.en,
+  ...distributionMessages.en,
   ...shellMessages.en,
   ...workspaceMessages.en,
   ...localWorkspacesMessages.en,
@@ -36,6 +38,7 @@ export type MessageKey = keyof typeof en
 
 const zhCN: Record<MessageKey, string> = {
   ...commonMessages['zh-CN'],
+  ...distributionMessages['zh-CN'],
   ...shellMessages['zh-CN'],
   ...workspaceMessages['zh-CN'],
   ...localWorkspacesMessages['zh-CN'],

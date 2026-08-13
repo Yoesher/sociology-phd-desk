@@ -6,7 +6,19 @@
 
 Manage the full research lifecycle—from literature and fieldwork to quantitative analysis, evidence, manuscripts, and peer-review revisions.
 
-**Live demo:** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
+## Start now
+
+**Use the web app now:** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
+
+- **No registration or GitHub knowledge:** open the link to create a local workspace; no account, cloud database, or default sync is required.
+- **Data stays local by default:** research records are stored in IndexedDB for the current device and browser profile. Generate and test encrypted backups regularly.
+- **Install when you want:** compatible browsers offer PWA installation; ordinary browser access remains first class.
+- **Cross-platform browser use:** a current browser with IndexedDB support on Windows, macOS, or Linux can open it directly.
+- **Move devices with an encrypted backup:** restore a `.sociologydesk` file into a new isolated workspace without GitHub.
+
+See the complete [English getting-started guide](docs/en/getting-started.md).
+
+> **The `v0.2.1` Distribution & PWA candidate is in development:** the feature branch is adding installation, static-asset offline startup, user-approved updates, persistent-storage status, and backup reminders. No formal tag or GitHub Release exists yet. The current formal release remains [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0).
 
 > **[`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) is formally released:** two-level navigation across nine research domains, Theory Research, the Research Question–Claim graph, private/encrypted local workspaces, and integrated Manuscripts & Publishing are published. Release PR [#21](https://github.com/Yoesher/sociology-phd-desk/pull/21) passed exact-head CI and P0 = 0 / P1 = 0 review before merge; CI and Pages passed on exact release SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db), and both the annotated tag and the latest non-draft, non-prerelease GitHub Release identify that version. The China Research Map is deferred because its source, redistribution, approval-metadata, and national-completeness gates remain blocked, and is **not part of `v0.2.0`**. See [PROJECT_STATE.md](PROJECT_STATE.md) for exact evidence and limitations.
 
@@ -106,7 +118,7 @@ These `v0.2.0` release screenshots were captured from the real application at a 
 
 ![Complete English interface](docs/screenshots/v0.2.0/08-interface-en.jpg)
 
-## Getting started
+## Developer setup and contribution
 
 ### Prerequisites
 

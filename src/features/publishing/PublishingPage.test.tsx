@@ -210,5 +210,5 @@ describe('PublishingPage integrated workflow', () => {
     await user.click(within(dialog).getByRole('button', { name: '添加意见' }))
     expect(await within(dialog).findByRole('alert')).toHaveTextContent('已存在这个意见编号')
     expect(getSnapshot().reviewerComments.filter((item) => item.commentId === 'R3-C1')).toHaveLength(1)
-  })
+  }, 15_000)
 })

@@ -1,10 +1,49 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 import { resolve } from 'node:path'
+import packageJson from './package.json' with { type: 'json' }
+
+const buildSha = process.env.VITE_BUILD_SHA ?? process.env.GITHUB_SHA ?? 'development'
+const buildDate = process.env.VITE_BUILD_DATE ?? new Date().toISOString()
 
 export default defineConfig({
   base: './',
-  plugins: [react()],
+  define: {
+    __APP_VERSION__: JSON.stringify(packageJson.version),
+    __BUILD_SHA__: JSON.stringify(buildSha),
+    __BUILD_DATE__: JSON.stringify(buildDate),
+  },
+  plugins: [
+    react(),
+    VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
+      injectRegister: false,
+      registerType: 'prompt',
+      manifest: {
+        id: './',
+        name: 'Sociology PhD Desk｜社会学博士研究工作站',
+        short_name: 'PhD Desk',
+        description: 'Local-first sociology research workstation｜本地优先的社会学研究工作站',
+        lang: 'zh-CN',
+        start_url: './',
+        scope: './',
+        display: 'standalone',
+        background_color: '#f4efe4',
+        theme_color: '#12354a',
+        categories: ['education', 'productivity'],
+        icons: [
+          { src: 'icons/app-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icons/app-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+        ],
+      },
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,png,svg,woff2,webmanifest}'],
+      },
+    }),
+  ],
   build: {
     rolldownOptions: {
       output: {

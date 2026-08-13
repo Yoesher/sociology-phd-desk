@@ -6,7 +6,19 @@
 
 在同一条研究生命周期中管理文献、田野、定量分析、证据、论文与同行评审后的修回工作。
 
-**在线演示：** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
+## 立即开始
+
+**直接使用网页版：** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
+
+- **无需注册或 GitHub 知识：** 打开链接即可建立本地工作台；不需要账号、云数据库或默认同步。
+- **数据默认在本地：** 研究记录保存在当前设备与浏览器配置文件的 IndexedDB 中。请定期生成并验证加密备份。
+- **想安装就安装：** 兼容浏览器会提供 PWA 安装入口；普通浏览器访问仍然是一等使用方式。
+- **跨平台浏览器可用：** Windows、macOS、Linux 上支持 IndexedDB 的现代浏览器均可直接访问。
+- **换设备靠加密备份：** 使用 `.sociologydesk` 文件在新设备恢复为隔离工作台，不需要 GitHub。
+
+完整步骤见[中文开始使用指南](docs/zh-CN/getting-started.md)。
+
+> **`v0.2.1` 分发与 PWA 候选正在开发：** 当前 feature branch 正在加入安装、静态资源离线启动、用户确认更新、持久存储状态和备份提醒；正式 tag 与 GitHub Release 尚未创建。当前正式版本仍是 [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0)。
 
 > **[`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) 已正式发布：** 九个研究工作域的二级导航、理论研究、研究问题—主张图谱、本地私密/加密工作区，以及论文与投稿整合均已发布。Release PR [#21](https://github.com/Yoesher/sociology-phd-desk/pull/21) 通过精确 head CI 与 P0 = 0 / P1 = 0 审查后合并；精确发布 SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db) 的 CI 与 Pages 均通过，annotated tag 与 latest、非草稿、非预发布 GitHub Release 均指向该版本。中国研究地图因来源、再分发、审图元数据和全国完整性门禁均未通过而暂缓，**不属于 `v0.2.0`**。核验证据与限制见 [PROJECT_STATE.md](PROJECT_STATE.md)。
 
@@ -106,7 +118,7 @@
 
 ![完整英语界面](docs/screenshots/v0.2.0/08-interface-en.jpg)
 
-## 开始使用
+## 开发者本地运行与贡献
 
 ### 环境要求
 

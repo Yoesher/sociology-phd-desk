@@ -42,3 +42,5 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          VITE_BUILD_SHA: ${{ github.sha }}

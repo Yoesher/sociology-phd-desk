@@ -7,6 +7,10 @@
       content="default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' ws://localhost:* ws://127.0.0.1:* wss://localhost:* wss://127.0.0.1:*; worker-src 'self' blob:; media-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#12354a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="./icons/app-192.png" />
     <meta
       name="description"
       content="面向社会学博士生与研究者的本地优先 ResearchOps 工作站。"
@@ -15,7 +19,14 @@
     <title>Sociology PhD Desk｜社会学博士研究工作站</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <main class="boot-fallback">
+        <h1>Sociology PhD Desk｜社会学博士研究工作站</h1>
+        <p>应用正在启动。如果长时间没有响应，可能是首次访问时离线、应用缓存不完整或浏览器存储异常。</p>
+        <p>The app is starting. If this remains visible, the first visit may be offline, the app cache may be incomplete, or browser storage may be unavailable.</p>
+        <p><a href="./">重新加载 / Reload</a></p>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

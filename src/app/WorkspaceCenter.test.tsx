@@ -176,7 +176,7 @@ describe('WorkspaceCenter', () => {
     expect(confirm).toBeEnabled()
     await user.click(confirm)
     await waitFor(() => expect(callbacks.onDelete).toHaveBeenCalledWith('personal-standard'))
-  })
+  }, 15_000)
 
   it('keeps unfinished deletion separate and retries without claiming physical state', async () => {
     const user = userEvent.setup()

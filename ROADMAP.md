@@ -106,6 +106,14 @@ Release criteria:
 
 ## `0.2.x` — traceability depth
 
+### `0.2.1` — distribution and PWA (active candidate)
+
+- Make the existing local-first workstation installable while retaining ordinary browser use.
+- Precache application static assets only; keep research data in the existing standard/encrypted workspace repositories.
+- Add user-approved, flush-before-activation updates; storage-persistence visibility; and local backup reminders.
+- Retain the current Pages origin with explicit shared-origin risk for this release. A custom/dedicated origin requires a separate migration decision and encrypted-backup transfer path.
+- Finish through PR, exact-head/main CI, Pages, public PWA validation, and formal v0.2.1 release; do not start v0.3 during this cycle.
+
 - Complete and stabilize the first-class Research Question, Claim, and `ClaimQuestionLink` foundation; add Variable, Model, Code, Memo, and Revision Task only through separately scoped work.
 - Bidirectional evidence-to-claim and claim-to-manuscript navigation.
 - Stronger project overview across literature, fieldwork/data, evidence, manuscript, and submission stages.

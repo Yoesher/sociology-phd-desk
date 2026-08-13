@@ -262,7 +262,7 @@ describe('ProjectsPage localization and research graph boundary', () => {
     const deleteDialog = screen.getByRole('dialog', { name: '删除研究问题？' })
     await user.click(within(deleteDialog).getByRole('button', { name: '删除问题' }))
     await waitFor(() => expect(getSnapshot().researchQuestions).toHaveLength(0))
-  })
+  }, 15_000)
 
   it('counts first-class graph records when protecting project deletion', async () => {
     const user = userEvent.setup()

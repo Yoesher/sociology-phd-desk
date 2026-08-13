@@ -1,16 +1,42 @@
 # Project State
 
-> Last updated: 2026-08-12
-> Status: `v0.2.0` release finalization is complete. Release PR [#21](https://github.com/Yoesher/sociology-phd-desk/pull/21) passed exact-head CI and P0 = 0 / P1 = 0 maintainer review, then squash-merged as exact release revision [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db). Exact-`main` CI and Pages passed on that revision; annotated tag `v0.2.0` points to it; and [Sociology PhD Desk v0.2.0](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) is the latest non-draft, non-prerelease Release. Phase 3D remains a documentation-only map deferral with all four gates **BLOCKED** and no map shipped. No `v0.3.0` work has started.
+> Last updated: 2026-08-13
+> Status: `v0.2.1` Distribution & PWA is an active Draft PR candidate on `codex/v0.2.1-distribution-pwa`, tracked by Issue [#23](https://github.com/Yoesher/sociology-phd-desk/issues/23) and PR [#24](https://github.com/Yoesher/sociology-phd-desk/pull/24). Package/lock are `0.2.1`; final local automation and browser gates pass on the current uncommitted correction tree, including 31 files / 285 tests, static-only PWA build verification, safe standard/encrypted updates, real multi-tab refusal, offline edit/recovery, and complete synthetic-QA cleanup. The initial `7266fa6` push/PR CI is historical; exact-final-head CI, self-review, merge, exact-main CI/Pages, public smoke, tag, and Release remain pending. Installed standalone smoke may truthfully remain **NOT RUN** when no controllable installation surface exists. Published `v0.2.0` is unchanged. No `v0.3.0` work has started.
 > Canonical local project path: `D:\phddesk`
 
 This file is the factual handoff record for maintainers and future Codex sessions. Update it at the end of every development session. Never infer passing checks, repository activity, users, or releases.
 
 ## Current version
 
-- Package version: `0.2.0` on exact release SHA `eb399f7da0a1f3142f7c8361492fa86b08db77db`
+- Local candidate package version: `0.2.1`; published release remains `v0.2.0` on exact release SHA `eb399f7da0a1f3142f7c8361492fa86b08db77db`
 - Release status: [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) is published, latest, non-draft, and non-prerelease; annotated tag object `abd24b42…` points to exact release SHA `eb399f7da0a1f3142f7c8361492fa86b08db77db`
-- Current target: stop after release documentation closeout. Do not begin `v0.3.0` without a separately scoped plan; retain the China Research Map deferral and do not move either existing release tag
+- Current target: complete Issue #23 through feature PR, exact-head CI, self-review, merge, exact-main CI/Pages, public PWA verification, and `v0.2.1` release; then stop without starting `v0.3.0`
+
+### v0.2.1 local candidate architecture
+
+- Vite injects a complete manifest and a project/version-namespaced Workbox precache. The service worker caches only emitted application static files and defines no research-data upload, proxy, API, or runtime-cache route.
+- Update discovery registers after page load, checks once at startup, and throttles focus checks to once per hour. `updatefound` and `registration.waiting` produce a bilingual prompt; activation is never automatic.
+- User-approved activation requires the active workspace runtime to flush pending writes and re-read the latest committed snapshot while session/route identity remains stable. Locked workspaces have no mounted research runtime. A failed preparation sends no `SKIP_WAITING` and triggers no reload.
+- Application & storage displays app version, build SHA/date, portable schema v4, standard database schema v4, and encrypted container v1; it also exposes browser-reported persistence/estimate, explicit `persist()` request, install availability, manual update checks, and a local Off/7/14/30-day personal-workspace reminder based on `lastExportedAt` (or creation time before the first export).
+- The follow-up candidate adds build date, browser storage estimate where available, an Off/7/14/30 personal-workspace reminder (default 14; Demo excluded), explicit encrypted-backup device transfer, offline/online announcements, and static non-blank startup fallback.
+- Multi-tab update safety is service-worker coordinated: the waiting worker enumerates all scoped window clients, notifies peers, and refuses activation if any other app window remains open. No workspace content, passphrase, key, or decrypted vault value crosses this protocol.
+- v0.2.1 retains the current Pages origin with explicit risk (option C). Dedicated custom domain and dedicated Pages origin remain documented alternatives. No cross-origin IndexedDB migration is claimed; a future origin change must keep an old-site migration notice and use user-controlled encrypted backup transfer.
+
+### v0.2.1 final local verification — 2026-08-13
+
+| Gate | Result |
+| --- | --- |
+| Clean dependency install | PASS — `npm ci`, 439 packages |
+| Static verification | PASS — strict lint with 0 warnings; TypeScript project check; `git diff --check`; 32 Markdown files / 153 relative links / 0 missing. |
+| Automated tests | PASS — 31 files / 285 tests in 46.68 s, including direct update postponement, offline/online UI, persistence grant/unavailable paths, flush/read-back, multi-tab pre/post-flush checks, reminders, migrations, and workspace isolation. |
+| Production PWA build | PASS — Vite 8.2.1, 1,971 modules; CSS 90.72 kB / 16.29 kB gzip; i18n 193.51 / 49.27; main 263.57 / 62.55; vendor 408.71 / 128.00; service worker 16.47 / 5.56; 24 static precache entries / 1,380.93 KiB. Build-time contract verified manifest, relative app-root start/scope, 192/512 icons, project cache namespace, prompted activation, multi-tab messages, and no runtime route/fetch logic. The plugin emitted one non-blocking dependency deprecation warning for `inlineDynamicImports`. |
+| Fresh/browser/locale/responsive | PASS — final localhost tree showed researcher-first personal onboarding, version/build date/schema/storage-estimate truth, English desktop and 390 × 844 encrypted-workspace/mobile navigation. Earlier same-branch smoke covered fresh Chinese and persisted English switching. Browser mode remained first-class. |
+| Update while standard open | PASS — Build A → B produced a waiting worker; another open app tab blocked activation and received a peer notice; after it closed, user activation reloaded only after preparation and preserved the synthetic project. |
+| Update while encrypted open / locked | PASS — Build B → C from an unlocked encrypted workspace completed safe preparation, reloaded to the locked gate with the same identity, and accepted the original passphrase to reopen. Locked-state automated and earlier same-branch browser coverage remain green. |
+| Offline startup / edit / online recovery | PASS — after stopping localhost, a precached reload opened the standard workspace, an existing project was edited and survived another offline reload, and the same content remained after the server returned. |
+| Schema compatibility after update | PASS — browser updates retained current standard/encrypted workspaces; full automated migration suite remained green with portable/standard v4 and encrypted container/vault/registry v1 unchanged. |
+| PWA installed standalone mode | **NOT RUN / non-mandatory manual boundary** — manifest/installability contract and browser-mode UI passed, but the available in-app browser exposes no operating-system PWA install/launch surface and connected Chrome/Edge were unavailable. The v0.2.1 contract permits an honest NOT RUN here; do not relabel manifest inspection as an installed-mode test. |
+| Browser hygiene | PASS — both `QA-v0.2.1-standard` and `QA-v0.2.1-encrypted` workspaces were deleted; all browser tabs and localhost processes were closed. Application-console inspection was not available in the final bridge session, so the earlier same-branch zero-console smoke is retained without inventing a new result. |
 
 ## Phase 0 audit
 

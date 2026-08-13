@@ -1,6 +1,19 @@
 # Next Tasks
 
-> Verified post-release handoff queue. [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) is published from exact release SHA `eb399f7da0a1f3142f7c8361492fa86b08db77db`. Checked items have independent evidence; unchecked items remain an unscheduled backlog. Stop after this closeout and do not begin `v0.3.0` without a separately scoped plan.
+> Active v0.2.1 Distribution & PWA queue. [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) remains published from exact release SHA `eb399f7da0a1f3142f7c8361492fa86b08db77db`. Do not begin `v0.3.0`; stop after the v0.2.1 release and closeout.
+
+## P0 — v0.2.1 Distribution & PWA
+
+- [x] Create Issue [#23](https://github.com/Yoesher/sociology-phd-desk/issues/23) and branch `codex/v0.2.1-distribution-pwa` from verified main `782311864b61b0aaeece0e803c0e886c726ed1af`.
+- [x] Add a complete manifest, 192/512 app icons, and an inject-manifest service worker that precaches only static application assets with project/version-specific cache names.
+- [x] Add startup/throttled-focus/updatefound/waiting detection, bilingual waiting UI, no forced reload, flush/read-back verification, and service-worker client enumeration that blocks activation while another app tab is open.
+- [x] Add app/build-date/portable/database/container version display, persistent-storage status/request plus estimate, capability-aware install/fallback, personal-workspace Off/7/14/30 reminder (default 14; Demo excluded), and once-per-version bilingual summary.
+- [x] Add researcher-first README entry, bilingual getting-started guides, and a durable A/B/C origin-risk decision; retain current shared origin with explicit risk and no cross-origin IndexedDB claim.
+- [x] Pass final automated gates from a clean install and inspect the emitted manifest/service worker/static cache list: strict lint 0 warnings, typecheck, 31 files / 285 tests, 1,971-module build, 24 static precache entries, direct persistence/postpone/offline regressions, and build-time no-runtime-route verification.
+- [x] Re-run the final browser matrix: fresh personal onboarding; standard and encrypted/locked update; real two-tab refusal and peer notice; offline edit/reload/online recovery; English desktop and 390 × 844 mobile; browser mode; and deletion of both synthetic QA workspaces. Earlier same-branch smoke supplies fresh Chinese/persisted language and zero-console evidence. Installed standalone remains honest NOT RUN because the in-app browser exposes no controllable OS install surface.
+- [x] Open Draft feature PR [#24](https://github.com/Yoesher/sociology-phd-desk/pull/24); its initial exact head `7266fa6` passed push/PR CI. Push the final correction head, re-run exact-head CI, self-review, mark ready, merge, and pass exact-main CI plus Pages deployment.
+- [ ] Verify public manifest/service worker/offline/update behavior and exact build SHA; publish annotated `v0.2.1` tag and latest non-draft GitHub Release only after all required gates pass.
+- [ ] Close Issue #23, update exact remote evidence/metrics, and stop without starting v0.3.
 
 ## P0 — Phase 3A bilingual gate (complete)
 

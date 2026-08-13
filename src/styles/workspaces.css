@@ -245,7 +245,8 @@
 .workspace-center__panel,
 .workspace-center__registry,
 .privacy-center,
-.workspace-backup {
+.workspace-backup,
+.distribution-center {
   min-width: 0;
 }
 
@@ -383,7 +384,8 @@
 
 .workspace-group > header h3,
 .privacy-center h2,
-.workspace-backup h2 {
+.workspace-backup h2,
+.distribution-center h2 {
   font-family: var(--font-serif);
   font-size: 1.22rem;
   font-weight: 540;
@@ -392,7 +394,8 @@
 
 .workspace-group > header p,
 .privacy-center__header p:not(.eyebrow),
-.workspace-backup > header > p:not(.eyebrow) {
+.workspace-backup > header > p:not(.eyebrow),
+.distribution-center > header > p:not(.eyebrow) {
   max-width: 760px;
   margin-top: 5px;
   color: var(--muted);
@@ -589,9 +592,95 @@
 }
 
 .privacy-center__header,
-.workspace-backup > header {
+.workspace-backup > header,
+.distribution-center > header {
   margin-bottom: 19px;
 }
+
+.distribution-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.distribution-grid article {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+  padding: 15px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+}
+
+.distribution-grid article > svg { color: var(--accent); }
+.distribution-grid h3 { font-size: 0.76rem; font-weight: 740; }
+.distribution-grid p { color: var(--muted); font-size: 0.65rem; line-height: 1.52; }
+.distribution-grid .button { justify-self: start; }
+.distribution-steps { display: grid; gap: 5px; margin: 2px 0 0; padding-left: 18px; color: var(--muted); font-size: 0.64rem; line-height: 1.45; }
+.distribution-install-help { display: grid; gap: 6px; padding-top: 4px; border-top: 1px solid var(--line); }
+
+.distribution-notice {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  border-radius: var(--radius-sm);
+}
+
+.distribution-notice--warning { color: var(--warning-ink); background: var(--warning-soft); }
+
+.build-info {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: 14px;
+  overflow: hidden;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.build-info > div { min-width: 0; padding: 10px; background: var(--surface-raised); }
+.build-info dt { color: var(--muted); font-size: 0.58rem; }
+.build-info dd { margin-top: 4px; overflow-wrap: anywhere; font-family: var(--font-mono); font-size: 0.64rem; }
+
+.update-banner,
+.backup-reminder-banner,
+.peer-update-banner {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1100;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px 14px;
+  width: min(430px, calc(100vw - 28px));
+  padding: 14px;
+  color: var(--ink);
+  background: var(--surface-raised);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.peer-update-banner { bottom: 94px; border-color: var(--warning); }
+.network-status { position: fixed; top: max(10px, env(safe-area-inset-top)); left: 50%; z-index: 1200; display: flex; align-items: center; gap: 6px; padding: 7px 11px; color: var(--warning-ink); background: var(--warning-soft); border: 1px solid color-mix(in srgb, var(--warning) 35%, transparent); border-radius: 999px; box-shadow: var(--shadow-sm); font-size: 0.65rem; font-weight: 700; transform: translateX(-50%); }
+.network-status--online { color: var(--success); background: var(--success-soft); border-color: color-mix(in srgb, var(--success) 30%, transparent); }
+
+.backup-reminder-banner {
+  border-color: color-mix(in srgb, var(--warning) 42%, var(--border));
+}
+
+.update-banner div { display: grid; gap: 3px; }
+.update-banner strong { font-family: var(--font-serif); font-size: 0.9rem; }
+.update-banner span { color: var(--muted); font-size: 0.65rem; line-height: 1.45; }
+.update-banner > [role='alert'] { grid-column: 1 / -1; color: var(--danger); }
+.update-banner > .button--ghost { grid-column: 2; }
+
+.release-notes { display: grid; gap: 10px; padding-left: 20px; color: var(--muted); font-size: 0.72rem; line-height: 1.55; }
 
 .privacy-facts {
   display: grid;
@@ -871,7 +960,9 @@
 
   .privacy-threat-grid,
   .privacy-boundaries,
-  .workspace-backup__formats {
+  .workspace-backup__formats,
+  .distribution-grid,
+  .build-info {
     grid-template-columns: 1fr;
   }
 }

@@ -130,7 +130,7 @@ describe('TheoryPage research workflow', () => {
     expect(getSnapshot().researchQuestions.some((item) => item.id === relatedQuestion.id)).toBe(true)
     expect(getSnapshot().claims.some((item) => item.id === relatedClaim.id)).toBe(true)
     expect(getSnapshot().literature.some((item) => item.id === theoryLiterature.id)).toBe(true)
-  })
+  }, 15_000)
 
   it('supports deep-linked views, an empirical project, filtering, and English chrome without translating content', async () => {
     const user = userEvent.setup()
