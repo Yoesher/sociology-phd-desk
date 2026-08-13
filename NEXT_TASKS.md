@@ -19,7 +19,7 @@
 
 ## P1 — release-process maintenance
 
-- [ ] Merge the scoped UTF-8 Release Notes guard from Issue #27 after exact-head CI and self-review; it must remain release-process-only and must not publish another version.
+- [x] Merge the scoped UTF-8 Release Notes guard from Issue [#27](https://github.com/Yoesher/sociology-phd-desk/issues/27) through PR [#28](https://github.com/Yoesher/sociology-phd-desk/pull/28) after exact-head push/PR CI and P0 = 0 / P1 = 0 self-review; pass exact-main CI, Pages, and deployment without publishing another version.
 
 ## P0 — Phase 3A bilingual gate (complete)
 
