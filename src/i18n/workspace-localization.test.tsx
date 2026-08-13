@@ -177,7 +177,7 @@ describe('workspace localization boundaries', () => {
     const chineseNav = screen.getByRole('navigation', {
       name: messages['zh-CN']['navigation.aria'],
     })
-    expect(within(chineseNav).getAllByRole('link')).toHaveLength(17)
+    expect(within(chineseNav).getAllByRole('link')).toHaveLength(13)
     for (const item of navigationItems) {
       expect(
         within(chineseNav).getByRole('link', { name: messages['zh-CN'][item.labelKey] }),
@@ -189,10 +189,11 @@ describe('workspace localization boundaries', () => {
 
     const topbar = container.querySelector<HTMLElement>('.topbar')
     if (!topbar) throw new Error('Expected the desktop top bar.')
-    await user.click(within(topbar).getByRole('button', { name: 'English' }))
+    await user.click(within(topbar).getByRole('button', { name: messages['zh-CN']['navigation.moreActions'] }))
+    await user.click(screen.getByRole('button', { name: 'English' }))
 
     const englishNav = screen.getByRole('navigation', { name: messages.en['navigation.aria'] })
-    expect(within(englishNav).getAllByRole('link')).toHaveLength(17)
+    expect(within(englishNav).getAllByRole('link')).toHaveLength(13)
     for (const item of navigationItems) {
       expect(
         within(englishNav).getByRole('link', { name: messages.en[item.labelKey] }),

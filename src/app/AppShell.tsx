@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useContext,
   useMemo,
   useRef,
   useState,
@@ -34,14 +35,49 @@ import { dispatchQuickAdd } from './navigationEvents'
 import { useTheme } from '../hooks/useTheme'
 import { IconButton } from '../components/ui'
 import { WorkspaceTools } from './WorkspaceTools'
+import { PageTransitionBoundary } from '../components/PageTransitionBoundary'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { useI18n, type MessageKey } from '../i18n'
 import { LanguageControl } from '../components/LanguageControl'
 import { useWorkspaceSession } from '../hooks/useWorkspaceSession'
+import { UpdateManagerContext } from './update-manager-context'
 import { hasRetainedPlaintextSource } from '../models/workspace-registry'
 
-const EXPANDED_GROUPS_STORAGE_KEY = 'sociology-phd-desk:navigation-expanded:v1'
-const USER_EXPANDED_LIMIT = 2
+const EXPANDED_GROUPS_STORAGE_KEY = 'sociology-phd-desk:navigation-expanded:v2'
+const USER_EXPANDED_LIMIT = 1
+const unavailableUpdateManager = {
+  supported: false,
+  updateAvailable: false,
+  checking: false,
+  checkForUpdate: async () => undefined,
+}
+
+function useExitPresence<T>(value: T | null, duration = 140) {
+  const [rendered, setRendered] = useState<T | null>(value)
+  const [closing, setClosing] = useState(false)
+
+  useEffect(() => {
+    if (value !== null) {
+      setRendered(value)
+      setClosing(false)
+      return
+    }
+    if (rendered === null) return
+    if (import.meta.env.MODE === 'test' || (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false)) {
+      setRendered(null)
+      setClosing(false)
+      return
+    }
+    setClosing(true)
+    const timer = window.setTimeout(() => {
+      setRendered(null)
+      setClosing(false)
+    }, duration)
+    return () => window.clearTimeout(timer)
+  }, [duration, rendered, value])
+
+  return { rendered, closing }
+}
 
 function readExpandedGroups(): PrimaryModuleId[] {
   try {
@@ -62,6 +98,7 @@ function todayIso() {
 export function AppShell() {
   const { theme, toggleTheme } = useTheme()
   const { t } = useI18n()
+  const update = useContext(UpdateManagerContext) ?? unavailableUpdateManager
   const { data, saving, error, clearError } = useWorkspace()
   const {
     activeWorkspace,
@@ -72,26 +109,32 @@ export function AppShell() {
   const [sidebarCompact, setSidebarCompact] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userExpanded, setUserExpanded] = useState<PrimaryModuleId[]>(readExpandedGroups)
-  const [mobileExpanded, setMobileExpanded] = useState<PrimaryModuleId | null>(null)
   const [compactFlyout, setCompactFlyout] = useState<PrimaryModuleId | 'settings' | null>(null)
   const [settingsExpanded, setSettingsExpanded] = useState(false)
   const [quickAddOpen, setQuickAddOpen] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
   const quickAddRef = useRef<HTMLDivElement>(null)
   const quickAddTriggerRef = useRef<HTMLButtonElement>(null)
+  const moreRef = useRef<HTMLDivElement>(null)
+  const moreTriggerRef = useRef<HTMLButtonElement>(null)
   const compactFlyoutRef = useRef<HTMLDivElement>(null)
   const compactTriggerRefs = useRef<Partial<Record<PrimaryModuleId | 'settings', HTMLButtonElement | null>>>({})
   const mobileMenuRef = useRef<HTMLElement>(null)
   const mobileMenuTriggerRef = useRef<HTMLButtonElement | null>(null)
   const location = useLocation()
+  const quickAddPresence = useExitPresence(quickAddOpen ? true : null)
+  const morePresence = useExitPresence(moreOpen ? true : null)
+  const compactPresence = useExitPresence(compactFlyout)
+  const mobileMenuPresence = useExitPresence(mobileMenuOpen ? true : null, 160)
   const current = getNavigationItem(location.pathname)
   const activeView = getActiveView(current, location.search)
-  const primaryMobile = navigationItems.slice(0, 4)
+  const primaryMobile = navigationItems.slice(0, 3)
 
   useEffect(() => {
     setMobileMenuOpen(false)
     setCompactFlyout(null)
     setQuickAddOpen(false)
-    setMobileExpanded(current.id)
+    setMoreOpen(false)
     window.scrollTo(0, 0)
   }, [current.id, location.pathname, location.search])
 
@@ -108,11 +151,13 @@ export function AppShell() {
       const target = event.target
       if (!(target instanceof Node)) return
       if (quickAddOpen && !quickAddRef.current?.contains(target)) setQuickAddOpen(false)
+      if (moreOpen && !moreRef.current?.contains(target)) setMoreOpen(false)
       if (compactFlyout && !compactFlyoutRef.current?.contains(target)) setCompactFlyout(null)
     }
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return
       setQuickAddOpen(false)
+      setMoreOpen(false)
       setCompactFlyout(null)
     }
     document.addEventListener('mousedown', closeFloatingPanels)
@@ -121,30 +166,34 @@ export function AppShell() {
       document.removeEventListener('mousedown', closeFloatingPanels)
       document.removeEventListener('keydown', closeOnEscape)
     }
-  }, [compactFlyout, quickAddOpen])
+  }, [compactFlyout, moreOpen, quickAddOpen])
 
   useEffect(() => {
-    if (compactFlyout) {
+    if (compactFlyout && compactPresence.rendered === compactFlyout && !compactPresence.closing) {
       compactFlyoutRef.current?.querySelector<HTMLElement>('.compact-flyout a, .compact-flyout button')?.focus()
     }
-  }, [compactFlyout])
+  }, [compactFlyout, compactPresence.closing, compactPresence.rendered])
 
   useEffect(() => {
     if (quickAddOpen) quickAddRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus()
   }, [quickAddOpen])
 
   useEffect(() => {
-    if (mobileMenuOpen) mobileMenuRef.current?.querySelector<HTMLElement>('[data-mobile-menu-close]')?.focus()
-  }, [mobileMenuOpen])
+    if (moreOpen) moreRef.current?.querySelector<HTMLElement>('.topbar-more__menu button, .topbar-more__menu a')?.focus()
+  }, [moreOpen])
+
+  useEffect(() => {
+    if (mobileMenuOpen && mobileMenuPresence.rendered && !mobileMenuPresence.closing) {
+      mobileMenuRef.current?.querySelector<HTMLElement>('[data-mobile-menu-close]')?.focus()
+    }
+  }, [mobileMenuOpen, mobileMenuPresence.closing, mobileMenuPresence.rendered])
 
   const badgeCounts = useMemo<Record<NavigationBadgeId, number>>(() => {
-    if (!data) return { overdue: 0, 'to-read': 0, transcription: 0, coding: 0, failed: 0, revision: 0 }
+    if (!data) return { overdue: 0, processing: 0, failed: 0, revision: 0 }
     const today = todayIso()
     return {
       overdue: data.tasks.filter((task) => task.dueDate && task.dueDate < today && task.status !== 'Done').length,
-      'to-read': data.literature.filter((item) => item.status === 'To Read').length,
-      transcription: data.interviews.filter((item) => item.status !== 'Cancelled' && !['Complete', 'Not Applicable'].includes(item.transcriptStatus)).length,
-      coding: data.interviews.filter((item) => item.status !== 'Cancelled' && !['Complete', 'Not Applicable'].includes(item.codingStatus)).length,
+      processing: data.interviews.filter((item) => item.status !== 'Cancelled' && [item.transcriptStatus, item.codingStatus, item.memoStatus].some((status) => !['Complete', 'Not Applicable'].includes(status))).length,
       failed: data.analysisRuns.filter((run) => run.status === 'Failed').length,
       revision:
         data.manuscripts.filter((manuscript) => manuscript.status === 'Revision').length +
@@ -201,6 +250,11 @@ export function AppShell() {
     if (restoreFocus) quickAddTriggerRef.current?.focus()
   }
 
+  const closeMore = (restoreFocus = false) => {
+    setMoreOpen(false)
+    if (restoreFocus) moreTriggerRef.current?.focus()
+  }
+
   const openMobileMenu = (trigger: HTMLButtonElement) => {
     mobileMenuTriggerRef.current = trigger
     setMobileMenuOpen(true)
@@ -215,6 +269,7 @@ export function AppShell() {
     if (event.key !== 'Escape') return
     event.preventDefault()
     closeQuickAdd(true)
+    closeMore(true)
     closeCompactFlyout(true)
   }
 
@@ -285,11 +340,8 @@ export function AppShell() {
       <button type="button" onClick={() => openWorkspaceCenter('backup')}>
         {t('navigation.backupRestore')}
       </button>
-      <button type="button" onClick={() => openWorkspaceCenter('distribution')}>
-        {t('distribution.center.tab')}
-      </button>
       <div className="settings-nav__controls">
-        <span>{t('navigation.languageAppearance')}</span>
+        <span>{t('navigation.appearance')}</span>
         <div>
           <LanguageControl compact />
           <IconButton label={t('theme.toggle')} onClick={toggleTheme}>
@@ -297,10 +349,14 @@ export function AppShell() {
           </IconButton>
         </div>
       </div>
-      <div className="settings-nav__tools">
-        <span>{t('navigation.dataDiagnostics')}</span>
-        <WorkspaceTools compact />
-      </div>
+      <details className="settings-nav__advanced motion-collapse">
+        <summary>{t('navigation.advanced')}</summary>
+        <div className="settings-nav__tools">
+          <button type="button" onClick={() => openWorkspaceCenter('distribution')}>{t('distribution.center.tab')}</button>
+          <span>{t('navigation.dataDiagnostics')}</span>
+          <WorkspaceTools compact />
+        </div>
+      </details>
     </div>
   )
 
@@ -333,7 +389,9 @@ export function AppShell() {
                 {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
               </button>
             </div>
-            {expanded && renderSecondaryLinks(item)}
+            <div className="primary-nav__children" data-expanded={expanded} aria-hidden={!expanded}>
+              <div>{renderSecondaryLinks(item)}</div>
+            </div>
           </div>
         )
       })}
@@ -346,7 +404,7 @@ export function AppShell() {
         const Icon = item.icon
         const pathActive = location.pathname === item.path
         return (
-          <div className="compact-nav__group" key={item.id} ref={compactFlyout === item.id ? compactFlyoutRef : undefined}>
+          <div className="compact-nav__group" key={item.id} ref={compactPresence.rendered === item.id ? compactFlyoutRef : undefined}>
             <button
               ref={(element) => { compactTriggerRefs.current[item.id] = element }}
               type="button"
@@ -359,8 +417,8 @@ export function AppShell() {
               <Icon size={18} strokeWidth={1.8} />
               <span className="sr-only">{t(item.labelKey)}</span>
             </button>
-            {compactFlyout === item.id && (
-              <div className="compact-flyout" role="dialog" aria-label={t(item.labelKey)} onKeyDown={handleFloatingPanelKeys}>
+            {compactPresence.rendered === item.id && (
+              <div className="compact-flyout" data-closing={compactPresence.closing || undefined} aria-hidden={compactPresence.closing || undefined} inert={compactPresence.closing || undefined} role="dialog" aria-label={t(item.labelKey)} onKeyDown={handleFloatingPanelKeys}>
                 <strong>{item.index} · {t(item.labelKey)}</strong>
                 {renderSecondaryLinks(item, true)}
               </div>
@@ -372,28 +430,14 @@ export function AppShell() {
   )
 
   const mobileNav = (
-    <nav className="mobile-accordion" aria-label={t('navigation.aria')}>
+    <nav className="mobile-module-nav" aria-label={t('navigation.aria')}>
       {navigationItems.map((item) => {
         const Icon = item.icon
-        const expanded = mobileExpanded === item.id
         return (
-          <div className="mobile-accordion__group" key={item.id}>
-            <div>
-              <NavLink to={toNavigationView(item)} end={item.path === '/'}>
-                <Icon size={17} />
-                <span>{item.index} · {t(item.labelKey)}</span>
-              </NavLink>
-              <button
-                type="button"
-                aria-expanded={expanded}
-                aria-label={t(expanded ? 'navigation.collapseGroup' : 'navigation.expandGroup', { module: t(item.labelKey) })}
-                onClick={() => setMobileExpanded(expanded ? null : item.id)}
-              >
-                {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-              </button>
-            </div>
-            {expanded && renderSecondaryLinks(item)}
-          </div>
+          <NavLink key={item.id} to={toNavigationView(item)} end={item.path === '/'}>
+            <Icon size={17} />
+            <span>{item.index} · {t(item.labelKey)}</span>
+          </NavLink>
         )
       })}
     </nav>
@@ -413,7 +457,7 @@ export function AppShell() {
         <div className="sidebar__scroll">{sidebarCompact ? compactNav : desktopNav}</div>
         <div className="sidebar__utilities">
           {sidebarCompact ? (
-            <div className="compact-nav__group" ref={compactFlyout === 'settings' ? compactFlyoutRef : undefined}>
+            <div className="compact-nav__group" ref={compactPresence.rendered === 'settings' ? compactFlyoutRef : undefined}>
               <button
                 ref={(element) => { compactTriggerRefs.current.settings = element }}
                 type="button"
@@ -425,8 +469,8 @@ export function AppShell() {
               >
                 <Settings2 size={18} />
               </button>
-              {compactFlyout === 'settings' && (
-                <div className="compact-flyout compact-flyout--settings" role="dialog" aria-label={t('navigation.workspaceSettings')} onKeyDown={handleFloatingPanelKeys}>
+              {compactPresence.rendered === 'settings' && (
+                <div className="compact-flyout compact-flyout--settings" data-closing={compactPresence.closing || undefined} aria-hidden={compactPresence.closing || undefined} inert={compactPresence.closing || undefined} role="dialog" aria-label={t('navigation.workspaceSettings')} onKeyDown={handleFloatingPanelKeys}>
                   <strong>{t('navigation.workspaceSettings')}</strong>
                   {renderSettings(true)}
                 </div>
@@ -477,15 +521,9 @@ export function AppShell() {
           </div>
         </div>
         <div className="mobile-header__actions">
-          <IconButton label={t('shell.openWorkspaceCenter')} onClick={() => openWorkspaceCenter('workspaces')}>
-            <FolderCog size={17} />
-          </IconButton>
-          <IconButton disabled={busy} label={t('shell.lockWorkspace')} onClick={() => void lockActiveWorkspace()}>
+          {activeWorkspace?.encryptionMode === 'encrypted' && <IconButton disabled={busy} label={t('shell.lockWorkspace')} onClick={() => void lockActiveWorkspace()}>
             <LockKeyhole size={17} />
-          </IconButton>
-          <IconButton label={t('theme.toggle')} onClick={toggleTheme}>
-            {theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}
-          </IconButton>
+          </IconButton>}
           <IconButton label={t('navigation.open')} onClick={(event) => openMobileMenu(event.currentTarget)}>
             <Menu size={19} />
           </IconButton>
@@ -513,8 +551,8 @@ export function AppShell() {
               <span>{t('quickAdd.open').replace(/^\+\s*/, '')}</span>
               <ChevronDown size={13} />
             </button>
-            {quickAddOpen && (
-              <div className="quick-add__menu" role="menu" aria-label={t('quickAdd.menuAria', { module: t(current.labelKey) })} onKeyDown={handleFloatingPanelKeys}>
+            {quickAddPresence.rendered && (
+              <div className="quick-add__menu" data-closing={quickAddPresence.closing || undefined} aria-hidden={quickAddPresence.closing || undefined} inert={quickAddPresence.closing || undefined} role="menu" aria-label={t('quickAdd.menuAria', { module: t(current.labelKey) })} onKeyDown={handleFloatingPanelKeys}>
                 {current.quickAdd.map((action) => (
                   <button key={action.action} type="button" role="menuitem" onClick={() => emitQuickAdd(current.id, action.action)}>
                     {t(action.labelKey)}
@@ -523,29 +561,42 @@ export function AppShell() {
               </div>
             )}
           </div>
+          {saving && <span className="topbar__save-state" role="status">{t('shell.savingLocally')}</span>}
+          {update.updateAvailable && <button type="button" className="topbar__update-state" onClick={() => openWorkspaceCenter('distribution')}>{t('distribution.update.availableTitle')}</button>}
           {hasDemoRecords && <span className="badge badge--warning">{t('shell.syntheticDemo')}</span>}
-          <button
-            type="button"
-            className="workspace-switcher"
-            aria-label={t('shell.openWorkspaceCenterFor', { name: activeWorkspace?.displayName ?? t('shell.localWorkspace') })}
-            onClick={() => openWorkspaceCenter('workspaces')}
-          >
-            <FolderCog size={15} aria-hidden="true" />
-            <span>
-              <strong>{activeWorkspace?.displayName || t('shell.localWorkspace')}</strong>
-              <small>{t(modeLabelKey)}</small>
-            </span>
-          </button>
-          <IconButton disabled={busy} label={t('shell.lockWorkspace')} onClick={() => void lockActiveWorkspace()}>
+          {activeWorkspace?.encryptionMode === 'encrypted' && <IconButton disabled={busy} label={t('shell.lockWorkspace')} onClick={() => void lockActiveWorkspace()}>
             <LockKeyhole size={16} />
-          </IconButton>
-          <LanguageControl />
-          <WorkspaceTools />
-          <IconButton label={theme === 'light' ? t('theme.useDark') : t('theme.useLight')} onClick={toggleTheme}>
-            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
-          </IconButton>
+          </IconButton>}
+          <div className="topbar-more" ref={moreRef}>
+            <button
+              ref={moreTriggerRef}
+              className="icon-button"
+              aria-label={t('navigation.moreActions')}
+              title={t('navigation.moreActions')}
+              aria-haspopup="dialog"
+              aria-expanded={moreOpen}
+              onClick={() => setMoreOpen((open) => !open)}
+            >
+              <MoreHorizontal size={17} />
+            </button>
+            {morePresence.rendered && <div className="topbar-more__menu motion-popover" data-closing={morePresence.closing || undefined} aria-hidden={morePresence.closing || undefined} inert={morePresence.closing || undefined} role="dialog" aria-label={t('navigation.moreActions')} onKeyDown={handleFloatingPanelKeys}>
+              <button type="button" onClick={() => openWorkspaceCenter('workspaces')}><FolderCog size={15} />{t('navigation.workspaceSettings')}</button>
+              <button type="button" onClick={toggleTheme}>{theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}{theme === 'light' ? t('theme.useDark') : t('theme.useLight')}</button>
+              <LanguageControl compact />
+              <button type="button" onClick={() => openWorkspaceCenter('distribution')}>{t('distribution.install.title')}</button>
+              <button type="button" disabled={!update.supported || update.checking} onClick={() => void update.checkForUpdate()}>{t(update.checking ? 'distribution.update.checking' : 'distribution.update.check')}</button>
+              <a href="https://github.com/Yoesher/sociology-phd-desk/blob/main/docs/zh-CN/getting-started.md" target="_blank" rel="noreferrer">{t('navigation.help')}</a>
+            </div>}
+          </div>
         </div>
       </div>
+
+      <nav className="mobile-view-nav" aria-label={t('navigation.secondaryAria', { module: t(current.labelKey) })}>
+        {current.views.map((view) => {
+          const active = activeView.id === view.id
+          return <Link key={view.id} to={toNavigationView(current, view.id)} className={active ? 'active' : ''} aria-current={active ? 'page' : undefined}>{t(view.labelKey)}</Link>
+        })}
+      </nav>
 
       <main className="app-main">
         {error && (
@@ -554,7 +605,7 @@ export function AppShell() {
             <button type="button" onClick={clearError}>{t('common.dismiss')}</button>
           </div>
         )}
-        <Outlet />
+        <PageTransitionBoundary><Outlet /></PageTransitionBoundary>
       </main>
 
       <nav className="mobile-bottom-nav" aria-label={t('navigation.mobileAria')}>
@@ -578,9 +629,9 @@ export function AppShell() {
         </button>
       </nav>
 
-      {mobileMenuOpen && (
-        <div className="mobile-menu-backdrop" role="presentation" onMouseDown={() => closeMobileMenu()}>
-          <aside ref={mobileMenuRef} className="mobile-menu" role="dialog" aria-modal="true" aria-label={t('navigation.title')} onMouseDown={(event) => event.stopPropagation()} onKeyDown={handleMobileMenuKeys}>
+      {mobileMenuPresence.rendered && (
+        <div className="mobile-menu-backdrop" data-closing={mobileMenuPresence.closing || undefined} role="presentation" onMouseDown={() => closeMobileMenu()}>
+          <aside ref={mobileMenuRef} className="mobile-menu" data-closing={mobileMenuPresence.closing || undefined} aria-hidden={mobileMenuPresence.closing || undefined} inert={mobileMenuPresence.closing || undefined} role="dialog" aria-modal="true" aria-label={t('navigation.title')} onMouseDown={(event) => event.stopPropagation()} onKeyDown={handleMobileMenuKeys}>
             <header>
               <div>
                 <p className="eyebrow">{t('navigation.workspaceEyebrow')}</p>

@@ -9,6 +9,7 @@ import { useWorkspace } from '../../hooks/useWorkspace'
 import { useI18n } from '../../i18n'
 import { entityMeta, truncate } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
+import { useModuleSearch } from '../../hooks/useModuleSearch'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
   AddButton,
@@ -16,6 +17,8 @@ import {
   Button,
   EmptyState,
   Field,
+  FilterChips,
+  DisclosureSection,
   Modal,
   PageHeader,
   SearchField,
@@ -59,21 +62,7 @@ const statusTone = (status: LiteratureItem['status']): Tone => {
   return 'warning'
 }
 
-const LITERATURE_VIEW_STATUS = {
-  inbox: 'Inbox',
-  'to-read': 'To Read',
-  reading: 'Reading',
-  read: 'Read',
-  cited: 'Cited',
-  archived: 'Archived',
-} as const satisfies Record<string, LiteratureItem['status']>
-
-function readLiteratureView(): 'all' | keyof typeof LITERATURE_VIEW_STATUS {
-  const requested = new URLSearchParams(window.location.hash.split('?')[1] || '').get('view')
-  return requested && requested in LITERATURE_VIEW_STATUS
-    ? requested as keyof typeof LITERATURE_VIEW_STATUS
-    : 'all'
-}
+type LiteratureView = 'inbox' | 'reading' | 'cited' | 'all'
 
 export function LiteraturePage() {
   const { data, updateData } = useWorkspace()
@@ -84,17 +73,9 @@ export function LiteraturePage() {
   const [priorityFilter, setPriorityFilter] = useState('')
   const [formOpen, setFormOpen] = useState(false)
   const [draft, setDraft] = useState<LiteratureDraft>(emptyDraft)
-  const [view, setView] = useState<'all' | keyof typeof LITERATURE_VIEW_STATUS>(readLiteratureView)
-
-  useEffect(() => {
-    const syncView = () => setView(readLiteratureView())
-    window.addEventListener('hashchange', syncView)
-    window.addEventListener('popstate', syncView)
-    return () => {
-      window.removeEventListener('hashchange', syncView)
-      window.removeEventListener('popstate', syncView)
-    }
-  }, [])
+  const { searchParams, updateSearch } = useModuleSearch('literature')
+  const view = (searchParams.get('view') || 'inbox') as LiteratureView
+  const urlStatus = searchParams.get('status') || ''
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -103,14 +84,15 @@ export function LiteraturePage() {
         const corpus = `${item.title} ${item.authors.join(' ')} ${item.journal || ''} ${item.whyRead} ${item.notes}`.toLowerCase()
         return (
           (!query || corpus.includes(query)) &&
-          (view === 'all' || item.status === LITERATURE_VIEW_STATUS[view]) &&
+          (view === 'all' || view === 'reading' && ['To Read', 'Reading', 'Read'].includes(item.status) || view === 'inbox' && item.status === 'Inbox' || view === 'cited' && item.status === 'Cited') &&
+          (!urlStatus || item.status === urlStatus) &&
           (!projectFilter || item.projectId === projectFilter) &&
           (!statusFilter || item.status === statusFilter) &&
           (!priorityFilter || item.priority === priorityFilter)
         )
       }) ?? []
     )
-  }, [data?.literature, priorityFilter, projectFilter, search, statusFilter, view])
+  }, [data?.literature, priorityFilter, projectFilter, search, statusFilter, urlStatus, view])
 
   useEffect(() => {
     const handleQuickAdd = (event: Event) => {
@@ -192,6 +174,10 @@ export function LiteraturePage() {
       </div>
 
       <section className="panel">
+        {view === 'reading' && <FilterChips ariaLabel={t('literature.form.status')} value={urlStatus} onChange={(status) => updateSearch({ status })} options={[
+          { value: '', label: t('common.all') },
+          ...(['To Read', 'Reading', 'Read'] as const).map((status) => ({ value: status, label: labelEnum(status) })),
+        ]} />}
         <div className="toolbar toolbar--wrap">
           <SearchField value={search} onChange={setSearch} placeholder={t('literature.filters.search')} />
           <ProjectSelect projects={data.projects} value={projectFilter} onChange={setProjectFilter} includeAll />
@@ -246,15 +232,17 @@ export function LiteraturePage() {
         <form id="literature-form" className="form-grid" onSubmit={(event) => void saveLiterature(event)}>
           <Field label={t('literature.form.sourceTitle')} required className="form-span-2"><input autoFocus required value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} /></Field>
           <Field label={t('literature.form.authors')} required className="form-span-2" hint={t('literature.form.authorsHint')}><input required value={draft.authors} onChange={(event) => setDraft({ ...draft, authors: event.target.value })} placeholder={t('literature.form.authorsPlaceholder')} /></Field>
-          <Field label={t('literature.form.year')}><input type="number" min="1000" max="2100" value={draft.year} onChange={(event) => setDraft({ ...draft, year: event.target.value })} /></Field>
-          <Field label={t('literature.form.journal')}><input value={draft.journal} onChange={(event) => setDraft({ ...draft, journal: event.target.value })} /></Field>
-          <Field label={t('literature.form.doi')}><input value={draft.doi} onChange={(event) => setDraft({ ...draft, doi: event.target.value })} placeholder={t('literature.form.doiPlaceholder')} /></Field>
-          <Field label={t('literature.form.url')}><input type="url" value={draft.url} onChange={(event) => setDraft({ ...draft, url: event.target.value })} /></Field>
           <Field label={t('literature.form.project')} required><ProjectSelect required projects={data.projects} value={draft.projectId} onChange={(projectId) => setDraft({ ...draft, projectId })} /></Field>
           <Field label={t('literature.form.status')}><select value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value as LiteratureItem['status'] })}>{LITERATURE_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
-          <Field label={t('literature.form.priority')}><select value={draft.priority} onChange={(event) => setDraft({ ...draft, priority: event.target.value as LiteratureItem['priority'] })}>{PRIORITIES.map((priority) => <option key={priority} value={priority}>{labelEnum(priority)}</option>)}</select></Field>
           <Field label={t('literature.form.whyRead')} required><textarea required rows={4} value={draft.whyRead} onChange={(event) => setDraft({ ...draft, whyRead: event.target.value })} placeholder={t('literature.form.whyReadPlaceholder')} /></Field>
-          <Field label={t('literature.form.notes')} className="form-span-2"><textarea rows={4} value={draft.notes} onChange={(event) => setDraft({ ...draft, notes: event.target.value })} placeholder={t('literature.form.notesPlaceholder')} /></Field>
+          <DisclosureSection summary={t('common.details')}>
+            <Field label={t('literature.form.year')}><input type="number" min="1000" max="2100" value={draft.year} onChange={(event) => setDraft({ ...draft, year: event.target.value })} /></Field>
+            <Field label={t('literature.form.journal')}><input value={draft.journal} onChange={(event) => setDraft({ ...draft, journal: event.target.value })} /></Field>
+            <Field label={t('literature.form.doi')}><input value={draft.doi} onChange={(event) => setDraft({ ...draft, doi: event.target.value })} placeholder={t('literature.form.doiPlaceholder')} /></Field>
+            <Field label={t('literature.form.url')}><input type="url" value={draft.url} onChange={(event) => setDraft({ ...draft, url: event.target.value })} /></Field>
+            <Field label={t('literature.form.priority')}><select value={draft.priority} onChange={(event) => setDraft({ ...draft, priority: event.target.value as LiteratureItem['priority'] })}>{PRIORITIES.map((priority) => <option key={priority} value={priority}>{labelEnum(priority)}</option>)}</select></Field>
+            <Field label={t('literature.form.notes')}><textarea rows={4} value={draft.notes} onChange={(event) => setDraft({ ...draft, notes: event.target.value })} placeholder={t('literature.form.notesPlaceholder')} /></Field>
+          </DisclosureSection>
         </form>
       </Modal>
     </div>

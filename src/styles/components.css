@@ -1322,3 +1322,47 @@ button.record-title:hover strong {
     justify-content: flex-start;
   }
 }
+.filter-chips {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 2px;
+  scrollbar-width: thin;
+}
+
+.toolbar--wrap .filter-chips {
+  flex-wrap: wrap;
+  overflow-x: visible;
+}
+
+.filter-chips button {
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: 5px 10px;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  transition: color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    transform var(--motion-instant) var(--ease-standard);
+}
+
+.filter-chips button:hover { color: var(--ink); background: var(--surface-hover); }
+.filter-chips button:active { transform: scale(0.98); }
+.filter-chips button[aria-pressed='true'] {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+}
+
+@media (max-width: 620px) {
+  .toolbar--wrap .filter-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+}

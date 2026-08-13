@@ -64,29 +64,23 @@ describe('publishing smart-view mappings', () => {
   const submission = base.submissions[0]
 
   it('maps every fixed view to exact existing raw statuses without inventing a persisted state', () => {
-    expect(PUBLISHING_VIEWS).toEqual(['all', 'draft', 'ready', 'submitted', 'review', 'revision', 'rejected', 'accepted', 'published', 'withdrawn'])
+    expect(PUBLISHING_VIEWS).toEqual(['writing', 'submission', 'revision', 'history'])
     expect(MANUSCRIPT_STATUSES_BY_VIEW).toEqual({
-      draft: ['Idea', 'Outline', 'Drafting', 'Internal Review'],
-      ready: ['Ready to Submit'],
-      review: ['Under Review'],
+      writing: ['Idea', 'Outline', 'Drafting', 'Internal Review', 'Ready to Submit'],
+      submission: ['Submitted', 'Under Review'],
       revision: ['Revision'],
-      rejected: ['Rejected', 'Reworking'],
-      accepted: ['Accepted'],
-      published: ['Published'],
+      history: ['Rejected', 'Reworking', 'Accepted', 'Published'],
     })
     expect(SUBMISSION_STATUSES_BY_VIEW).toEqual({
-      ready: ['Preparing'],
-      submitted: ['Submitted'],
-      review: ['Under Review'],
+      writing: ['Preparing'],
+      submission: ['Submitted', 'Under Review'],
       revision: ['Revision'],
-      rejected: ['Rejected'],
-      accepted: ['Accepted'],
-      withdrawn: ['Withdrawn'],
+      history: ['Rejected', 'Decision Received', 'Accepted', 'Withdrawn'],
     })
-    expect(manuscriptMatchesPublishingView({ ...manuscript, status: 'Submitted' }, 'submitted')).toBe(false)
-    expect(submissionMatchesPublishingView({ ...submission, status: 'Decision Received' }, 'all')).toBe(true)
+    expect(manuscriptMatchesPublishingView({ ...manuscript, status: 'Submitted' }, 'submission')).toBe(true)
+    expect(submissionMatchesPublishingView({ ...submission, status: 'Decision Received' }, 'history')).toBe(true)
     expect(submissionMatchesPublishingView({ ...submission, status: 'Decision Received' }, 'revision')).toBe(false)
-    expect(normalizePublishingView('not-a-view')).toBe('all')
+    expect(normalizePublishingView('not-a-view')).toBe('writing')
   })
 
   it('counts only Open and Addressing reviewer comments as unresolved', () => {
@@ -147,17 +141,13 @@ describe('PublishingPage integrated workflow', () => {
     const before = structuredClone(initial)
     const { getSnapshot, updateSpy } = renderPublishing(initial, '/publishing?view=revision')
 
-    expect(screen.getByRole('button', { name: /返修中/, current: 'page' })).toBeInTheDocument()
     expect(screen.getAllByText('研究者原始标题不翻译')).toHaveLength(2)
     expect(screen.getByText('1 条未解决意见')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: /已接收/ }))
-    await user.click(screen.getByRole('button', { name: /返修中/ }))
     expect(updateSpy).not.toHaveBeenCalled()
     expect(getSnapshot()).toEqual(before)
 
     await user.click(screen.getByRole('button', { name: 'Test English' }))
     expect(screen.getByRole('heading', { name: 'Manuscripts & Publishing' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Revision/, current: 'page' })).toBeInTheDocument()
     expect(screen.getAllByText('研究者原始标题不翻译')).toHaveLength(2)
   })
 

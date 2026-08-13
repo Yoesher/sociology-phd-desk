@@ -81,8 +81,10 @@ describe('TheoryPage research workflow', () => {
     const isolated: WorkspaceData = { ...initial, literature: [...initial.literature, theoryLiterature] }
     const { getSnapshot } = renderTheory(isolated)
 
-    await user.click(screen.getAllByRole('button', { name: '新建理论备忘' })[0])
-    const dialog = screen.getByRole('dialog', { name: '新建理论备忘' })
+    window.dispatchEvent(new CustomEvent<QuickAddEventDetail>(QUICK_ADD_EVENT, {
+      detail: { module: 'theory', action: 'theory-memo' },
+    }))
+    const dialog = await screen.findByRole('dialog', { name: '新建理论备忘' })
     const projectSelect = within(dialog).getByLabelText(/项目/) as HTMLSelectElement
     await user.selectOptions(projectSelect, theoryProject.id)
 
@@ -150,15 +152,12 @@ describe('TheoryPage research workflow', () => {
     }
     renderTheory({ ...initial, theoryMemos: [...initial.theoryMemos, empiricalMemo] }, '/theory?view=counterarguments')
 
-    expect(screen.getByRole('button', { name: '反例与边界', current: 'page' })).toBeInTheDocument()
     expect(screen.getByText(empiricalMemo.title)).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: '理论总览' }))
-    await user.click(screen.getByRole('button', { name: new RegExp(empiricalProject.shortTitle) }))
-    await user.click(screen.getByRole('button', { name: '反例与边界' }))
+    await user.click(screen.getByRole('button', { name: '边界条件' }))
     expect(screen.getByText(empiricalMemo.title)).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Test English' }))
     expect(screen.getByRole('heading', { name: 'Theory Research' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Counterarguments & Boundaries', current: 'page' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Boundary conditions' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByText(empiricalMemo.title)).toBeInTheDocument()
     expect(screen.getByText('用户内容保持原样')).toBeInTheDocument()
   })
@@ -167,13 +166,15 @@ describe('TheoryPage research workflow', () => {
     const user = userEvent.setup()
     renderTheory(undefined, '/theory?view=concepts')
 
-    await user.click(screen.getAllByRole('button', { name: '新建理论备忘' })[0])
-    const createDialog = screen.getByRole('dialog', { name: '新建理论备忘' })
+    window.dispatchEvent(new CustomEvent<QuickAddEventDetail>(QUICK_ADD_EVENT, {
+      detail: { module: 'theory', action: 'theory-memo' },
+    }))
+    const createDialog = await screen.findByRole('dialog', { name: '新建理论备忘' })
     await user.click(within(createDialog).getByRole('button', { name: '取消' }))
     expect(screen.queryByRole('dialog', { name: '新建理论备忘' })).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: '机制分析' }))
-    expect(screen.getByRole('button', { name: '机制分析', current: 'page' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '机制备忘' }))
+    expect(screen.getByRole('button', { name: '机制备忘' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.queryByRole('dialog', { name: '新建理论备忘' })).not.toBeInTheDocument()
   })
 

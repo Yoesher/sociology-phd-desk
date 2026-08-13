@@ -12,6 +12,7 @@ import { useWorkspace } from '../../hooks/useWorkspace'
 import { useI18n, type MessageKey } from '../../i18n'
 import { entityMeta, todayIso, truncate } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
+import { useModuleSearch } from '../../hooks/useModuleSearch'
 import { matchesFieldworkInterviewView } from './fieldworkViews'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
@@ -21,6 +22,8 @@ import {
   ConfirmDialog,
   EmptyState,
   Field,
+  FilterChips,
+  DisclosureSection,
   Modal,
   PageHeader,
   PrivacyNotice,
@@ -32,13 +35,7 @@ import {
 type RegistryTab = 'sites' | 'interviews' | 'visits'
 type RecordKind = 'site' | 'interview' | 'visit'
 
-const FIELDWORK_VIEWS = ['overview', 'sites', 'visits', 'interviews', 'transcription', 'coding', 'memos', 'completed'] as const
-type FieldworkView = (typeof FIELDWORK_VIEWS)[number]
-
-function readFieldworkView(): FieldworkView {
-  const requested = new URLSearchParams(window.location.hash.split('?')[1] || '').get('view')
-  return FIELDWORK_VIEWS.includes(requested as FieldworkView) ? requested as FieldworkView : 'overview'
-}
+type FieldworkView = 'overview' | 'field' | 'interviews' | 'processing'
 
 const siteDraft = () => ({ nameOrAlias: '', projectId: '', status: 'Planned' as FieldSite['status'], notes: '' })
 const interviewDraft = () => ({
@@ -81,18 +78,11 @@ export function FieldworkPage() {
   const [interview, setInterview] = useState(interviewDraft)
   const [visit, setVisit] = useState(visitDraft)
   const [validationMessageKey, setValidationMessageKey] = useState<MessageKey | null>(null)
-  const [view, setView] = useState<FieldworkView>(readFieldworkView)
-
-  useEffect(() => {
-    const syncView = () => setView(readFieldworkView())
-    window.addEventListener('hashchange', syncView)
-    window.addEventListener('popstate', syncView)
-    return () => {
-      window.removeEventListener('hashchange', syncView)
-      window.removeEventListener('popstate', syncView)
-    }
-  }, [])
-  const effectiveTab: RegistryTab = view === 'sites' ? 'sites' : view === 'visits' ? 'visits' : view === 'overview' ? tab : 'interviews'
+  const { searchParams, updateSearch } = useModuleSearch('fieldwork')
+  const view = (searchParams.get('view') || 'overview') as FieldworkView
+  const fieldTab = searchParams.get('tab') || 'sites'
+  const processingStage = searchParams.get('stage') || 'transcription'
+  const effectiveTab: RegistryTab = view === 'field' ? fieldTab === 'visits' ? 'visits' : 'sites' : view === 'overview' ? tab : 'interviews'
 
   const query = search.trim().toLowerCase()
   const filteredSites = useMemo(
@@ -108,11 +98,11 @@ export function FieldworkPage() {
     () =>
       data?.interviews.filter(
         (item) =>
-          matchesFieldworkInterviewView(item, view) &&
+          (view !== 'processing' || matchesFieldworkInterviewView(item, processingStage as Parameters<typeof matchesFieldworkInterviewView>[1])) &&
           (!projectFilter || item.projectId === projectFilter) &&
           (!query || `${item.participantAlias} ${item.notes}`.toLowerCase().includes(query)),
       ) ?? [],
-    [data?.interviews, projectFilter, query, view],
+    [data?.interviews, processingStage, projectFilter, query, view],
   )
   const filteredVisits = useMemo(
     () =>
@@ -337,7 +327,17 @@ export function FieldworkPage() {
       </div>
 
       <section className="panel">
-        <div className="segmented-tabs" role="tablist" aria-label={t('fieldwork.tabs.aria')}>
+        {view === 'field' && <FilterChips ariaLabel={t('fieldwork.tabs.aria')} value={fieldTab} onChange={(tabValue) => updateSearch({ tab: tabValue })} options={[
+          { value: 'sites', label: t('fieldwork.tabs.sites') },
+          { value: 'visits', label: t('fieldwork.tabs.visits') },
+        ]} />}
+        {view === 'processing' && <FilterChips ariaLabel={t('fieldwork.processing.filter')} value={processingStage} onChange={(stage) => updateSearch({ stage })} options={[
+          { value: 'transcription', label: t('fieldwork.processing.transcription') },
+          { value: 'coding', label: t('fieldwork.processing.coding') },
+          { value: 'memos', label: t('fieldwork.processing.memos') },
+          { value: 'completed', label: t('fieldwork.processing.completed') },
+        ]} />}
+        {view === 'overview' && <div className="segmented-tabs" role="tablist" aria-label={t('fieldwork.tabs.aria')}>
           <button type="button" role="tab" aria-selected={effectiveTab === 'sites'} className={effectiveTab === 'sites' ? 'active' : ''} onClick={() => setTab('sites')}>
             <MapPinned size={15} /> {t('fieldwork.tabs.sites')} <span>{formatNumber(data.fieldSites.length)}</span>
           </button>
@@ -347,7 +347,7 @@ export function FieldworkPage() {
           <button type="button" role="tab" aria-selected={effectiveTab === 'visits'} className={effectiveTab === 'visits' ? 'active' : ''} onClick={() => setTab('visits')}>
             <NotebookTabs size={15} /> {t('fieldwork.tabs.visits')} <span>{formatNumber(data.fieldVisits.length)}</span>
           </button>
-        </div>
+        </div>}
         <div className="toolbar toolbar--under-tabs">
           <SearchField value={search} onChange={setSearch} placeholder={t(effectiveTab === 'sites' ? 'fieldwork.search.sites' : effectiveTab === 'interviews' ? 'fieldwork.search.interviews' : 'fieldwork.search.visits')} />
           <ProjectSelect projects={data.projects} value={projectFilter} onChange={setProjectFilter} includeAll />
@@ -465,10 +465,12 @@ export function FieldworkPage() {
           <Field label={t('fieldwork.interviewForm.site')}><select value={interview.fieldSiteId} onChange={(event) => setInterview({ ...interview, fieldSiteId: event.target.value })}><option value="">{t('fieldwork.interviewForm.noSite')}</option>{data.fieldSites.filter((item) => item.projectId === interview.projectId).map((item) => <option key={item.id} value={item.id}>{item.nameOrAlias}</option>)}</select></Field>
           <Field label={t('fieldwork.interviewForm.date')}><input type="date" value={interview.interviewDate} onChange={(event) => setInterview({ ...interview, interviewDate: event.target.value })} /></Field>
           <Field label={t('fieldwork.interviewForm.status')}><select value={interview.status} onChange={(event) => setInterview({ ...interview, status: event.target.value as Interview['status'] })}>{INTERVIEW_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
-          <Field label={t('fieldwork.interviewForm.transcript')}><select value={interview.transcriptStatus} onChange={(event) => setInterview({ ...interview, transcriptStatus: event.target.value as Interview['transcriptStatus'] })}>{WORK_PRODUCT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
-          <Field label={t('fieldwork.interviewForm.coding')}><select value={interview.codingStatus} onChange={(event) => setInterview({ ...interview, codingStatus: event.target.value as Interview['codingStatus'] })}>{WORK_PRODUCT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
-          <Field label={t('fieldwork.interviewForm.memo')}><select value={interview.memoStatus} onChange={(event) => setInterview({ ...interview, memoStatus: event.target.value as Interview['memoStatus'] })}>{WORK_PRODUCT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
           <Field label={t('fieldwork.interviewForm.notes')} className="form-span-2"><textarea rows={4} value={interview.notes} onChange={(event) => setInterview({ ...interview, notes: event.target.value })} /></Field>
+          <DisclosureSection summary={t('fieldwork.processing.filter')} defaultOpen={Boolean(editingId)}>
+            <Field label={t('fieldwork.interviewForm.transcript')}><select value={interview.transcriptStatus} onChange={(event) => setInterview({ ...interview, transcriptStatus: event.target.value as Interview['transcriptStatus'] })}>{WORK_PRODUCT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
+            <Field label={t('fieldwork.interviewForm.coding')}><select value={interview.codingStatus} onChange={(event) => setInterview({ ...interview, codingStatus: event.target.value as Interview['codingStatus'] })}>{WORK_PRODUCT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
+            <Field label={t('fieldwork.interviewForm.memo')}><select value={interview.memoStatus} onChange={(event) => setInterview({ ...interview, memoStatus: event.target.value as Interview['memoStatus'] })}>{WORK_PRODUCT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
+          </DisclosureSection>
         </form>
       </Modal>
 

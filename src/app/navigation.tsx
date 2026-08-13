@@ -23,13 +23,7 @@ export type PrimaryModuleId =
   | 'research-log'
   | 'publishing'
 
-export type NavigationBadgeId =
-  | 'overdue'
-  | 'to-read'
-  | 'transcription'
-  | 'coding'
-  | 'failed'
-  | 'revision'
+export type NavigationBadgeId = 'overdue' | 'processing' | 'failed' | 'revision'
 
 export interface SecondaryNavigationItem {
   id: string
@@ -58,10 +52,8 @@ export const navigationItems: readonly NavigationItem[] = [
     id: 'today', path: '/', labelKey: 'nav.today', shortLabelKey: 'nav.today.short', index: '01', icon: CalendarCheck2,
     views: [
       { id: 'overview', labelKey: 'nav.today.overview' },
-      { id: 'tasks', labelKey: 'nav.today.tasks' },
-      { id: 'overdue', labelKey: 'nav.today.overdue', badgeId: 'overdue' },
+      { id: 'tasks', labelKey: 'nav.today.tasks', badgeId: 'overdue' },
       { id: 'week', labelKey: 'nav.today.week' },
-      { id: 'completed', labelKey: 'nav.today.completed' },
     ],
     quickAdd: [{ action: 'task', labelKey: 'quickAdd.task' }],
   },
@@ -69,11 +61,7 @@ export const navigationItems: readonly NavigationItem[] = [
     id: 'projects', path: '/projects', labelKey: 'nav.projects', shortLabelKey: 'nav.projects.short', index: '02', icon: BriefcaseBusiness,
     views: [
       { id: 'all', labelKey: 'nav.projects.all' },
-      { id: 'design', labelKey: 'nav.projects.design' },
-      { id: 'data', labelKey: 'nav.projects.data' },
-      { id: 'analysis', labelKey: 'nav.projects.analysis' },
-      { id: 'writing', labelKey: 'nav.projects.writing' },
-      { id: 'submission', labelKey: 'nav.projects.submission' },
+      { id: 'active', labelKey: 'nav.projects.active' },
       { id: 'theoretical', labelKey: 'nav.projects.theoretical' },
       { id: 'completed', labelKey: 'nav.projects.completed' },
     ],
@@ -82,13 +70,10 @@ export const navigationItems: readonly NavigationItem[] = [
   {
     id: 'literature', path: '/literature', labelKey: 'nav.literature', shortLabelKey: 'nav.literature.short', index: '03', icon: BookOpenText,
     views: [
-      { id: 'all', labelKey: 'nav.literature.all' },
       { id: 'inbox', labelKey: 'nav.literature.inbox' },
-      { id: 'to-read', labelKey: 'nav.literature.toRead', badgeId: 'to-read' },
       { id: 'reading', labelKey: 'nav.literature.reading' },
-      { id: 'read', labelKey: 'nav.literature.read' },
       { id: 'cited', labelKey: 'nav.literature.cited' },
-      { id: 'archived', labelKey: 'nav.literature.archived' },
+      { id: 'all', labelKey: 'nav.literature.all' },
     ],
     quickAdd: [{ action: 'literature', labelKey: 'quickAdd.literature' }],
   },
@@ -97,10 +82,6 @@ export const navigationItems: readonly NavigationItem[] = [
     views: [
       { id: 'overview', labelKey: 'nav.theory.overview' },
       { id: 'questions', labelKey: 'nav.theory.questions' },
-      { id: 'concepts', labelKey: 'nav.theory.concepts' },
-      { id: 'mechanisms', labelKey: 'nav.theory.mechanisms' },
-      { id: 'dialogue', labelKey: 'nav.theory.dialogue' },
-      { id: 'counterarguments', labelKey: 'nav.theory.counterarguments' },
       { id: 'memos', labelKey: 'nav.theory.memos' },
       { id: 'manuscripts', labelKey: 'nav.theory.manuscripts' },
     ],
@@ -110,13 +91,9 @@ export const navigationItems: readonly NavigationItem[] = [
     id: 'fieldwork', path: '/fieldwork', labelKey: 'nav.fieldwork', shortLabelKey: 'nav.fieldwork.short', index: '05', icon: ClipboardList,
     views: [
       { id: 'overview', labelKey: 'nav.fieldwork.overview' },
-      { id: 'sites', labelKey: 'nav.fieldwork.sites' },
-      { id: 'visits', labelKey: 'nav.fieldwork.visits' },
+      { id: 'field', labelKey: 'nav.fieldwork.field' },
       { id: 'interviews', labelKey: 'nav.fieldwork.interviews' },
-      { id: 'transcription', labelKey: 'nav.fieldwork.transcription', badgeId: 'transcription' },
-      { id: 'coding', labelKey: 'nav.fieldwork.coding', badgeId: 'coding' },
-      { id: 'memos', labelKey: 'nav.fieldwork.memos' },
-      { id: 'completed', labelKey: 'nav.fieldwork.completed' },
+      { id: 'processing', labelKey: 'nav.fieldwork.processing', badgeId: 'processing' },
     ],
     quickAdd: [
       { action: 'interview', labelKey: 'quickAdd.interview' },
@@ -128,11 +105,7 @@ export const navigationItems: readonly NavigationItem[] = [
     views: [
       { id: 'overview', labelKey: 'nav.quantitative.overview' },
       { id: 'datasets', labelKey: 'nav.quantitative.datasets' },
-      { id: 'planned', labelKey: 'nav.quantitative.planned' },
-      { id: 'running', labelKey: 'nav.quantitative.running' },
-      { id: 'completed', labelKey: 'nav.quantitative.completed' },
-      { id: 'failed', labelKey: 'nav.quantitative.failed', badgeId: 'failed' },
-      { id: 'superseded', labelKey: 'nav.quantitative.superseded' },
+      { id: 'runs', labelKey: 'nav.quantitative.runs', badgeId: 'failed' },
     ],
     quickAdd: [{ action: 'analysis-run', labelKey: 'quickAdd.analysisRun' }],
   },
@@ -140,12 +113,8 @@ export const navigationItems: readonly NavigationItem[] = [
     id: 'evidence', path: '/evidence', labelKey: 'nav.evidence', shortLabelKey: 'nav.evidence.short', index: '07', icon: FlaskConical,
     views: [
       { id: 'all', labelKey: 'nav.evidence.all' },
-      { id: 'literature', labelKey: 'nav.evidence.literature' },
-      { id: 'quantitative', labelKey: 'nav.evidence.quantitative' },
-      { id: 'fieldwork', labelKey: 'nav.evidence.fieldwork' },
-      { id: 'documents', labelKey: 'nav.evidence.documents' },
+      { id: 'by-type', labelKey: 'nav.evidence.byType' },
       { id: 'contradictory', labelKey: 'nav.evidence.contradictory' },
-      { id: 'by-project', labelKey: 'nav.evidence.byProject' },
     ],
     quickAdd: [{ action: 'evidence', labelKey: 'quickAdd.evidence' }],
   },
@@ -153,28 +122,18 @@ export const navigationItems: readonly NavigationItem[] = [
     id: 'research-log', path: '/research-log', labelKey: 'nav.researchLog', shortLabelKey: 'nav.researchLog.short', index: '08', icon: ScrollText,
     views: [
       { id: 'timeline', labelKey: 'nav.researchLog.timeline' },
-      { id: 'today', labelKey: 'nav.researchLog.today' },
-      { id: 'week', labelKey: 'nav.researchLog.week' },
       { id: 'decisions', labelKey: 'nav.researchLog.decisions' },
-      { id: 'problems', labelKey: 'nav.researchLog.problems' },
       { id: 'next-steps', labelKey: 'nav.researchLog.nextSteps' },
-      { id: 'by-project', labelKey: 'nav.researchLog.byProject' },
     ],
     quickAdd: [{ action: 'research-log', labelKey: 'quickAdd.researchLog' }],
   },
   {
     id: 'publishing', path: '/publishing', labelKey: 'nav.publishing', shortLabelKey: 'nav.publishing.short', index: '09', icon: Send,
     views: [
-      { id: 'all', labelKey: 'nav.publishing.all' },
-      { id: 'draft', labelKey: 'nav.publishing.drafts' },
-      { id: 'ready', labelKey: 'nav.publishing.ready' },
-      { id: 'submitted', labelKey: 'nav.publishing.submitted' },
-      { id: 'review', labelKey: 'nav.publishing.underReview' },
+      { id: 'writing', labelKey: 'nav.publishing.writing' },
+      { id: 'submission', labelKey: 'nav.publishing.submission' },
       { id: 'revision', labelKey: 'nav.publishing.revision', badgeId: 'revision' },
-      { id: 'rejected', labelKey: 'nav.publishing.rejected' },
-      { id: 'accepted', labelKey: 'nav.publishing.accepted' },
-      { id: 'published', labelKey: 'nav.publishing.published' },
-      { id: 'withdrawn', labelKey: 'nav.publishing.withdrawn' },
+      { id: 'history', labelKey: 'nav.publishing.history' },
     ],
     quickAdd: [
       { action: 'manuscript', labelKey: 'quickAdd.manuscript' },
@@ -183,12 +142,102 @@ export const navigationItems: readonly NavigationItem[] = [
   },
 ] as const
 
+interface LegacyViewAlias {
+  view: string
+  filters?: Readonly<Record<string, string>>
+}
+
+/**
+ * v0.2.1 bookmarks remain meaningful after the sidebar is simplified. The
+ * mapping changes presentation only: raw domain statuses and workspace data
+ * are never rewritten.
+ */
+export const legacyViewAliases: Readonly<Record<PrimaryModuleId, Readonly<Record<string, LegacyViewAlias>>>> = {
+  today: {
+    overdue: { view: 'tasks', filters: { filter: 'overdue' } },
+    completed: { view: 'tasks', filters: { filter: 'completed' } },
+  },
+  projects: {
+    design: { view: 'active', filters: { status: 'Design' } },
+    data: { view: 'active', filters: { status: 'Data / Fieldwork' } },
+    analysis: { view: 'active', filters: { status: 'Analysis' } },
+    writing: { view: 'active', filters: { status: 'Writing' } },
+    submission: { view: 'active', filters: { status: 'Submission,Revision' } },
+  },
+  literature: {
+    'to-read': { view: 'reading', filters: { status: 'To Read' } },
+    read: { view: 'reading', filters: { status: 'Read' } },
+    archived: { view: 'all', filters: { status: 'Archived' } },
+  },
+  theory: {
+    concepts: { view: 'memos', filters: { type: 'concept' } },
+    mechanisms: { view: 'memos', filters: { type: 'mechanism' } },
+    dialogue: { view: 'memos', filters: { type: 'dialogue' } },
+    counterarguments: { view: 'memos', filters: { type: 'counterargument,boundary' } },
+  },
+  fieldwork: {
+    sites: { view: 'field', filters: { tab: 'sites' } },
+    visits: { view: 'field', filters: { tab: 'visits' } },
+    transcription: { view: 'processing', filters: { stage: 'transcription' } },
+    coding: { view: 'processing', filters: { stage: 'coding' } },
+    memos: { view: 'processing', filters: { stage: 'memos' } },
+    completed: { view: 'processing', filters: { stage: 'completed' } },
+  },
+  quantitative: {
+    planned: { view: 'runs', filters: { status: 'Planned' } },
+    running: { view: 'runs', filters: { status: 'Running' } },
+    completed: { view: 'runs', filters: { status: 'Completed' } },
+    failed: { view: 'runs', filters: { status: 'Failed' } },
+    superseded: { view: 'runs', filters: { status: 'Superseded' } },
+  },
+  evidence: {
+    literature: { view: 'by-type', filters: { type: 'Literature' } },
+    quantitative: { view: 'by-type', filters: { type: 'Quantitative Result' } },
+    fieldwork: { view: 'by-type', filters: { type: 'Interview,Fieldnote' } },
+    documents: { view: 'by-type', filters: { type: 'Policy / Document' } },
+    'by-project': { view: 'all', filters: { scope: 'project' } },
+  },
+  'research-log': {
+    today: { view: 'timeline', filters: { period: 'today' } },
+    week: { view: 'timeline', filters: { period: 'week' } },
+    problems: { view: 'timeline', filters: { issues: 'true' } },
+    'by-project': { view: 'timeline', filters: { scope: 'project' } },
+  },
+  publishing: {
+    all: { view: 'history', filters: { scope: 'all' } },
+    draft: { view: 'writing', filters: { status: 'Idea,Outline,Drafting,Internal Review' } },
+    ready: { view: 'writing', filters: { status: 'Ready to Submit' } },
+    submitted: { view: 'submission', filters: { status: 'Submitted' } },
+    review: { view: 'submission', filters: { status: 'Under Review' } },
+    rejected: { view: 'history', filters: { status: 'Rejected,Reworking' } },
+    accepted: { view: 'history', filters: { status: 'Accepted' } },
+    published: { view: 'history', filters: { status: 'Published' } },
+    withdrawn: { view: 'history', filters: { status: 'Withdrawn' } },
+  },
+}
+
 export function getNavigationItem(pathname: string) {
   return navigationItems.find((item) => item.path === pathname) ?? navigationItems[0]
 }
 
+export function normalizeModuleSearch(moduleId: PrimaryModuleId, search: string | URLSearchParams) {
+  const normalized = new URLSearchParams(search)
+  const item = navigationItems.find((candidate) => candidate.id === moduleId) ?? navigationItems[0]
+  const requested = normalized.get('view')
+  const alias = requested ? legacyViewAliases[moduleId][requested] : undefined
+
+  if (alias) {
+    normalized.set('view', alias.view)
+    Object.entries(alias.filters ?? {}).forEach(([key, value]) => normalized.set(key, value))
+  } else if (!requested || !item.views.some((view) => view.id === requested)) {
+    normalized.set('view', item.views[0].id)
+  }
+
+  return normalized
+}
+
 export function getActiveView(item: NavigationItem, search: string) {
-  const requested = new URLSearchParams(search).get('view')
+  const requested = normalizeModuleSearch(item.id, search).get('view')
   return item.views.find((view) => view.id === requested) ?? item.views[0]
 }
 

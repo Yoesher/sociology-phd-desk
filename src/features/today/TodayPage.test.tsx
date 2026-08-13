@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
 import { WorkspaceContext, type WorkspaceContextValue } from '../../app/workspace-context'
 import { todayIso } from '../../app/format'
 import { I18nProvider } from '../../i18n'
@@ -10,7 +11,7 @@ import { createEmptyWorkspace } from '../../models/empty-workspace'
 import type { WorkspaceData } from '../../models/domain'
 import { TodayPage } from './TodayPage'
 
-function renderToday(initialOverride?: WorkspaceData) {
+function renderToday(initialOverride?: WorkspaceData, route = '/?view=overview') {
   const demo = createDemoWorkspace(new Date())
   const initialData: WorkspaceData = initialOverride ?? {
     ...demo,
@@ -38,7 +39,7 @@ function renderToday(initialOverride?: WorkspaceData) {
     return <WorkspaceContext.Provider value={context}>{children}</WorkspaceContext.Provider>
   }
 
-  return render(<I18nProvider><Harness><TodayPage /></Harness></I18nProvider>)
+  return render(<I18nProvider><Harness><MemoryRouter initialEntries={[route]}><TodayPage /></MemoryRouter></Harness></I18nProvider>)
 }
 
 describe('TodayPage theory work mode', () => {
@@ -85,8 +86,7 @@ describe('TodayPage theory work mode', () => {
         { ...demo.tasks[0], id: 'future-task', title: futureTitle, dueDate: '2099-01-01', status: 'To Do' },
       ],
     }
-    window.location.hash = '/?view=overdue'
-    renderToday(initial)
+    renderToday(initial, '/?view=overdue')
 
     expect(screen.getByText(overdueTitle)).toBeInTheDocument()
     expect(screen.queryByText(futureTitle)).not.toBeInTheDocument()

@@ -22,6 +22,15 @@
   box-shadow: var(--shadow-lg);
 }
 
+.workspace-access-card,
+.workspace-center {
+  animation: motion-dialog-in var(--motion-base) var(--ease-standard) both;
+}
+
+.workspace-access-transition {
+  animation: motion-fade-in var(--motion-fast) var(--ease-standard) both;
+}
+
 .workspace-access-card--status {
   text-align: center;
 }
