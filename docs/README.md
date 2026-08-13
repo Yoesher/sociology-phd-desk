@@ -11,6 +11,8 @@ Current status boundary: [`v0.2.1`](https://github.com/Yoesher/sociology-phd-des
 - [Data portability](data-portability.md)
 - [Origin strategy and browser-storage migration](architecture/origin-strategy.md)
 - Getting started: [简体中文](zh-CN/getting-started.md) / [English](en/getting-started.md)
+- Zotero integration: [简体中文](zh-CN/zotero-integration.md) / [English](en/zotero-integration.md)
+- Zotero integration: [简体中文](zh-CN/zotero-integration.md) / [English](en/zotero-integration.md)
 - Privacy and encryption model: [简体中文](zh-CN/privacy-model.md) / [English](en/privacy-model.md)
 - China Research Map source and compliance gate: [简体中文](zh-CN/map-data-sources.md) / [English](en/map-data-sources.md)
 - Durable architecture decisions: [`../DECISIONS.md`](../DECISIONS.md)

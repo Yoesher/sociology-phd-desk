@@ -40,6 +40,12 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Test Zotero plugin
+        run: npm run test:zotero
+
+      - name: Build reproducible Zotero plugin
+        run: npm run build:zotero
+
       - name: Build
         run: npm run build
         env:
