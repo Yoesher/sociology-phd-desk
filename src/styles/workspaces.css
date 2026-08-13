@@ -619,6 +619,8 @@
 .distribution-grid h3 { font-size: 0.76rem; font-weight: 740; }
 .distribution-grid p { color: var(--muted); font-size: 0.65rem; line-height: 1.52; }
 .distribution-grid .button { justify-self: start; }
+.distribution-steps { display: grid; gap: 5px; margin: 2px 0 0; padding-left: 18px; color: var(--muted); font-size: 0.64rem; line-height: 1.45; }
+.distribution-install-help { display: grid; gap: 6px; padding-top: 4px; border-top: 1px solid var(--line); }
 
 .distribution-notice {
   margin-bottom: 14px;
@@ -632,7 +634,7 @@
 
 .build-info {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 1px;
   margin-top: 14px;
   overflow: hidden;
@@ -646,7 +648,8 @@
 .build-info dd { margin-top: 4px; overflow-wrap: anywhere; font-family: var(--font-mono); font-size: 0.64rem; }
 
 .update-banner,
-.backup-reminder-banner {
+.backup-reminder-banner,
+.peer-update-banner {
   position: fixed;
   right: 18px;
   bottom: 18px;
@@ -663,6 +666,10 @@
   box-shadow: var(--shadow-lg);
 }
 
+.peer-update-banner { bottom: 94px; border-color: var(--warning); }
+.network-status { position: fixed; top: max(10px, env(safe-area-inset-top)); left: 50%; z-index: 1200; display: flex; align-items: center; gap: 6px; padding: 7px 11px; color: var(--warning-ink); background: var(--warning-soft); border: 1px solid color-mix(in srgb, var(--warning) 35%, transparent); border-radius: 999px; box-shadow: var(--shadow-sm); font-size: 0.65rem; font-weight: 700; transform: translateX(-50%); }
+.network-status--online { color: var(--success); background: var(--success-soft); border-color: color-mix(in srgb, var(--success) 30%, transparent); }
+
 .backup-reminder-banner {
   border-color: color-mix(in srgb, var(--warning) 42%, var(--border));
 }
@@ -671,6 +678,7 @@
 .update-banner strong { font-family: var(--font-serif); font-size: 0.9rem; }
 .update-banner span { color: var(--muted); font-size: 0.65rem; line-height: 1.45; }
 .update-banner > [role='alert'] { grid-column: 1 / -1; color: var(--danger); }
+.update-banner > .button--ghost { grid-column: 2; }
 
 .release-notes { display: grid; gap: 10px; padding-left: 20px; color: var(--muted); font-size: 0.72rem; line-height: 1.55; }
 

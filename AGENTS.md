@@ -36,6 +36,10 @@ These rules apply to every Codex agent or automated contributor working in this 
 14. The China Research Map is a deferred candidate, not part of `v0.2.0`; it may become a first-class module only after its source, redistribution, transformation, approval, and completeness gates pass.
 15. Geographic research management stops at county level by default and does not descend to township, subdistrict, or village levels.
 16. Never upload map notes, fieldwork material, or other user data to GitHub Pages or a map service.
+17. Distribute Sociology PhD Desk web-first: the canonical product is a Web application with optional PWA installation, not a platform-specific installer.
+18. Browser use is permanently first-class. Installation must never be required to access the complete research workflow.
+19. No-account operation remains a product feature; distribution work must not add registration, login, a cloud workspace, analytics, or default synchronization.
+20. Cross-device transfer is backup-based. Encrypted `.sociologydesk` backup and restore is the supported private-workspace path unless a future, separately accepted end-to-end synchronization design exists.
 
 ## Operating constraints
 

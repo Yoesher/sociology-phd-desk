@@ -195,11 +195,11 @@ The “formal release remains pending” text in the append-only status lines fo
 
 Sociology PhD Desk becomes an installable PWA without adding accounts, cloud storage, analytics, or synchronization. Its service worker precaches only versioned application static assets. It defines no research-data upload, proxy, or runtime-cache route. Browser use remains first class.
 
-Updates use the service-worker waiting lifecycle. Startup and throttled focus checks may discover a version, but activation and reload require explicit user action. Before sending `SKIP_WAITING`, the active session flushes pending writes and re-reads the latest committed workspace while verifying route and session identity. Locked workspaces have no mounted research runtime and may update without unlocking. Supported data migrations run after reload through the existing versioned repository paths.
+Updates use the service-worker waiting lifecycle. Startup and throttled focus checks may discover a version, but activation and reload require explicit user action. Before sending `SKIP_WAITING`, the waiting worker enumerates every window client in its scope and notifies peers; if any other app tab is open, activation fails closed and asks the user to close it. The active session then flushes pending writes and re-reads the latest committed workspace while verifying route and session identity. Locked workspaces have no mounted research runtime and may update without unlocking. Supported data migrations run after reload through the existing versioned repository paths.
 
 The release retains `https://yoesher.github.io/sociology-phd-desk/` (origin option C) with an explicit shared-origin warning. Dedicated custom-domain and dedicated Pages-origin options remain documented alternatives, not enabled configuration. A later origin change cannot read the old origin's IndexedDB automatically; the old site must retain a migration notice and users transfer workspaces with encrypted backups.
 
-Persistent storage is requested only after user action, because browser approval is discretionary. Backup reminders use local registry export timestamps plus a local 7/14/30-day setting and never inspect or upload research content.
+Persistent storage is requested only after user action, because browser approval is discretionary. Backup reminders apply only to personal workspaces, use local registry export timestamps plus a local Off/7/14/30-day setting (default 14), and never inspect or upload research content.
 
 ### Consequences
 
@@ -207,3 +207,4 @@ Persistent storage is requested only after user action, because browser approval
 - A PWA installation, persistence grant, or service worker is not a backup and does not guarantee retention.
 - Static cache scope and names are project-specific, but shared-origin script trust remains wider than the repository path.
 - Any future canonical-origin change requires a separate accepted migration design before PWA deployment on that origin.
+- Web use remains the primary distribution path; PWA installation is optional, no account or default synchronization is introduced, and device transfer remains encrypted-backup based.

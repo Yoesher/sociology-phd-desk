@@ -23,6 +23,8 @@ for (const icon of ['icons/app-192.png', 'icons/app-512.png']) {
 const serviceWorker = await readFile(resolve(dist, 'sw.js'), 'utf8')
 assert(serviceWorker.includes('sociology-phd-desk'), 'service worker cache namespace is missing')
 assert(serviceWorker.includes('SKIP_WAITING'), 'prompted update activation message is missing')
+assert(serviceWorker.includes('PREPARE_UPDATE'), 'multi-tab update guard message is missing')
+assert(serviceWorker.includes('UPDATE_REQUESTED'), 'peer-tab update notice is missing')
 assert(serviceWorker.includes('manifest.webmanifest'), 'static precache manifest was not injected')
 
 const source = await readFile(resolve(root, 'src', 'sw.ts'), 'utf8')

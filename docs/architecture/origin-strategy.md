@@ -1,4 +1,4 @@
-# Canonical origin and browser-storage migration
+# Origin strategy and browser-storage migration
 
 ## Current v0.2.1 decision
 

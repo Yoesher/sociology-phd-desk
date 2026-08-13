@@ -2029,6 +2029,9 @@
   background: var(--surface-raised);
 }
 
+.onboarding-privacy { font-weight: 650; }
+.onboarding-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+
 @media (max-width: 820px) {
   .onboarding-steps {
     grid-template-columns: 1fr 1fr;

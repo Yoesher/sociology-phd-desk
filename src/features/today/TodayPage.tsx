@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useContext, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { ScrollText } from 'lucide-react'
 import {
   PRIORITIES,
@@ -8,6 +8,7 @@ import {
   type WorkspaceData,
 } from '../../models/domain'
 import { useWorkspace } from '../../hooks/useWorkspace'
+import { WorkspaceSessionContext } from '../../app/workspace-session-context'
 import { entityMeta, isOverdue, todayIso } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import { useI18n } from '../../i18n'
@@ -93,6 +94,7 @@ function isTrulyEmptyPersonalWorkspace(data: WorkspaceData): boolean {
 
 export function TodayPage() {
   const { data, updateData, setActiveProject } = useWorkspace()
+  const workspaceSession = useContext(WorkspaceSessionContext)
   const { locale, t, formatNumber, labelEnum } = useI18n()
   const [taskOpen, setTaskOpen] = useState(false)
   const [logOpen, setLogOpen] = useState(false)
@@ -248,6 +250,25 @@ export function TodayPage() {
             <li>{t('today.onboarding.stepTask')}</li>
             <li>{t('today.onboarding.stepBackup')}</li>
           </ol>
+          <p className="onboarding-privacy">{t('today.onboarding.localOnly')}</p>
+          {workspaceSession && <div className="onboarding-actions">
+            <Button variant="primary" onClick={() => workspaceSession.openWorkspaceCenter('workspaces')}>
+              {t('today.onboarding.createWorkspace')}
+            </Button>
+            <Button onClick={() => workspaceSession.openWorkspaceCenter('backup')}>
+              {t('today.onboarding.restoreBackup')}
+            </Button>
+            <Button
+              variant="ghost"
+              disabled={!workspaceSession.workspaces.some((workspace) => workspace.kind === 'demo')}
+              onClick={() => {
+                const demo = workspaceSession.workspaces.find((workspace) => workspace.kind === 'demo')
+                if (demo) void workspaceSession.selectWorkspace(demo.id)
+              }}
+            >
+              {t('today.onboarding.viewDemo')}
+            </Button>
+          </div>}
         </section>
       )}
 

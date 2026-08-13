@@ -11,7 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Installable PWA manifest and bilingual application metadata with project-scoped app icons.
 - Static-asset-only service worker precaching for offline application startup; no research-data request, upload, proxy, or runtime cache route.
 - User-controlled update detection at startup and after a throttled window focus check. Waiting updates never force a refresh and activate only after pending workspace writes are flushed and the latest committed standard or encrypted snapshot is verified.
-- Application & storage controls showing app/build/schema versions, browser persistence state and request action, install availability, manual update checks, and 7/14/30-day local backup reminders based on successful export metadata.
+- Application & storage controls showing app/build-date/schema versions, browser persistence/estimate state and request action, install availability, manual update checks, and Off/7/14/30-day personal-workspace backup reminders (default 14 days; Demo excluded) based on generated-export metadata.
 - A browser-local backup-due banner that can open backup tools or be snoozed per workspace for one week without changing research data.
 - A dismissible, once-per-version bilingual update summary and bilingual getting-started guides for browser use, installation, encrypted-backup recovery, updates, and browser-data deletion risks.
 
@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Privacy
 
 - Retained the current GitHub Pages origin for v0.2.1 with an explicit shared-origin risk statement. A future custom or dedicated origin cannot automatically read IndexedDB from `yoesher.github.io`; migration must keep an old-site notice and use a user-controlled encrypted backup transfer.
+- Coordinated updates through the waiting service worker: other scoped app windows receive a metadata-only notice and activation fails closed until they are closed. No passphrase, key, or research content is broadcast.
 
 ## [0.2.0] - 2026-08-12
 

@@ -5,6 +5,10 @@
 @import './styles/pages.css';
 @import './styles/workspaces.css';
 
+.boot-fallback { width: min(640px, calc(100% - 32px)); margin: 12vh auto; padding: 28px; color: #20313b; background: #f8f5ee; border: 1px solid #c9c3b8; border-radius: 16px; font-family: system-ui, sans-serif; line-height: 1.6; }
+.boot-fallback h1 { font-family: Georgia, serif; font-size: clamp(1.4rem, 5vw, 2rem); }
+.boot-fallback p { margin-top: 12px; }
+
 @layer legacy {
 :root {
   --text: #6b6375;

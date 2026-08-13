@@ -972,7 +972,9 @@ export function WorkspaceCenter({
                 </div>
               </section>
             )}
-            {section === 'distribution' && <DistributionCenter activeWorkspace={activeWorkspace} />}
+            {section === 'distribution' && (
+              <DistributionCenter activeWorkspace={activeWorkspace} onOpenBackup={() => setSection('backup')} />
+            )}
           </div>
         </div>
       </Modal>

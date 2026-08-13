@@ -39,4 +39,13 @@ describe('backup reminder metadata', () => {
     expect(backupReminderIsDue(workspace, 7, now + 6 * 86_400_000)).toBe(false)
     expect(backupReminderIsDue(workspace, 7, now + 8 * 86_400_000)).toBe(true)
   })
+
+  it('defaults to 14 days, can be disabled, and always excludes Demo workspaces', () => {
+    const now = Date.parse('2026-08-12T00:00:00.000Z')
+    expect(readBackupReminderDays()).toBe(14)
+    writeBackupReminderDays('off')
+    expect(readBackupReminderDays()).toBe('off')
+    expect(backupReminderIsDue(workspace, 'off', now)).toBe(false)
+    expect(backupReminderIsDue({ ...workspace, kind: 'demo' }, 7, now)).toBe(false)
+  })
 })

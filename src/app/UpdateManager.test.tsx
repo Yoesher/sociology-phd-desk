@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { I18nProvider } from '../i18n'
 import { APP_SETTINGS_STORAGE_KEY } from '../i18n/settings'
 import { useUpdateManager } from '../hooks/useUpdateManager'
-import { activateWaitingWorker } from './serviceWorkerUpdate'
+import { activateWaitingWorker, OtherApplicationTabsOpenError } from './serviceWorkerUpdate'
 import { UpdateManagerProvider } from './UpdateManager'
 
 vi.mock('../hooks/useWorkspaceSession', () => ({
@@ -22,7 +22,10 @@ function InstallProbe() {
     : <span>No install prompt</span>
 }
 
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  Reflect.deleteProperty(navigator, 'serviceWorker')
+})
 
 describe('activateWaitingWorker', () => {
   it('activates only after workspace preparation succeeds', async () => {
@@ -30,12 +33,35 @@ describe('activateWaitingWorker', () => {
     const prepare = vi.fn().mockResolvedValue(undefined)
     const onPrepared = vi.fn()
 
-    await activateWaitingWorker({ postMessage }, prepare, onPrepared)
+    const inspect = vi.fn().mockResolvedValue(0)
+    await activateWaitingWorker({ postMessage }, prepare, onPrepared, inspect)
 
     expect(prepare).toHaveBeenCalledOnce()
+    expect(inspect).toHaveBeenCalledTimes(2)
     expect(postMessage).toHaveBeenCalledWith({ type: 'SKIP_WAITING' })
     expect(prepare.mock.invocationCallOrder[0]).toBeLessThan(postMessage.mock.invocationCallOrder[0])
     expect(onPrepared.mock.invocationCallOrder[0]).toBeLessThan(postMessage.mock.invocationCallOrder[0])
+  })
+
+  it('rechecks other tabs after the workspace flush and before activation', async () => {
+    const postMessage = vi.fn()
+    const prepare = vi.fn().mockResolvedValue(undefined)
+    const inspect = vi.fn().mockResolvedValueOnce(0).mockResolvedValueOnce(1)
+    await expect(activateWaitingWorker(
+      { postMessage }, prepare, vi.fn(), inspect,
+    )).rejects.toBeInstanceOf(OtherApplicationTabsOpenError)
+    expect(prepare).toHaveBeenCalledOnce()
+    expect(postMessage).not.toHaveBeenCalledWith({ type: 'SKIP_WAITING' })
+  })
+
+  it('refuses activation when another application tab is open', async () => {
+    const postMessage = vi.fn()
+    const prepare = vi.fn()
+    await expect(activateWaitingWorker(
+      { postMessage }, prepare, vi.fn(), async () => 1,
+    )).rejects.toBeInstanceOf(OtherApplicationTabsOpenError)
+    expect(prepare).not.toHaveBeenCalled()
+    expect(postMessage).not.toHaveBeenCalledWith({ type: 'SKIP_WAITING' })
   })
 
   it('does not activate when a standard or encrypted workspace cannot be verified', async () => {
@@ -43,7 +69,9 @@ describe('activateWaitingWorker', () => {
     const prepare = vi.fn().mockRejectedValue(new Error('pending write failed'))
     const onPrepared = vi.fn()
 
-    await expect(activateWaitingWorker({ postMessage }, prepare, onPrepared)).rejects.toThrow('pending write failed')
+    await expect(activateWaitingWorker(
+      { postMessage }, prepare, onPrepared, vi.fn().mockResolvedValue(0),
+    )).rejects.toThrow('pending write failed')
     expect(onPrepared).not.toHaveBeenCalled()
     expect(postMessage).not.toHaveBeenCalled()
   })
@@ -71,5 +99,57 @@ describe('activateWaitingWorker', () => {
     await userEvent.setup().click(action)
     await waitFor(() => expect(prompt).toHaveBeenCalledOnce())
     expect(screen.getByText('No install prompt')).toBeInTheDocument()
+  })
+
+  it('lets the user postpone a waiting update without activating or reloading it', async () => {
+    window.localStorage.clear()
+    window.localStorage.setItem(APP_SETTINGS_STORAGE_KEY, JSON.stringify({ language: 'en' }))
+    window.localStorage.setItem('sociology-phd-desk:release-notes:0.2.1', 'seen')
+    const worker = { postMessage: vi.fn() }
+    const registration = {
+      waiting: worker,
+      installing: null,
+      update: vi.fn().mockResolvedValue(undefined),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }
+    Object.defineProperty(navigator, 'serviceWorker', {
+      configurable: true,
+      value: {
+        controller: {},
+        register: vi.fn().mockResolvedValue(registration),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      },
+    })
+
+    render(
+      <I18nProvider>
+        <UpdateManagerProvider><span>Research workspace</span></UpdateManagerProvider>
+      </I18nProvider>,
+    )
+
+    expect(await screen.findByText('A new version is ready')).toBeInTheDocument()
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Later' }))
+    expect(screen.queryByText('A new version is ready')).not.toBeInTheDocument()
+    expect(worker.postMessage).not.toHaveBeenCalledWith({ type: 'SKIP_WAITING' })
+    expect(screen.getByText('Research workspace')).toBeInTheDocument()
+  })
+
+  it('announces offline and online recovery without claiming synchronization', async () => {
+    window.localStorage.clear()
+    window.localStorage.setItem(APP_SETTINGS_STORAGE_KEY, JSON.stringify({ language: 'en' }))
+    window.localStorage.setItem('sociology-phd-desk:release-notes:0.2.1', 'seen')
+    render(
+      <I18nProvider>
+        <UpdateManagerProvider><span>Research workspace</span></UpdateManagerProvider>
+      </I18nProvider>,
+    )
+
+    window.dispatchEvent(new Event('offline'))
+    expect(await screen.findByText('Offline')).toBeInTheDocument()
+    expect(screen.queryByText(/sync/i)).not.toBeInTheDocument()
+    window.dispatchEvent(new Event('online'))
+    expect(await screen.findByText('Back online')).toBeInTheDocument()
   })
 })

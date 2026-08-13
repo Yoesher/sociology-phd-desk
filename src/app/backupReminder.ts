@@ -5,7 +5,7 @@ const DAY_MS = 86_400_000
 const SNOOZE_DAYS = 7
 export const BACKUP_REMINDER_SETTINGS_CHANGED = 'sociology-phd-desk:backup-reminder-settings-changed'
 
-export type BackupReminderDays = 7 | 14 | 30
+export type BackupReminderDays = 'off' | 7 | 14 | 30
 
 interface BackupReminderSettings {
   days?: unknown
@@ -30,7 +30,7 @@ function writeSettings(settings: BackupReminderSettings) {
 
 export function readBackupReminderDays(): BackupReminderDays {
   const value = readSettings().days
-  return value === 7 || value === 14 || value === 30 ? value : 14
+  return value === 'off' || value === 7 || value === 14 || value === 30 ? value : 14
 }
 
 export function writeBackupReminderDays(days: BackupReminderDays) {
@@ -43,7 +43,7 @@ export function backupReminderIsDue(
   days = readBackupReminderDays(),
   now = Date.now(),
 ) {
-  if (!workspace) return false
+  if (!workspace || workspace.kind !== 'personal' || days === 'off') return false
   const baseline = Date.parse(workspace.lastExportedAt ?? workspace.createdAt)
   if (!Number.isFinite(baseline) || now - baseline < days * DAY_MS) return false
   const snoozedUntil = Date.parse(readSettings().snoozedUntilByWorkspace?.[workspace.id] ?? '')

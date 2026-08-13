@@ -4,7 +4,7 @@
 
 The v0.2.1 candidate service worker precaches emitted application static files only. It defines no research-data upload, proxy, API, or runtime-cache route. Workspace content remains in the existing standard or encrypted browser-local repositories and is not copied into Cache Storage.
 
-The current public deployment remains under `yoesher.github.io`, where IndexedDB and service-worker authority are isolated by origin rather than repository path. See [the canonical-origin decision](docs/architecture/canonical-origin.md). A future origin cannot automatically read this origin's IndexedDB; transfer must use an explicit user-controlled encrypted backup and retain an old-site migration notice.
+The current public deployment remains under `yoesher.github.io`, where IndexedDB and service-worker authority are isolated by origin rather than repository path. See [the origin-strategy decision](docs/architecture/origin-strategy.md). A future origin cannot automatically read this origin's IndexedDB; transfer must use an explicit user-controlled encrypted backup and retain an old-site migration notice.
 
 Sociology PhD Desk is local-first research workflow software. Its threat model deserves extra caution because even metadata can expose participants, field sites, unpublished findings, or career-sensitive peer review.
 

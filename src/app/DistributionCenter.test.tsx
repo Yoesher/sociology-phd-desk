@@ -28,7 +28,11 @@ describe('DistributionCenter', () => {
     window.localStorage.setItem(APP_SETTINGS_STORAGE_KEY, JSON.stringify({ language: 'en' }))
     Object.defineProperty(navigator, 'storage', {
       configurable: true,
-      value: { persisted: vi.fn().mockResolvedValue(false), persist: vi.fn().mockResolvedValue(false) },
+      value: {
+        persisted: vi.fn().mockResolvedValue(false),
+        persist: vi.fn().mockResolvedValue(false),
+        estimate: vi.fn().mockResolvedValue({ usage: 10_485_760, quota: 104_857_600 }),
+      },
     })
     Object.defineProperty(window, 'matchMedia', {
       configurable: true,
@@ -42,6 +46,7 @@ describe('DistributionCenter', () => {
     render(
       <I18nProvider>
         <UpdateManagerContext.Provider value={{
+          state: 'idle',
           supported: true,
           updateAvailable: false,
           applying: false,
@@ -49,6 +54,8 @@ describe('DistributionCenter', () => {
           error: false,
           installAvailable: false,
           installed: false,
+          otherTabsOpen: false,
+          peerUpdateRequested: false,
           checkForUpdate: vi.fn(),
           applyUpdate: vi.fn(),
           requestInstall: vi.fn(),
@@ -58,19 +65,22 @@ describe('DistributionCenter', () => {
       </I18nProvider>,
     )
     await waitFor(() => expect(screen.getByText(/Persistence is not currently granted/i)).toBeInTheDocument())
+    expect(await screen.findByText(/10 MB used of 100 MB/i)).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /Request persistent storage/i }))
     expect(navigator.storage.persist).toHaveBeenCalledOnce()
     expect(screen.getByText('App version').nextSibling).toHaveTextContent('0.2.1')
     expect(screen.getByText('Portable schema').nextSibling).toHaveTextContent('4')
     expect(screen.getByText('Database schema').nextSibling).toHaveTextContent('4')
     expect(screen.getByText('Encrypted container').nextSibling).toHaveTextContent('1')
+    expect(screen.getByText('Build date').nextSibling).not.toBeEmptyDOMElement()
   })
 
-  it('stores only the local reminder interval and offers exactly 7, 14, and 30 days', async () => {
+  it('stores only local reminder metadata and offers off, 7, 14, and 30 days', async () => {
     const user = userEvent.setup()
     render(
       <I18nProvider>
         <UpdateManagerContext.Provider value={{
+          state: 'idle',
           supported: false,
           updateAvailable: false,
           applying: false,
@@ -78,6 +88,8 @@ describe('DistributionCenter', () => {
           error: false,
           installAvailable: false,
           installed: false,
+          otherTabsOpen: false,
+          peerUpdateRequested: false,
           checkForUpdate: vi.fn(),
           applyUpdate: vi.fn(),
           requestInstall: vi.fn(),
@@ -87,8 +99,48 @@ describe('DistributionCenter', () => {
       </I18nProvider>,
     )
     const select = screen.getByRole('combobox', { name: 'Remind after' })
-    expect(Array.from(select.querySelectorAll('option')).map((option) => option.value)).toEqual(['7', '14', '30'])
+    expect(Array.from(select.querySelectorAll('option')).map((option) => option.value)).toEqual(['off', '7', '14', '30'])
     await user.selectOptions(select, '30')
     expect(window.localStorage.getItem('sociology-phd-desk:backup-reminder:v1')).toBe('{"days":30}')
+  })
+
+  it('reports a persistence grant after an explicit browser-approved request', async () => {
+    vi.mocked(navigator.storage.persist).mockResolvedValue(true)
+    const user = userEvent.setup()
+    render(
+      <I18nProvider>
+        <UpdateManagerContext.Provider value={{
+          state: 'idle', supported: true, updateAvailable: false, applying: false, checking: false,
+          error: false, installAvailable: false, installed: false, otherTabsOpen: false,
+          peerUpdateRequested: false, checkForUpdate: vi.fn(), applyUpdate: vi.fn(), requestInstall: vi.fn(),
+        }}>
+          <DistributionCenter activeWorkspace={workspace} />
+        </UpdateManagerContext.Provider>
+      </I18nProvider>,
+    )
+    await user.click(await screen.findByRole('button', { name: 'Request persistent storage' }))
+    expect(await screen.findByText('The browser reports that storage persistence is granted.')).toBeInTheDocument()
+    expect(navigator.storage.persist).toHaveBeenCalledOnce()
+    expect(screen.queryByRole('button', { name: 'Request persistent storage' })).not.toBeInTheDocument()
+  })
+
+  it('degrades accurately when the persistence API is unavailable', async () => {
+    Object.defineProperty(navigator, 'storage', {
+      configurable: true,
+      value: { estimate: vi.fn().mockResolvedValue({ usage: 0, quota: 1_048_576 }) },
+    })
+    render(
+      <I18nProvider>
+        <UpdateManagerContext.Provider value={{
+          state: 'idle', supported: true, updateAvailable: false, applying: false, checking: false,
+          error: false, installAvailable: false, installed: false, otherTabsOpen: false,
+          peerUpdateRequested: false, checkForUpdate: vi.fn(), applyUpdate: vi.fn(), requestInstall: vi.fn(),
+        }}>
+          <DistributionCenter activeWorkspace={workspace} />
+        </UpdateManagerContext.Provider>
+      </I18nProvider>,
+    )
+    expect(await screen.findByText(/does not expose a persistent-storage request/i)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Request persistent storage' })).not.toBeInTheDocument()
   })
 })

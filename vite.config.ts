@@ -5,12 +5,14 @@ import { resolve } from 'node:path'
 import packageJson from './package.json' with { type: 'json' }
 
 const buildSha = process.env.VITE_BUILD_SHA ?? process.env.GITHUB_SHA ?? 'development'
+const buildDate = process.env.VITE_BUILD_DATE ?? new Date().toISOString()
 
 export default defineConfig({
   base: './',
   define: {
     __APP_VERSION__: JSON.stringify(packageJson.version),
     __BUILD_SHA__: JSON.stringify(buildSha),
+    __BUILD_DATE__: JSON.stringify(buildDate),
   },
   plugins: [
     react(),

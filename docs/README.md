@@ -9,7 +9,7 @@ Current status boundary: [`v0.2.0`](https://github.com/Yoesher/sociology-phd-des
 - [Architecture overview](architecture/overview.md)
 - [Data model](architecture/data-model.md)
 - [Data portability](data-portability.md)
-- [Canonical origin and browser-storage migration](architecture/canonical-origin.md)
+- [Origin strategy and browser-storage migration](architecture/origin-strategy.md)
 - Getting started: [简体中文](zh-CN/getting-started.md) / [English](en/getting-started.md)
 - Privacy and encryption model: [简体中文](zh-CN/privacy-model.md) / [English](en/privacy-model.md)
 - China Research Map source and compliance gate: [简体中文](zh-CN/map-data-sources.md) / [English](en/map-data-sources.md)
