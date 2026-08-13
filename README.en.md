@@ -20,7 +20,7 @@ See the complete [English getting-started guide](docs/en/getting-started.md).
 
 ### `v0.2.2` — Simplicity & restrained motion
 
-The `release/0.2.2` candidate reduces secondary-navigation complexity, consolidates status views into in-page filters, simplifies the top bar and workspace settings, and adds coherent, restrained motion for routes, dialogs, drawers, and state changes without changing research data or schema versions. It fully respects `prefers-reduced-motion` and adds no animation dependency. The formal tag and GitHub Release are created only after the release PR and exact-main gates pass.
+[`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) reduces secondary-navigation complexity, consolidates status views into in-page filters, simplifies the top bar and workspace settings, and adds coherent, restrained motion for routes, dialogs, drawers, and state changes without changing research data or schema versions. It fully respects `prefers-reduced-motion` and adds no animation dependency.
 
 > **[`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) Distribution & PWA is formally released:** use the web app directly or install it from a compatible PWA browser; emitted static assets support offline startup, and updates activate only after user confirmation and safe workspace preparation. Release PR [#25](https://github.com/Yoesher/sociology-phd-desk/pull/25) merged after exact-head CI and P0 = 0 / P1 = 0 self-review. The annotated tag and latest non-draft, non-prerelease GitHub Release point to exact release SHA [`8db828f`](https://github.com/Yoesher/sociology-phd-desk/commit/8db828faaa94f7591dbd806abe90916335862187).
 

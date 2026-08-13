@@ -1,6 +1,6 @@
 # Next Tasks
 
-> `v0.2.1` Distribution & PWA is published from exact release SHA `8db828faaa94f7591dbd806abe90916335862187`. This queue is frozen after documentation closeout. Do not begin `v0.3.0`.
+> `v0.2.2` Simplicity & Motion is published from exact release SHA `e766d18329ae675d835ce82e02554d5b0d5394ab`. The next stage is adoption and stabilization only. Do not begin `v0.3.0`.
 
 ## P0 — v0.2.2 Simplicity & Motion
 
@@ -12,8 +12,8 @@
 - [x] Capture four PNG after-state screenshots from the final production preview using only the synthetic Demo workspace.
 - [x] Commit/push exact feature head `0ba748e`, pass exact-head push/PR CI, record P0 = 0 / P1 = 0 self-review, and squash-merge PR #31 as `34bb469`.
 - [x] Pass exact-main CI `31715233210`, Pages `31715233124`, and deployment `5890896670`; verify public app/manifest/service worker/assets and exact build SHA with the interaction boundary recorded as LIMITED PASS.
-- [ ] Finish `release/0.2.2` package/lock 0.2.2 and final docs, pass the release gate, open/merge the release PR, and reverify exact main/Pages/public.
-- [ ] Create annotated `v0.2.2`, publish non-draft/non-prerelease UTF-8 GitHub Release notes, verify tag dereference and API read-back, then stop at `V0.2.2 ADOPTION & STABILIZATION`.
+- [x] Finish `release/0.2.2`, pass the release gate, pass exact-head CI/self-review, squash-merge PR #32 as `e766d18`, and pass final exact-main CI/Pages/deployment/public static verification.
+- [x] Create annotated `v0.2.2`, publish the latest non-draft/non-prerelease UTF-8 GitHub Release, verify tag dereference and Chinese/English API read-back, then stop at `V0.2.2 ADOPTION & STABILIZATION`.
 
 ## P0 — v0.2.1 Distribution & PWA
 
