@@ -14,8 +14,10 @@ export const WORKSPACE_ENCRYPTION_MODES = ['standard', 'encrypted'] as const
 export type WorkspaceEncryptionMode = (typeof WORKSPACE_ENCRYPTION_MODES)[number]
 
 export const LEGACY_WORKSPACE_SCHEMA_VERSION = 3 as const
+export const PREVIOUS_WORKSPACE_SCHEMA_VERSION = 4 as const
 export const SUPPORTED_WORKSPACE_SCHEMA_VERSIONS = [
   LEGACY_WORKSPACE_SCHEMA_VERSION,
+  PREVIOUS_WORKSPACE_SCHEMA_VERSION,
   WORKSPACE_SCHEMA_VERSION,
 ] as const
 export type SupportedWorkspaceSchemaVersion =

@@ -222,6 +222,7 @@ export function getNavigationItem(pathname: string) {
 
 export function normalizeModuleSearch(moduleId: PrimaryModuleId, search: string | URLSearchParams) {
   const normalized = new URLSearchParams(search)
+  const zoteroHandoff = moduleId === 'literature' ? normalized.get('zotero-handoff') : null
   const item = navigationItems.find((candidate) => candidate.id === moduleId) ?? navigationItems[0]
   const requested = normalized.get('view')
   const alias = requested ? legacyViewAliases[moduleId][requested] : undefined
@@ -232,6 +233,8 @@ export function normalizeModuleSearch(moduleId: PrimaryModuleId, search: string 
   } else if (!requested || !item.views.some((view) => view.id === requested)) {
     normalized.set('view', item.views[0].id)
   }
+
+  if (zoteroHandoff) normalized.set('zotero-handoff', zoteroHandoff)
 
   return normalized
 }

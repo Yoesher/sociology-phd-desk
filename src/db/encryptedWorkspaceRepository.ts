@@ -6,6 +6,7 @@ import {
   ENCRYPTED_PAYLOAD_VERSION,
   EncryptedPayloadValidationError,
   LEGACY_ENCRYPTED_PAYLOAD_VERSION,
+  PREVIOUS_ENCRYPTED_PAYLOAD_VERSION,
   LocalWorkspaceCryptoSession,
   MAX_KEY_INVOCATIONS,
   WebCryptoUnavailableError,
@@ -267,7 +268,10 @@ async function upgradeLegacyEncryptedWorkspace(
   record: EncryptedVaultRecord
   workspace: WorkspaceData
 }> {
-  if (opened.payloadVersion !== LEGACY_ENCRYPTED_PAYLOAD_VERSION) {
+  if (
+    opened.payloadVersion !== LEGACY_ENCRYPTED_PAYLOAD_VERSION &&
+    opened.payloadVersion !== PREVIOUS_ENCRYPTED_PAYLOAD_VERSION
+  ) {
     throw new EncryptedContainerAuthenticationError()
   }
 
@@ -281,7 +285,7 @@ async function upgradeLegacyEncryptedWorkspace(
     const header = inspectLocalProtectedHeader(persisted)
     const actual = recordCoordinates(bindingId, persisted)
     if (
-      header.payloadVersion !== LEGACY_ENCRYPTED_PAYLOAD_VERSION ||
+      header.payloadVersion !== opened.payloadVersion ||
       !committedCoordinatesMatch(expected, actual)
     ) {
       throw new EncryptedWorkspaceConflictError(expected, actual)
@@ -785,7 +789,7 @@ export async function unlockEncryptedWorkspace(
     let coordinates = recordCoordinates(bindingId, record)
     opened = await openLocalWorkspaceContainer(record, passphrase, coordinates)
     let workspace = opened.workspace
-    if (opened.payloadVersion === LEGACY_ENCRYPTED_PAYLOAD_VERSION) {
+    if (opened.payloadVersion !== ENCRYPTED_PAYLOAD_VERSION) {
       const upgraded = await upgradeLegacyEncryptedWorkspace(
         database,
         bindingId,

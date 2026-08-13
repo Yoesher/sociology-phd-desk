@@ -46,11 +46,12 @@ describe('database migrations', () => {
     try {
       const migrated = await upgradedDatabase.workspaces.get(String(legacyWorkspace['id']))
       expect(migrated?.revision).toBe(0)
-      expect(upgradedDatabase.verno).toBe(4)
+      expect(upgradedDatabase.verno).toBe(5)
       expect(await upgradedDatabase.researchQuestions.count()).toBe(1)
       expect(await upgradedDatabase.claims.count()).toBe(1)
       expect(await upgradedDatabase.claimQuestionLinks.count()).toBe(0)
       expect(await upgradedDatabase.theoryMemos.count()).toBe(0)
+      expect(await upgradedDatabase.literatureExternalReferences.count()).toBe(0)
       expect((await upgradedDatabase.researchQuestions.toArray())[0]?.text).toBe(
         legacyGraph.project.researchQuestion.trim(),
       )
@@ -95,13 +96,14 @@ describe('database migrations', () => {
       expect(await upgradedDatabase.claims.count()).toBe(1)
       expect(await upgradedDatabase.claimQuestionLinks.count()).toBe(0)
       expect(await upgradedDatabase.theoryMemos.count()).toBe(0)
+      expect(await upgradedDatabase.literatureExternalReferences.count()).toBe(0)
     } finally {
       upgradedDatabase.close()
       await Dexie.delete(databaseName)
     }
   })
 
-  it('upgrades a direct v3 graph database to v4 with an empty theory-memo table', async () => {
+  it('upgrades a direct v3 graph database through v4 to v5 with empty new tables', async () => {
     const databaseName = `sociology-phd-desk-v3-migration-${crypto.randomUUID()}`
     const graph = legacyGraphRecords()
     const legacyDatabase = new Dexie(databaseName)
@@ -122,12 +124,13 @@ describe('database migrations', () => {
     const upgradedDatabase = new SociologyPhdDeskDatabase(databaseName)
     try {
       await upgradedDatabase.open()
-      expect(upgradedDatabase.verno).toBe(4)
+      expect(upgradedDatabase.verno).toBe(5)
       expect(await upgradedDatabase.projects.count()).toBe(1)
       expect(await upgradedDatabase.researchQuestions.count()).toBe(1)
       expect(await upgradedDatabase.claims.count()).toBe(1)
       expect(await upgradedDatabase.claimQuestionLinks.count()).toBe(1)
       expect(await upgradedDatabase.theoryMemos.count()).toBe(0)
+      expect(await upgradedDatabase.literatureExternalReferences.count()).toBe(0)
     } finally {
       upgradedDatabase.close()
       await Dexie.delete(databaseName)

@@ -10,6 +10,7 @@ import type {
   FieldVisit,
   Interview,
   LiteratureItem,
+  LiteratureExternalReference,
   Manuscript,
   ResearchLogEntry,
   ResearchProject,
@@ -22,7 +23,7 @@ import type {
 } from '../models/domain'
 import { migrateV2ResearchGraphCollections } from '../utils/workspace-transfer'
 
-export const DATABASE_SCHEMA_VERSION = 4 as const
+export const DATABASE_SCHEMA_VERSION = 5 as const
 export const LEGACY_DATABASE_NAME = 'sociology-phd-desk' as const
 
 const databaseStoresV1 = {
@@ -59,6 +60,12 @@ const databaseStoresV4 = {
   theoryMemos: '&id, projectId, memoType, updatedAt',
 }
 
+const databaseStoresV5 = {
+  ...databaseStoresV4,
+  literatureExternalReferences:
+    '&id, literatureItemId, provider, &[provider+externalLibraryId+externalItemKey], importedAt',
+}
+
 export class SociologyPhdDeskDatabase extends Dexie {
   workspaces!: Table<WorkspaceMeta, string>
   projects!: Table<ResearchProject, string>
@@ -68,6 +75,7 @@ export class SociologyPhdDeskDatabase extends Dexie {
   theoryMemos!: Table<TheoryMemo, string>
   tasks!: Table<ResearchTask, string>
   literature!: Table<LiteratureItem, string>
+  literatureExternalReferences!: Table<LiteratureExternalReference, string>
   fieldSites!: Table<FieldSite, string>
   interviews!: Table<Interview, string>
   fieldVisits!: Table<FieldVisit, string>
@@ -116,7 +124,8 @@ export class SociologyPhdDeskDatabase extends Dexie {
           await transaction.table('claims').bulkPut(graph.claims)
         }
       })
-    this.version(DATABASE_SCHEMA_VERSION).stores(databaseStoresV4)
+    this.version(4).stores(databaseStoresV4)
+    this.version(DATABASE_SCHEMA_VERSION).stores(databaseStoresV5)
   }
 }
 

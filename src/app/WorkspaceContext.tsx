@@ -76,6 +76,10 @@ function markUserChanges(current: WorkspaceData, next: WorkspaceData): Workspace
     theoryMemos: markEditedRecords(current.theoryMemos, next.theoryMemos),
     tasks: markEditedRecords(current.tasks, next.tasks),
     literature: markEditedRecords(current.literature, next.literature),
+    literatureExternalReferences: markEditedRecords(
+      current.literatureExternalReferences,
+      next.literatureExternalReferences,
+    ),
     fieldSites: markEditedRecords(current.fieldSites, next.fieldSites),
     interviews: markEditedRecords(current.interviews, next.interviews),
     fieldVisits: markEditedRecords(current.fieldVisits, next.fieldVisits),

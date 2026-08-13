@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
-import { ArrowUpRight, LibraryBig } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { ArrowUpRight, LibraryBig, Upload } from 'lucide-react'
 import {
   LITERATURE_STATUSES,
   PRIORITIES,
@@ -11,6 +11,16 @@ import { entityMeta, truncate } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import { useModuleSearch } from '../../hooks/useModuleSearch'
 import { ProjectSelect } from '../../components/ProjectSelect'
+import {
+  applyZoteroImport,
+  buildZoteroImportPreview,
+  parseZoteroHandoffFragment,
+  parseZoteroHandoffJson,
+  MAX_ZOTERO_BUNDLE_BYTES,
+  zoteroSourceIdentity,
+  type ZoteroImportChoice,
+  type ZoteroImportPreview,
+} from './zotero-handoff'
 import {
   AddButton,
   Badge,
@@ -72,10 +82,48 @@ export function LiteraturePage() {
   const [statusFilter, setStatusFilter] = useState('')
   const [priorityFilter, setPriorityFilter] = useState('')
   const [formOpen, setFormOpen] = useState(false)
+  const [zoteroPreview, setZoteroPreview] = useState<ZoteroImportPreview | null>(null)
+  const [zoteroChoices, setZoteroChoices] = useState<Record<string, ZoteroImportChoice>>({})
+  const [zoteroProjectId, setZoteroProjectId] = useState('')
+  const [zoteroStatus, setZoteroStatus] = useState<LiteratureItem['status']>('Inbox')
+  const [zoteroPriority, setZoteroPriority] = useState<LiteratureItem['priority']>('Medium')
+  const [zoteroWhyRead, setZoteroWhyRead] = useState('')
+  const [zoteroError, setZoteroError] = useState(false)
+  const zoteroFileInput = useRef<HTMLInputElement>(null)
   const [draft, setDraft] = useState<LiteratureDraft>(emptyDraft)
   const { searchParams, updateSearch } = useModuleSearch('literature')
   const view = (searchParams.get('view') || 'inbox') as LiteratureView
   const urlStatus = searchParams.get('status') || ''
+
+  const openZoteroPreview = (preview: ZoteroImportPreview) => {
+    setZoteroPreview(preview)
+    setZoteroChoices(Object.fromEntries(preview.items.map((item) => [zoteroSourceIdentity(item.source), {
+      externalLibraryId: String(item.source.libraryID),
+      itemKey: item.source.itemKey,
+      decision: item.defaultDecision,
+      literatureItemId: item.exactLiterature?.id || item.suggestions[0]?.id,
+    }])))
+    setZoteroProjectId(data?.workspace.activeProjectId || data?.projects[0]?.id || '')
+    setZoteroStatus('Inbox')
+    setZoteroPriority('Medium')
+    setZoteroWhyRead('')
+    setZoteroError(false)
+  }
+
+  useEffect(() => {
+    if (!data) return
+    const fragment = searchParams.get('zotero-handoff')
+    if (!fragment) return
+    try {
+      openZoteroPreview(buildZoteroImportPreview(data, parseZoteroHandoffFragment(fragment)))
+    } catch {
+      setZoteroError(true)
+    } finally {
+      updateSearch({ 'zotero-handoff': null }, true)
+    }
+  // The handoff token is consumed once and immediately removed from the URL.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get('zotero-handoff')])
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -115,6 +163,30 @@ export function LiteraturePage() {
   const openCreate = () => {
     setDraft({ ...emptyDraft(), projectId: data.workspace.activeProjectId || data.projects[0]?.id || '' })
     setFormOpen(true)
+  }
+
+  const chooseZoteroFile = async (file?: File) => {
+    if (!file) return
+    try {
+      if (file.size > MAX_ZOTERO_BUNDLE_BYTES) throw new Error('Zotero bundle is too large.')
+      openZoteroPreview(buildZoteroImportPreview(data, parseZoteroHandoffJson(await file.text())))
+    } catch {
+      setZoteroError(true)
+    }
+  }
+
+  const confirmZoteroImport = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!zoteroPreview) return
+    await updateData((current) => applyZoteroImport(current, {
+      preview: zoteroPreview,
+      choices: Object.values(zoteroChoices),
+      projectId: zoteroProjectId,
+      status: zoteroStatus,
+      priority: zoteroPriority,
+      whyRead: zoteroWhyRead,
+    }))
+    setZoteroPreview(null)
   }
 
   const saveLiterature = async (event: FormEvent) => {
@@ -158,7 +230,7 @@ export function LiteraturePage() {
         eyebrow={t('literature.header.eyebrow')}
         title={t('literature.header.title')}
         description={t('literature.header.description')}
-        actions={<AddButton onClick={openCreate}>{t('literature.actions.add')}</AddButton>}
+        actions={<><input ref={zoteroFileInput} className="literature-zotero-file" type="file" tabIndex={-1} aria-hidden="true" accept=".spdzotero,.sociology-zotero.json,application/json" onChange={(event) => { void chooseZoteroFile(event.target.files?.[0]); event.target.value = '' }} /><Button onClick={() => zoteroFileInput.current?.click()}><Upload size={15} />{t('literature.zotero.import')}</Button><AddButton onClick={openCreate}>{t('literature.actions.add')}</AddButton></>}
       />
 
       <section className="boundary-note">
@@ -196,6 +268,9 @@ export function LiteraturePage() {
                     <Badge tone={statusTone(item.status)}>{labelEnum(item.status)}</Badge>
                     <Badge tone={item.priority === 'Critical' ? 'danger' : item.priority === 'High' ? 'warning' : 'neutral'}>{labelEnum(item.priority)}</Badge>
                     <span>{localizedProjectLabel(item.projectId)}</span>
+                    {data.literatureExternalReferences.find((reference) => reference.literatureItemId === item.id && reference.provider === 'zotero') && (
+                      <Badge tone="blue">{t('literature.zotero.sourceBadge', { key: data.literatureExternalReferences.find((reference) => reference.literatureItemId === item.id && reference.provider === 'zotero')!.externalItemKey })}</Badge>
+                    )}
                   </div>
                   <h3>{item.title}</h3>
                   <p className="literature-row__citation">{item.authors.join(', ') || t('literature.item.unknownAuthor')}{item.journal ? ` · ${item.journal}` : ''}</p>
@@ -245,6 +320,44 @@ export function LiteraturePage() {
           </DisclosureSection>
         </form>
       </Modal>
+
+      <Modal
+        open={Boolean(zoteroPreview)}
+        title={t('literature.zotero.previewTitle')}
+        description={t('literature.zotero.previewDescription')}
+        onClose={() => setZoteroPreview(null)}
+        size="xl"
+        footer={<><Button onClick={() => setZoteroPreview(null)}>{t('common.cancel')}</Button><Button variant="primary" type="submit" form="zotero-import-form">{t('literature.zotero.confirm')}</Button></>}
+      >
+        {zoteroPreview && <form id="zotero-import-form" className="zotero-preview" onSubmit={(event) => void confirmZoteroImport(event)}>
+          <p className="boundary-note">{t('literature.zotero.privateBoundary')}</p>
+          <div className="badge-row">
+            <Badge>{t('literature.zotero.items', { count: formatNumber(zoteroPreview.items.length) })}</Badge>
+            <Badge tone="success">{t('literature.zotero.new', { count: formatNumber(zoteroPreview.newRecords) })}</Badge>
+            <Badge tone="blue">{t('literature.zotero.duplicates', { count: formatNumber(zoteroPreview.exactDuplicates) })}</Badge>
+            <Badge tone="warning">{t('literature.zotero.suggestions', { count: formatNumber(zoteroPreview.suggestions) })}</Badge>
+          </div>
+          <div className="form-grid">
+            <Field label={t('literature.zotero.project')} required><ProjectSelect required projects={data.projects} value={zoteroProjectId} onChange={setZoteroProjectId} /></Field>
+            <Field label={t('literature.zotero.status')}><select value={zoteroStatus} onChange={(event) => setZoteroStatus(event.target.value as LiteratureItem['status'])}>{LITERATURE_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
+            <Field label={t('literature.zotero.priority')}><select value={zoteroPriority} onChange={(event) => setZoteroPriority(event.target.value as LiteratureItem['priority'])}>{PRIORITIES.map((priority) => <option key={priority} value={priority}>{labelEnum(priority)}</option>)}</select></Field>
+            <Field label={t('literature.zotero.whyRead')} required className="form-span-2"><textarea required={zoteroPreview.items.some((item) => zoteroChoices[zoteroSourceIdentity(item.source)]?.decision === 'create')} value={zoteroWhyRead} onChange={(event) => setZoteroWhyRead(event.target.value)} /></Field>
+          </div>
+          <div className="zotero-preview__items">
+            {zoteroPreview.items.map((item) => {
+              const identity = zoteroSourceIdentity(item.source)
+              const choice = zoteroChoices[identity]!
+              const candidates = item.suggestions
+              return <article key={identity} className="zotero-preview__item">
+                <div><strong>{item.source.title}</strong><p>{item.source.creators.map((creator) => creator.name || [creator.firstName, creator.lastName].filter(Boolean).join(' ')).filter(Boolean).join('; ')}</p><small>Zotero · {item.source.itemKey}</small></div>
+                <Field label={t('literature.zotero.decision', { title: item.source.title })}><select value={choice.decision} onChange={(event) => setZoteroChoices({ ...zoteroChoices, [identity]: { ...choice, decision: event.target.value as ZoteroImportChoice['decision'] } })}>{!item.exactLiterature && <option value="create">{t('literature.zotero.create')}</option>}{item.exactLiterature && <option value="refresh">{t('literature.zotero.refresh')}</option>}{!item.exactLiterature && candidates.length > 0 && <option value="link">{t('literature.zotero.link')}</option>}<option value="skip">{t('literature.zotero.skip')}</option></select></Field>
+                {choice.decision === 'link' && <Field label={t('literature.zotero.linkTarget', { title: item.source.title })}><select required value={choice.literatureItemId || ''} onChange={(event) => setZoteroChoices({ ...zoteroChoices, [identity]: { ...choice, literatureItemId: event.target.value } })}>{candidates.map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.title}</option>)}</select></Field>}
+              </article>
+            })}
+          </div>
+        </form>}
+      </Modal>
+      {zoteroError && <div role="alert" className="toast toast--error"><span>{t('literature.zotero.invalid')}</span><button type="button" onClick={() => setZoteroError(false)}>{t('common.close')}</button></div>}
     </div>
   )
 }

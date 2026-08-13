@@ -6,6 +6,7 @@ import type {
   ClaimQuestionLink,
   EntityMetadata,
   LiteratureItem,
+  LiteratureExternalReference,
   ResearchProject,
   ResearchQuestion,
   TheoryMemo,
@@ -27,6 +28,7 @@ export const WORKSPACE_COLLECTIONS = [
   'theoryMemos',
   'tasks',
   'literature',
+  'literatureExternalReferences',
   'fieldSites',
   'interviews',
   'fieldVisits',
@@ -108,6 +110,7 @@ function emptyMergeCounts(): WorkspaceMergeCounts {
     theoryMemos: 0,
     tasks: 0,
     literature: 0,
+    literatureExternalReferences: 0,
     fieldSites: 0,
     interviews: 0,
     fieldVisits: 0,
@@ -130,6 +133,7 @@ function snapshotCollectionCounts(snapshot: WorkspaceData): WorkspaceMergeCounts
     theoryMemos: snapshot.theoryMemos.length,
     tasks: snapshot.tasks.length,
     literature: snapshot.literature.length,
+    literatureExternalReferences: snapshot.literatureExternalReferences.length,
     fieldSites: snapshot.fieldSites.length,
     interviews: snapshot.interviews.length,
     fieldVisits: snapshot.fieldVisits.length,
@@ -170,6 +174,7 @@ function graphIdentityIssues<T extends EntityMetadata>(
     | 'claims'
     | 'claimQuestionLinks'
     | 'literature'
+    | 'literatureExternalReferences'
     | 'theoryMemos',
   localRecords: T[],
   incomingRecords: T[],
@@ -201,6 +206,7 @@ function assertGraphMergeCollisionsSafe(
   const localClaimIds = new Set(current.claims.map((claim) => claim.id))
   const localLinkIds = new Set(current.claimQuestionLinks.map((link) => link.id))
   const localTheoryMemoIds = new Set(current.theoryMemos.map((memo) => memo.id))
+  const localLiteratureIds = new Set(current.literature.map((item) => item.id))
   const incomingMemoLiteratureIds = new Set(
     incoming.theoryMemos.flatMap((memo) => memo.relatedLiteratureIds),
   )
@@ -230,6 +236,9 @@ function assertGraphMergeCollisionsSafe(
       ) ||
       incoming.theoryMemos.some(
         (memo) => memo.projectId === project.id && !localTheoryMemoIds.has(memo.id),
+      ) ||
+      incoming.literature.some(
+        (item) => item.projectId === project.id && !localLiteratureIds.has(item.id),
       )
     if (hasNewGraphChild) {
       projectIssues.push({
@@ -289,6 +298,18 @@ function assertGraphMergeCollisionsSafe(
           [...memo.relatedClaimIds].sort(),
           [...memo.relatedLiteratureIds].sort(),
         ]),
+    ),
+    ...graphIdentityIssues<LiteratureExternalReference>(
+      'literatureExternalReferences',
+      current.literatureExternalReferences,
+      incoming.literatureExternalReferences,
+      (reference) => JSON.stringify([
+        reference.literatureItemId,
+        reference.provider,
+        reference.externalLibraryId,
+        reference.externalItemKey,
+        reference.externalVersion,
+      ]),
     ),
   ]
   if (issues.length > 0) {
@@ -370,6 +391,10 @@ export function buildMergedWorkspace(
   const theoryMemos = mergeRecords(current.theoryMemos, incoming.theoryMemos)
   const tasks = mergeRecords(current.tasks, incoming.tasks)
   const literature = mergeRecords(current.literature, incoming.literature)
+  const literatureExternalReferences = mergeRecords(
+    current.literatureExternalReferences,
+    incoming.literatureExternalReferences,
+  )
   const fieldSites = mergeRecords(current.fieldSites, incoming.fieldSites)
   const interviews = mergeRecords(current.interviews, incoming.interviews)
   const fieldVisits = mergeRecords(current.fieldVisits, incoming.fieldVisits)
@@ -402,6 +427,7 @@ export function buildMergedWorkspace(
       theoryMemos: theoryMemos.records,
       tasks: tasks.records,
       literature: literature.records,
+      literatureExternalReferences: literatureExternalReferences.records,
       fieldSites: fieldSites.records,
       interviews: interviews.records,
       fieldVisits: fieldVisits.records,
@@ -427,6 +453,7 @@ export function buildMergedWorkspace(
         theoryMemos: theoryMemos.added,
         tasks: tasks.added,
         literature: literature.added,
+        literatureExternalReferences: literatureExternalReferences.added,
         fieldSites: fieldSites.added,
         interviews: interviews.added,
         fieldVisits: fieldVisits.added,
@@ -446,6 +473,7 @@ export function buildMergedWorkspace(
         theoryMemos: theoryMemos.skipped,
         tasks: tasks.skipped,
         literature: literature.skipped,
+        literatureExternalReferences: literatureExternalReferences.skipped,
         fieldSites: fieldSites.skipped,
         interviews: interviews.skipped,
         fieldVisits: fieldVisits.skipped,
@@ -528,6 +556,7 @@ export class StandardWorkspaceRepository {
       this.database.theoryMemos.bulkPut(snapshot.theoryMemos),
       this.database.tasks.bulkPut(snapshot.tasks),
       this.database.literature.bulkPut(snapshot.literature),
+      this.database.literatureExternalReferences.bulkPut(snapshot.literatureExternalReferences),
       this.database.fieldSites.bulkPut(snapshot.fieldSites),
       this.database.interviews.bulkPut(snapshot.interviews),
       this.database.fieldVisits.bulkPut(snapshot.fieldVisits),
@@ -560,6 +589,7 @@ export class StandardWorkspaceRepository {
       theoryMemos,
       tasks,
       literature,
+      literatureExternalReferences,
       fieldSites,
       interviews,
       fieldVisits,
@@ -578,6 +608,7 @@ export class StandardWorkspaceRepository {
       this.database.theoryMemos.toArray(),
       this.database.tasks.toArray(),
       this.database.literature.toArray(),
+      this.database.literatureExternalReferences.toArray(),
       this.database.fieldSites.toArray(),
       this.database.interviews.toArray(),
       this.database.fieldVisits.toArray(),
@@ -603,6 +634,7 @@ export class StandardWorkspaceRepository {
         theoryMemos,
         tasks,
         literature,
+        literatureExternalReferences,
         fieldSites,
         interviews,
         fieldVisits,

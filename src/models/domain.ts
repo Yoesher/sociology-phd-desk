@@ -8,7 +8,7 @@ export type EntityId = string
 export type ISODate = string
 export type ISODateTime = string
 
-export const WORKSPACE_SCHEMA_VERSION = 4 as const
+export const WORKSPACE_SCHEMA_VERSION = 5 as const
 export const WORKSPACE_APPLICATION = 'sociology-phd-desk' as const
 
 export const RESEARCH_METHODS = [
@@ -214,15 +214,37 @@ export interface ResearchTask extends EntityMetadata {
 export interface LiteratureItem extends EntityMetadata {
   title: string
   authors: string[]
+  itemType?: string
   year?: number
   journal?: string
+  volume?: string
+  issue?: string
+  pages?: string
+  publisher?: string
+  place?: string
   doi?: string
+  isbn?: string
+  issn?: string
   url?: string
   projectId: EntityId
   status: LiteratureStatus
   priority: Priority
   whyRead: string
   notes: string
+}
+
+export const LITERATURE_EXTERNAL_PROVIDERS = ['zotero'] as const
+export type LiteratureExternalProvider = (typeof LITERATURE_EXTERNAL_PROVIDERS)[number]
+
+/** Provider identity stays separate from researcher-authored Literature fields. */
+export interface LiteratureExternalReference extends EntityMetadata {
+  literatureItemId: EntityId
+  provider: LiteratureExternalProvider
+  externalLibraryId: string
+  externalItemKey: string
+  externalVersion?: number
+  importedAt: ISODateTime
+  lastSeenModifiedAt?: ISODateTime
 }
 
 export interface FieldSite extends EntityMetadata {
@@ -349,6 +371,7 @@ export interface WorkspaceData {
   theoryMemos: TheoryMemo[]
   tasks: ResearchTask[]
   literature: LiteratureItem[]
+  literatureExternalReferences: LiteratureExternalReference[]
   fieldSites: FieldSite[]
   interviews: Interview[]
   fieldVisits: FieldVisit[]

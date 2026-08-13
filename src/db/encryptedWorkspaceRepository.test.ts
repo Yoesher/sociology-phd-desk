@@ -117,16 +117,20 @@ async function installLegacyV3Vault(
 }
 
 describe('encrypted workspace repository', () => {
-  it('atomically upgrades an authenticated v3 vault once and reads back v4', async () => {
+  it('atomically upgrades an authenticated v3 vault once and reads back v5', async () => {
     const id = bindingId()
     const workspace = createDemoWorkspace(ANCHOR)
     const legacy = await installLegacyV3Vault(id, workspace)
 
     const first = track(await unlockEncryptedWorkspace(id, PASSPHRASE))
-    expect(first.workspace).toEqual({ ...workspace, theoryMemos: [] })
+    expect(first.workspace).toEqual({
+      ...workspace,
+      theoryMemos: [],
+      literatureExternalReferences: [],
+    })
     const upgraded = await inspectEncryptedWorkspaceRecord(id)
     expect(upgraded).not.toBeNull()
-    expect(upgraded && inspectLocalProtectedHeader(upgraded).payloadVersion).toBe(4)
+    expect(upgraded && inspectLocalProtectedHeader(upgraded).payloadVersion).toBe(5)
     expect(upgraded?.storageRevision).toBe(legacy.storageRevision)
     expect(upgraded?.keyInvocation).toBe(2)
     first.close()
@@ -232,7 +236,7 @@ describe('encrypted workspace repository', () => {
     expect(persisted && inspectLocalProtectedHeader(persisted).payloadVersion).toBe(3)
   })
 
-  it('authenticates a v3 backup in memory and restores only a new v4 vault', async () => {
+  it('authenticates a v3 backup in memory and restores only a new v5 vault', async () => {
     const workspace = createDemoWorkspace(ANCHOR)
     const backup = await createSyntheticLegacyV3Backup(workspace, BACKUP_PASSPHRASE)
     const restored = track(
@@ -247,9 +251,10 @@ describe('encrypted workspace repository', () => {
       ),
     )
     const record = await inspectEncryptedWorkspaceRecord(restored.bindingId)
-    expect(record && inspectLocalProtectedHeader(record).payloadVersion).toBe(4)
-    expect(restored.workspace.version).toBe(4)
+    expect(record && inspectLocalProtectedHeader(record).payloadVersion).toBe(5)
+    expect(restored.workspace.version).toBe(5)
     expect(restored.workspace.theoryMemos).toEqual([])
+    expect(restored.workspace.literatureExternalReferences).toEqual([])
   })
 
   it('does not create an empty IndexedDB database for missing inspect or unlock', async () => {

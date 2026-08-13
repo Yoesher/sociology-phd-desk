@@ -100,13 +100,18 @@ describe('encrypted container contract', () => {
       expected,
     )
     expect(opened.payloadVersion).toBe(3)
-    expect(opened.workspace).toEqual({ ...workspace, theoryMemos: [] })
+    expect(opened.workspace).toEqual({
+      ...workspace,
+      theoryMemos: [],
+      literatureExternalReferences: [],
+    })
     opened.session.dispose()
 
     const legacyBackup = await createSyntheticLegacyV3Backup(workspace, PASSPHRASE)
     expect(await openEncryptedBackup(legacyBackup, PASSPHRASE)).toEqual({
       ...workspace,
       theoryMemos: [],
+      literatureExternalReferences: [],
     })
     await expectGenericAuthenticationFailure(
       openEncryptedBackup(legacyBackup, OTHER_PASSPHRASE),
@@ -133,7 +138,7 @@ describe('encrypted container contract', () => {
     expect(header.bindingId).toBe(expected.bindingId)
     expect(header.storageRevision).toBe(0)
     expect(header.keyInvocation).toBe(1)
-    expect(header.payloadVersion).toBe(4)
+    expect(header.payloadVersion).toBe(5)
     expect(header.kdf.iterations).toBe(600_000)
     expect(header.cipher.keyLength).toBe(256)
     expect(created.container.iv).toHaveLength(12)
@@ -144,7 +149,7 @@ describe('encrypted container contract', () => {
       expected,
     )
     expect(opened.workspace).toEqual(workspace)
-    expect(opened.payloadVersion).toBe(4)
+    expect(opened.payloadVersion).toBe(5)
     expect(opened.session.disposed).toBe(false)
     opened.session.dispose()
     created.session.dispose()
@@ -269,7 +274,7 @@ describe('encrypted container contract', () => {
   it('round-trips encrypted backups and rejects noncanonical wrappers and illegal base64url', async () => {
     const workspace = createDemoWorkspace(ANCHOR)
     const backup = await createEncryptedBackup(workspace, PASSPHRASE)
-    expect(inspectBackupProtectedHeader(backup).payloadVersion).toBe(4)
+    expect(inspectBackupProtectedHeader(backup).payloadVersion).toBe(5)
     expect(await openEncryptedBackup(backup, PASSPHRASE)).toEqual(workspace)
     await expectGenericAuthenticationFailure(openEncryptedBackup(backup, OTHER_PASSPHRASE))
     expect(() => parseEncryptedBackupContainer(` ${backup}`)).toThrow(
