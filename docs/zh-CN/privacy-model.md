@@ -4,7 +4,7 @@ Sociology PhD Desk 采用本地优先设计：核心功能不要求账户或云�
 
 下面区分四个容易混淆的保护层级。
 
-版本说明：已发布的 [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) 位于精确发布 SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db)，包含理论研究、分层导航与论文投稿整合，并使用 portable/standard v4；encrypted container v1、encrypted-vault database v1 和 registry database v1 均保持不变。
+版本说明：已发布的 [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) 位于精确发布 SHA [`8db828f`](https://github.com/Yoesher/sociology-phd-desk/commit/8db828faaa94f7591dbd806abe90916335862187)，保持 portable/standard v4 与 encrypted container/vault/registry v1；其 Service Worker 只预缓存应用静态资源，不会把工作区数据移入 Cache Storage。
 
 ## A. 浏览器隔离
 

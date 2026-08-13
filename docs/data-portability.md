@@ -4,7 +4,7 @@
 
 JSON export and import provide backup, inspection, and migration for a browser-local workspace. They are not cloud synchronization and do not make the exported file encrypted.
 
-Published [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0), at exact release SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db), includes Theory Research, hierarchical navigation, and integrated publishing. That release uses portable and standard storage v4 while encrypted container v1, encrypted-vault database v1, and registry database v1 remain independently versioned. `PROJECT_STATE.md` is the factual gate record.
+Published [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1), at exact release SHA [`8db828f`](https://github.com/Yoesher/sociology-phd-desk/commit/8db828faaa94f7591dbd806abe90916335862187), retains portable and standard storage v4 while encrypted container v1, encrypted-vault database v1, and registry database v1 remain independently versioned. PWA distribution and application updates do not alter or move workspace payloads. `PROJECT_STATE.md` is the factual gate record.
 
 ## Export envelope
 

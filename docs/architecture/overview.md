@@ -4,7 +4,7 @@
 
 Sociology PhD Desk is a local-first browser application that coordinates research objects across the sociology lifecycle. The core must remain useful without an account, application server, cloud sync, analytics, or AI API.
 
-Published [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0), at exact release SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db), includes the Phase 3C workspace architecture, the documentation-only Phase 3D map deferral, the Phase 3E Theory/v4 implementation, and the Phase 3F hierarchical navigation and integrated Manuscripts & Publishing presentation. Evidence boundaries are recorded in `PROJECT_STATE.md`.
+Published [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1), at exact release SHA [`8db828f`](https://github.com/Yoesher/sociology-phd-desk/commit/8db828faaa94f7591dbd806abe90916335862187), retains the v0.2.0 research/workspace architecture and adds installable PWA distribution, a static-precache-only service worker, offline application-shell startup, safe user-approved updates, storage-persistence visibility, and local backup reminders. Evidence boundaries are recorded in `PROJECT_STATE.md`.
 
 ## Technology foundation
 
