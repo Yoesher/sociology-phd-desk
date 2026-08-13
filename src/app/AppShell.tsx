@@ -237,6 +237,7 @@ export function AppShell() {
     data.theoryMemos,
     data.tasks,
     data.literature,
+    data.literatureExternalReferences,
     data.fieldSites,
     data.interviews,
     data.fieldVisits,

@@ -2043,3 +2043,46 @@
     grid-template-columns: 1fr;
   }
 }
+.literature-zotero-file {
+  cursor: pointer;
+  position: relative;
+}
+
+.literature-zotero-file input {
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  width: 1px;
+}
+
+.zotero-preview {
+  display: grid;
+  gap: 1rem;
+}
+
+.zotero-preview__items {
+  display: grid;
+  gap: .75rem;
+}
+
+.zotero-preview__item {
+  align-items: end;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  display: grid;
+  gap: .8rem;
+  grid-template-columns: minmax(0, 1.4fr) minmax(220px, .8fr);
+  padding: .9rem;
+}
+
+.zotero-preview__item p,
+.zotero-preview__item small {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 700px) {
+  .zotero-preview__item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -200,7 +200,7 @@ describe('LocalWorkspaceManager', () => {
     expect(unlock).not.toHaveBeenCalled()
   })
 
-  it('reconciles a legacy encrypted registry route only after its vault is verified as v4', async () => {
+  it('reconciles a legacy encrypted registry route only after its vault is verified as v5', async () => {
     const service = manager()
     const workspace = createEmptyWorkspace({
       id: crypto.randomUUID(),
@@ -256,11 +256,11 @@ describe('LocalWorkspaceManager', () => {
     const opened = rememberSession(
       await service.unlockEncrypted(ready.id, PASSPHRASE),
     )
-    expect(opened.entry.schemaVersion).toBe(4)
+    expect(opened.entry.schemaVersion).toBe(5)
     expect(opened.entry.storageSchemaVersion).toBe(1)
-    expect(opened.snapshot.version).toBe(4)
+    expect(opened.snapshot.version).toBe(5)
     const persisted = await service.registry.getWorkspace(ready.id)
-    expect(persisted?.schemaVersion).toBe(4)
+    expect(persisted?.schemaVersion).toBe(5)
     expect(persisted?.storageSchemaVersion).toBe(1)
   })
 
@@ -423,7 +423,7 @@ describe('LocalWorkspaceManager', () => {
     expect(await standardWorkspaceDatabaseExists(session.storageId)).toBe(false)
   })
 
-  it('opens a real v3 standard database and atomically reconciles its route to 4/4', async () => {
+  it('opens a real v3 standard database and atomically reconciles its route to 5/5', async () => {
     const service = manager()
     const workspace = createEmptyWorkspace({
       id: crypto.randomUUID(),
@@ -471,17 +471,17 @@ describe('LocalWorkspaceManager', () => {
     await service.registry.markReady(provisioning.id, provisioning.registryRevision)
 
     const opened = rememberSession(await service.openStandard(workspace.workspace.id))
-    expect(opened.entry.schemaVersion).toBe(4)
-    expect(opened.entry.storageSchemaVersion).toBe(4)
-    expect(opened.snapshot.version).toBe(4)
+    expect(opened.entry.schemaVersion).toBe(5)
+    expect(opened.entry.storageSchemaVersion).toBe(5)
+    expect(opened.snapshot.version).toBe(5)
     const persisted = await service.registry.getWorkspace(workspace.workspace.id)
-    expect(persisted?.schemaVersion).toBe(4)
-    expect(persisted?.storageSchemaVersion).toBe(4)
+    expect(persisted?.schemaVersion).toBe(5)
+    expect(persisted?.storageSchemaVersion).toBe(5)
 
     opened.repository.close()
     const reopened = rememberSession(await service.openStandard(workspace.workspace.id))
     expect(reopened.entry.registryRevision).toBe((persisted?.registryRevision ?? 0) + 1)
-    expect(reopened.entry.storageSchemaVersion).toBe(4)
+    expect(reopened.entry.storageSchemaVersion).toBe(5)
   })
 
   it('never creates an empty database while opening or recovering a missing standard route', async () => {

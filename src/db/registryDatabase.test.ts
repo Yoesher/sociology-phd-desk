@@ -132,7 +132,7 @@ describe('workspace registry', () => {
       WORKSPACE_SCHEMA_VERSION,
       4,
     )
-    expect(reconciled.schemaVersion).toBe(4)
+    expect(reconciled.schemaVersion).toBe(5)
     expect(reconciled.storageSchemaVersion).toBe(4)
     expect(reconciled.registryRevision).toBe(ready.registryRevision + 1)
     const idempotent = await registry.reconcileVerifiedWorkspaceStorageVersions(

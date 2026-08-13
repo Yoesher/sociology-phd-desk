@@ -6,6 +6,7 @@ import {
   EVIDENCE_TYPES,
   FIELD_SITE_STATUSES,
   INTERVIEW_STATUSES,
+  LITERATURE_EXTERNAL_PROVIDERS,
   LITERATURE_STATUSES,
   MANUSCRIPT_STATUSES,
   PRIORITIES,
@@ -171,15 +172,35 @@ const literatureSchema = entityMetadataSchema
   .extend({
     title: titleSchema,
     authors: z.array(titleSchema).max(1_000),
+    itemType: shortTextSchema.optional(),
     year: z.number().int().min(1000).max(2100).optional(),
     journal: titleSchema.optional(),
+    volume: shortTextSchema.optional(),
+    issue: shortTextSchema.optional(),
+    pages: shortTextSchema.optional(),
+    publisher: titleSchema.optional(),
+    place: titleSchema.optional(),
     doi: z.string().trim().min(1).max(500).optional(),
+    isbn: z.string().trim().min(1).max(500).optional(),
+    issn: z.string().trim().min(1).max(500).optional(),
     url: urlSchema.optional(),
     projectId: idSchema,
     status: z.enum(LITERATURE_STATUSES),
     priority: z.enum(PRIORITIES),
     whyRead: textSchema,
     notes: textSchema,
+  })
+  .strict()
+
+const literatureExternalReferenceSchema = entityMetadataSchema
+  .extend({
+    literatureItemId: idSchema,
+    provider: z.enum(LITERATURE_EXTERNAL_PROVIDERS),
+    externalLibraryId: idSchema,
+    externalItemKey: idSchema,
+    externalVersion: z.number().int().nonnegative().optional(),
+    importedAt: isoDateTimeSchema,
+    lastSeenModifiedAt: isoDateTimeSchema.optional(),
   })
   .strict()
 
@@ -324,6 +345,7 @@ const workspaceDataSchema = z
     theoryMemos: z.array(theoryMemoSchema),
     tasks: z.array(taskSchema),
     literature: z.array(literatureSchema),
+    literatureExternalReferences: z.array(literatureExternalReferenceSchema),
     fieldSites: z.array(fieldSiteSchema),
     interviews: z.array(interviewSchema),
     fieldVisits: z.array(fieldVisitSchema),
@@ -365,6 +387,7 @@ function relationshipIssues(data: WorkspaceData): WorkspaceValidationIssue[] {
   )
   const claimById = new Map(data.claims.map((claim) => [claim.id, claim]))
   const literatureById = new Map(data.literature.map((item) => [item.id, item]))
+  const externalLiteratureKeys = new Set<string>()
   const fieldSiteById = new Map(data.fieldSites.map((site) => [site.id, site]))
   const datasetById = new Map(data.datasets.map((dataset) => [dataset.id, dataset]))
   const manuscriptById = new Map(data.manuscripts.map((manuscript) => [manuscript.id, manuscript]))
@@ -395,6 +418,22 @@ function relationshipIssues(data: WorkspaceData): WorkspaceValidationIssue[] {
     requireProject('theoryMemos', index, record.projectId),
   )
   data.literature.forEach((record, index) => requireProject('literature', index, record.projectId))
+  data.literatureExternalReferences.forEach((record, index) => {
+    if (!literatureById.has(record.literatureItemId)) {
+      issues.push({
+        path: ['literatureExternalReferences', index, 'literatureItemId'],
+        message: `Unknown literature ID "${record.literatureItemId}".`,
+      })
+    }
+    const externalKey = `${record.provider}\u0000${record.externalLibraryId}\u0000${record.externalItemKey}`
+    if (externalLiteratureKeys.has(externalKey)) {
+      issues.push({
+        path: ['literatureExternalReferences', index, 'externalItemKey'],
+        message: 'This external Zotero item is already linked in the workspace.',
+      })
+    }
+    externalLiteratureKeys.add(externalKey)
+  })
   data.fieldSites.forEach((record, index) => requireProject('fieldSites', index, record.projectId))
   data.datasets.forEach((record, index) => requireProject('datasets', index, record.projectId))
   data.evidence.forEach((record, index) => requireProject('evidence', index, record.projectId))
@@ -821,6 +860,7 @@ export function migrateWorkspaceV1ToV2(input: unknown): unknown {
 }
 
 const WORKSPACE_SCHEMA_VERSION_V3 = 3 as const
+const WORKSPACE_SCHEMA_VERSION_V4 = 4 as const
 
 /** v2 introduces revisions; v3 introduces the first-class research graph. */
 export function migrateWorkspaceV2ToV3(input: unknown): unknown {
@@ -876,14 +916,28 @@ export function migrateWorkspaceV3ToV4(input: unknown): unknown {
 
   return {
     ...input,
-    version: WORKSPACE_SCHEMA_VERSION,
+    version: WORKSPACE_SCHEMA_VERSION_V4,
     theoryMemos: [],
   }
 }
 
+/** v5 adds an empty Zotero provenance collection without inferring any links. */
+export function migrateWorkspaceV4ToV5(input: unknown): unknown {
+  if (!isRecord(input) || input['version'] !== WORKSPACE_SCHEMA_VERSION_V4) return input
+  if (Object.prototype.hasOwnProperty.call(input, 'literatureExternalReferences')) return input
+
+  return {
+    ...input,
+    version: WORKSPACE_SCHEMA_VERSION,
+    literatureExternalReferences: [],
+  }
+}
+
 function migrateLegacyWorkspace(input: unknown): unknown {
-  return migrateWorkspaceV3ToV4(
-    migrateWorkspaceV2ToV3(migrateWorkspaceV1ToV2(input)),
+  return migrateWorkspaceV4ToV5(
+    migrateWorkspaceV3ToV4(
+      migrateWorkspaceV2ToV3(migrateWorkspaceV1ToV2(input)),
+    ),
   )
 }
 
@@ -915,6 +969,7 @@ export function validateWorkspace(input: unknown): WorkspaceValidationResult {
     ...duplicateIdIssues('theoryMemos', data.theoryMemos),
     ...duplicateIdIssues('tasks', data.tasks),
     ...duplicateIdIssues('literature', data.literature),
+    ...duplicateIdIssues('literatureExternalReferences', data.literatureExternalReferences),
     ...duplicateIdIssues('fieldSites', data.fieldSites),
     ...duplicateIdIssues('interviews', data.interviews),
     ...duplicateIdIssues('fieldVisits', data.fieldVisits),

@@ -523,6 +523,7 @@ function createDemoWorkspaceFixture(now: Date, includeTheory: boolean): Workspac
     theoryMemos,
     tasks,
     literature,
+    literatureExternalReferences: [],
     fieldSites,
     interviews,
     fieldVisits,
