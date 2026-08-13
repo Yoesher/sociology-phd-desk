@@ -89,6 +89,9 @@ Attach or record exact outputs; do not infer success from an earlier revision.
 - [ ] The release commit exists on `main`.
 - [ ] Version, tag, and release title match.
 - [ ] Release notes explain purpose, supported workflows, known limitations, privacy model, and roadmap.
+- [ ] Multilingual Release Notes were written to an explicit UTF-8 `.md` file, passed `scripts/verify-release-notes.mjs` with a non-ASCII sentinel, and were uploaded with `gh release create/edit --notes-file`.
+- [ ] The published Release body was read back through the GitHub API and passed the same sentinel/corruption guard; a successful CLI exit alone is not accepted as metadata proof.
+- [ ] The post-upload Release ID, annotated tag object, and dereferenced release commit match the pre-upload identity.
 - [ ] GitHub Pages, if enabled, contains only synthetic/browser-local demo data.
 - [ ] The deployed Pages build opens in Chinese on a fresh profile, switches immediately to English, and retains the chosen language after reload.
 - [ ] Both deployed languages retain the current route, theme, workspace data, and privacy warnings at desktop and narrow widths.
