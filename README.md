@@ -18,7 +18,7 @@
 
 完整步骤见[中文开始使用指南](docs/zh-CN/getting-started.md)。
 
-> **`v0.2.1` 分发与 PWA 候选正在开发：** 当前 feature branch 正在加入安装、静态资源离线启动、用户确认更新、持久存储状态和备份提醒；正式 tag 与 GitHub Release 尚未创建。当前正式版本仍是 [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0)。
+> **`v0.2.1` 分发与 PWA 候选已完成并进入发布冻结：** 功能 PR [#24](https://github.com/Yoesher/sociology-phd-desk/pull/24) 已合并，精确 `main` 的 CI 与 Pages 均通过；当前 `release/0.2.1` 仅处理发布证据与阻断级修复。正式 `v0.2.1` tag 与 GitHub Release 尚未创建，当前正式版本仍是 [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0)。
 
 > **[`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) 已正式发布：** 九个研究工作域的二级导航、理论研究、研究问题—主张图谱、本地私密/加密工作区，以及论文与投稿整合均已发布。Release PR [#21](https://github.com/Yoesher/sociology-phd-desk/pull/21) 通过精确 head CI 与 P0 = 0 / P1 = 0 审查后合并；精确发布 SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db) 的 CI 与 Pages 均通过，annotated tag 与 latest、非草稿、非预发布 GitHub Release 均指向该版本。中国研究地图因来源、再分发、审图元数据和全国完整性门禁均未通过而暂缓，**不属于 `v0.2.0`**。核验证据与限制见 [PROJECT_STATE.md](PROJECT_STATE.md)。
 

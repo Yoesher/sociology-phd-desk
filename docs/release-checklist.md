@@ -2,6 +2,18 @@
 
 Use this checklist for every release. A checked item means it was verified against the exact release revision.
 
+## `v0.2.1` release-candidate checkpoint — 2026-08-13
+
+- [x] `V0.2.1 FEATURE FREEZE` is active on `release/0.2.1`; no new research feature or `v0.3.0` work is allowed.
+- [x] Package/lock are `0.2.1`; portable/standard remain v4 and encrypted container/vault/registry remain v1.
+- [x] Final local gate passed: clean `npm ci`; strict lint 0 warnings; typecheck; 31 files / 285 tests; verified production PWA build with 24 static precache entries; Markdown-link, secret/private-path, and diff checks.
+- [x] Real browser smoke covered standard and encrypted/locked update, two-tab activation refusal, offline startup/edit/reload/online recovery, Chinese/English evidence, desktop/mobile browser mode, and complete synthetic-QA cleanup.
+- [x] Installed standalone launch and cross-device manual restore remain explicit non-mandatory **NOT RUN** boundaries; automated contracts and the documented encrypted-backup workflow must not be relabeled as manual evidence.
+- [x] Feature PR #24 passed exact-head CI and P0 = 0 / P1 = 0 self-review, merged as `671cef2fdb62bc4f10f281ccd496cc04ddc2b9a9`, and passed exact-main CI, Pages, and deployment.
+- [x] Public manifest, service worker, icons, app/build SHA, and static-only PWA contract passed HTTP verification; public interactive/offline smoke remains LIMITED PASS / NOT RUN after browser-control timeouts.
+- [ ] Release PR passes exact-head CI and P0 = 0 / P1 = 0 self-review, then merges to an exact release SHA with exact-main CI and Pages passing.
+- [ ] Annotated `v0.2.1` tag and the latest non-draft, non-prerelease GitHub Release point to the exact release SHA; existing `v0.2.0` is not moved.
+
 ## `v0.2.0` release checkpoint — 2026-08-12
 
 This checkpoint preserves completed candidate evidence and the verified publication chain. It does not replace the reusable checklist below.
