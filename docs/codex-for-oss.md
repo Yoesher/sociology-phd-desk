@@ -4,24 +4,24 @@ Sociology PhD Desk may consider applying to an OpenAI open-source support progra
 
 ## Metric snapshot
 
-**As of 2026-08-13**
+**Release-publication snapshot collected on 2026-08-13, before the documentation-closeout PR**
 
 | Metric | Verified value | Evidence and interpretation |
 | --- | --- | --- |
-| Public repository | [Yoesher/sociology-phd-desk](https://github.com/Yoesher/sociology-phd-desk), public | GitHub API/CLI verified public visibility and `main`; exact `v0.2.1` release SHA is `8db828faaa94f7591dbd806abe90916335862187`. |
-| Version | [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) | Latest non-draft, non-prerelease GitHub Release; annotated tag object `e481de4ac1acfeca98191cfacc81bee55d96ce69` dereferences to the exact release SHA. |
+| Public repository | [Yoesher/sociology-phd-desk](https://github.com/Yoesher/sociology-phd-desk), public | GitHub API/CLI verified public visibility and `main`; exact `v0.2.2` release SHA is `e766d18329ae675d835ce82e02554d5b0d5394ab`. |
+| Version | [`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) | Latest non-draft, non-prerelease GitHub Release; annotated tag object `71dcba537e32c674e5475ecb4b15e30b1006d620` dereferences to the exact release SHA. |
 | Maintainer | `Yoesher` | Repository owner and current maintainer. This does not imply an external contributor community. |
 | Stars | 2 | GitHub repository API query on 2026-08-13. A Star is repository activity, not evidence of a user, tester, endorsement, or adoption. |
 | Forks | 0 | GitHub repository API/CLI query on 2026-08-12. |
-| Open issues | 5 | GitHub Issues API/CLI query on 2026-08-12 after navigation Issue #19 closed; Issue #2 remains open. |
-| Closed issues | 7 | GitHub Issues API/CLI query on 2026-08-13; includes completed Distribution & PWA Issue #23. |
-| Open pull requests | 0 | GitHub Pull Request API/CLI release-publication snapshot after PR #25 merged. |
-| Merged pull requests | 13 | GitHub API snapshot on 2026-08-13; all are maintainer-originated, including feature PR #24 and release PR #25. |
-| Published releases | 3 | GitHub Releases API/CLI snapshot: `v0.1.0`, `v0.2.0`, and latest `v0.2.1`. |
+| Open issues | 5 | GitHub Issues API/CLI release-publication snapshot; Issue #2 remains open. |
+| Closed issues | 9 | GitHub Issues API/CLI release-publication snapshot; includes completed Simplicity & Motion Issue #30. |
+| Open pull requests | 0 | GitHub Pull Request API/CLI release-publication snapshot after PR #32 merged and before this documentation closeout. |
+| Merged pull requests | 18 | GitHub API release-publication snapshot; all are maintainer-originated, including feature PR #31 and release PR #32. |
+| Published releases | 4 | GitHub Releases API/CLI snapshot: `v0.1.0`, `v0.2.0`, `v0.2.1`, and latest `v0.2.2`. |
 | Downloads | No verified count | The release has no custom binary assets. GitHub-generated source archives do not provide an asset download count through the release-assets API. |
 | Real external users | 0 verified; actual count unknown | No user evidence has been collected or supplied. One Star must not be converted into a user count or interest estimate. |
 | Real external testers | 0 verified; actual count unknown | No external tester is documented. Maintainer self-testing and CI must not be relabeled as external testing. |
-| External contributors | 0 verified | Public commits and all thirteen merged Pull Requests are maintainer-originated; no external contributor or external Pull Request is verified. |
+| External contributors | 0 verified | Public commits and all eighteen merged Pull Requests in this snapshot are maintainer-originated; no external contributor or external Pull Request is verified. |
 | External mentions | 0 verified in project records | No external mention was supplied or documented. This is not a comprehensive web-wide search result. |
 | Institutional adoption | None known | No institution has supplied evidence of use or adoption. |
 
@@ -49,7 +49,7 @@ Do not publish identities, affiliations, or research topics without explicit per
 
 ## Maintainer activity
 
-As of the 2026-08-13 release-publication snapshot, verified activity additionally includes the v0.2.1 Distribution & PWA feature and release chains; thirteen maintainer-authored merged Pull Requests and three formal Releases are recorded. This is maintenance evidence, not external adoption.
+As of the pre-closeout 2026-08-13 release-publication snapshot, verified activity includes the v0.2.2 Simplicity & Motion feature and release chains; eighteen maintainer-authored merged Pull Requests and four formal Releases are recorded. This is maintenance evidence, not external adoption.
 
 Phase 3C [PR #14](https://github.com/Yoesher/sociology-phd-desk/pull/14) advanced exact feature head `a6681fff763c66692126775a341ba64cafe546fc` to squash-merge SHA [`f8b9ef9`](https://github.com/Yoesher/sociology-phd-desk/commit/f8b9ef94e67730955a4ab4b6fbe27f66ab3a5db9). Its [maintainer self-review](https://github.com/Yoesher/sociology-phd-desk/pull/14#issuecomment-5260782671) recorded P0 = 0 and P1 = 0. Exact-head [push CI run 31551522108 / job 93975026534](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551522108/job/93975026534) and [PR CI run 31551571303 / job 93975177107](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551571303/job/93975177107) succeeded; Issue #13 closed with the merge. Exact-`main` [CI run 31551698246 / job 93975560577](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551698246/job/93975560577) and [Pages run 31551698215](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31551698215) build/deploy jobs `93975560485` / `93975708219` succeeded on the same SHA; deployment `5861195664` published `https://yoesher.github.io/sociology-phd-desk/`.
 
@@ -99,4 +99,4 @@ Never buy Stars, fabricate accounts, users, downloads, contributors, issues, pul
 | 2026-08-12 | Navigation PR #20 merged as `1cbedd2f`; Issue #19 closed; 1 Star, 0 Forks, 5 open Issues, 6 closed Issues, 0 open PRs, 9 merged PRs, and 1 formal Release. Exact-head and exact-main CI plus Pages passed; complete public navigation interaction remained NOT RUN after a browser-bridge timeout. Package `0.2.0` is a release candidate only. | GitHub repository, Issues, Pull Requests, Actions, Pages, release API, and local candidate record |
 | 2026-08-12 | `v0.2.0` release-publication snapshot: release PR #21 merged as exact `main` `eb399f7`; exact-head and exact-main CI plus Pages passed; public browser smoke was a LIMITED PASS; annotated tag and latest non-draft/non-prerelease Release published. Metrics: 1 Star, 0 Forks, 5 open Issues, 6 closed Issues, 0 open PRs, 10 merged PRs, 2 Releases, and 0 verified external testers. | GitHub repository, Issues, Pull Requests, Actions, Pages, annotated tag, Release API, and limited public browser verification |
 | 2026-08-13 | `v0.2.1` Distribution & PWA published from exact SHA `8db828f`; feature PR #24 and release PR #25 merged; exact-head/main CI, Pages/deployment, annotated tag, Release, local browser update/offline gates, and public static PWA verification passed. Metrics: 2 Stars, 0 Forks, 5 open Issues, 7 closed Issues, 0 open PRs, 13 merged PRs, 3 Releases, and 0 verified external testers. Installed standalone, second-profile restore, and public interactive/offline smoke remain NOT RUN/LIMITED. | GitHub repository, Issues, Pull Requests, Actions, Pages, annotated tag, Release API, local browser evidence, public static verification, and recorded browser limitations |
-| 2026-08-13 | `v0.2.2` Simplicity & Motion local candidate passed `npm ci`, lint, typecheck, 33 files / 300 tests, production/PWA build, and bilingual desktop/mobile browser QA. Nine primary modules remain; secondary navigation is 67 → 32; schemas remain portable/standard v4 and encrypted container v1. Issue #30 exists; feature PR, merge, exact-main deployment, release tag, and GitHub Release are not yet claimed. | Local exact-tree verification, production preview, screenshot register, and Issue #30 |
+| 2026-08-13 | `v0.2.2` Simplicity & Motion published from exact SHA `e766d18`; feature PR #31 and release PR #32 merged; exact-head/main CI, Pages/deployment, annotated tag, latest UTF-8 Release, and API read-back passed. Nine primary modules remain; secondary navigation is 67 → 32; schemas remain portable/standard v4 and encrypted container v1. Metrics: 2 Stars, 0 Forks, 5 open Issues, 9 closed Issues, 0 open PRs, 18 merged PRs, 4 Releases, and 0 verified external testers. Public interaction is LIMITED PASS. | GitHub repository, Issues, Pull Requests, Actions, Pages, annotated tag, Release API, production preview, screenshot register, and public static verification |

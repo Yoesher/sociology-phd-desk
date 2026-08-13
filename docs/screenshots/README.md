@@ -11,12 +11,12 @@ These captures document the running application rather than design mockups. The 
 
 ## Registered captures
 
-### `v0.2.2` final local candidate
+### `v0.2.2` release evidence
 
 - Application/package version: captures are from the feature candidate at `0.2.1`; `release/0.2.2` now sets package/lock to `0.2.2` without changing the rendered interface
 - Candidate branches: `feat/simplicity-motion` → `release/0.2.2`
 - Capture date: 2026-08-13
-- Capture boundary: final local production preview after the 33-file / 300-test gate; publication is not claimed here
+- Capture boundary: final local production preview after the 33-file / 300-test gate; the resulting [`v0.2.2` Release](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) is published from exact SHA `e766d18329ae675d835ce82e02554d5b0d5394ab`
 
 | File | View | Privacy review |
 | --- | --- | --- |

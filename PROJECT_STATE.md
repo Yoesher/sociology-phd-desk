@@ -1,21 +1,21 @@
 # Project State
 
 > Last updated: 2026-08-13
-> Status: [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) Distribution & PWA is formally released from exact release SHA `8db828faaa94f7591dbd806abe90916335862187`. Issue [#23](https://github.com/Yoesher/sociology-phd-desk/issues/23) is closed; feature PR [#24](https://github.com/Yoesher/sociology-phd-desk/pull/24) and release PR [#25](https://github.com/Yoesher/sociology-phd-desk/pull/25) are merged. Exact-head and exact-main CI, Pages/deployment, local PWA/update/offline browser gates, public static verification, annotated tag, and latest non-draft/non-prerelease Release all passed with P0 = 0 / P1 = 0. Installed standalone smoke remains an honest **NOT RUN**, and public interaction/offline smoke remains **LIMITED PASS / NOT RUN** after the browser bridge timed out. No `v0.3.0` work has started.
+> Status: [`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) Simplicity & Motion is formally released from exact release SHA `e766d18329ae675d835ce82e02554d5b0d5394ab`. Feature PR [#31](https://github.com/Yoesher/sociology-phd-desk/pull/31) and release PR [#32](https://github.com/Yoesher/sociology-phd-desk/pull/32) passed exact-head CI and P0 = 0 / P1 = 0 self-review before squash merge. Exact-main CI, Pages/deployment, public PWA/static verification, annotated tag, and latest non-draft/non-prerelease UTF-8 Release all passed. Complete local interaction smoke passed; post-release public interaction remains an honest **LIMITED PASS**. No `v0.3.0` work has started.
 
-> Release candidate: feature PR [#31](https://github.com/Yoesher/sociology-phd-desk/pull/31) passed exact-head push/PR CI and P0 = 0 / P1 = 0 self-review, then squash-merged as `34bb469e6fd719ddd387aef43ce79983a94cca99`. Exact-main CI `31715233210` / job `94498174176`, Pages `31715233124` / build `94498172315` / deploy `94498497850`, and deployment `5890896670` all passed. Public app/manifest/service-worker/assets returned HTTP 200 and the deployed entry bundle contained exact feature merge SHA `34bb469`; public interaction is recorded as LIMITED PASS because the browser session was finalized after the complete local production-preview interaction gate. `release/0.2.2` now sets package/lock to 0.2.2; release PR, final exact-main, tag, Release, and UTF-8 read-back remain pending.
+> Release evidence: feature PR #31 merged as `34bb469`; release PR #32 exact head `95d3c3d` passed push CI `31716269024` / job `94501669856` and PR CI `31716314573` / job `94501818422`, then squash-merged as `e766d18329ae675d835ce82e02554d5b0d5394ab`. Final exact-main CI `31716505506` / job `94502469092`, Pages `31716505703` / build `94502470262` / deploy `94502862622`, and deployment `5891146111` passed. Public root/manifest/service worker returned HTTP 200 and the entry bundle contained version 0.2.2 plus exact release SHA. Annotated tag object `71dcba537e32c674e5475ecb4b15e30b1006d620` dereferences to that SHA. Release `370028137` is latest, non-draft, non-prerelease; UTF-8 API read-back passed Chinese/English sentinels with no replacement character or question-mark run.
 > Canonical local project path: `D:\phddesk`
 
 This file is the factual handoff record for maintainers and future Codex sessions. Update it at the end of every development session. Never infer passing checks, repository activity, users, or releases.
 
 ## Current version
 
-- Package/lock and published release: `0.2.1`; exact release SHA `8db828faaa94f7591dbd806abe90916335862187`
-- Release status: [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) is latest, non-draft, and non-prerelease; annotated tag object `e481de4ac1acfeca98191cfacc81bee55d96ce69` dereferences to the exact release SHA. Existing `v0.2.0` remains unmoved.
-- Current target: complete only the authorized `v0.2.2` Simplicity & Motion release chain, then enter adoption and stabilization without starting `v0.3.0`
+- Package/lock and published release: `0.2.2`; exact release SHA `e766d18329ae675d835ce82e02554d5b0d5394ab`
+- Release status: [`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) is latest, non-draft, and non-prerelease; annotated tag object `71dcba537e32c674e5475ecb4b15e30b1006d620` dereferences to the exact release SHA. Existing `v0.2.1` and `v0.2.0` tags remain unmoved.
+- Current target: `V0.2.2 ADOPTION & STABILIZATION`; accept real user feedback, bug fixes, and browser E2E only; do not start `v0.3.0`
 - Release metadata repair: the original `v0.2.1` GitHub API body contained question-mark corruption in its Chinese section while `v0.2.0` remained valid Unicode. Release `369842240` was repaired in place from a verified UTF-8 notes file; the API read-back now passes Chinese and English sentinels with no question-mark run. Tag object `e481de4ac1acfeca98191cfacc81bee55d96ce69` still dereferences to release SHA `8db828faaa94f7591dbd806abe90916335862187`; no tag or code identity moved. Maintenance Issue [#27](https://github.com/Yoesher/sociology-phd-desk/issues/27) was completed by PR [#28](https://github.com/Yoesher/sociology-phd-desk/pull/28), whose exact head passed push CI `31701711344`, PR CI `31701763215`, and P0 = 0 / P1 = 0 self-review before squash merge as `d64f691cb40145170f8f0609634349790982d8b8`. Exact-main CI `31701981857` / job `94453088166`, Pages `31701981989` / build `94453089294` / deploy `94453381165`, and deployment `5888344499` all passed.
 
-### v0.2.2 local candidate verification — 2026-08-13
+### v0.2.2 final release verification — 2026-08-13
 
 | Gate | Result |
 | --- | --- |
@@ -28,7 +28,7 @@ This file is the factual handoff record for maintainers and future Codex session
 | Version axes | PASS — package/lock are 0.2.2 on release branch; portable v4, standard DB v4, encrypted container v1 unchanged |
 | Feature remote gate | PASS — PR #31 exact head `0ba748e`; push CI `31715033377` / `94497473313`; PR CI `31715063655` / `94497583779`; self-review P0 = 0 / P1 = 0; squash merge `34bb469` |
 | Feature exact-main | PASS — CI `31715233210` / `94498174176`; Pages `31715233124`; build/deploy `94498172315` / `94498497850`; deployment `5890896670` |
-| Release | PENDING — no v0.2.2 release PR, tag, or GitHub Release is claimed yet |
+| Release | PASS — PR #32 merged as `e766d18`; exact-main CI/Pages/deployment passed; annotated tag and latest UTF-8 GitHub Release point to the exact SHA |
 
 ### v0.2.1 released architecture
 
