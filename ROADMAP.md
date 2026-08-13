@@ -25,7 +25,7 @@ The product remains sociology-specific and complements, rather than replaces, sp
 
 Phase 3 uses independently verified increments. Listing an increment here does not mean it has shipped; verified status remains in [PROJECT_STATE.md](PROJECT_STATE.md).
 
-**Current release scope:** Phase 3A, Phase 3B, Phase 3C, Phase 3E, and Phase 3F are included in formal [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0), published from exact release SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db) after release PR #21, exact-main CI, Pages, annotated tag, and Release gates passed. The Phase 3D China Research Map source/compliance review remains a documentation-only deferral; Issue #8 is `CLOSED_NOT_PLANNED`, all four map gates remain **BLOCKED**, and no map asset or implementation shipped. No `v0.3.0` work has started. See the retained bilingual source register: [简体中文](docs/zh-CN/map-data-sources.md) / [English](docs/en/map-data-sources.md).
+**Current release scope:** [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) adds installable/offline PWA distribution, safe user-approved updates, storage-persistence visibility, and local backup reminders to the complete `v0.2.0` research workflow without adding accounts, cloud sync, or a new research entity. It is published from exact release SHA [`8db828f`](https://github.com/Yoesher/sociology-phd-desk/commit/8db828faaa94f7591dbd806abe90916335862187). The Phase 3D China Research Map remains excluded; all four map gates remain **BLOCKED**. No `v0.3.0` work has started.
 
 Every implemented increment follows the same evidence chain: scoped Issue → dedicated feature branch → implementation and tests → Pull Request → passing PR CI → maintainer self-review → squash merge → passing `main` CI → GitHub Pages verification. The map's blocked gate applies to the map alone; each non-map increment must pass its own complete gate before the next begins.
 
@@ -106,13 +106,13 @@ Release criteria:
 
 ## `0.2.x` — traceability depth
 
-### `0.2.1` — distribution and PWA (feature complete; release candidate frozen)
+### `0.2.1` — distribution and PWA (released)
 
 - Make the existing local-first workstation installable while retaining ordinary browser use.
 - Precache application static assets only; keep research data in the existing standard/encrypted workspace repositories.
 - Add user-approved, flush-before-activation updates; storage-persistence visibility; and local backup reminders.
 - Retain the current Pages origin with explicit shared-origin risk for this release. A custom/dedicated origin requires a separate migration decision and encrypted-backup transfer path.
-- Feature PR #24, exact-head/main CI, Pages, and static public deployment verification are complete. Finish the release PR, annotated tag, formal GitHub Release, and post-release truth closeout; do not start v0.3 during this cycle.
+- Feature PR #24 and release PR #25 are merged; exact-head/main CI, Pages, deployment, public static verification, annotated tag, and formal GitHub Release passed. The cycle is closed without starting v0.3.
 
 - Complete and stabilize the first-class Research Question, Claim, and `ClaimQuestionLink` foundation; add Variable, Model, Code, Memo, and Revision Task only through separately scoped work.
 - Bidirectional evidence-to-claim and claim-to-manuscript navigation.

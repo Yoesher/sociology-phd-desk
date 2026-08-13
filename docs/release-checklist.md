@@ -2,7 +2,7 @@
 
 Use this checklist for every release. A checked item means it was verified against the exact release revision.
 
-## `v0.2.1` release-candidate checkpoint — 2026-08-13
+## `v0.2.1` release checkpoint — 2026-08-13
 
 - [x] `V0.2.1 FEATURE FREEZE` is active on `release/0.2.1`; no new research feature or `v0.3.0` work is allowed.
 - [x] Package/lock are `0.2.1`; portable/standard remain v4 and encrypted container/vault/registry remain v1.
@@ -11,8 +11,8 @@ Use this checklist for every release. A checked item means it was verified again
 - [x] Installed standalone launch and cross-device manual restore remain explicit non-mandatory **NOT RUN** boundaries; automated contracts and the documented encrypted-backup workflow must not be relabeled as manual evidence.
 - [x] Feature PR #24 passed exact-head CI and P0 = 0 / P1 = 0 self-review, merged as `671cef2fdb62bc4f10f281ccd496cc04ddc2b9a9`, and passed exact-main CI, Pages, and deployment.
 - [x] Public manifest, service worker, icons, app/build SHA, and static-only PWA contract passed HTTP verification; public interactive/offline smoke remains LIMITED PASS / NOT RUN after browser-control timeouts.
-- [ ] Release PR passes exact-head CI and P0 = 0 / P1 = 0 self-review, then merges to an exact release SHA with exact-main CI and Pages passing.
-- [ ] Annotated `v0.2.1` tag and the latest non-draft, non-prerelease GitHub Release point to the exact release SHA; existing `v0.2.0` is not moved.
+- [x] Release PR #25 passed exact-head CI and P0 = 0 / P1 = 0 self-review, then squash-merged as exact release SHA `8db828faaa94f7591dbd806abe90916335862187`; exact-main CI, Pages, and deployment passed.
+- [x] Annotated `v0.2.1` tag object `e481de4ac1acfeca98191cfacc81bee55d96ce69` and the latest non-draft, non-prerelease GitHub Release point to the exact release SHA; existing `v0.2.0` was not moved.
 
 ## `v0.2.0` release checkpoint — 2026-08-12
 

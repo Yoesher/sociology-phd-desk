@@ -4,7 +4,7 @@ Sociology PhD Desk is local-first: its core does not require an account or a clo
 
 This page separates four protection levels that are easy to confuse.
 
-Version note: published [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0), at exact release SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db), includes Theory Research, hierarchical navigation, and integrated publishing and stores portable/standard v4. Encrypted container v1, encrypted-vault database v1, and registry database v1 remain unchanged.
+Version note: published [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1), at exact release SHA [`8db828f`](https://github.com/Yoesher/sociology-phd-desk/commit/8db828faaa94f7591dbd806abe90916335862187), retains portable/standard v4 and encrypted container/vault/registry v1. Its service worker precaches application static assets only and does not move workspace data into Cache Storage.
 
 ## A. Browser isolation
 

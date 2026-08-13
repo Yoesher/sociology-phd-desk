@@ -1,6 +1,6 @@
 # Next Tasks
 
-> Active v0.2.1 Distribution & PWA queue. [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) remains published from exact release SHA `eb399f7da0a1f3142f7c8361492fa86b08db77db`. Do not begin `v0.3.0`; stop after the v0.2.1 release and closeout.
+> `v0.2.1` Distribution & PWA is published from exact release SHA `8db828faaa94f7591dbd806abe90916335862187`. This queue is frozen after documentation closeout. Do not begin `v0.3.0`.
 
 ## P0 — v0.2.1 Distribution & PWA
 
@@ -13,8 +13,8 @@
 - [x] Re-run the final browser matrix: fresh personal onboarding; standard and encrypted/locked update; real two-tab refusal and peer notice; offline edit/reload/online recovery; English desktop and 390 × 844 mobile; browser mode; and deletion of both synthetic QA workspaces. Earlier same-branch smoke supplies fresh Chinese/persisted language and zero-console evidence. Installed standalone remains honest NOT RUN because the in-app browser exposes no controllable OS install surface.
 - [x] Merge feature [PR #24](https://github.com/Yoesher/sociology-phd-desk/pull/24) from exact final head `e59d1af070d8ff801842cc591873e6d313311d24` after push/PR CI and P0 = 0 / P1 = 0 self-review; verify squash `main` `671cef2fdb62bc4f10f281ccd496cc04ddc2b9a9`, exact-main CI, Pages, deployment, and Issue #23 closure.
 - [x] Verify the deployed manifest, service worker, icons, exact app/build SHA, and static-only cache contract over public HTTP. Record public interactive/offline smoke honestly as LIMITED PASS / NOT RUN after the browser bridge timed out; do not infer it from HTTP inspection.
-- [ ] Open the `release/0.2.1` PR, pass exact-head CI and self-review, squash-merge, and pass exact-main CI plus Pages.
-- [ ] Publish annotated `v0.2.1` tag and latest non-draft GitHub Release only after the release revision gates pass; then update exact remote evidence/metrics and stop without starting v0.3.
+- [x] Open release [PR #25](https://github.com/Yoesher/sociology-phd-desk/pull/25), pass exact-head push/PR CI and P0 = 0 / P1 = 0 self-review, squash-merge as `8db828faaa94f7591dbd806abe90916335862187`, and pass exact-main CI plus Pages/deployment.
+- [x] Publish annotated `v0.2.1` tag object `e481de4ac1acfeca98191cfacc81bee55d96ce69` and the latest non-draft, non-prerelease [GitHub Release](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1); update exact remote evidence/metrics and stop without starting v0.3.
 
 ## P0 — Phase 3A bilingual gate (complete)
 

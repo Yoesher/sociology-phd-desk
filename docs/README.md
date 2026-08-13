@@ -2,7 +2,7 @@
 
 This directory contains durable product, architecture, workflow, release, and project-integrity documentation.
 
-Current status boundary: [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) is published from exact release SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db) and includes Theory Research, hierarchical navigation, integrated Manuscripts & Publishing, and portable/standard v4. Exact-main CI and Pages passed on that release revision. The China Research Map remains a documentation-only deferral and no map feature shipped. See [`../PROJECT_STATE.md`](../PROJECT_STATE.md).
+Current status boundary: [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) is published from exact release SHA [`8db828f`](https://github.com/Yoesher/sociology-phd-desk/commit/8db828faaa94f7591dbd806abe90916335862187). It adds PWA distribution, offline application-shell startup, safe user-approved updates, storage-persistence visibility, and local backup reminders without changing portable/standard v4 or encrypted container/vault/registry v1. The China Research Map remains excluded. See [`../PROJECT_STATE.md`](../PROJECT_STATE.md).
 
 ## Architecture
 

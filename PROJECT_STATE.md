@@ -1,18 +1,18 @@
 # Project State
 
 > Last updated: 2026-08-13
-> Status: `v0.2.1` Distribution & PWA is feature-complete and frozen on `release/0.2.1`. Issue [#23](https://github.com/Yoesher/sociology-phd-desk/issues/23) is closed and feature PR [#24](https://github.com/Yoesher/sociology-phd-desk/pull/24) squash-merged as exact `main` `671cef2fdb62bc4f10f281ccd496cc04ddc2b9a9`. Exact-final-head push/PR CI, P0 = 0 / P1 = 0 self-review, exact-main CI, Pages deployment, and static public PWA verification passed. Package/lock are `0.2.1`; final local automation and real browser gates passed with 31 files / 285 tests, static-only cache verification, safe standard/encrypted updates, real multi-tab refusal, offline edit/recovery, and complete synthetic-QA cleanup. Installed standalone smoke remains an honest **NOT RUN**, and public interaction/offline smoke remains **LIMITED PASS / NOT RUN** after the browser bridge timed out. The formal `v0.2.1` tag and Release are still pending, so published `v0.2.0` is unchanged. No `v0.3.0` work has started.
+> Status: [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) Distribution & PWA is formally released from exact release SHA `8db828faaa94f7591dbd806abe90916335862187`. Issue [#23](https://github.com/Yoesher/sociology-phd-desk/issues/23) is closed; feature PR [#24](https://github.com/Yoesher/sociology-phd-desk/pull/24) and release PR [#25](https://github.com/Yoesher/sociology-phd-desk/pull/25) are merged. Exact-head and exact-main CI, Pages/deployment, local PWA/update/offline browser gates, public static verification, annotated tag, and latest non-draft/non-prerelease Release all passed with P0 = 0 / P1 = 0. Installed standalone smoke remains an honest **NOT RUN**, and public interaction/offline smoke remains **LIMITED PASS / NOT RUN** after the browser bridge timed out. No `v0.3.0` work has started.
 > Canonical local project path: `D:\phddesk`
 
 This file is the factual handoff record for maintainers and future Codex sessions. Update it at the end of every development session. Never infer passing checks, repository activity, users, or releases.
 
 ## Current version
 
-- Local candidate package version: `0.2.1`; published release remains `v0.2.0` on exact release SHA `eb399f7da0a1f3142f7c8361492fa86b08db77db`
-- Release status: [`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) is published, latest, non-draft, and non-prerelease; annotated tag object `abd24b42…` points to exact release SHA `eb399f7da0a1f3142f7c8361492fa86b08db77db`
-- Current target: complete the release PR, exact-head and exact-main gates, annotated `v0.2.1` tag, GitHub Release, and post-release truth closeout; then stop without starting `v0.3.0`
+- Package/lock and published release: `0.2.1`; exact release SHA `8db828faaa94f7591dbd806abe90916335862187`
+- Release status: [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) is latest, non-draft, and non-prerelease; annotated tag object `e481de4ac1acfeca98191cfacc81bee55d96ce69` dereferences to the exact release SHA. Existing `v0.2.0` remains unmoved.
+- Current target: finish this documentation-only publication closeout and stop; do not start `v0.3.0`
 
-### v0.2.1 release-candidate architecture
+### v0.2.1 released architecture
 
 - Vite injects a complete manifest and a project/version-namespaced Workbox precache. The service worker caches only emitted application static files and defines no research-data upload, proxy, API, or runtime-cache route.
 - Update discovery registers after page load, checks once at startup, and throttles focus checks to once per hour. `updatefound` and `registration.waiting` produce a bilingual prompt; activation is never automatic.
@@ -25,6 +25,8 @@ This file is the factual handoff record for maintainers and future Codex session
 ### v0.2.1 final local verification — 2026-08-13
 
 Feature integration evidence: exact feature head `e59d1af070d8ff801842cc591873e6d313311d24` passed [push CI 31688133438 / job 94408940974](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31688133438/job/94408940974) and [PR CI 31688136739 / job 94408952884](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31688136739/job/94408952884). The [maintainer self-review](https://github.com/Yoesher/sociology-phd-desk/pull/24#issuecomment-5278719204) recorded P0 = 0 / P1 = 0. PR #24 squash-merged as `671cef2fdb62bc4f10f281ccd496cc04ddc2b9a9`; exact-main [CI 31688321598 / job 94409549936](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31688321598/job/94409549936) and [Pages 31688321515](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31688321515), build/deploy jobs `94409550044` / `94409835679`, and deployment `5885739401` passed on that exact SHA.
+
+Release evidence: exact release head `64833688ffe61150d31dc23bcc58bb95b978007a` passed [push CI 31691974929 / job 94421091830](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31691974929/job/94421091830) and [PR CI 31692047575 / job 94421314088](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31692047575/job/94421314088). The [release self-review](https://github.com/Yoesher/sociology-phd-desk/pull/25#issuecomment-5279298477) recorded P0 = 0 / P1 = 0. PR #25 squash-merged as exact release SHA `8db828faaa94f7591dbd806abe90916335862187`; exact-main [CI 31692207097 / job 94421812300](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31692207097/job/94421812300), [Pages 31692207049](https://github.com/Yoesher/sociology-phd-desk/actions/runs/31692207049), build/deploy jobs `94421811821` / `94422060874`, and deployment `5886450007` passed. Public HTTP verification returned 200 for the app, manifest, service worker, and 192/512 icons; the deployed entry bundle contained version `0.2.1` and the exact release SHA. Annotated tag `v0.2.1` and GitHub Release `369842240` were then published.
 
 | Gate | Result |
 | --- | --- |
