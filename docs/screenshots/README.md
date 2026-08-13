@@ -13,8 +13,8 @@ These captures document the running application rather than design mockups. The 
 
 ### `v0.2.2` final local candidate
 
-- Application/package version: feature branch intentionally remains `0.2.1`; release branch will set `0.2.2`
-- Candidate branch: `feat/simplicity-motion`
+- Application/package version: captures are from the feature candidate at `0.2.1`; `release/0.2.2` now sets package/lock to `0.2.2` without changing the rendered interface
+- Candidate branches: `feat/simplicity-motion` → `release/0.2.2`
 - Capture date: 2026-08-13
 - Capture boundary: final local production preview after the 33-file / 300-test gate; publication is not claimed here
 

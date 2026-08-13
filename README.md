@@ -20,7 +20,7 @@
 
 ### `v0.2.2` — 简洁与克制动效
 
-当前候选在不改变研究数据与 schema 的前提下，减少二级导航复杂度，把状态视图整合为页面内筛选，简化 Topbar 与工作区设置，并为路由、弹窗、抽屉和状态切换加入统一、克制的界面动效。系统完整尊重 `prefers-reduced-motion`，且未增加动画依赖。
+`release/0.2.2` 候选在不改变研究数据与 schema 的前提下，减少二级导航复杂度，把状态视图整合为页面内筛选，简化 Topbar 与工作区设置，并为路由、弹窗、抽屉和状态切换加入统一、克制的界面动效。系统完整尊重 `prefers-reduced-motion`，且未增加动画依赖。正式 tag 与 GitHub Release 仅在 release PR 和 exact-main 门禁通过后创建。
 
 > **[`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) 分发与 PWA 已正式发布：** 可以直接使用网页版，也可以从支持 PWA 的浏览器安装；应用静态资源可离线启动，更新由用户确认并在工作区安全写入完成后激活。Release PR [#25](https://github.com/Yoesher/sociology-phd-desk/pull/25) 通过精确 head CI 与 P0 = 0 / P1 = 0 自审后合并，annotated tag 与 latest、非草稿、非预发布 GitHub Release 均指向精确发布 SHA [`8db828f`](https://github.com/Yoesher/sociology-phd-desk/commit/8db828faaa94f7591dbd806abe90916335862187)。
 

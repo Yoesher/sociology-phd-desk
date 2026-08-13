@@ -10,9 +10,9 @@
 - [x] Add a dependency-free semantic motion system, state-preserving route/view transitions, component exit presence, and global reduced-motion support.
 - [x] Pass the local candidate gate: `npm ci`, lint, typecheck, 33 files / 300 tests, production build/PWA verification, diff check, and desktop/mobile bilingual browser QA.
 - [x] Capture four PNG after-state screenshots from the final production preview using only the synthetic Demo workspace.
-- [ ] Commit/push the exact feature head, open the feature PR, record P0 = 0 / P1 = 0 self-review, pass exact-head push/PR CI, and squash-merge.
-- [ ] Pass exact-main CI/Pages and complete real public bilingual desktop/mobile smoke without creating persistent public QA data.
-- [ ] Create `release/0.2.2`, change package/lock only to 0.2.2, reconcile final docs, pass the release gate, open/merge the release PR, and reverify exact main/Pages/public.
+- [x] Commit/push exact feature head `0ba748e`, pass exact-head push/PR CI, record P0 = 0 / P1 = 0 self-review, and squash-merge PR #31 as `34bb469`.
+- [x] Pass exact-main CI `31715233210`, Pages `31715233124`, and deployment `5890896670`; verify public app/manifest/service worker/assets and exact build SHA with the interaction boundary recorded as LIMITED PASS.
+- [ ] Finish `release/0.2.2` package/lock 0.2.2 and final docs, pass the release gate, open/merge the release PR, and reverify exact main/Pages/public.
 - [ ] Create annotated `v0.2.2`, publish non-draft/non-prerelease UTF-8 GitHub Release notes, verify tag dereference and API read-back, then stop at `V0.2.2 ADOPTION & STABILIZATION`.
 
 ## P0 — v0.2.1 Distribution & PWA
