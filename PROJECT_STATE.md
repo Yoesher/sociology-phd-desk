@@ -3,7 +3,7 @@
 > Last updated: 2026-08-13
 > Status: [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) Distribution & PWA is formally released from exact release SHA `8db828faaa94f7591dbd806abe90916335862187`. Issue [#23](https://github.com/Yoesher/sociology-phd-desk/issues/23) is closed; feature PR [#24](https://github.com/Yoesher/sociology-phd-desk/pull/24) and release PR [#25](https://github.com/Yoesher/sociology-phd-desk/pull/25) are merged. Exact-head and exact-main CI, Pages/deployment, local PWA/update/offline browser gates, public static verification, annotated tag, and latest non-draft/non-prerelease Release all passed with P0 = 0 / P1 = 0. Installed standalone smoke remains an honest **NOT RUN**, and public interaction/offline smoke remains **LIMITED PASS / NOT RUN** after the browser bridge timed out. No `v0.3.0` work has started.
 
-> Local candidate: `feat/simplicity-motion` implements the scoped `v0.2.2` interface simplification without changing package version or any data schema. The final local gate passed `npm ci`, lint, typecheck, 33 test files / 300 tests, production build, PWA verification, and real browser QA at 1440 × 900, 390 × 844, and 320 × 844 in Chinese/English and light/dark themes. Feature PR, merge, exact-main deployment, release branch/tag/Release, and public smoke remain pending until their actual completion.
+> Release candidate: feature PR [#31](https://github.com/Yoesher/sociology-phd-desk/pull/31) passed exact-head push/PR CI and P0 = 0 / P1 = 0 self-review, then squash-merged as `34bb469e6fd719ddd387aef43ce79983a94cca99`. Exact-main CI `31715233210` / job `94498174176`, Pages `31715233124` / build `94498172315` / deploy `94498497850`, and deployment `5890896670` all passed. Public app/manifest/service-worker/assets returned HTTP 200 and the deployed entry bundle contained exact feature merge SHA `34bb469`; public interaction is recorded as LIMITED PASS because the browser session was finalized after the complete local production-preview interaction gate. `release/0.2.2` now sets package/lock to 0.2.2; release PR, final exact-main, tag, Release, and UTF-8 read-back remain pending.
 > Canonical local project path: `D:\phddesk`
 
 This file is the factual handoff record for maintainers and future Codex sessions. Update it at the end of every development session. Never infer passing checks, repository activity, users, or releases.
@@ -25,8 +25,10 @@ This file is the factual handoff record for maintainers and future Codex session
 | Accessibility/responsive | PASS — focus restore, modal stack, More dialog, compact/mobile navigation, 1440/390/320 widths, and no horizontal overflow |
 | Workspaces and distribution | PASS — standard and synthetic encrypted workspace smoke, lock/unlock/delete cleanup, PWA static-only cache contract, and user-confirmed update reload |
 | Automated gate | PASS — lint 0 warnings; typecheck; 33 files / 300 tests; Vite 8.2.1 build, 1,973 modules, 25 static precache entries |
-| Version axes | PASS — package remains 0.2.1 on feature branch; portable v4, standard DB v4, encrypted container v1 unchanged |
-| Remote/release | PENDING — no v0.2.2 merge, tag, or GitHub Release is claimed yet |
+| Version axes | PASS — package/lock are 0.2.2 on release branch; portable v4, standard DB v4, encrypted container v1 unchanged |
+| Feature remote gate | PASS — PR #31 exact head `0ba748e`; push CI `31715033377` / `94497473313`; PR CI `31715063655` / `94497583779`; self-review P0 = 0 / P1 = 0; squash merge `34bb469` |
+| Feature exact-main | PASS — CI `31715233210` / `94498174176`; Pages `31715233124`; build/deploy `94498172315` / `94498497850`; deployment `5890896670` |
+| Release | PENDING — no v0.2.2 release PR, tag, or GitHub Release is claimed yet |
 
 ### v0.2.1 released architecture
 
