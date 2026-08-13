@@ -11,13 +11,25 @@ import {
   LocalWorkspaceManagerError,
   type OpenedLocalWorkspaceSession,
 } from '../db/localWorkspaceManager'
+import {
+  EncryptedContainerAuthenticationError,
+  EncryptedContainerFormatError,
+  EncryptedPayloadValidationError,
+  WebCryptoUnavailableError,
+} from '../crypto'
 import { useAutoLock } from '../hooks/useAutoLock'
 import type { WorkspaceData } from '../models/domain'
 import type {
   WorkspaceAutoLock,
   WorkspaceRegistryEntry,
 } from '../models/workspace-registry'
-import { exportWorkspaceJson, importWorkspaceJson } from '../utils/workspace-transfer'
+import { exportWorkspaceJson } from '../utils/workspace-transfer'
+import {
+  preflightEncryptedWorkspaceFile,
+  preflightPortableWorkspaceFile,
+  readGuardedText,
+  MAX_ENCRYPTED_BACKUP_FILE_BYTES,
+} from '../utils/import-preflight'
 import { downloadTextFile, todayIso } from './format'
 import type {
   WorkspaceCenterSection,
@@ -1379,7 +1391,7 @@ export function WorkspaceSessionProvider({
     const transitionGeneration = beginSessionTransition()
     beginOperation()
     try {
-      const snapshot = importWorkspaceJson(await file.text())
+      const snapshot = (await preflightPortableWorkspaceFile(file)).snapshot
       assertSessionTransition(transitionGeneration)
       await importPlaintextWithTransition(snapshot, transitionGeneration)
     } catch (caught) {
@@ -1391,6 +1403,48 @@ export function WorkspaceSessionProvider({
     }
   }, [assertSessionTransition, beginOperation, beginSessionTransition, endOperation, importPlaintextWithTransition, refreshRegistry, reportError])
 
+  const preflightPlaintextFile = useCallback(async (file: File) => {
+    beginOperation()
+    try {
+      return await preflightPortableWorkspaceFile(
+        file,
+        researchRuntimeRef.current?.getCurrentSnapshot(),
+      )
+    } catch (error) {
+      reportError(error, 'import')
+      throw error
+    } finally {
+      endOperation()
+    }
+  }, [beginOperation, endOperation, reportError])
+
+  const preflightEncryptedFile = useCallback(async (file: File, passphrase: string) => {
+    beginOperation()
+    try {
+      return await preflightEncryptedWorkspaceFile(file, passphrase)
+    } catch (error: unknown) {
+      if (error instanceof WebCryptoUnavailableError) {
+        const mapped = new LocalWorkspaceManagerError('web-crypto-unavailable', 'Required browser cryptography is unavailable.')
+        reportError(mapped, 'import')
+        throw mapped
+      }
+      if (error instanceof EncryptedContainerAuthenticationError) {
+        const mapped = new LocalWorkspaceManagerError('authentication-failed', 'Encrypted workspace authentication failed.')
+        reportError(mapped, 'import')
+        throw mapped
+      }
+      if (error instanceof EncryptedContainerFormatError || error instanceof EncryptedPayloadValidationError) {
+        const mapped = new LocalWorkspaceManagerError('encrypted-payload-invalid', 'The encrypted workspace payload is invalid.')
+        reportError(mapped, 'import')
+        throw mapped
+      }
+      reportError(error, 'import')
+      throw error
+    } finally {
+      endOperation()
+    }
+  }, [beginOperation, endOperation, reportError])
+
   const importEncryptedWorkspaceFile = useCallback(async (
     request: WorkspaceEncryptedImportRequest,
   ) => {
@@ -1399,7 +1453,10 @@ export function WorkspaceSessionProvider({
     try {
       await flushCurrentRuntime()
       assertSessionTransition(transitionGeneration)
-      const encryptedSource = await request.file.text()
+      const encryptedSource = await readGuardedText(
+        request.file,
+        MAX_ENCRYPTED_BACKUP_FILE_BYTES,
+      )
       assertSessionTransition(transitionGeneration)
       const manager = requireManager()
       const opened = await manager.restoreEncryptedBackup(
@@ -1484,6 +1541,8 @@ export function WorkspaceSessionProvider({
     cleanupPlaintextSource,
     exportPlaintextWorkspace,
     exportEncryptedWorkspace,
+    preflightPlaintextWorkspaceFile: preflightPlaintextFile,
+    preflightEncryptedWorkspaceFile: preflightEncryptedFile,
     importPlaintextWorkspaceFile,
     importEncryptedWorkspaceFile,
     importPlaintextWorkspaceAsNew,
@@ -1511,6 +1570,8 @@ export function WorkspaceSessionProvider({
     importEncryptedWorkspaceFile,
     importPlaintextWorkspaceAsNew,
     importPlaintextWorkspaceFile,
+    preflightEncryptedFile,
+    preflightPlaintextFile,
     lockActiveWorkspace,
     prepareForApplicationUpdate,
     invalidateActiveSession,

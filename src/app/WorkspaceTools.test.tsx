@@ -109,4 +109,24 @@ describe('WorkspaceTools localization', () => {
     release()
     await waitFor(() => expect(confirm).not.toBeInTheDocument())
   })
+
+  it('rejects oversized portable files before reading or writing', async () => {
+    const user = userEvent.setup()
+    const importAsNew = vi.fn()
+    sessionHook.value = { ...sessionHook.value, importPlaintextWorkspaceAsNew: importAsNew }
+    renderWorkspaceTools()
+    await user.click(screen.getByRole('button', { name: 'English' }))
+    await user.click(screen.getByRole('button', { name: 'Workspace' }))
+
+    const text = vi.fn(async () => '{}')
+    const file = new File(['x'], 'oversized.json', { type: 'application/json' })
+    Object.defineProperties(file, {
+      size: { value: 32 * 1_024 * 1_024 + 1 },
+      text: { value: text },
+    })
+    await user.upload(screen.getByLabelText('Choose import'), file)
+    await waitFor(() => expect(screen.getByText('This file is not a valid workspace export.')).toBeInTheDocument())
+    expect(text).not.toHaveBeenCalled()
+    expect(importAsNew).not.toHaveBeenCalled()
+  })
 })

@@ -6,6 +6,8 @@ import { APP_SETTINGS_STORAGE_KEY } from '../i18n/settings'
 import { WORKSPACE_SCHEMA_VERSION } from '../models/domain'
 import type { WorkspaceRegistryEntry } from '../models/workspace-registry'
 import { WorkspaceCenter, type WorkspaceCenterProps } from './WorkspaceCenter'
+import { createDemoWorkspace } from '../models/demo'
+import type { WorkspaceImportPreflight } from '../utils/import-preflight'
 
 function registryEntry(
   overrides: Partial<WorkspaceRegistryEntry> = {},
@@ -47,6 +49,25 @@ function workspaceSet() {
 }
 
 function renderCenter(overrides: Partial<WorkspaceCenterProps> = {}) {
+  const preflight: WorkspaceImportPreflight = {
+    sourceFormat: 'portable-workspace-json',
+    sourceVersion: 5,
+    targetVersion: 5,
+    migrationSteps: [],
+    collectionCounts: {
+      projects: 0, researchQuestions: 0, claims: 0, claimQuestionLinks: 0,
+      theoryMemos: 0, tasks: 0, literature: 0, literatureExternalReferences: 0,
+      fieldSites: 0, interviews: 0, fieldVisits: 0, datasets: 0, analysisRuns: 0,
+      evidence: 0, researchLogs: 0, manuscripts: 0, submissions: 0, reviewerComments: 0,
+    },
+    totalRecords: 0,
+    duplicateCount: 0,
+    duplicateIds: {},
+    conflictCount: 0,
+    conflictIssues: [],
+    risks: ['plaintext-sensitive'],
+    snapshot: createDemoWorkspace(),
+  }
   const callbacks = {
     onClose: vi.fn(),
     onSelect: vi.fn(),
@@ -63,6 +84,12 @@ function renderCenter(overrides: Partial<WorkspaceCenterProps> = {}) {
     onExportEncrypted: vi.fn(),
     onImportPlaintext: vi.fn(),
     onImportEncrypted: vi.fn(),
+    onPreflightPlaintext: vi.fn(async () => preflight),
+    onPreflightEncrypted: vi.fn(async () => ({
+      ...preflight,
+      sourceFormat: 'encrypted-workspace-backup' as const,
+      risks: ['encrypted-authenticated' as const],
+    })),
   }
   const props: WorkspaceCenterProps = {
     open: true,
@@ -354,6 +381,10 @@ describe('WorkspaceCenter', () => {
       target: { files: [jsonFile] },
     })
     fireEvent.submit(dialog.querySelector('#workspace-plaintext-import-form')!)
+    await waitFor(() => expect(callbacks.onPreflightPlaintext).toHaveBeenCalledWith(jsonFile))
+    expect(callbacks.onImportPlaintext).not.toHaveBeenCalled()
+    expect(dialog).toHaveTextContent('Import preflight')
+    fireEvent.submit(dialog.querySelector('#workspace-plaintext-import-form')!)
     await waitFor(() => expect(callbacks.onImportPlaintext).toHaveBeenCalledWith(jsonFile))
 
     await user.click(await screen.findByRole('button', { name: 'Import encrypted backup' }))
@@ -376,6 +407,14 @@ describe('WorkspaceCenter', () => {
       target: { value: newPassphrase },
     })
     await user.click(within(dialog).getByRole('checkbox', { name: /cannot recover the new workspace/i }))
+    fireEvent.submit(dialog.querySelector('#workspace-encrypted-import-form')!)
+
+    await waitFor(() => expect(callbacks.onPreflightEncrypted).toHaveBeenCalledWith(
+      encryptedFile,
+      backupPassphrase,
+    ))
+    expect(callbacks.onImportEncrypted).not.toHaveBeenCalled()
+    expect(dialog).toHaveTextContent('Import preflight')
     fireEvent.submit(dialog.querySelector('#workspace-encrypted-import-form')!)
 
     await waitFor(() => expect(callbacks.onImportEncrypted).toHaveBeenCalledWith({

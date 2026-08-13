@@ -5,12 +5,16 @@ import type {
   MergeWorkspaceResult,
   WorkspaceCollectionName,
 } from '../db/workspaceRepository'
-import { importWorkspaceJson } from '../utils/workspace-transfer'
+import {
+  preflightPortableWorkspaceFile,
+  type WorkspaceImportPreflight,
+} from '../utils/import-preflight'
 import { todayIso } from './format'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { useWorkspaceSession } from '../hooks/useWorkspaceSession'
 import { Badge, Button, ConfirmDialog, LocalDataNotice, Modal } from '../components/ui'
 import { useI18n, type MessageKey } from '../i18n'
+import { ImportPreflightSummary } from './ImportPreflightSummary'
 
 type PendingAction = 'merge' | 'replace' | 'isolate' | 'reset' | 'export-plaintext' | null
 type WorkspaceStatusMessage =
@@ -68,6 +72,7 @@ export function WorkspaceTools({ compact = false }: { compact?: boolean }) {
   const { locale, t, formatNumber } = useI18n()
   const [open, setOpen] = useState(false)
   const [pendingImport, setPendingImport] = useState<WorkspaceData | null>(null)
+  const [importPreflight, setImportPreflight] = useState<WorkspaceImportPreflight | null>(null)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
   const [message, setMessage] = useState<WorkspaceStatusMessage>(null)
   const [actionInFlight, setActionInFlight] = useState(false)
@@ -127,10 +132,12 @@ export function WorkspaceTools({ compact = false }: { compact?: boolean }) {
     event.target.value = ''
     if (!file) return
     try {
-      const imported = importWorkspaceJson(await file.text())
-      setPendingImport(imported)
+      const preflight = await preflightPortableWorkspaceFile(file, data ?? undefined)
+      setImportPreflight(preflight)
+      setPendingImport(preflight.snapshot)
       setMessage(null)
     } catch (importError) {
+      setImportPreflight(null)
       setPendingImport(null)
       void importError
       setMessage({ kind: 'translated', key: 'workspace.error.import' })
@@ -219,7 +226,7 @@ export function WorkspaceTools({ compact = false }: { compact?: boolean }) {
             </div>
           </section>
 
-          {pendingImport && (
+          {pendingImport && importPreflight && (
             <section className="import-preview">
               <div className="import-preview__heading">
                 <div>
@@ -228,6 +235,7 @@ export function WorkspaceTools({ compact = false }: { compact?: boolean }) {
                 </div>
                 <Badge tone="success">{t('workspace.import.ready')}</Badge>
               </div>
+              <ImportPreflightSummary preflight={importPreflight} />
               <div className="import-preview__counts">
                 {collectionCounts(pendingImport).map(([labelKey, value]) => (
                   <div key={labelKey}>
@@ -246,7 +254,7 @@ export function WorkspaceTools({ compact = false }: { compact?: boolean }) {
               <div className="button-row">
                 {sameWorkspaceIdentity ? (
                   <>
-                    <Button variant="primary" onClick={() => setPendingAction('merge')} disabled={saving}>
+                    <Button variant="primary" onClick={() => setPendingAction('merge')} disabled={saving || importPreflight.conflictCount > 0}>
                       {t('workspace.action.reviewMerge')}
                     </Button>
                     <Button variant="danger" onClick={() => setPendingAction('replace')} disabled={saving}>

@@ -36,6 +36,8 @@ import { DistributionCenter } from './DistributionCenter'
 import type {
   WorkspaceUiErrorDescriptor,
 } from './WorkspaceAccessGate'
+import type { WorkspaceImportPreflight } from '../utils/import-preflight'
+import { ImportPreflightSummary } from './ImportPreflightSummary'
 
 export type WorkspaceCenterSection = 'workspaces' | 'privacy' | 'backup' | 'distribution'
 
@@ -83,8 +85,10 @@ export interface WorkspaceCenterProps {
   onExportEncrypted?: (workspaceId: string, passphrase: string) => void | Promise<void>
   /** The parent validates the JSON and creates a new isolated workspace. */
   onImportPlaintext?: (file: File) => void | Promise<void>
+  onPreflightPlaintext?: (file: File) => Promise<WorkspaceImportPreflight>
   /** The parent validates/decrypts the container and creates a new isolated workspace. */
   onImportEncrypted?: (request: WorkspaceEncryptedImportRequest) => void | Promise<void>
+  onPreflightEncrypted?: (file: File, passphrase: string) => Promise<WorkspaceImportPreflight>
 }
 
 interface CreateDraft {
@@ -189,6 +193,8 @@ export function WorkspaceCenter({
   onExportEncrypted,
   onImportPlaintext,
   onImportEncrypted,
+  onPreflightPlaintext,
+  onPreflightEncrypted,
 }: WorkspaceCenterProps) {
   const { t } = useI18n()
   const [section, setSection] = useState<WorkspaceCenterSection>(initialSection)
@@ -219,9 +225,11 @@ export function WorkspaceCenter({
   const [plaintextImportOpen, setPlaintextImportOpen] = useState(false)
   const [plaintextImportFile, setPlaintextImportFile] = useState<File | null>(null)
   const [plaintextImportAttempted, setPlaintextImportAttempted] = useState(false)
+  const [plaintextImportPreflight, setPlaintextImportPreflight] = useState<WorkspaceImportPreflight | null>(null)
   const [encryptedImportOpen, setEncryptedImportOpen] = useState(false)
   const [encryptedImportDraft, setEncryptedImportDraft] = useState<EncryptedImportDraft>(emptyEncryptedImportDraft)
   const [encryptedImportAttempted, setEncryptedImportAttempted] = useState(false)
+  const [encryptedImportPreflight, setEncryptedImportPreflight] = useState<WorkspaceImportPreflight | null>(null)
   const [provisioningTarget, setProvisioningTarget] =
     useState<ProvisioningActionTarget | null>(null)
   const [provisioningPassphrase, setProvisioningPassphrase] = useState('')
@@ -301,12 +309,14 @@ export function WorkspaceCenter({
     setPlaintextImportOpen(false)
     setPlaintextImportFile(null)
     setPlaintextImportAttempted(false)
+    setPlaintextImportPreflight(null)
   }
 
   const closeEncryptedImport = () => {
     setEncryptedImportOpen(false)
     setEncryptedImportDraft(emptyEncryptedImportDraft())
     setEncryptedImportAttempted(false)
+    setEncryptedImportPreflight(null)
   }
 
   const closeProvisioningAction = () => {
@@ -527,6 +537,13 @@ export function WorkspaceCenter({
     event.preventDefault()
     setPlaintextImportAttempted(true)
     if (!plaintextImportFile || !onImportPlaintext) return
+    if (!plaintextImportPreflight) {
+      if (!onPreflightPlaintext) return
+      void onPreflightPlaintext(plaintextImportFile)
+        .then(setPlaintextImportPreflight)
+        .catch(() => undefined)
+      return
+    }
     void Promise.resolve(onImportPlaintext(plaintextImportFile))
       .then(closePlaintextImport)
       .catch(() => undefined)
@@ -543,6 +560,15 @@ export function WorkspaceCenter({
       !encryptedImportMatches ||
       !encryptedImportDraft.recoveryBoundaryAcknowledged
     ) return
+
+    if (!encryptedImportPreflight) {
+      if (!onPreflightEncrypted) return
+      void onPreflightEncrypted(
+        encryptedImportDraft.file,
+        normalizedBackupPassphrase,
+      ).then(setEncryptedImportPreflight).catch(() => undefined)
+      return
+    }
 
     const request: WorkspaceEncryptedImportRequest = {
       file: encryptedImportDraft.file,
@@ -1360,7 +1386,9 @@ export function WorkspaceCenter({
               form="workspace-plaintext-import-form"
               disabled={busy}
             >
-              {t('localWorkspaces.backup.importPlaintextSubmit')}
+              {t(plaintextImportPreflight
+                ? 'localWorkspaces.backup.importPlaintextSubmit'
+                : 'localWorkspaces.backup.preflightSubmit')}
             </Button>
           </>
         }
@@ -1372,7 +1400,10 @@ export function WorkspaceCenter({
               accept=".json,application/json"
               aria-label={t('localWorkspaces.backup.jsonFile')}
               aria-invalid={plaintextImportAttempted && !plaintextImportFile ? 'true' : undefined}
-              onChange={(event) => setPlaintextImportFile(event.target.files?.[0] ?? null)}
+              onChange={(event) => {
+                setPlaintextImportFile(event.target.files?.[0] ?? null)
+                setPlaintextImportPreflight(null)
+              }}
               autoFocus
               required
             />
@@ -1380,6 +1411,7 @@ export function WorkspaceCenter({
           {plaintextImportAttempted && !plaintextImportFile && (
             <p className="field-error" role="alert">{t('localWorkspaces.backup.fileRequired')}</p>
           )}
+          {plaintextImportPreflight && <ImportPreflightSummary preflight={plaintextImportPreflight} />}
         </form>
       </Modal>
 
@@ -1398,7 +1430,9 @@ export function WorkspaceCenter({
               form="workspace-encrypted-import-form"
               disabled={busy}
             >
-              {t('localWorkspaces.backup.importEncryptedSubmit')}
+              {t(encryptedImportPreflight
+                ? 'localWorkspaces.backup.importEncryptedSubmit'
+                : 'localWorkspaces.backup.preflightSubmit')}
             </Button>
           </>
         }
@@ -1414,10 +1448,13 @@ export function WorkspaceCenter({
               accept=".sociologydesk,application/octet-stream"
               aria-label={t('localWorkspaces.backup.encryptedFile')}
               aria-invalid={encryptedImportAttempted && !encryptedImportDraft.file ? 'true' : undefined}
-              onChange={(event) => setEncryptedImportDraft({
-                ...encryptedImportDraft,
-                file: event.target.files?.[0] ?? null,
-              })}
+              onChange={(event) => {
+                setEncryptedImportDraft({
+                  ...encryptedImportDraft,
+                  file: event.target.files?.[0] ?? null,
+                })
+                setEncryptedImportPreflight(null)
+              }}
               autoFocus
               required
             />
@@ -1436,10 +1473,13 @@ export function WorkspaceCenter({
               aria-label={t('localWorkspaces.backup.existingBackupPassphrase')}
               autoComplete="current-password"
               aria-invalid={encryptedImportAttempted && !encryptedImportBackupLengthValid ? 'true' : undefined}
-              onChange={(event) => setEncryptedImportDraft({
-                ...encryptedImportDraft,
-                backupPassphrase: event.target.value,
-              })}
+              onChange={(event) => {
+                setEncryptedImportDraft({
+                  ...encryptedImportDraft,
+                  backupPassphrase: event.target.value,
+                })
+                setEncryptedImportPreflight(null)
+              }}
               required
             />
           </Field>
@@ -1484,6 +1524,7 @@ export function WorkspaceCenter({
           {encryptedImportAttempted && !encryptedImportMatches && (
             <p className="field-error" role="alert">{t('localWorkspaces.backup.passphraseMismatch')}</p>
           )}
+          {encryptedImportPreflight && <ImportPreflightSummary preflight={encryptedImportPreflight} />}
           <label className="workspace-recovery-acknowledgement">
             <input
               type="checkbox"

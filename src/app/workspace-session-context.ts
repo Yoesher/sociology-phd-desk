@@ -1,6 +1,7 @@
 import { createContext } from 'react'
 import type { OpenedLocalWorkspaceSession } from '../db/localWorkspaceManager'
 import type { WorkspaceData } from '../models/domain'
+import type { WorkspaceImportPreflight } from '../utils/import-preflight'
 import type {
   WorkspaceAutoLock,
   WorkspaceRegistryEntry,
@@ -58,6 +59,11 @@ export interface WorkspaceSessionContextValue {
   cleanupPlaintextSource: (workspaceId: string, sourceId: string) => Promise<void>
   exportPlaintextWorkspace: (workspaceId: string) => Promise<void>
   exportEncryptedWorkspace: (workspaceId: string, passphrase: string) => Promise<void>
+  preflightPlaintextWorkspaceFile: (file: File) => Promise<WorkspaceImportPreflight>
+  preflightEncryptedWorkspaceFile: (
+    file: File,
+    passphrase: string,
+  ) => Promise<WorkspaceImportPreflight>
   importPlaintextWorkspaceFile: (file: File) => Promise<void>
   importEncryptedWorkspaceFile: (request: WorkspaceEncryptedImportRequest) => Promise<void>
   importPlaintextWorkspaceAsNew: (snapshot: WorkspaceData) => Promise<void>
