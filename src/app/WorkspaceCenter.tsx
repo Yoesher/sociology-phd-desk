@@ -566,7 +566,14 @@ export function WorkspaceCenter({
       void onPreflightEncrypted(
         encryptedImportDraft.file,
         normalizedBackupPassphrase,
-      ).then(setEncryptedImportPreflight).catch(() => undefined)
+      ).then(setEncryptedImportPreflight).catch(() => {
+        setEncryptedImportDraft((current) => ({
+          ...current,
+          backupPassphrase: '',
+          newWorkspacePassphrase: '',
+          confirmNewWorkspacePassphrase: '',
+        }))
+      })
       return
     }
 

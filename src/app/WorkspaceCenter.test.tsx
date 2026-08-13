@@ -425,6 +425,40 @@ describe('WorkspaceCenter', () => {
     }))
   })
 
+  it('clears every live passphrase after encrypted preflight failure', async () => {
+    const user = userEvent.setup()
+    const failingPreflight = vi.fn(async () => {
+      throw new Error('synthetic preflight failure')
+    })
+    renderCenter({
+      activeWorkspaceId: 'personal-encrypted',
+      initialSection: 'backup',
+      onPreflightEncrypted: failingPreflight,
+    })
+
+    await user.click(screen.getByRole('button', { name: 'Import encrypted backup' }))
+    const dialog = screen.getByRole('dialog', { name: 'Restore encrypted backup into a new workspace' })
+    const encryptedFile = new File(['ciphertext'], 'archive.sociologydesk', {
+      type: 'application/octet-stream',
+    })
+    fireEvent.change(within(dialog).getByLabelText('Encrypted .sociologydesk file'), {
+      target: { files: [encryptedFile] },
+    })
+    await user.type(within(dialog).getByLabelText('Backup passphrase'), 'backup phrase long enough')
+    await user.type(within(dialog).getByLabelText('New workspace passphrase'), 'new workspace phrase long enough')
+    await user.type(within(dialog).getByLabelText('Confirm new workspace passphrase'), 'new workspace phrase long enough')
+    await user.click(within(dialog).getByRole('checkbox', { name: /cannot recover the new workspace/i }))
+    fireEvent.submit(dialog.querySelector('#workspace-encrypted-import-form')!)
+
+    await waitFor(() => expect(failingPreflight).toHaveBeenCalledTimes(1))
+    await waitFor(() => {
+      expect(within(dialog).getByLabelText('Backup passphrase')).toHaveValue('')
+      expect(within(dialog).getByLabelText('New workspace passphrase')).toHaveValue('')
+      expect(within(dialog).getByLabelText('Confirm new workspace passphrase')).toHaveValue('')
+    })
+    expect(document.body).not.toHaveTextContent('backup phrase long enough')
+  })
+
   it('puts plaintext export behind a strong confirmation', async () => {
     const user = userEvent.setup()
     const { callbacks } = renderCenter({ initialSection: 'backup' })
