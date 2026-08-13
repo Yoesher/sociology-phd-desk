@@ -119,7 +119,52 @@ describe('hierarchical research navigation shell', () => {
     expect(screen.getByTestId('location')).toHaveTextContent('/literature?view=all')
   })
 
-  it('keeps only a small persisted set of user-expanded groups alongside the current module', async () => {
+  it('allows the active group to collapse and reopen without changing the route or breadcrumb', async () => {
+    const user = userEvent.setup()
+    renderShell('/literature?view=reading')
+
+    const toggle = screen.getByRole('button', { name: '收起文献' })
+    await user.click(toggle)
+    expect(screen.getByRole('button', { name: '展开文献' })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.getByTestId('location')).toHaveTextContent('/literature?view=reading')
+    expect(screen.getByLabelText('文献 / 阅读中')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: '展开文献' }))
+    expect(screen.getByRole('button', { name: '收起文献' })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByTestId('location')).toHaveTextContent('/literature?view=reading')
+  })
+
+  it('persists an active-group collapse and does not force it open for query-only navigation', async () => {
+    const user = userEvent.setup()
+    const first = renderShell('/literature?view=reading')
+
+    await user.click(screen.getByRole('button', { name: '收起文献' }))
+    await user.click(screen.getByRole('link', { name: '全部文献' }))
+    expect(screen.getByTestId('location')).toHaveTextContent('/literature?view=all')
+    expect(screen.getByRole('button', { name: '展开文献' })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.getByLabelText('文献 / 全部文献')).toBeInTheDocument()
+
+    expect(JSON.parse(window.localStorage.getItem('sociology-phd-desk:navigation-expanded:v3') ?? '{}')).toEqual({
+      expanded: [],
+      collapsed: ['literature'],
+    })
+    first.unmount()
+    renderShell('/literature?view=cited')
+    expect(screen.getByRole('button', { name: '展开文献' })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.getByLabelText('文献 / 已引用')).toBeInTheDocument()
+  })
+
+  it('opens a newly active primary group by default while retaining prior collapse intent', async () => {
+    const user = userEvent.setup()
+    renderShell('/literature?view=all')
+
+    await user.click(screen.getByRole('button', { name: '收起文献' }))
+    await user.click(screen.getByRole('link', { name: '理论研究' }))
+    expect(screen.getByRole('button', { name: '收起理论研究' })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('button', { name: '展开文献' })).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('keeps only a small persisted set of optional non-active expanded groups', async () => {
     const user = userEvent.setup()
     const first = renderShell('/literature?view=all')
 
@@ -127,7 +172,10 @@ describe('hierarchical research navigation shell', () => {
     await user.click(screen.getByRole('button', { name: '展开理论研究' }))
     await user.click(screen.getByRole('button', { name: '展开证据' }))
 
-    expect(JSON.parse(window.localStorage.getItem('sociology-phd-desk:navigation-expanded:v2') ?? '[]')).toEqual(['evidence'])
+    expect(JSON.parse(window.localStorage.getItem('sociology-phd-desk:navigation-expanded:v3') ?? '{}')).toEqual({
+      expanded: ['evidence'],
+      collapsed: [],
+    })
     first.unmount()
     renderShell('/literature?view=all')
     expect(screen.getByRole('button', { name: '收起证据' })).toHaveAttribute('aria-expanded', 'true')

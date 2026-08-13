@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-No user-visible changes have been recorded after the `v0.2.2` release.
+### Fixed
+
+- Separated active-route state from desktop navigation expansion so the current primary module can be collapsed and reopened without leaving the page or losing its breadcrumb.
+- Persisted the collapse preference as local application chrome; query-only Smart View changes no longer force the active group open, and research workspace data remains unchanged.
 
 ## [0.2.2] - 2026-08-13
 

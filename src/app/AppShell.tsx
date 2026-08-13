@@ -43,7 +43,8 @@ import { useWorkspaceSession } from '../hooks/useWorkspaceSession'
 import { UpdateManagerContext } from './update-manager-context'
 import { hasRetainedPlaintextSource } from '../models/workspace-registry'
 
-const EXPANDED_GROUPS_STORAGE_KEY = 'sociology-phd-desk:navigation-expanded:v2'
+const EXPANDED_GROUPS_STORAGE_KEY = 'sociology-phd-desk:navigation-expanded:v3'
+const LEGACY_EXPANDED_GROUPS_STORAGE_KEY = 'sociology-phd-desk:navigation-expanded:v2'
 const USER_EXPANDED_LIMIT = 1
 const unavailableUpdateManager = {
   supported: false,
@@ -79,14 +80,36 @@ function useExitPresence<T>(value: T | null, duration = 140) {
   return { rendered, closing }
 }
 
-function readExpandedGroups(): PrimaryModuleId[] {
+interface NavigationExpansionPreference {
+  expanded: PrimaryModuleId[]
+  collapsed: PrimaryModuleId[]
+}
+
+function validPrimaryIds(value: unknown): PrimaryModuleId[] {
+  if (!Array.isArray(value)) return []
+  const valid = new Set(navigationItems.map((item) => item.id))
+  return value.filter((id): id is PrimaryModuleId => typeof id === 'string' && valid.has(id as PrimaryModuleId))
+}
+
+function readExpansionPreference(): NavigationExpansionPreference {
   try {
-    const value = JSON.parse(window.localStorage.getItem(EXPANDED_GROUPS_STORAGE_KEY) ?? '[]')
-    if (!Array.isArray(value)) return []
-    const valid = new Set(navigationItems.map((item) => item.id))
-    return value.filter((id): id is PrimaryModuleId => typeof id === 'string' && valid.has(id as PrimaryModuleId)).slice(-USER_EXPANDED_LIMIT)
+    const stored = window.localStorage.getItem(EXPANDED_GROUPS_STORAGE_KEY)
+    if (stored) {
+      const value = JSON.parse(stored) as Partial<NavigationExpansionPreference>
+      return {
+        expanded: validPrimaryIds(value.expanded).slice(-USER_EXPANDED_LIMIT),
+        collapsed: validPrimaryIds(value.collapsed),
+      }
+    }
+
+    // v2 stored only optional non-active expansions; the active group was
+    // forced open. Preserve those expansions without inventing a collapse.
+    return {
+      expanded: validPrimaryIds(JSON.parse(window.localStorage.getItem(LEGACY_EXPANDED_GROUPS_STORAGE_KEY) ?? '[]')).slice(-USER_EXPANDED_LIMIT),
+      collapsed: [],
+    }
   } catch {
-    return []
+    return { expanded: [], collapsed: [] }
   }
 }
 
@@ -108,7 +131,7 @@ export function AppShell() {
   } = useWorkspaceSession()
   const [sidebarCompact, setSidebarCompact] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [userExpanded, setUserExpanded] = useState<PrimaryModuleId[]>(readExpandedGroups)
+  const [expansionPreference, setExpansionPreference] = useState<NavigationExpansionPreference>(readExpansionPreference)
   const [compactFlyout, setCompactFlyout] = useState<PrimaryModuleId | 'settings' | null>(null)
   const [settingsExpanded, setSettingsExpanded] = useState(false)
   const [quickAddOpen, setQuickAddOpen] = useState(false)
@@ -140,11 +163,11 @@ export function AppShell() {
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(EXPANDED_GROUPS_STORAGE_KEY, JSON.stringify(userExpanded))
+      window.localStorage.setItem(EXPANDED_GROUPS_STORAGE_KEY, JSON.stringify(expansionPreference))
     } catch {
       // Navigation remains functional when storage is unavailable.
     }
-  }, [userExpanded])
+  }, [expansionPreference])
 
   useEffect(() => {
     const closeFloatingPanels = (event: MouseEvent) => {
@@ -227,10 +250,25 @@ export function AppShell() {
   ].some((records) => records.some((record) => record.isDemo)))
 
   const toggleExpanded = (id: PrimaryModuleId) => {
-    if (id === current.id) return
-    setUserExpanded((expanded) => expanded.includes(id)
-      ? expanded.filter((candidate) => candidate !== id)
-      : [...expanded.filter((candidate) => candidate !== id), id].slice(-USER_EXPANDED_LIMIT))
+    const currentlyExpanded = expansionPreference.expanded.includes(id) || (
+      id === current.id && !expansionPreference.collapsed.includes(id)
+    )
+    setExpansionPreference((preference) => {
+      if (currentlyExpanded) {
+        return {
+          expanded: preference.expanded.filter((candidate) => candidate !== id),
+          collapsed: id === current.id
+            ? [...preference.collapsed.filter((candidate) => candidate !== id), id]
+            : preference.collapsed,
+        }
+      }
+      return {
+        expanded: id === current.id
+          ? preference.expanded.filter((candidate) => candidate !== id)
+          : [...preference.expanded.filter((candidate) => candidate !== id), id].slice(-USER_EXPANDED_LIMIT),
+        collapsed: preference.collapsed.filter((candidate) => candidate !== id),
+      }
+    })
   }
 
   const emitQuickAdd = (module: PrimaryModuleId, action: string) => {
@@ -364,7 +402,9 @@ export function AppShell() {
     <nav className="primary-nav" aria-label={t('navigation.aria')}>
       {navigationItems.map((item) => {
         const Icon = item.icon
-        const expanded = item.id === current.id || userExpanded.includes(item.id)
+        const expanded = expansionPreference.expanded.includes(item.id) || (
+          item.id === current.id && !expansionPreference.collapsed.includes(item.id)
+        )
         const pathActive = location.pathname === item.path
         return (
           <div className={`primary-nav__group ${pathActive ? 'primary-nav__group--active' : ''}`} key={item.id}>

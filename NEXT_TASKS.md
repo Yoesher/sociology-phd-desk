@@ -1,6 +1,21 @@
 # Next Tasks
 
-> `v0.2.2` Simplicity & Motion is published from exact release SHA `e766d18329ae675d835ce82e02554d5b0d5394ab`. The next stage is adoption and stabilization only. Do not begin `v0.3.0`.
+> `v0.2.2` remains the published release. The authorized `v0.3.0` milestone is now active with Issues #34–#37 plus existing #5/#6. Work must remain sequential; no `v0.3.0` Release is claimed.
+
+## P0 — v0.3.0 Phase A navigation collapse
+
+- [x] Create milestone `v0.3.0`, Issue #34, and dedicated branch `fix/active-navigation-collapse` from exact verified main `f4a4baa`.
+- [x] Separate route activity from desktop expansion; allow active collapse/reopen; preserve active styling, breadcrumb, query navigation, compact/mobile behavior, and local-only preference storage.
+- [x] Add focused bilingual/ARIA/persistence/non-regression coverage and pass the focused 11-test suite, typecheck, lint, and diff check.
+- [x] Pass the complete local gate: 33 files / 303 tests, production build, typecheck, lint, and diff check; complete bilingual desktop/mobile browser smoke with zero console entries.
+- [ ] Commit/push, open PR with `Closes #34`, pass exact-head CI and P0 = 0 / P1 = 0 self-review, merge, and verify exact-main CI/Pages before Phase B.
+
+## P0 — v0.3.0 later phases (blocked until Phase A exact-main passes)
+
+- [ ] Phase B: Issues #35/#36 — Zotero Handoff v1, Literature import/provenance, Zotero 8 plugin, reproducible XPI, checksum, and isolated-profile manual gate.
+- [ ] Phase C: Issue #5 — unified write-free import preflight/size guards and the single v4 → v5 schema migration shared with Zotero/FieldSite linkage.
+- [ ] Phase D: Issue #37 — current official province-map source/terms/approval/completeness gate; enable no production map unless every mandatory gate passes.
+- [ ] Phase E/F: Issue #6 browser E2E plus Dependabot, CodeQL where available, diagnostic export, feedback template, citation/maintainer metadata, release checklist, and truthful Codex-for-OSS draft.
 
 ## P0 — v0.2.2 Simplicity & Motion
 
