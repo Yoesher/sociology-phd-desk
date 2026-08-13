@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "preview": "vite preview",
-    "test:zotero": "node --test integrations/zotero-plugin/test/*.test.cjs",
+    "test:zotero": "node --test integrations/zotero-plugin/test/*.node.cjs",
     "build:zotero": "node integrations/zotero-plugin/scripts/build.cjs"
   },
   "dependencies": {
