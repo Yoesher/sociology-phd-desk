@@ -46,6 +46,8 @@ These rules apply to every Codex agent or automated contributor working in this 
 24. Motion explains spatial and state continuity; it does not decorate, delay research work, or make user content difficult to read.
 25. Centralize motion durations and easing, prefer transform and opacity, never add `transition: all`, and always keep important behavior independent of animation completion.
 26. Respect `prefers-reduced-motion` for every route, view, overlay, drawer, accordion, workspace, and lock transition.
+27. Keep primary-route activity separate from sidebar expansion. The active desktop group defaults open on first visit but remains user-collapsible; query changes must not override that preference.
+28. Store navigation expansion preferences only as local application chrome, never in a research workspace, portable JSON, encrypted payload, or registry record.
 
 ## Operating constraints
 
