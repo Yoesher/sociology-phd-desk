@@ -18,6 +18,10 @@
 
 完整步骤见[中文开始使用指南](docs/zh-CN/getting-started.md)。
 
+### `v0.2.2` — 简洁与克制动效
+
+当前候选在不改变研究数据与 schema 的前提下，减少二级导航复杂度，把状态视图整合为页面内筛选，简化 Topbar 与工作区设置，并为路由、弹窗、抽屉和状态切换加入统一、克制的界面动效。系统完整尊重 `prefers-reduced-motion`，且未增加动画依赖。
+
 > **[`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) 分发与 PWA 已正式发布：** 可以直接使用网页版，也可以从支持 PWA 的浏览器安装；应用静态资源可离线启动，更新由用户确认并在工作区安全写入完成后激活。Release PR [#25](https://github.com/Yoesher/sociology-phd-desk/pull/25) 通过精确 head CI 与 P0 = 0 / P1 = 0 自审后合并，annotated tag 与 latest、非草稿、非预发布 GitHub Release 均指向精确发布 SHA [`8db828f`](https://github.com/Yoesher/sociology-phd-desk/commit/8db828faaa94f7591dbd806abe90916335862187)。
 
 > **[`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) 已正式发布：** 九个研究工作域的二级导航、理论研究、研究问题—主张图谱、本地私密/加密工作区，以及论文与投稿整合均已发布。Release PR [#21](https://github.com/Yoesher/sociology-phd-desk/pull/21) 通过精确 head CI 与 P0 = 0 / P1 = 0 审查后合并；精确发布 SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db) 的 CI 与 Pages 均通过，annotated tag 与 latest、非草稿、非预发布 GitHub Release 均指向该版本。中国研究地图因来源、再分发、审图元数据和全国完整性门禁均未通过而暂缓，**不属于 `v0.2.0`**。核验证据与限制见 [PROJECT_STATE.md](PROJECT_STATE.md)。

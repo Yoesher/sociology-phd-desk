@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { BookOpenCheck, Link2, Scale, ShieldQuestion } from 'lucide-react'
 import {
   EVIDENCE_TYPES,
@@ -8,6 +8,7 @@ import {
 import { useWorkspace } from '../../hooks/useWorkspace'
 import { entityMeta, truncate } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
+import { useModuleSearch } from '../../hooks/useModuleSearch'
 import { useI18n } from '../../i18n'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
@@ -17,6 +18,8 @@ import {
   ConfirmDialog,
   EmptyState,
   Field,
+  FilterChips,
+  DisclosureSection,
   Modal,
   PageHeader,
   SearchField,
@@ -56,19 +59,9 @@ const supportTone = (level: EvidenceItem['supportLevel']): Tone => {
   return 'danger'
 }
 
-const EVIDENCE_VIEWS = ['all', 'literature', 'quantitative', 'fieldwork', 'documents', 'contradictory', 'by-project'] as const
-type EvidenceView = (typeof EVIDENCE_VIEWS)[number]
-
-function readEvidenceView(): EvidenceView {
-  const requested = new URLSearchParams(window.location.hash.split('?')[1] || '').get('view')
-  return EVIDENCE_VIEWS.includes(requested as EvidenceView) ? requested as EvidenceView : 'all'
-}
+type EvidenceView = 'all' | 'by-type' | 'contradictory'
 
 function matchesEvidenceView(item: EvidenceItem, view: EvidenceView): boolean {
-  if (view === 'literature') return item.evidenceType === 'Literature'
-  if (view === 'quantitative') return item.evidenceType === 'Quantitative Result'
-  if (view === 'fieldwork') return item.evidenceType === 'Interview' || item.evidenceType === 'Fieldnote'
-  if (view === 'documents') return item.evidenceType === 'Policy / Document'
   if (view === 'contradictory') return item.supportLevel === 'Contradictory' || item.supportLevel === 'Unclear'
   return true
 }
@@ -84,40 +77,13 @@ export function EvidencePage() {
   const [editing, setEditing] = useState<EvidenceItem | null>(null)
   const [deleting, setDeleting] = useState<EvidenceItem | null>(null)
   const [draft, setDraft] = useState<EvidenceDraft>(emptyDraft)
-  const [view, setView] = useState<EvidenceView>(readEvidenceView)
-  const previousViewRef = useRef<EvidenceView | null>(null)
-  const autoProjectFilterRef = useRef(false)
-
-  useEffect(() => {
-    const previousView = previousViewRef.current
-    previousViewRef.current = view
-    const hasValidProject = Boolean(projectFilter && data?.projects.some((project) => project.id === projectFilter))
-
-    if (view === 'by-project') {
-      if (!hasValidProject) {
-        autoProjectFilterRef.current = true
-        setProjectFilter(data?.workspace.activeProjectId || data?.projects[0]?.id || '')
-      }
-    } else if (previousView === 'by-project' && autoProjectFilterRef.current) {
-      autoProjectFilterRef.current = false
-      setProjectFilter('')
-    }
-  }, [data?.projects, data?.workspace.activeProjectId, projectFilter, view])
+  const { searchParams, updateSearch } = useModuleSearch('evidence')
+  const view = (searchParams.get('view') || 'all') as EvidenceView
+  const urlTypes = (searchParams.get('type') || '').split(',').filter(Boolean)
 
   const changeProjectFilter = (projectId: string) => {
-    autoProjectFilterRef.current = false
     setProjectFilter(projectId)
   }
-
-  useEffect(() => {
-    const syncView = () => setView(readEvidenceView())
-    window.addEventListener('hashchange', syncView)
-    window.addEventListener('popstate', syncView)
-    return () => {
-      window.removeEventListener('hashchange', syncView)
-      window.removeEventListener('popstate', syncView)
-    }
-  }, [])
 
   const itemCount = (count: number) => t(
     count === 1 ? 'evidence.count.itemsOne' : 'evidence.count.itemsOther',
@@ -136,13 +102,14 @@ export function EvidencePage() {
         return (
           (!query || corpus.includes(query)) &&
           matchesEvidenceView(item, view) &&
+          (!urlTypes.length || urlTypes.includes(item.evidenceType)) &&
           (!projectFilter || item.projectId === projectFilter) &&
           (!typeFilter || item.evidenceType === typeFilter) &&
           (!supportFilter || item.supportLevel === supportFilter)
         )
       }) ?? []
     )
-  }, [data?.evidence, projectFilter, search, supportFilter, typeFilter, view])
+  }, [data?.evidence, projectFilter, search, supportFilter, typeFilter, urlTypes, view])
 
   useEffect(() => {
     const handleQuickAdd = (event: Event) => {
@@ -240,9 +207,13 @@ export function EvidencePage() {
       </section>
 
       <section className="panel">
+        {view === 'by-type' && <FilterChips ariaLabel={t('evidence.filter.typeLabel')} value={searchParams.get('type') || ''} onChange={(type) => updateSearch({ type })} options={[
+          { value: '', label: t('common.all') },
+          ...EVIDENCE_TYPES.map((type) => ({ value: type, label: labelEnum(type) })),
+        ]} />}
         <div className="toolbar toolbar--wrap">
           <SearchField value={search} onChange={setSearch} placeholder={t('evidence.search.placeholder')} />
-          <ProjectSelect projects={data.projects} value={projectFilter} onChange={changeProjectFilter} includeAll={view !== 'by-project'} />
+          <ProjectSelect projects={data.projects} value={projectFilter} onChange={changeProjectFilter} includeAll />
           <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} aria-label={t('evidence.filter.typeLabel')}>
             <option value="">{t('evidence.filter.allTypes')}</option>
             {EVIDENCE_TYPES.map((type) => <option key={type} value={type}>{labelEnum(type)}</option>)}
@@ -291,7 +262,7 @@ export function EvidencePage() {
           <EmptyState
             title={t(data.evidence.length ? 'evidence.empty.filteredTitle' : 'evidence.empty.initialTitle')}
             description={t(data.evidence.length ? 'evidence.empty.filteredDescription' : 'evidence.empty.initialDescription')}
-            action={data.evidence.length ? <Button onClick={() => { setSearch(''); if (view !== 'by-project') changeProjectFilter(''); setTypeFilter(''); setSupportFilter('') }}>{t('evidence.action.clearFilters')}</Button> : <AddButton onClick={openCreate}>{t('evidence.action.addItem')}</AddButton>}
+            action={data.evidence.length ? <Button onClick={() => { setSearch(''); changeProjectFilter(''); setTypeFilter(''); setSupportFilter('') }}>{t('evidence.action.clearFilters')}</Button> : <AddButton onClick={openCreate}>{t('evidence.action.addItem')}</AddButton>}
           />
         )}
       </section>
@@ -309,11 +280,13 @@ export function EvidencePage() {
           <Field label={t('evidence.form.type')} required><select value={draft.evidenceType} onChange={(event) => setDraft({ ...draft, evidenceType: event.target.value as EvidenceItem['evidenceType'] })}>{EVIDENCE_TYPES.map((type) => <option key={type} value={type}>{labelEnum(type)}</option>)}</select></Field>
           <Field label={t('evidence.form.claim')} required className="form-span-2"><textarea autoFocus required rows={3} value={draft.claim} onChange={(event) => setDraft({ ...draft, claim: event.target.value })} placeholder={t('evidence.form.claimPlaceholder')} /></Field>
           <Field label={t('evidence.form.source')} required><input required value={draft.source} onChange={(event) => setDraft({ ...draft, source: event.target.value })} placeholder={t('evidence.form.sourcePlaceholder')} /></Field>
-          <Field label={t('evidence.form.locator')}><input value={draft.locator} onChange={(event) => setDraft({ ...draft, locator: event.target.value })} placeholder={t('evidence.form.locatorPlaceholder')} /></Field>
           <Field label={t('evidence.form.finding')} required className="form-span-2"><textarea required rows={4} value={draft.finding} onChange={(event) => setDraft({ ...draft, finding: event.target.value })} placeholder={t('evidence.form.findingPlaceholder')} /></Field>
           <Field label={t('evidence.form.support')} required><select value={draft.supportLevel} onChange={(event) => setDraft({ ...draft, supportLevel: event.target.value as EvidenceItem['supportLevel'] })}>{SUPPORT_LEVELS.map((level) => <option key={level} value={level}>{labelEnum(level)}</option>)}</select></Field>
-          <Field label={t('evidence.form.manuscriptLocation')}><input value={draft.manuscriptLocation} onChange={(event) => setDraft({ ...draft, manuscriptLocation: event.target.value })} placeholder={t('evidence.form.manuscriptLocationPlaceholder')} /></Field>
-          <Field label={t('evidence.form.limitations')} className="form-span-2"><textarea rows={4} value={draft.limitations} onChange={(event) => setDraft({ ...draft, limitations: event.target.value })} placeholder={t('evidence.form.limitationsPlaceholder')} /></Field>
+          <DisclosureSection summary={t('common.details')}>
+            <Field label={t('evidence.form.locator')}><input value={draft.locator} onChange={(event) => setDraft({ ...draft, locator: event.target.value })} placeholder={t('evidence.form.locatorPlaceholder')} /></Field>
+            <Field label={t('evidence.form.manuscriptLocation')}><input value={draft.manuscriptLocation} onChange={(event) => setDraft({ ...draft, manuscriptLocation: event.target.value })} placeholder={t('evidence.form.manuscriptLocationPlaceholder')} /></Field>
+            <Field label={t('evidence.form.limitations')} className="form-span-2"><textarea rows={4} value={draft.limitations} onChange={(event) => setDraft({ ...draft, limitations: event.target.value })} placeholder={t('evidence.form.limitationsPlaceholder')} /></Field>
+          </DisclosureSection>
         </form>
       </Modal>
 

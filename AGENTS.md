@@ -40,6 +40,12 @@ These rules apply to every Codex agent or automated contributor working in this 
 18. Browser use is permanently first-class. Installation must never be required to access the complete research workflow.
 19. No-account operation remains a product feature; distribution work must not add registration, login, a cloud workspace, analytics, or default synchronization.
 20. Cross-device transfer is backup-based. Encrypted `.sociologydesk` backup and restore is the supported private-workspace path unless a future, separately accepted end-to-end synchronization design exists.
+21. Optimize the default interface for clarity, not maximum feature exposure. A capability does not require a permanent navigation entry merely because it exists.
+22. Keep primary navigation for research domains and secondary navigation for high-frequency workflows; move tertiary status distinctions into URL-addressable page filters.
+23. Prefer progressive disclosure for infrequent form fields and technical diagnostics while keeping historical states and research capabilities reachable within one or two actions.
+24. Motion explains spatial and state continuity; it does not decorate, delay research work, or make user content difficult to read.
+25. Centralize motion durations and easing, prefer transform and opacity, never add `transition: all`, and always keep important behavior independent of animation completion.
+26. Respect `prefers-reduced-motion` for every route, view, overlay, drawer, accordion, workspace, and lock transition.
 
 ## Operating constraints
 

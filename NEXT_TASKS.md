@@ -2,6 +2,19 @@
 
 > `v0.2.1` Distribution & PWA is published from exact release SHA `8db828faaa94f7591dbd806abe90916335862187`. This queue is frozen after documentation closeout. Do not begin `v0.3.0`.
 
+## P0 — v0.2.2 Simplicity & Motion
+
+- [x] Create Issue #30 and `feat/simplicity-motion` from verified `v0.2.1` main without changing package or schema versions.
+- [x] Reduce secondary navigation from 67 to 32 durable entries while retaining nine primary modules and explicit old-link mappings.
+- [x] Consolidate smart views into filters, simplify the Topbar/settings, and add progressive-disclosure forms without deleting hidden values.
+- [x] Add a dependency-free semantic motion system, state-preserving route/view transitions, component exit presence, and global reduced-motion support.
+- [x] Pass the local candidate gate: `npm ci`, lint, typecheck, 33 files / 300 tests, production build/PWA verification, diff check, and desktop/mobile bilingual browser QA.
+- [x] Capture four PNG after-state screenshots from the final production preview using only the synthetic Demo workspace.
+- [ ] Commit/push the exact feature head, open the feature PR, record P0 = 0 / P1 = 0 self-review, pass exact-head push/PR CI, and squash-merge.
+- [ ] Pass exact-main CI/Pages and complete real public bilingual desktop/mobile smoke without creating persistent public QA data.
+- [ ] Create `release/0.2.2`, change package/lock only to 0.2.2, reconcile final docs, pass the release gate, open/merge the release PR, and reverify exact main/Pages/public.
+- [ ] Create annotated `v0.2.2`, publish non-draft/non-prerelease UTF-8 GitHub Release notes, verify tag dereference and API read-back, then stop at `V0.2.2 ADOPTION & STABILIZATION`.
+
 ## P0 — v0.2.1 Distribution & PWA
 
 - [x] Create Issue [#23](https://github.com/Yoesher/sociology-phd-desk/issues/23) and branch `codex/v0.2.1-distribution-pwa` from verified main `782311864b61b0aaeece0e803c0e886c726ed1af`.

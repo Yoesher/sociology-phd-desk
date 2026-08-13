@@ -9,6 +9,8 @@ import {
   ConfirmDialog,
   EmptyState,
   Field,
+  FilterChips,
+  DisclosureSection,
   Modal,
   SectionHeader,
 } from '../../components/ui'
@@ -19,44 +21,10 @@ import {
   type TheoryMemo,
   type TheoryMemoType,
 } from '../../models/domain'
-import { prioritizeTheoryProjects, type TheoryView } from './theoryViews'
+import { prioritizeTheoryProjects } from './theoryViews'
 
 const MEMO_TITLE_MAX_LENGTH = 1_000
 const MEMO_CONTENT_MAX_LENGTH = 250_000
-type MemoView = Extract<TheoryView, 'concepts' | 'mechanisms' | 'dialogue' | 'counterarguments' | 'memos'>
-
-const memoViewConfig: Record<MemoView, {
-  titleKey: MessageKey
-  descriptionKey: MessageKey
-  types: readonly TheoryMemoType[]
-}> = {
-  concepts: {
-    titleKey: 'theory.memo.conceptsTitle',
-    descriptionKey: 'theory.memo.conceptsDescription',
-    types: ['concept'],
-  },
-  mechanisms: {
-    titleKey: 'theory.memo.mechanismsTitle',
-    descriptionKey: 'theory.memo.mechanismsDescription',
-    types: ['mechanism'],
-  },
-  dialogue: {
-    titleKey: 'theory.memo.dialogueTitle',
-    descriptionKey: 'theory.memo.dialogueDescription',
-    types: ['dialogue'],
-  },
-  counterarguments: {
-    titleKey: 'theory.memo.counterargumentsTitle',
-    descriptionKey: 'theory.memo.counterargumentsDescription',
-    types: ['counterargument', 'boundary'],
-  },
-  memos: {
-    titleKey: 'theory.memo.allTitle',
-    descriptionKey: 'theory.memo.allDescription',
-    types: THEORY_MEMO_TYPES,
-  },
-}
-
 const promptKeys = {
   concept: [
     'theory.prompts.concept.1', 'theory.prompts.concept.2', 'theory.prompts.concept.3',
@@ -112,13 +80,15 @@ function toggleId(values: string[], id: string) {
 }
 
 export function TheoryMemoWorkspace({
-  view,
+  typeFilter,
+  onTypeFilterChange,
   projectFilter,
   onProjectFilterChange,
   createRequest = 0,
   onCreateRequestHandled,
 }: {
-  view: MemoView
+  typeFilter: string
+  onTypeFilterChange: (type: string) => void
   projectFilter: string
   onProjectFilterChange: (projectId: string) => void
   createRequest?: number
@@ -126,21 +96,22 @@ export function TheoryMemoWorkspace({
 }) {
   const { data, updateData } = useWorkspace()
   const { t, formatDate, formatNumber, labelEnum } = useI18n()
-  const config = memoViewConfig[view]
-  const [typeFilter, setTypeFilter] = useState<TheoryMemoType | ''>('')
   const [updatedFilter, setUpdatedFilter] = useState('')
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<TheoryMemo | null>(null)
   const [viewing, setViewing] = useState<TheoryMemo | null>(null)
   const [deleting, setDeleting] = useState<TheoryMemo | null>(null)
-  const [draft, setDraft] = useState<MemoDraft>(() => emptyDraft('', config.types[0]))
+  const selectedTypes = useMemo(() => typeFilter.split(',').filter(
+    (type): type is TheoryMemoType => THEORY_MEMO_TYPES.includes(type as TheoryMemoType),
+  ), [typeFilter])
+  const [draft, setDraft] = useState<MemoDraft>(() => emptyDraft('', 'concept'))
 
   const projects = useMemo(() => prioritizeTheoryProjects(data?.projects ?? []), [data?.projects])
   const defaultProjectId = projectFilter || data?.workspace.activeProjectId || projects[0]?.id || ''
 
   const openCreate = () => {
     setEditing(null)
-    setDraft(emptyDraft(defaultProjectId, config.types[0]))
+    setDraft(emptyDraft(defaultProjectId, selectedTypes[0] || 'concept'))
     setFormOpen(true)
   }
 
@@ -157,16 +128,15 @@ export function TheoryMemoWorkspace({
     const now = Date.now()
     const days = Number(updatedFilter)
     return (data?.theoryMemos ?? [])
-      .filter((memo) => config.types.includes(memo.memoType))
+      .filter((memo) => !selectedTypes.length || selectedTypes.includes(memo.memoType))
       .filter((memo) => !projectFilter || memo.projectId === projectFilter)
-      .filter((memo) => view !== 'memos' || !typeFilter || memo.memoType === typeFilter)
       .filter((memo) => {
-        if (view !== 'memos' || !days) return true
+        if (!days) return true
         const updated = new Date(memo.updatedAt).getTime()
         return Number.isFinite(updated) && now - updated <= days * 86_400_000
       })
       .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
-  }, [config.types, data?.theoryMemos, projectFilter, typeFilter, updatedFilter, view])
+  }, [data?.theoryMemos, projectFilter, selectedTypes, updatedFilter])
 
   if (!data) return null
 
@@ -277,11 +247,10 @@ export function TheoryMemoWorkspace({
   return (
     <section className="panel theory-memo-workspace" aria-labelledby="theory-memo-view-title">
       <SectionHeader
-        title={t(config.titleKey)}
-        description={t(config.descriptionKey)}
-        action={<AddButton size="sm" onClick={openCreate}>{t('theory.actions.newMemo')}</AddButton>}
+        title={t('theory.memo.allTitle')}
+        description={t('theory.memo.allDescription')}
       />
-      <span id="theory-memo-view-title" className="sr-only">{t(config.titleKey)}</span>
+      <span id="theory-memo-view-title" className="sr-only">{t('theory.memo.allTitle')}</span>
 
       <div className="toolbar toolbar--wrap">
         <ProjectSelect
@@ -292,12 +261,11 @@ export function TheoryMemoWorkspace({
           allLabel={t('theory.filters.allProjects')}
           ariaLabel={t('theory.filters.project')}
         />
-        {view === 'memos' && (
+        <FilterChips value={typeFilter} onChange={onTypeFilterChange} ariaLabel={t('theory.filters.type')} options={[
+          { value: '', label: t('theory.filters.allTypes') },
+          ...THEORY_MEMO_TYPES.map((type) => ({ value: type, label: labelEnum(type) })),
+        ]} />
           <>
-            <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value as TheoryMemoType | '')} aria-label={t('theory.filters.type')}>
-              <option value="">{t('theory.filters.allTypes')}</option>
-              {THEORY_MEMO_TYPES.map((type) => <option key={type} value={type}>{labelEnum(type)}</option>)}
-            </select>
             <select value={updatedFilter} onChange={(event) => setUpdatedFilter(event.target.value)} aria-label={t('theory.filters.updated')}>
               <option value="">{t('theory.filters.updatedAny')}</option>
               <option value="7">{t('theory.filters.updated7')}</option>
@@ -305,7 +273,6 @@ export function TheoryMemoWorkspace({
               <option value="90">{t('theory.filters.updated90')}</option>
             </select>
           </>
-        )}
         <span className="toolbar__count">{t('theory.filters.count', {
           visible: formatNumber(visibleMemos.length),
           total: formatNumber(data.theoryMemos.length),
@@ -399,6 +366,7 @@ export function TheoryMemoWorkspace({
           <Field label={t('theory.memo.content')} hint={t('theory.memo.contentHint')} className="form-span-2">
             <textarea rows={10} maxLength={MEMO_CONTENT_MAX_LENGTH} value={draft.content} onChange={(event) => setDraft({ ...draft, content: event.target.value })} placeholder={t('theory.memo.contentPlaceholder')} />
           </Field>
+          <DisclosureSection summary={t('common.relatedResearch')}>
           <RelationSelector
             legend={t('theory.memo.relatedQuestions')}
             hint={t('theory.memo.relatedQuestionsHint')}
@@ -424,6 +392,7 @@ export function TheoryMemoWorkspace({
             selected={draft.relatedLiteratureIds}
             onToggle={(id) => setDraft({ ...draft, relatedLiteratureIds: toggleId(draft.relatedLiteratureIds, id) })}
           />
+          </DisclosureSection>
         </form>
       </Modal>
 

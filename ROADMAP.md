@@ -27,6 +27,8 @@ Phase 3 uses independently verified increments. Listing an increment here does n
 
 **Current release scope:** [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) adds installable/offline PWA distribution, safe user-approved updates, storage-persistence visibility, and local backup reminders to the complete `v0.2.0` research workflow without adding accounts, cloud sync, or a new research entity. It is published from exact release SHA [`8db828f`](https://github.com/Yoesher/sociology-phd-desk/commit/8db828faaa94f7591dbd806abe90916335862187). The Phase 3D China Research Map remains excluded; all four map gates remain **BLOCKED**. No `v0.3.0` work has started.
 
+**Authorized maintenance target:** `v0.2.2` simplifies the existing interface and adds coherent, restrained motion while keeping all nine research modules, data models, PWA/update behavior, and schema versions unchanged. It is a release candidate until its feature/release PRs, exact-main verification, tag, and formal Release actually complete. No `v0.3.0` feature work is authorized.
+
 Every implemented increment follows the same evidence chain: scoped Issue → dedicated feature branch → implementation and tests → Pull Request → passing PR CI → maintainer self-review → squash merge → passing `main` CI → GitHub Pages verification. The map's blocked gate applies to the map alone; each non-map increment must pass its own complete gate before the next begins.
 
 ### Phase 3A — Chinese-first bilingual foundation
@@ -113,6 +115,14 @@ Release criteria:
 - Add user-approved, flush-before-activation updates; storage-persistence visibility; and local backup reminders.
 - Retain the current Pages origin with explicit shared-origin risk for this release. A custom/dedicated origin requires a separate migration decision and encrypted-backup transfer path.
 - Feature PR #24 and release PR #25 are merged; exact-head/main CI, Pages, deployment, public static verification, annotated tag, and formal GitHub Release passed. The cycle is closed without starting v0.3.
+
+### `0.2.2` — simplicity and motion (local candidate)
+
+- Reduce status-heavy secondary navigation while retaining all nine primary research modules and compatible legacy links.
+- Consolidate smart views into page filters, simplify the Topbar and settings, and use progressive disclosure for low-frequency form fields.
+- Apply a dependency-free semantic motion system with explicit reduced-motion behavior and no state-remounting route transitions.
+- Preserve portable v4, standard database v4, encrypted container v1, and `v0.2.1` distribution/security behavior.
+- Stop after release at `V0.2.2 ADOPTION & STABILIZATION`; do not begin `v0.3.0`.
 
 - Complete and stabilize the first-class Research Question, Claim, and `ClaimQuestionLink` foundation; add Variable, Model, Code, Memo, and Revision Task only through separately scoped work.
 - Bidirectional evidence-to-claim and claim-to-manuscript navigation.

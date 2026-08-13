@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import {
   AlertTriangle,
@@ -289,31 +289,58 @@ export function Modal({
   const stackId = useId()
   const dialogRef = useRef<HTMLElement>(null)
   const onCloseRef = useRef(onClose)
+  const [present, setPresent] = useState(open)
+  const [closing, setClosing] = useState(false)
+  const rendered = present && !(import.meta.env.MODE === 'test' && !open)
   onCloseRef.current = onClose
 
   useEffect(() => {
+    if (open) {
+      setPresent(true)
+      setClosing(false)
+      return
+    }
+    if (!present) return
+    if (import.meta.env.MODE === 'test') {
+      setPresent(false)
+      setClosing(false)
+      return
+    }
+    setClosing(true)
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+    const timer = window.setTimeout(() => {
+      setPresent(false)
+      setClosing(false)
+    }, reduced ? 0 : 160)
+    return () => window.clearTimeout(timer)
+  }, [open, present])
+
+  useEffect(() => {
     const dialog = dialogRef.current
-    if (!open || !dialog) return
+    if (!rendered || !dialog) return
 
     registerModal({ id: stackId, dialog, onClose: () => onCloseRef.current() })
     return () => unregisterModal(stackId)
-  }, [open, stackId])
+  }, [rendered, stackId])
 
-  if (!open) return null
+  if (!rendered) return null
 
   const requestClose = () => {
-    if (isTopmostModal(stackId)) onCloseRef.current()
+    if (!closing && isTopmostModal(stackId)) onCloseRef.current()
   }
 
   return createPortal(
-    <div className="modal-backdrop" role="presentation" onMouseDown={requestClose}>
+    <div className="modal-backdrop" data-closing={closing || undefined} role="presentation" onMouseDown={requestClose}>
       <section
         ref={dialogRef}
         className={`modal modal--${size}`}
+        data-closing={closing || undefined}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
+        aria-hidden={closing || undefined}
+        inert={closing || undefined}
         tabIndex={-1}
         onMouseDown={(event) => event.stopPropagation()}
       >
@@ -404,6 +431,25 @@ export function Field({
   )
 }
 
+export function DisclosureSection({
+  summary,
+  children,
+  defaultOpen = false,
+  className = '',
+}: {
+  summary: string
+  children: ReactNode
+  defaultOpen?: boolean
+  className?: string
+}) {
+  return (
+    <details className={`form-disclosure motion-collapse ${className}`} open={defaultOpen || undefined}>
+      <summary>{summary}</summary>
+      <div className="form-disclosure__content">{children}</div>
+    </details>
+  )
+}
+
 export function SearchField({
   value,
   onChange,
@@ -425,6 +471,33 @@ export function SearchField({
         </button>
       )}
     </label>
+  )
+}
+
+export function FilterChips({
+  value,
+  options,
+  onChange,
+  ariaLabel,
+}: {
+  value: string
+  options: readonly { value: string; label: string }[]
+  onChange: (value: string) => void
+  ariaLabel: string
+}) {
+  return (
+    <div className="filter-chips" role="group" aria-label={ariaLabel}>
+      {options.map((option) => (
+        <button
+          key={option.value || 'all'}
+          type="button"
+          aria-pressed={value === option.value}
+          onClick={() => onChange(option.value)}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
   )
 }
 

@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { FilePenLine, History, MessageSquareText, Send } from 'lucide-react'
-import { useSearchParams } from 'react-router-dom'
 import { entityMeta, truncate } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEventDetail } from '../../app/navigationEvents'
 import { ProjectSelect } from '../../components/ProjectSelect'
@@ -10,6 +9,8 @@ import {
   Button,
   EmptyState,
   Field,
+  FilterChips,
+  DisclosureSection,
   Modal,
   PageHeader,
   SearchField,
@@ -18,7 +19,8 @@ import {
   type Tone,
 } from '../../components/ui'
 import { useWorkspace } from '../../hooks/useWorkspace'
-import { useI18n, type MessageKey } from '../../i18n'
+import { useI18n } from '../../i18n'
+import { useModuleSearch } from '../../hooks/useModuleSearch'
 import {
   MANUSCRIPT_STATUSES,
   REVIEW_COMMENT_SEVERITIES,
@@ -29,8 +31,8 @@ import {
   type Submission,
 } from '../../models/domain'
 import {
-  PUBLISHING_VIEWS,
-  countPublishingView,
+  MANUSCRIPT_STATUSES_BY_VIEW,
+  SUBMISSION_STATUSES_BY_VIEW,
   countUnresolvedReviewerComments,
   isReviewerCommentUnresolved,
   manuscriptMatchesPublishingView,
@@ -94,8 +96,6 @@ const emptyReviewerDraft = (submissionId = ''): ReviewerDraft => ({
   response: '', revisionAction: '', status: 'Open',
 })
 
-const viewLabelKey = (view: PublishingView): MessageKey => `publishing.view.${view}` as MessageKey
-
 const manuscriptTone = (status: Manuscript['status']): Tone => {
   if (status === 'Accepted' || status === 'Published') return 'success'
   if (status === 'Rejected') return 'danger'
@@ -123,7 +123,7 @@ const reviewTone = (status: ReviewerComment['status']): Tone => {
 export function PublishingPage() {
   const { data, updateData } = useWorkspace()
   const { t, formatDate, formatNumber, labelEnum } = useI18n()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const { searchParams, updateSearch } = useModuleSearch('publishing')
   const [search, setSearch] = useState('')
   const [projectFilter, setProjectFilter] = useState('')
   const [manuscriptOpen, setManuscriptOpen] = useState(false)
@@ -135,6 +135,8 @@ export function PublishingPage() {
   const [reviewerDraft, setReviewerDraft] = useState<ReviewerDraft>(emptyReviewerDraft)
   const [reviewerError, setReviewerError] = useState(false)
   const view = normalizePublishingView(searchParams.get('view'))
+  const statusFilters = (searchParams.get('status') || '').split(',').filter(Boolean)
+  const scopeAll = searchParams.get('scope') === 'all'
 
   const openManuscript = () => {
     if (!data?.projects.length) return
@@ -181,11 +183,11 @@ export function PublishingPage() {
       const project = data.projects.find((item) => item.id === manuscript.projectId)
       const corpus = [manuscript.title, manuscript.targetJournal, manuscript.nextAction, project?.title, project?.shortTitle]
         .join(' ').toLowerCase()
-      return manuscriptMatchesPublishingView(manuscript, view) &&
+      return (scopeAll || manuscriptMatchesPublishingView(manuscript, view, statusFilters)) &&
         (!projectFilter || manuscript.projectId === projectFilter) &&
         (!query || corpus.includes(query))
     }).sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
-  }, [data, projectFilter, search, view])
+  }, [data, projectFilter, scopeAll, search, statusFilters, view])
 
   const visibleSubmissions = useMemo(() => {
     if (!data) return []
@@ -196,19 +198,16 @@ export function PublishingPage() {
       const corpus = [submission.journal, submission.manuscriptVersion, submission.editorialStatus,
         submission.decision, submission.notes, manuscript?.title, project?.title, project?.shortTitle]
         .join(' ').toLowerCase()
-      return submissionMatchesPublishingView(submission, view) &&
+      return (scopeAll || submissionMatchesPublishingView(submission, view, statusFilters)) &&
         (!projectFilter || submission.projectId === projectFilter) &&
         (!query || corpus.includes(query))
     }).sort((left, right) => (right.submissionDate || right.updatedAt).localeCompare(left.submissionDate || left.updatedAt))
-  }, [data, projectFilter, search, view])
+  }, [data, projectFilter, scopeAll, search, statusFilters, view])
 
   if (!data) return null
 
   const setView = (nextView: PublishingView) => {
-    const next = new URLSearchParams(searchParams)
-    if (nextView === 'all') next.delete('view')
-    else next.set('view', nextView)
-    setSearchParams(next)
+    updateSearch({ view: nextView, status: null, scope: null })
   }
 
   const projectName = (projectId: string) => {
@@ -310,7 +309,7 @@ export function PublishingPage() {
       visibleSubmissionIds.has(submission.id) || visibleManuscriptIds.has(submission.manuscriptId)
     ))
     if (view === 'revision') return includedByParent && isReviewerCommentUnresolved(comment)
-    return view === 'all' && includedByParent
+    return scopeAll && includedByParent
   })
   const unresolvedCount = data.reviewerComments.filter(isReviewerCommentUnresolved).length
   const recordCount = visibleManuscripts.length + visibleSubmissions.length
@@ -322,11 +321,7 @@ export function PublishingPage() {
         eyebrow={t('publishing.header.eyebrow')}
         title={t('publishing.header.title')}
         description={t('publishing.header.description')}
-        actions={<>
-          <AddButton onClick={openManuscript} disabled={!data.projects.length} title={!data.projects.length ? t('publishing.disabled.noProject') : undefined}>{t('publishing.action.addManuscript')}</AddButton>
-          <AddButton onClick={() => openSubmission()} disabled={!data.manuscripts.length} title={!data.manuscripts.length ? t('publishing.disabled.noManuscript') : undefined}>{t('publishing.action.addSubmission')}</AddButton>
-          <AddButton onClick={openReviewer} disabled={!data.submissions.length} title={!data.submissions.length ? t('submissions.disabled.noSubmission') : undefined}>{t('submissions.action.addReviewerComment')}</AddButton>
-        </>}
+        actions={view === 'revision' ? <AddButton onClick={openReviewer} disabled={!data.submissions.length} title={!data.submissions.length ? t('submissions.disabled.noSubmission') : undefined}>{t('submissions.action.addReviewerComment')}</AddButton> : undefined}
       />
 
       <div className="stats-grid stats-grid--four">
@@ -337,22 +332,31 @@ export function PublishingPage() {
       </div>
 
       <section className="panel">
-        <nav className="publishing-view-nav" aria-label={t('publishing.view.aria')}>
-          {PUBLISHING_VIEWS.map((item) => {
-            const count = countPublishingView(item, data.manuscripts, data.submissions)
-            return <button key={item} type="button" aria-current={view === item ? 'page' : undefined} onClick={() => setView(item)}>
-              {t(viewLabelKey(item))}<span className="publishing-view-nav__count">{formatNumber(count)}</span>
-            </button>
-          })}
-        </nav>
-
         <div className="toolbar toolbar--wrap">
           <SearchField value={search} onChange={setSearch} placeholder={t('publishing.filter.search')} />
           <ProjectSelect projects={data.projects} value={projectFilter} onChange={setProjectFilter} includeAll ariaLabel={t('publishing.filter.project')} />
           <span className="toolbar__count">{t(recordCount === 1 ? 'publishing.count.recordsOne' : 'publishing.count.recordsOther', { count: formatNumber(recordCount) })}</span>
         </div>
 
-        {view === 'rejected' && <aside className="publishing-history-note"><History size={18} /><div><strong>{t('publishing.history.title')}</strong><p>{t('publishing.history.body')}</p></div></aside>}
+        {!scopeAll && view !== 'revision' && <FilterChips
+          value={searchParams.get('status') || ''}
+          ariaLabel={t('publishing.filter.status')}
+          options={[
+            { value: '', label: t('common.all') },
+            ...(view === 'writing'
+              ? MANUSCRIPT_STATUSES_BY_VIEW.writing.map((status) => ({ value: status, label: labelEnum(status) }))
+              : view === 'submission'
+                ? SUBMISSION_STATUSES_BY_VIEW.submission.map((status) => ({ value: status, label: labelEnum(status) }))
+                : [
+                    { value: 'Rejected,Reworking', label: t('publishing.filter.rejectedReworking') },
+                    { value: 'Accepted', label: labelEnum('Accepted') },
+                    { value: 'Published', label: labelEnum('Published') },
+                    { value: 'Withdrawn', label: labelEnum('Withdrawn') },
+                  ])]}
+          onChange={(status) => updateSearch({ status: status || null })}
+        />}
+
+        {view === 'history' && statusFilters.some((status) => status === 'Rejected' || status === 'Reworking') && <aside className="publishing-history-note"><History size={18} /><div><strong>{t('publishing.history.title')}</strong><p>{t('publishing.history.body')}</p></div></aside>}
 
         {recordCount ? <>
           {visibleManuscripts.length > 0 && <section className="publishing-section">
@@ -368,7 +372,7 @@ export function PublishingPage() {
                   <select value={manuscript.status} aria-label={t('publishing.card.updateManuscriptStatus', { title: manuscript.title })} onChange={(event) => void updateManuscriptStatus(manuscript.id, event.target.value as Manuscript['status'])}>
                     {MANUSCRIPT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
                   </select>
-                  {view === 'rejected' && <Button size="sm" onClick={() => openSubmission(manuscript, true)}>{t('publishing.action.resubmit')}</Button>}
+                  {(manuscript.status === 'Rejected' || manuscript.status === 'Reworking') && <Button size="sm" onClick={() => openSubmission(manuscript, true)}>{t('publishing.action.resubmit')}</Button>}
                 </div>
               </article>)}
             </div>
@@ -390,13 +394,13 @@ export function PublishingPage() {
                     <select value={submission.status} aria-label={t('publishing.card.updateSubmissionStatus', { title: manuscript?.title || submission.journal })} onChange={(event) => void updateSubmissionStatus(submission.id, event.target.value as Submission['status'])}>
                       {SUBMISSION_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
                     </select>
-                    {view === 'rejected' && manuscript && <Button size="sm" onClick={() => openSubmission(manuscript, true)}>{t('publishing.action.resubmit')}</Button>}
+                    {submission.status === 'Rejected' && manuscript && <Button size="sm" onClick={() => openSubmission(manuscript, true)}>{t('publishing.action.resubmit')}</Button>}
                   </div>
                 </article>
               })}
             </div>
           </section>}
-        </> : <EmptyState title={t('publishing.empty.title')} description={t(data.manuscripts.length || data.submissions.length ? 'publishing.empty.filtered' : 'publishing.empty.initial')} action={(search || projectFilter || view !== 'all') ? <Button onClick={() => { setSearch(''); setProjectFilter(''); setView('all') }}>{t('publishing.action.clearFilters')}</Button> : <AddButton onClick={openManuscript} disabled={!data.projects.length}>{t('publishing.action.addManuscript')}</AddButton>} />}
+        </> : <EmptyState title={t('publishing.empty.title')} description={t(data.manuscripts.length || data.submissions.length ? 'publishing.empty.filtered' : 'publishing.empty.initial')} action={(search || projectFilter || statusFilters.length || view !== 'writing') ? <Button onClick={() => { setSearch(''); setProjectFilter(''); setView('writing') }}>{t('publishing.action.clearFilters')}</Button> : <AddButton onClick={openManuscript} disabled={!data.projects.length}>{t('publishing.action.addManuscript')}</AddButton>} />}
 
         {visibleComments.length > 0 && <section className="publishing-section">
           <SectionHeader title={t('publishing.section.reviewerComments')} description={t('publishing.section.reviewerCommentsDescription')} />
@@ -418,9 +422,11 @@ export function PublishingPage() {
           <Field label={t('publishing.manuscriptForm.project')} required><ProjectSelect required projects={data.projects} value={manuscriptDraft.projectId} onChange={(projectId) => setManuscriptDraft({ ...manuscriptDraft, projectId })} /></Field>
           <Field label={t('publishing.manuscriptForm.journal')} required><input required value={manuscriptDraft.targetJournal} onChange={(event) => setManuscriptDraft({ ...manuscriptDraft, targetJournal: event.target.value })} /></Field>
           <Field label={t('publishing.manuscriptForm.status')} required><select value={manuscriptDraft.status} onChange={(event) => setManuscriptDraft({ ...manuscriptDraft, status: event.target.value as Manuscript['status'] })}>{MANUSCRIPT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
-          <Field label={t('publishing.manuscriptForm.wordCount')} required><input type="number" min="0" required value={manuscriptDraft.wordCount} onChange={(event) => setManuscriptDraft({ ...manuscriptDraft, wordCount: event.target.value })} /></Field>
           <Field label={t('publishing.manuscriptForm.nextAction')} className="form-span-2"><textarea rows={3} value={manuscriptDraft.nextAction} onChange={(event) => setManuscriptDraft({ ...manuscriptDraft, nextAction: event.target.value })} /></Field>
-          <Field label={t('publishing.manuscriptForm.deadline')}><input type="date" value={manuscriptDraft.deadline} onChange={(event) => setManuscriptDraft({ ...manuscriptDraft, deadline: event.target.value })} /></Field>
+          <DisclosureSection summary={t('common.details')} className="form-span-2">
+            <Field label={t('publishing.manuscriptForm.wordCount')} required><input type="number" min="0" required value={manuscriptDraft.wordCount} onChange={(event) => setManuscriptDraft({ ...manuscriptDraft, wordCount: event.target.value })} /></Field>
+            <Field label={t('publishing.manuscriptForm.deadline')}><input type="date" value={manuscriptDraft.deadline} onChange={(event) => setManuscriptDraft({ ...manuscriptDraft, deadline: event.target.value })} /></Field>
+          </DisclosureSection>
         </form>
       </Modal>
 
@@ -428,13 +434,15 @@ export function PublishingPage() {
         <form id="publishing-submission-form" className="form-grid" onSubmit={(event) => void saveSubmission(event)}>
           <Field label={t('publishing.submissionForm.manuscript')} required className="form-span-2"><select autoFocus required value={submissionDraft.manuscriptId} onChange={(event) => { const manuscript = data.manuscripts.find((item) => item.id === event.target.value); setSubmissionDraft({ ...submissionDraft, manuscriptId: event.target.value, journal: manuscript?.targetJournal || submissionDraft.journal }) }}><option value="">{t('publishing.submissionForm.selectManuscript')}</option>{data.manuscripts.map((manuscript) => <option key={manuscript.id} value={manuscript.id}>{manuscript.title} · {projectName(manuscript.projectId)}</option>)}</select></Field>
           <Field label={t('publishing.submissionForm.journal')} required><input required value={submissionDraft.journal} onChange={(event) => setSubmissionDraft({ ...submissionDraft, journal: event.target.value })} /></Field>
-          <Field label={t('publishing.submissionForm.version')} required><input required value={submissionDraft.manuscriptVersion} onChange={(event) => setSubmissionDraft({ ...submissionDraft, manuscriptVersion: event.target.value })} /></Field>
           <Field label={t('publishing.submissionForm.date')}><input type="date" value={submissionDraft.submissionDate} onChange={(event) => setSubmissionDraft({ ...submissionDraft, submissionDate: event.target.value })} /></Field>
           <Field label={t('publishing.submissionForm.status')} required><select value={submissionDraft.status} onChange={(event) => setSubmissionDraft({ ...submissionDraft, status: event.target.value as Submission['status'] })}>{SUBMISSION_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
-          <Field label={t('publishing.submissionForm.editorialStatus')} className="form-span-2"><input value={submissionDraft.editorialStatus} onChange={(event) => setSubmissionDraft({ ...submissionDraft, editorialStatus: event.target.value })} /></Field>
-          <Field label={t('publishing.submissionForm.decisionDate')}><input type="date" value={submissionDraft.decisionDate} onChange={(event) => setSubmissionDraft({ ...submissionDraft, decisionDate: event.target.value })} /></Field>
-          <Field label={t('publishing.submissionForm.decision')}><input value={submissionDraft.decision} onChange={(event) => setSubmissionDraft({ ...submissionDraft, decision: event.target.value })} /></Field>
-          <Field label={t('publishing.submissionForm.notes')} className="form-span-2"><textarea rows={4} value={submissionDraft.notes} onChange={(event) => setSubmissionDraft({ ...submissionDraft, notes: event.target.value })} /></Field>
+          <DisclosureSection summary={t('common.details')} className="form-span-2" defaultOpen={resubmitting}>
+            <Field label={t('publishing.submissionForm.version')} required><input required value={submissionDraft.manuscriptVersion} onChange={(event) => setSubmissionDraft({ ...submissionDraft, manuscriptVersion: event.target.value })} /></Field>
+            <Field label={t('publishing.submissionForm.editorialStatus')}><input value={submissionDraft.editorialStatus} onChange={(event) => setSubmissionDraft({ ...submissionDraft, editorialStatus: event.target.value })} /></Field>
+            <Field label={t('publishing.submissionForm.decisionDate')}><input type="date" value={submissionDraft.decisionDate} onChange={(event) => setSubmissionDraft({ ...submissionDraft, decisionDate: event.target.value })} /></Field>
+            <Field label={t('publishing.submissionForm.decision')}><input value={submissionDraft.decision} onChange={(event) => setSubmissionDraft({ ...submissionDraft, decision: event.target.value })} /></Field>
+            <Field label={t('publishing.submissionForm.notes')} className="form-span-2"><textarea rows={4} value={submissionDraft.notes} onChange={(event) => setSubmissionDraft({ ...submissionDraft, notes: event.target.value })} /></Field>
+          </DisclosureSection>
         </form>
       </Modal>
 

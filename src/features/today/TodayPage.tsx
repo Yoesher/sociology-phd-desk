@@ -11,6 +11,7 @@ import { useWorkspace } from '../../hooks/useWorkspace'
 import { WorkspaceSessionContext } from '../../app/workspace-session-context'
 import { entityMeta, isOverdue, todayIso } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
+import { useModuleSearch } from '../../hooks/useModuleSearch'
 import { useI18n } from '../../i18n'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
@@ -20,6 +21,7 @@ import {
   CheckRow,
   EmptyState,
   Field,
+  FilterChips,
   Modal,
   PageHeader,
   SectionHeader,
@@ -43,13 +45,7 @@ const emptyLog = {
   nextStep: '',
 }
 
-const TODAY_VIEWS = ['overview', 'tasks', 'overdue', 'week', 'completed'] as const
-type TodayView = (typeof TODAY_VIEWS)[number]
-
-function readTodayView(): TodayView {
-  const requested = new URLSearchParams(window.location.hash.split('?')[1] || '').get('view')
-  return TODAY_VIEWS.includes(requested as TodayView) ? requested as TodayView : 'overview'
-}
+type TodayView = 'overview' | 'tasks' | 'week'
 
 function dueWithinWeek(date: string | undefined, today: string): boolean {
   if (!date) return false
@@ -102,17 +98,9 @@ export function TodayPage() {
   const [log, setLog] = useState(emptyLog)
   const [goals, setGoals] = useState<string[] | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<ResearchTask['category'] | ''>('')
-  const [view, setView] = useState<TodayView>(readTodayView)
-
-  useEffect(() => {
-    const syncView = () => setView(readTodayView())
-    window.addEventListener('hashchange', syncView)
-    window.addEventListener('popstate', syncView)
-    return () => {
-      window.removeEventListener('hashchange', syncView)
-      window.removeEventListener('popstate', syncView)
-    }
-  }, [])
+  const { searchParams, updateSearch } = useModuleSearch('today')
+  const view = (searchParams.get('view') || 'overview') as TodayView
+  const taskFilter = searchParams.get('filter') || (view === 'tasks' ? 'today' : 'all')
 
   const today = todayIso()
   const dateLabel = new Intl.DateTimeFormat(locale, {
@@ -124,22 +112,21 @@ export function TodayPage() {
 
   const relevantTasks = useMemo(() => {
     const filtered = (data?.tasks ?? []).filter((item) => {
-      if (view === 'tasks') return item.dueDate === today && item.status !== 'Done'
-      if (view === 'overdue') return isOverdue(item.dueDate, item.status)
-      if (view === 'week') return item.status !== 'Done' && dueWithinWeek(item.dueDate, today)
-      if (view === 'completed') {
-        const updated = item.updatedAt.slice(0, 10)
-        const age = dueWithinPastWeek(updated, today)
-        return item.status === 'Done' && age
+      if (view === 'tasks' && taskFilter === 'today') return item.dueDate === today && item.status !== 'Done'
+      if (view === 'tasks' && taskFilter === 'overdue') return isOverdue(item.dueDate, item.status)
+      if (view === 'tasks' && taskFilter === 'completed') {
+        return item.status === 'Done' && dueWithinPastWeek(item.updatedAt.slice(0, 10), today)
       }
+      if (view === 'tasks') return true
+      if (view === 'week') return item.status !== 'Done' && dueWithinWeek(item.dueDate, today)
       return item.dueDate === today || isOverdue(item.dueDate, item.status)
     })
     return filtered.sort((left, right) =>
-      view === 'completed'
+      taskFilter === 'completed'
         ? right.updatedAt.localeCompare(left.updatedAt)
         : (left.dueDate || '').localeCompare(right.dueDate || ''),
     )
-  }, [data?.tasks, today, view])
+  }, [data?.tasks, taskFilter, today, view])
   const completedToday = relevantTasks.filter((item) => item.status === 'Done').length
   const overdue = relevantTasks.filter((item) => isOverdue(item.dueDate, item.status)).length
   const completionPercent = relevantTasks.length ? (completedToday / relevantTasks.length) * 100 : 0
@@ -367,6 +354,17 @@ export function TodayPage() {
             description={t('today.tasks.description')}
             action={<Button size="sm" variant="ghost" onClick={openTaskForm}>{t('today.tasks.add')}</Button>}
           />
+          {view === 'tasks' && <FilterChips
+            ariaLabel={t('today.tasks.viewFilter')}
+            value={taskFilter}
+            onChange={(filter) => updateSearch({ filter })}
+            options={[
+              { value: 'all', label: t('common.all') },
+              { value: 'today', label: t('today.tasks.today') },
+              { value: 'overdue', label: t('today.tasks.overdue') },
+              { value: 'completed', label: t('today.tasks.completed') },
+            ]}
+          />}
           <label className="today-task-filter">
             <span className="sr-only">{t('today.tasks.categoryFilter')}</span>
             <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value as ResearchTask['category'] | '')} aria-label={t('today.tasks.categoryFilter')}>

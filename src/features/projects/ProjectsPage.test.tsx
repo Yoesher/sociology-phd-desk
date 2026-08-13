@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
 import { WorkspaceContext, type WorkspaceContextValue } from '../../app/workspace-context'
 import { I18nProvider, useI18n } from '../../i18n'
 import { createDemoWorkspace } from '../../models/demo'
@@ -18,7 +19,7 @@ function LocaleControls() {
   )
 }
 
-function renderProjects(initialData = createDemoWorkspace(new Date('2026-08-11T00:00:00.000Z'))) {
+function renderProjects(initialData = createDemoWorkspace(new Date('2026-08-11T00:00:00.000Z')), route = '/projects?view=all') {
   let snapshot = initialData
 
   function Harness({ children }: { children: ReactNode }) {
@@ -53,7 +54,7 @@ function renderProjects(initialData = createDemoWorkspace(new Date('2026-08-11T0
     <I18nProvider>
       <LocaleControls />
       <Harness>
-        <ProjectsPage />
+        <MemoryRouter initialEntries={[route]}><ProjectsPage /></MemoryRouter>
       </Harness>
     </I18nProvider>,
   )
@@ -94,9 +95,7 @@ describe('ProjectsPage localization and research graph boundary', () => {
     const initial = createDemoWorkspace(new Date('2026-08-11T00:00:00.000Z'))
     const theoryProject = initial.projects.find((project) => project.method === 'Theoretical')!
     const empiricalProject = initial.projects.find((project) => project.method !== 'Theoretical')!
-    window.location.hash = '/projects?view=theoretical'
-
-    renderProjects(initial)
+    renderProjects(initial, '/projects?view=theoretical')
 
     expect(screen.getByText(theoryProject.title)).toBeInTheDocument()
     expect(screen.queryByText(empiricalProject.title)).not.toBeInTheDocument()

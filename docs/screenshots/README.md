@@ -11,6 +11,22 @@ These captures document the running application rather than design mockups. The 
 
 ## Registered captures
 
+### `v0.2.2` final local candidate
+
+- Application/package version: feature branch intentionally remains `0.2.1`; release branch will set `0.2.2`
+- Candidate branch: `feat/simplicity-motion`
+- Capture date: 2026-08-13
+- Capture boundary: final local production preview after the 33-file / 300-test gate; publication is not claimed here
+
+| File | View | Privacy review |
+| --- | --- | --- |
+| [`v0.2.2/01-after-desktop.png`](v0.2.2/01-after-desktop.png) | English light-theme Today at 1440-class desktop width | 1425 × 847; PASS — bundled synthetic Demo only |
+| [`v0.2.2/02-after-theory.png`](v0.2.2/02-after-theory.png) | Chinese dark-theme Theory memo workspace | 1440 × 856; PASS — empty filtered view, no private theory content |
+| [`v0.2.2/03-after-publishing.png`](v0.2.2/03-after-publishing.png) | Chinese dark-theme Publishing revision workflow | 1440 × 856; PASS — honest empty derived view, no manuscript content |
+| [`v0.2.2/04-after-mobile.png`](v0.2.2/04-after-mobile.png) | Chinese dark-theme Fieldwork processing at 390-class width | 375 × 797; PASS — bundled synthetic counts only, no participant data |
+
+The desktop captures document the simplified two-level hierarchy, compact top bar, consolidated filters, and restrained visual system. The mobile capture documents a single sticky secondary navigation plus four-item bottom navigation. All four files are genuine PNG captures of the running production preview; no browser chrome, local path, credential, notification, passphrase, or real research record is visible.
+
 ### `v0.2.0` release candidate
 
 - Application/package version: `0.2.0`

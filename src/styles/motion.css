@@ -1,0 +1,151 @@
+/* A restrained motion vocabulary shared by routes, panels, overlays, and
+   disclosure controls. Motion never gates an interaction or data operation. */
+.motion-page-boundary { min-width: 0; }
+
+.motion-popover,
+.quick-add__menu,
+.compact-flyout {
+  transform-origin: top right;
+  animation: motion-popover-in var(--motion-fast) var(--ease-standard) both;
+}
+
+.motion-popover[data-closing],
+.quick-add__menu[data-closing],
+.compact-flyout[data-closing] {
+  pointer-events: none;
+  animation: motion-popover-out var(--motion-fast) var(--ease-standard) both;
+}
+
+.modal-backdrop {
+  animation: motion-fade-in var(--motion-fast) var(--ease-standard) both;
+}
+
+.modal {
+  animation: motion-dialog-in var(--motion-base) var(--ease-emphasized) both;
+}
+
+.modal-backdrop[data-closing] {
+  animation: motion-fade-out var(--motion-fast) var(--ease-standard) both;
+}
+
+.modal[data-closing] {
+  pointer-events: none;
+  animation: motion-dialog-out var(--motion-fast) var(--ease-standard) both;
+}
+
+.motion-collapse > summary {
+  transition: color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard);
+}
+
+.motion-collapse[open] > .form-disclosure__content {
+  animation: motion-disclosure-in var(--motion-fast) var(--ease-standard) both;
+}
+
+.form-disclosure {
+  grid-column: 1 / -1;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+}
+
+.form-disclosure > summary {
+  cursor: pointer;
+  padding: 12px 14px;
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+
+.form-disclosure > summary:hover {
+  background: var(--surface-hover);
+  color: var(--ink);
+}
+
+.form-disclosure__content {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 4px 14px 14px;
+}
+
+@keyframes motion-page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes motion-popover-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes motion-dialog-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes motion-dialog-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(5px) scale(0.99); }
+}
+
+@keyframes motion-disclosure-in {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes motion-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes motion-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.mobile-menu-backdrop {
+  animation: motion-fade-in var(--motion-fast) var(--ease-standard) both;
+}
+
+.mobile-menu {
+  animation: motion-drawer-in var(--motion-base) var(--ease-emphasized) both;
+}
+
+.mobile-menu-backdrop[data-closing] {
+  animation: motion-fade-out var(--motion-fast) var(--ease-standard) both;
+}
+
+.mobile-menu[data-closing] {
+  pointer-events: none;
+  animation: motion-drawer-out var(--motion-fast) var(--ease-standard) both;
+}
+
+@keyframes motion-drawer-in {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes motion-drawer-out {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(10px); }
+}
+
+@keyframes motion-popover-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-3px) scale(0.99); }
+}
+
+@media (max-width: 700px) {
+  .form-disclosure__content { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

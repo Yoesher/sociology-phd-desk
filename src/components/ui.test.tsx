@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { ConfirmDialog, Modal } from './ui'
+import { ConfirmDialog, DisclosureSection, Modal } from './ui'
 import { I18nProvider } from '../i18n'
 import { APP_SETTINGS_STORAGE_KEY } from '../i18n/settings'
 
@@ -117,6 +117,27 @@ describe('Modal stack', () => {
     expect(confirmClose).toHaveFocus()
     expect(workspaceDialog).toHaveAttribute('inert')
     expect(workspaceDialog).toHaveAttribute('aria-hidden', 'true')
+  })
+})
+
+describe('DisclosureSection', () => {
+  it('keeps an advanced field mounted and preserves its value across collapse', async () => {
+    const user = userEvent.setup()
+    render(
+      <I18nProvider>
+        <DisclosureSection summary="More options">
+          <label>Notes<input defaultValue="existing research note" /></label>
+        </DisclosureSection>
+      </I18nProvider>,
+    )
+    const details = screen.getByText('More options').closest('details')!
+    const input = screen.getByRole('textbox', { name: 'Notes', hidden: true })
+    await user.click(screen.getByText('More options'))
+    await user.clear(input)
+    await user.type(input, 'preserved advanced value')
+    await user.click(screen.getByText('More options'))
+    expect(details).not.toHaveAttribute('open')
+    expect(input).toHaveValue('preserved advanced value')
   })
 })
 

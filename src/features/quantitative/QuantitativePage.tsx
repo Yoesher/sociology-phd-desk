@@ -9,6 +9,7 @@ import {
 import { useWorkspace } from '../../hooks/useWorkspace'
 import { entityMeta, todayIso, truncate } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
+import { useModuleSearch } from '../../hooks/useModuleSearch'
 import { useI18n } from '../../i18n'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
@@ -17,6 +18,8 @@ import {
   Button,
   EmptyState,
   Field,
+  FilterChips,
+  DisclosureSection,
   Modal,
   PageHeader,
   SearchField,
@@ -25,13 +28,7 @@ import {
 
 type RegistryTab = 'datasets' | 'runs'
 
-const QUANTITATIVE_VIEWS = ['overview', 'datasets', 'planned', 'running', 'completed', 'failed', 'superseded'] as const
-type QuantitativeView = (typeof QUANTITATIVE_VIEWS)[number]
-
-function readQuantitativeView(): QuantitativeView {
-  const requested = new URLSearchParams(window.location.hash.split('?')[1] || '').get('view')
-  return QUANTITATIVE_VIEWS.includes(requested as QuantitativeView) ? requested as QuantitativeView : 'overview'
-}
+type QuantitativeView = 'overview' | 'datasets' | 'runs'
 
 const datasetDraft = () => ({ name: '', wave: '', source: '', localPath: '', projectId: '', notes: '' })
 const runDraft = () => ({
@@ -59,17 +56,9 @@ export function QuantitativePage() {
   const [runOpen, setRunOpen] = useState(false)
   const [dataset, setDataset] = useState(datasetDraft)
   const [run, setRun] = useState(runDraft)
-  const [view, setView] = useState<QuantitativeView>(readQuantitativeView)
-
-  useEffect(() => {
-    const syncView = () => setView(readQuantitativeView())
-    window.addEventListener('hashchange', syncView)
-    window.addEventListener('popstate', syncView)
-    return () => {
-      window.removeEventListener('hashchange', syncView)
-      window.removeEventListener('popstate', syncView)
-    }
-  }, [])
+  const { searchParams, updateSearch } = useModuleSearch('quantitative')
+  const view = (searchParams.get('view') || 'overview') as QuantitativeView
+  const runStatus = searchParams.get('status') || ''
   const effectiveTab: RegistryTab = view === 'datasets' || view === 'overview' && tab === 'datasets' ? 'datasets' : 'runs'
 
   const recordCount = (count: number) => t(
@@ -107,11 +96,11 @@ export function QuantitativePage() {
     () =>
       data?.analysisRuns.filter(
         (item) =>
-          (view === 'overview' || view === 'datasets' || item.status.toLowerCase() === view) &&
+          (!runStatus || item.status === runStatus) &&
           (!projectFilter || item.projectId === projectFilter) &&
           (!query || `${item.model} ${item.outcome} ${item.keyPredictor} ${item.sample} ${item.resultSummary}`.toLowerCase().includes(query)),
       ) ?? [],
-    [data?.analysisRuns, projectFilter, query, view],
+    [data?.analysisRuns, projectFilter, query, runStatus],
   )
 
   useEffect(() => {
@@ -208,6 +197,10 @@ export function QuantitativePage() {
       </div>
 
       <section className="panel">
+        {view === 'runs' && <FilterChips ariaLabel={t('quantitative.runForm.status')} value={runStatus} onChange={(status) => updateSearch({ status })} options={[
+          { value: '', label: t('common.all') },
+          ...ANALYSIS_RUN_STATUSES.map((status) => ({ value: status, label: labelEnum(status) })),
+        ]} />}
         <div className="segmented-tabs" role="tablist" aria-label={t('quantitative.tabs.label')}>
           <button type="button" role="tab" aria-selected={effectiveTab === 'datasets'} className={effectiveTab === 'datasets' ? 'active' : ''} onClick={() => setTab('datasets')}><Database size={15} /> {t('quantitative.tabs.datasets')} <span>{formatNumber(data.datasets.length)}</span></button>
           <button type="button" role="tab" aria-selected={effectiveTab === 'runs'} className={effectiveTab === 'runs' ? 'active' : ''} onClick={() => setTab('runs')}><BarChart3 size={15} /> {t('quantitative.tabs.analysisRuns')} <span>{formatNumber(data.analysisRuns.length)}</span></button>
@@ -285,16 +278,18 @@ export function QuantitativePage() {
         <form id="run-form" className="form-grid" onSubmit={(event) => void saveRun(event)}>
           <Field label={t('quantitative.runForm.project')} required><ProjectSelect required projects={data.projects} value={run.projectId} onChange={(projectId) => setRun({ ...run, projectId, datasetId: data.datasets.find((item) => item.projectId === projectId)?.id || '' })} /></Field>
           <Field label={t('quantitative.runForm.dataset')} required><select required value={run.datasetId} onChange={(event) => setRun({ ...run, datasetId: event.target.value })}><option value="">{t('quantitative.runForm.selectDataset')}</option>{data.datasets.filter((item) => item.projectId === run.projectId).map((item) => <option key={item.id} value={item.id}>{item.name} {item.wave && `— ${item.wave}`}</option>)}</select></Field>
-          <Field label={t('quantitative.runForm.date')} required><input required type="date" value={run.date} onChange={(event) => setRun({ ...run, date: event.target.value })} /></Field>
           <Field label={t('quantitative.runForm.software')} required><select value={run.software} onChange={(event) => setRun({ ...run, software: event.target.value as AnalysisRun['software'] })}>{ANALYSIS_SOFTWARE.map((item) => <option key={item} value={item}>{labelEnum(item)}</option>)}</select></Field>
           <Field label={t('quantitative.runForm.model')} required className="form-span-2"><textarea required rows={3} value={run.model} onChange={(event) => setRun({ ...run, model: event.target.value })} placeholder={t('quantitative.runForm.modelPlaceholder')} /></Field>
-          <Field label={t('quantitative.runForm.sample')} required className="form-span-2"><textarea required rows={2} value={run.sample} onChange={(event) => setRun({ ...run, sample: event.target.value })} placeholder={t('quantitative.runForm.samplePlaceholder')} /></Field>
           <Field label={t('quantitative.runForm.outcome')} required><input required value={run.outcome} onChange={(event) => setRun({ ...run, outcome: event.target.value })} /></Field>
           <Field label={t('quantitative.runForm.predictor')} required><input required value={run.keyPredictor} onChange={(event) => setRun({ ...run, keyPredictor: event.target.value })} /></Field>
           <Field label={t('quantitative.runForm.status')}><select value={run.status} onChange={(event) => setRun({ ...run, status: event.target.value as AnalysisRun['status'] })}>{ANALYSIS_RUN_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
-          <Field label={t('quantitative.runForm.scriptPath')}><input value={run.scriptPath} onChange={(event) => setRun({ ...run, scriptPath: event.target.value })} /></Field>
-          <Field label={t('quantitative.runForm.resultSummary')} className="form-span-2"><textarea rows={4} value={run.resultSummary} onChange={(event) => setRun({ ...run, resultSummary: event.target.value })} placeholder={t('quantitative.runForm.resultSummaryPlaceholder')} /></Field>
-          <Field label={t('quantitative.runForm.outputPath')} className="form-span-2"><input value={run.outputPath} onChange={(event) => setRun({ ...run, outputPath: event.target.value })} /></Field>
+          <DisclosureSection summary={t('common.details')}>
+            <Field label={t('quantitative.runForm.date')} required><input required type="date" value={run.date} onChange={(event) => setRun({ ...run, date: event.target.value })} /></Field>
+            <Field label={t('quantitative.runForm.sample')} required><textarea required rows={2} value={run.sample} onChange={(event) => setRun({ ...run, sample: event.target.value })} placeholder={t('quantitative.runForm.samplePlaceholder')} /></Field>
+            <Field label={t('quantitative.runForm.scriptPath')}><input value={run.scriptPath} onChange={(event) => setRun({ ...run, scriptPath: event.target.value })} /></Field>
+            <Field label={t('quantitative.runForm.outputPath')}><input value={run.outputPath} onChange={(event) => setRun({ ...run, outputPath: event.target.value })} /></Field>
+            <Field label={t('quantitative.runForm.resultSummary')} className="form-span-2"><textarea rows={4} value={run.resultSummary} onChange={(event) => setRun({ ...run, resultSummary: event.target.value })} placeholder={t('quantitative.runForm.resultSummaryPlaceholder')} /></Field>
+          </DisclosureSection>
         </form>
       </Modal>
     </div>

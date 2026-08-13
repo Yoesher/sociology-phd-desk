@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { ArrowRight, CalendarDays, ScrollText } from 'lucide-react'
 import type { ResearchLogEntry } from '../../models/domain'
 import { useWorkspace } from '../../hooks/useWorkspace'
@@ -9,6 +9,7 @@ import {
   truncate,
 } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
+import { useModuleSearch } from '../../hooks/useModuleSearch'
 import { useI18n } from '../../i18n'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
@@ -17,6 +18,7 @@ import {
   Button,
   EmptyState,
   Field,
+  FilterChips,
   Modal,
   PageHeader,
   SearchField,
@@ -41,13 +43,7 @@ const emptyDraft = (projectId = ''): ResearchLogDraft => ({
   nextStep: '',
 })
 
-const RESEARCH_LOG_VIEWS = ['timeline', 'today', 'week', 'decisions', 'problems', 'next-steps', 'by-project'] as const
-type ResearchLogView = (typeof RESEARCH_LOG_VIEWS)[number]
-
-function readResearchLogView(): ResearchLogView {
-  const requested = new URLSearchParams(window.location.hash.split('?')[1] || '').get('view')
-  return RESEARCH_LOG_VIEWS.includes(requested as ResearchLogView) ? requested as ResearchLogView : 'timeline'
-}
+type ResearchLogView = 'timeline' | 'decisions' | 'next-steps'
 
 function weekStart(date: string): string {
   const current = new Date(`${date}T12:00:00`)
@@ -63,40 +59,14 @@ export function ResearchLogPage() {
   const [projectFilter, setProjectFilter] = useState('')
   const [formOpen, setFormOpen] = useState(false)
   const [draft, setDraft] = useState<ResearchLogDraft>(emptyDraft)
-  const [view, setView] = useState<ResearchLogView>(readResearchLogView)
-  const previousViewRef = useRef<ResearchLogView | null>(null)
-  const autoProjectFilterRef = useRef(false)
-
-  useEffect(() => {
-    const previousView = previousViewRef.current
-    previousViewRef.current = view
-    const hasValidProject = Boolean(projectFilter && data?.projects.some((project) => project.id === projectFilter))
-
-    if (view === 'by-project') {
-      if (!hasValidProject) {
-        autoProjectFilterRef.current = true
-        setProjectFilter(data?.workspace.activeProjectId || data?.projects[0]?.id || '')
-      }
-    } else if (previousView === 'by-project' && autoProjectFilterRef.current) {
-      autoProjectFilterRef.current = false
-      setProjectFilter('')
-    }
-  }, [data?.projects, data?.workspace.activeProjectId, projectFilter, view])
+  const { searchParams, updateSearch } = useModuleSearch('research-log')
+  const view = (searchParams.get('view') || 'timeline') as ResearchLogView
+  const period = searchParams.get('period') || 'all'
+  const issuesOnly = searchParams.get('issues') === 'true'
 
   const changeProjectFilter = (projectId: string) => {
-    autoProjectFilterRef.current = false
     setProjectFilter(projectId)
   }
-
-  useEffect(() => {
-    const syncView = () => setView(readResearchLogView())
-    window.addEventListener('hashchange', syncView)
-    window.addEventListener('popstate', syncView)
-    return () => {
-      window.removeEventListener('hashchange', syncView)
-      window.removeEventListener('popstate', syncView)
-    }
-  }, [])
 
   const entryCount = (count: number) => t(
     count === 1 ? 'researchLog.count.entriesOne' : 'researchLog.count.entriesOther',
@@ -122,11 +92,11 @@ export function ResearchLogPage() {
           .join(' ')
           .toLowerCase()
         return (
-          (view !== 'today' || entry.date === todayIso()) &&
-          (view !== 'week' || entry.date >= weekStart(todayIso()) && entry.date <= todayIso()) &&
+          (period !== 'today' || entry.date === todayIso()) &&
+          (period !== 'week' || entry.date >= weekStart(todayIso()) && entry.date <= todayIso()) &&
           (view !== 'decisions' || Boolean(entry.decision.trim())) &&
-          (view !== 'problems' || Boolean(entry.problem.trim())) &&
           (view !== 'next-steps' || Boolean(entry.nextStep.trim())) &&
+          (!issuesOnly || Boolean(entry.problem.trim())) &&
           (!query || corpus.includes(query)) &&
           (!projectFilter || entry.projectId === projectFilter)
         )
@@ -134,7 +104,7 @@ export function ResearchLogPage() {
       .sort((left, right) =>
         right.date.localeCompare(left.date) || right.updatedAt.localeCompare(left.updatedAt),
       )
-  }, [data?.projects, data?.researchLogs, projectFilter, search, view])
+  }, [data?.projects, data?.researchLogs, issuesOnly, period, projectFilter, search, view])
 
   useEffect(() => {
     const handleQuickAdd = (event: Event) => {
@@ -225,6 +195,15 @@ export function ResearchLogPage() {
       </div>
 
       <section className="panel">
+        {view === 'timeline' && <FilterChips ariaLabel={t('researchLog.filters.timeline')} value={issuesOnly ? 'issues' : period} onChange={(value) => updateSearch({
+          period: value === 'issues' ? 'all' : value,
+          issues: value === 'issues' ? 'true' : null,
+        })} options={[
+          { value: 'all', label: t('common.all') },
+          { value: 'today', label: t('researchLog.filters.today') },
+          { value: 'week', label: t('researchLog.filters.week') },
+          { value: 'issues', label: t('researchLog.filters.issues') },
+        ]} />}
         <div className="toolbar toolbar--wrap">
           <SearchField
             value={search}
@@ -235,7 +214,7 @@ export function ResearchLogPage() {
             projects={data.projects}
             value={projectFilter}
             onChange={changeProjectFilter}
-            includeAll={view !== 'by-project'}
+            includeAll
           />
           <span className="toolbar__count">
             {entryCount(filtered.length)}
@@ -300,7 +279,7 @@ export function ResearchLogPage() {
             }
             action={
               data.researchLogs.length ? (
-                <Button onClick={() => { setSearch(''); if (view !== 'by-project') changeProjectFilter('') }}>{t('researchLog.action.clearFilters')}</Button>
+                <Button onClick={() => { setSearch(''); changeProjectFilter('') }}>{t('researchLog.action.clearFilters')}</Button>
               ) : (
                 <AddButton onClick={openCreate} disabled={!data.projects.length}>{t('researchLog.action.addFirst')}</AddButton>
               )

@@ -1,5 +1,5 @@
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { I18nProvider } from '../i18n'
@@ -88,15 +88,15 @@ describe('hierarchical research navigation shell', () => {
       'quantitative', 'evidence', 'research-log', 'publishing',
     ])
     expect(navigationItems.map((item) => item.views.map((view) => view.id))).toEqual([
-      ['overview', 'tasks', 'overdue', 'week', 'completed'],
-      ['all', 'design', 'data', 'analysis', 'writing', 'submission', 'theoretical', 'completed'],
-      ['all', 'inbox', 'to-read', 'reading', 'read', 'cited', 'archived'],
-      ['overview', 'questions', 'concepts', 'mechanisms', 'dialogue', 'counterarguments', 'memos', 'manuscripts'],
-      ['overview', 'sites', 'visits', 'interviews', 'transcription', 'coding', 'memos', 'completed'],
-      ['overview', 'datasets', 'planned', 'running', 'completed', 'failed', 'superseded'],
-      ['all', 'literature', 'quantitative', 'fieldwork', 'documents', 'contradictory', 'by-project'],
-      ['timeline', 'today', 'week', 'decisions', 'problems', 'next-steps', 'by-project'],
-      ['all', 'draft', 'ready', 'submitted', 'review', 'revision', 'rejected', 'accepted', 'published', 'withdrawn'],
+      ['overview', 'tasks', 'week'],
+      ['all', 'active', 'theoretical', 'completed'],
+      ['inbox', 'reading', 'cited', 'all'],
+      ['overview', 'questions', 'memos', 'manuscripts'],
+      ['overview', 'field', 'interviews', 'processing'],
+      ['overview', 'datasets', 'runs'],
+      ['all', 'by-type', 'contradictory'],
+      ['timeline', 'decisions', 'next-steps'],
+      ['writing', 'submission', 'revision', 'history'],
     ])
   })
 
@@ -108,13 +108,15 @@ describe('hierarchical research navigation shell', () => {
     expect(within(nav).getByRole('link', { name: '阅读中' })).toHaveClass('active')
     expect(screen.getByLabelText('文献 / 阅读中')).toBeInTheDocument()
 
-    await user.click(within(nav).getByRole('link', { name: '待读' }))
-    expect(screen.getByTestId('location')).toHaveTextContent('/literature?view=to-read')
-    expect(screen.getByLabelText('文献 / 待读')).toBeInTheDocument()
+    await user.click(within(nav).getByRole('link', { name: '全部文献' }))
+    expect(screen.getByTestId('location')).toHaveTextContent('/literature?view=all')
+    expect(screen.getByLabelText('文献 / 全部文献')).toBeInTheDocument()
 
+    await waitFor(() => expect(screen.getByRole('button', { name: '更多操作' })).toHaveAttribute('aria-expanded', 'false'))
+    await user.click(screen.getByRole('button', { name: '更多操作' }))
     await user.click(screen.getByRole('button', { name: 'English' }))
-    expect(screen.getByLabelText('Literature / To read')).toBeInTheDocument()
-    expect(screen.getByTestId('location')).toHaveTextContent('/literature?view=to-read')
+    expect(screen.getByLabelText('Literature / All literature')).toBeInTheDocument()
+    expect(screen.getByTestId('location')).toHaveTextContent('/literature?view=all')
   })
 
   it('keeps only a small persisted set of user-expanded groups alongside the current module', async () => {
@@ -125,12 +127,9 @@ describe('hierarchical research navigation shell', () => {
     await user.click(screen.getByRole('button', { name: '展开理论研究' }))
     await user.click(screen.getByRole('button', { name: '展开证据' }))
 
-    expect(JSON.parse(window.localStorage.getItem('sociology-phd-desk:navigation-expanded:v1') ?? '[]')).toEqual([
-      'theory', 'evidence',
-    ])
+    expect(JSON.parse(window.localStorage.getItem('sociology-phd-desk:navigation-expanded:v2') ?? '[]')).toEqual(['evidence'])
     first.unmount()
     renderShell('/literature?view=all')
-    expect(screen.getByRole('button', { name: '收起理论研究' })).toHaveAttribute('aria-expanded', 'true')
     expect(screen.getByRole('button', { name: '收起证据' })).toHaveAttribute('aria-expanded', 'true')
     expect(screen.getByRole('button', { name: '收起文献' })).toHaveAttribute('aria-expanded', 'true')
   })
@@ -143,7 +142,7 @@ describe('hierarchical research navigation shell', () => {
     await user.click(screen.getByRole('button', { name: '打开理论研究工作流' }))
 
     const flyout = screen.getByRole('dialog', { name: '理论研究' })
-    expect(within(flyout).getByRole('link', { name: '核心概念' })).toHaveAttribute('href', '/theory?view=concepts')
+    expect(within(flyout).getByRole('link', { name: '理论备忘' })).toHaveAttribute('href', '/theory?view=memos')
     expect(within(flyout).getByRole('link', { name: '理论总览' })).toHaveFocus()
     await user.keyboard('{Escape}')
     expect(screen.queryByRole('dialog', { name: '理论研究' })).not.toBeInTheDocument()
@@ -175,10 +174,10 @@ describe('hierarchical research navigation shell', () => {
     await user.click(screen.getByRole('button', { name: '打开导航' }))
     const drawer = screen.getByRole('dialog', { name: '模块导航' })
     expect(within(drawer).getByRole('button', { name: '关闭导航' })).toHaveFocus()
-    expect(within(drawer).getAllByRole('link', { name: /.+/ })).toHaveLength(17)
+    expect(within(drawer).getAllByRole('link', { name: /.+/ })).toHaveLength(9)
 
-    await user.click(within(drawer).getByRole('button', { name: '展开理论研究' }))
-    expect(within(drawer).getByRole('link', { name: '理论备忘' })).toBeInTheDocument()
+    expect(within(drawer).getByRole('link', { name: '04 · 理论研究' })).toBeInTheDocument()
+    expect(within(drawer).queryByRole('link', { name: '理论备忘' })).not.toBeInTheDocument()
 
     await user.click(within(drawer).getByRole('button', { name: '工作空间与设置' }))
     await user.click(within(drawer).getByRole('button', { name: '隐私与锁定' }))
@@ -198,16 +197,11 @@ describe('hierarchical research navigation shell', () => {
 
   it('shows live action badges only on the nominated secondary views', () => {
     const data = createDemoWorkspace(new Date('2026-08-11T00:00:00.000Z'))
-    data.literature.forEach((item) => { item.status = 'Read' })
-    data.literature.push(
-      { ...data.literature[0], id: 'literature-action-one', status: 'To Read' },
-      { ...data.literature[0], id: 'literature-action-two', status: 'To Read' },
-    )
-    renderShell('/literature?view=to-read', data)
+    data.analysisRuns.forEach((item) => { item.status = 'Failed' })
+    renderShell('/quantitative?view=runs', data)
 
     const nav = screen.getByRole('navigation', { name: messages['zh-CN']['navigation.aria'] })
-    const toRead = within(nav).getByRole('link', { name: /待读/ })
-    expect(within(toRead).getByLabelText('2 项需要处理')).toHaveTextContent('2')
-    expect(within(nav).queryAllByText(/^2$/)).toHaveLength(1)
+    const runs = within(nav).getByRole('link', { name: /分析运行/ })
+    expect(within(runs).getByLabelText(`${data.analysisRuns.length} 项需要处理`)).toHaveTextContent(String(data.analysisRuns.length))
   })
 })

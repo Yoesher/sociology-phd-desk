@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { ArrowRight, FilePenLine, Link2, Network } from 'lucide-react'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import {
-  AddButton,
   Badge,
   EmptyState,
   PageHeader,
@@ -13,25 +12,20 @@ import {
 } from '../../components/ui'
 import { useWorkspace } from '../../hooks/useWorkspace'
 import { useI18n } from '../../i18n'
+import { useModuleSearch } from '../../hooks/useModuleSearch'
 import type { Claim, Manuscript, TheoryMemo } from '../../models/domain'
 import { ResearchGraphWorkspace } from '../projects/ResearchGraphWorkspace'
 import { TheoryMemoWorkspace } from './TheoryMemoWorkspace'
 import {
-  THEORY_VIEWS,
   isTheoryView,
   prioritizeTheoryProjects,
-  theoryViewLabelKeys,
   type TheoryView,
 } from './theoryViews'
-
-const memoViews = new Set<TheoryView>([
-  'concepts', 'mechanisms', 'dialogue', 'counterarguments', 'memos',
-])
 
 export function TheoryPage() {
   const { data } = useWorkspace()
   const { t } = useI18n()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const { searchParams, updateSearch } = useModuleSearch('theory')
   const [projectFilter, setProjectFilter] = useState('')
   const [questionProjectId, setQuestionProjectId] = useState('')
   const [createRequest, setCreateRequest] = useState(0)
@@ -40,17 +34,14 @@ export function TheoryPage() {
 
   const projects = useMemo(() => prioritizeTheoryProjects(data?.projects ?? []), [data?.projects])
 
-  const selectView = (nextView: TheoryView) => {
-    const next = new URLSearchParams(searchParams)
-    if (nextView === 'overview') next.delete('view')
-    else next.set('view', nextView)
-    setSearchParams(next)
-  }
+  const selectView = useCallback((nextView: TheoryView) => {
+    updateSearch({ view: nextView, type: null })
+  }, [updateSearch])
 
-  const newMemo = () => {
-    if (!memoViews.has(view)) selectView('memos')
+  const newMemo = useCallback(() => {
+    if (view !== 'memos') selectView('memos')
     setCreateRequest((current) => current + 1)
-  }
+  }, [selectView, view])
 
   useEffect(() => {
     const handleQuickAdd = (event: Event) => {
@@ -59,7 +50,7 @@ export function TheoryPage() {
     }
     window.addEventListener(QUICK_ADD_EVENT, handleQuickAdd)
     return () => window.removeEventListener(QUICK_ADD_EVENT, handleQuickAdd)
-  })
+  }, [newMemo])
 
   if (!data) return null
 
@@ -72,22 +63,7 @@ export function TheoryPage() {
         eyebrow={t('theory.header.eyebrow')}
         title={t('theory.header.title')}
         description={t('theory.header.description')}
-        actions={<AddButton onClick={newMemo}>{t('theory.actions.newMemo')}</AddButton>}
       />
-
-      <nav className="theory-view-tabs" aria-label={t('theory.views.aria')}>
-        {THEORY_VIEWS.map((item) => (
-          <button
-            key={item}
-            type="button"
-            aria-current={view === item ? 'page' : undefined}
-            className={view === item ? 'theory-view-tabs__item theory-view-tabs__item--active' : 'theory-view-tabs__item'}
-            onClick={() => selectView(item)}
-          >
-            {t(theoryViewLabelKeys[item])}
-          </button>
-        ))}
-      </nav>
 
       {view === 'overview' && (
         <TheoryOverview
@@ -122,9 +98,10 @@ export function TheoryPage() {
         </section>
       )}
 
-      {isMemoView(view) && (
+      {view === 'memos' && (
         <TheoryMemoWorkspace
-          view={view}
+          typeFilter={searchParams.get('type') || ''}
+          onTypeFilterChange={(type) => updateSearch({ type })}
           projectFilter={projectFilter}
           onProjectFilterChange={setProjectFilter}
           createRequest={createRequest}
@@ -342,10 +319,6 @@ function TheoryManuscripts({
       ) : <EmptyState title={t('theory.overview.noManuscripts')} description={t('theory.manuscripts.description')} />}
     </section>
   )
-}
-
-function isMemoView(view: TheoryView): view is Extract<TheoryView, 'concepts' | 'mechanisms' | 'dialogue' | 'counterarguments' | 'memos'> {
-  return memoViews.has(view)
 }
 
 export type { TheoryMemo }

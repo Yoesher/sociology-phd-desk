@@ -8,6 +8,7 @@ import {
 import { useWorkspace } from '../../hooks/useWorkspace'
 import { daysUntil, entityMeta, todayIso, truncate } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
+import { useModuleSearch } from '../../hooks/useModuleSearch'
 import { useI18n } from '../../i18n'
 import {
   AddButton,
@@ -16,6 +17,8 @@ import {
   ConfirmDialog,
   EmptyState,
   Field,
+  FilterChips,
+  DisclosureSection,
   Modal,
   PageHeader,
   SearchField,
@@ -56,20 +59,10 @@ const statusTone = (status: ResearchProject['status']): Tone => {
   return 'blue'
 }
 
-const PROJECT_VIEWS = ['all', 'design', 'data', 'analysis', 'writing', 'submission', 'theoretical', 'completed'] as const
-type ProjectView = (typeof PROJECT_VIEWS)[number]
-
-function readProjectView(): ProjectView {
-  const requested = new URLSearchParams(window.location.hash.split('?')[1] || '').get('view')
-  return PROJECT_VIEWS.includes(requested as ProjectView) ? requested as ProjectView : 'all'
-}
+type ProjectView = 'all' | 'active' | 'theoretical' | 'completed'
 
 function matchesProjectView(project: ResearchProject, view: ProjectView): boolean {
-  if (view === 'design') return project.status === 'Idea' || project.status === 'Design'
-  if (view === 'data') return project.status === 'Data / Fieldwork'
-  if (view === 'analysis') return project.status === 'Analysis'
-  if (view === 'writing') return project.status === 'Writing'
-  if (view === 'submission') return project.status === 'Submission' || project.status === 'Revision'
+  if (view === 'active') return !['Published', 'Archived'].includes(project.status)
   if (view === 'theoretical') return project.method === 'Theoretical'
   if (view === 'completed') return project.status === 'Published' || project.status === 'Archived'
   return true
@@ -86,17 +79,10 @@ export function ProjectsPage() {
   const [editing, setEditing] = useState<ResearchProject | null>(null)
   const [deleting, setDeleting] = useState<ResearchProject | null>(null)
   const [draft, setDraft] = useState<ProjectDraft>(emptyDraft)
-  const [view, setView] = useState<ProjectView>(readProjectView)
-
-  useEffect(() => {
-    const syncView = () => setView(readProjectView())
-    window.addEventListener('hashchange', syncView)
-    window.addEventListener('popstate', syncView)
-    return () => {
-      window.removeEventListener('hashchange', syncView)
-      window.removeEventListener('popstate', syncView)
-    }
-  }, [])
+  const { searchParams, updateSearch } = useModuleSearch('projects')
+  const view = (searchParams.get('view') || 'all') as ProjectView
+  const statusQuery = searchParams.get('status') || ''
+  const urlStatuses = useMemo(() => statusQuery.split(',').filter(Boolean), [statusQuery])
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -115,10 +101,11 @@ export function ProjectsPage() {
             .join(' ')
             .toLowerCase()
             .includes(query)
-        return matchesProjectView(project, view) && matchesQuery && (!statusFilter || project.status === statusFilter) && (!methodFilter || project.method === methodFilter)
+        const activeStatuses = view === 'active' ? urlStatuses : statusFilter ? [statusFilter] : []
+        return matchesProjectView(project, view) && matchesQuery && (!activeStatuses.length || activeStatuses.includes(project.status)) && (!methodFilter || project.method === methodFilter)
       }) ?? []
     )
-  }, [data?.projects, data?.researchQuestions, methodFilter, search, statusFilter, view])
+  }, [data?.projects, data?.researchQuestions, methodFilter, search, statusFilter, urlStatuses, view])
 
   useEffect(() => {
     const handleQuickAdd = (event: Event) => {
@@ -281,10 +268,16 @@ export function ProjectsPage() {
       </div>
 
       <section className="panel">
+        {view === 'active' && <FilterChips
+          ariaLabel={t('projects.filters.statusAria')}
+          value={searchParams.get('status') || ''}
+          onChange={(status) => updateSearch({ status })}
+          options={[{ value: '', label: t('common.all') }, ...PROJECT_STATUSES.filter((status) => !['Published', 'Archived'].includes(status)).map((status) => ({ value: status, label: labelEnum(status) }))]}
+        />}
         <div className="toolbar">
           <SearchField value={search} onChange={setSearch} placeholder={t('projects.filters.search')} />
           <div className="toolbar__filters">
-            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} aria-label={t('projects.filters.statusAria')}>
+            <select value={statusFilter} disabled={view === 'active'} onChange={(event) => setStatusFilter(event.target.value)} aria-label={t('projects.filters.statusAria')}>
               <option value="">{t('projects.filters.allStages')}</option>
               {PROJECT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
             </select>
@@ -367,12 +360,6 @@ export function ProjectsPage() {
           <Field label={t('projects.form.title')} required className="form-span-2">
             <input autoFocus required value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} placeholder={t('projects.form.titlePlaceholder')} />
           </Field>
-          <Field label={t('projects.form.shortTitle')} hint={t('projects.form.shortTitleHint')}>
-            <input value={draft.shortTitle} onChange={(event) => setDraft({ ...draft, shortTitle: event.target.value })} placeholder={t('projects.form.shortTitlePlaceholder')} />
-          </Field>
-          <Field label={t('projects.form.topic')} required>
-            <input required value={draft.topic} onChange={(event) => setDraft({ ...draft, topic: event.target.value })} placeholder={t('projects.form.topicPlaceholder')} />
-          </Field>
           <Field label={t('projects.form.method')} required>
             <select value={draft.method} onChange={(event) => setDraft({ ...draft, method: event.target.value as ResearchProject['method'] })}>
               {RESEARCH_METHODS.map((method) => <option key={method} value={method}>{labelEnum(method)}</option>)}
@@ -383,15 +370,13 @@ export function ProjectsPage() {
               {PROJECT_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
             </select>
           </Field>
-          <Field label={t('projects.form.startDate')} required>
-            <input required type="date" value={draft.startDate} onChange={(event) => setDraft({ ...draft, startDate: event.target.value })} />
-          </Field>
-          <Field label={t('projects.form.targetDate')}>
-            <input type="date" value={draft.targetDate} onChange={(event) => setDraft({ ...draft, targetDate: event.target.value })} />
-          </Field>
-          <Field label={t('projects.form.notes')} className="form-span-2">
-            <textarea rows={4} value={draft.notes} onChange={(event) => setDraft({ ...draft, notes: event.target.value })} placeholder={t('projects.form.notesPlaceholder')} />
-          </Field>
+          <DisclosureSection summary={t('common.moreOptions')} defaultOpen={Boolean(editing)}>
+            <Field label={t('projects.form.shortTitle')} hint={t('projects.form.shortTitleHint')}><input value={draft.shortTitle} onChange={(event) => setDraft({ ...draft, shortTitle: event.target.value })} placeholder={t('projects.form.shortTitlePlaceholder')} /></Field>
+            <Field label={t('projects.form.topic')} required><input required value={draft.topic} onChange={(event) => setDraft({ ...draft, topic: event.target.value })} placeholder={t('projects.form.topicPlaceholder')} /></Field>
+            <Field label={t('projects.form.startDate')} required><input required type="date" value={draft.startDate} onChange={(event) => setDraft({ ...draft, startDate: event.target.value })} /></Field>
+            <Field label={t('projects.form.targetDate')}><input type="date" value={draft.targetDate} onChange={(event) => setDraft({ ...draft, targetDate: event.target.value })} /></Field>
+            <Field label={t('projects.form.notes')} className="form-span-2"><textarea rows={4} value={draft.notes} onChange={(event) => setDraft({ ...draft, notes: event.target.value })} placeholder={t('projects.form.notesPlaceholder')} /></Field>
+          </DisclosureSection>
         </form>
       </Modal>
 

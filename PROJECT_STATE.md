@@ -2,6 +2,8 @@
 
 > Last updated: 2026-08-13
 > Status: [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) Distribution & PWA is formally released from exact release SHA `8db828faaa94f7591dbd806abe90916335862187`. Issue [#23](https://github.com/Yoesher/sociology-phd-desk/issues/23) is closed; feature PR [#24](https://github.com/Yoesher/sociology-phd-desk/pull/24) and release PR [#25](https://github.com/Yoesher/sociology-phd-desk/pull/25) are merged. Exact-head and exact-main CI, Pages/deployment, local PWA/update/offline browser gates, public static verification, annotated tag, and latest non-draft/non-prerelease Release all passed with P0 = 0 / P1 = 0. Installed standalone smoke remains an honest **NOT RUN**, and public interaction/offline smoke remains **LIMITED PASS / NOT RUN** after the browser bridge timed out. No `v0.3.0` work has started.
+
+> Local candidate: `feat/simplicity-motion` implements the scoped `v0.2.2` interface simplification without changing package version or any data schema. The final local gate passed `npm ci`, lint, typecheck, 33 test files / 300 tests, production build, PWA verification, and real browser QA at 1440 × 900, 390 × 844, and 320 × 844 in Chinese/English and light/dark themes. Feature PR, merge, exact-main deployment, release branch/tag/Release, and public smoke remain pending until their actual completion.
 > Canonical local project path: `D:\phddesk`
 
 This file is the factual handoff record for maintainers and future Codex sessions. Update it at the end of every development session. Never infer passing checks, repository activity, users, or releases.
@@ -10,8 +12,21 @@ This file is the factual handoff record for maintainers and future Codex session
 
 - Package/lock and published release: `0.2.1`; exact release SHA `8db828faaa94f7591dbd806abe90916335862187`
 - Release status: [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) is latest, non-draft, and non-prerelease; annotated tag object `e481de4ac1acfeca98191cfacc81bee55d96ce69` dereferences to the exact release SHA. Existing `v0.2.0` remains unmoved.
-- Current target: finish this documentation-only publication closeout and stop; do not start `v0.3.0`
+- Current target: complete only the authorized `v0.2.2` Simplicity & Motion release chain, then enter adoption and stabilization without starting `v0.3.0`
 - Release metadata repair: the original `v0.2.1` GitHub API body contained question-mark corruption in its Chinese section while `v0.2.0` remained valid Unicode. Release `369842240` was repaired in place from a verified UTF-8 notes file; the API read-back now passes Chinese and English sentinels with no question-mark run. Tag object `e481de4ac1acfeca98191cfacc81bee55d96ce69` still dereferences to release SHA `8db828faaa94f7591dbd806abe90916335862187`; no tag or code identity moved. Maintenance Issue [#27](https://github.com/Yoesher/sociology-phd-desk/issues/27) was completed by PR [#28](https://github.com/Yoesher/sociology-phd-desk/pull/28), whose exact head passed push CI `31701711344`, PR CI `31701763215`, and P0 = 0 / P1 = 0 self-review before squash merge as `d64f691cb40145170f8f0609634349790982d8b8`. Exact-main CI `31701981857` / job `94453088166`, Pages `31701981989` / build `94453089294` / deploy `94453381165`, and deployment `5888344499` all passed.
+
+### v0.2.2 local candidate verification — 2026-08-13
+
+| Gate | Result |
+| --- | --- |
+| Navigation | PASS — nine primary modules unchanged; secondary entries reduced from 67 to 32 (52.2%); legacy URLs canonicalize to durable views plus filters |
+| Progressive disclosure | PASS — longer forms hide optional fields without clearing values; shared disclosure tests cover state preservation |
+| Motion and reduced motion | PASS — 100/140/200/260 ms semantic tokens, state-preserving route animation, exit presence, and reduced-motion regression coverage; no dependency added |
+| Accessibility/responsive | PASS — focus restore, modal stack, More dialog, compact/mobile navigation, 1440/390/320 widths, and no horizontal overflow |
+| Workspaces and distribution | PASS — standard and synthetic encrypted workspace smoke, lock/unlock/delete cleanup, PWA static-only cache contract, and user-confirmed update reload |
+| Automated gate | PASS — lint 0 warnings; typecheck; 33 files / 300 tests; Vite 8.2.1 build, 1,973 modules, 25 static precache entries |
+| Version axes | PASS — package remains 0.2.1 on feature branch; portable v4, standard DB v4, encrypted container v1 unchanged |
+| Remote/release | PENDING — no v0.2.2 merge, tag, or GitHub Release is claimed yet |
 
 ### v0.2.1 released architecture
 

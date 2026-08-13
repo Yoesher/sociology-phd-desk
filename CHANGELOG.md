@@ -6,7 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-No user-visible changes have been recorded after the `v0.2.1` release candidate freeze.
+### Changed
+
+- Simplified the secondary navigation from 67 status-heavy entries to 32 durable research workflows while preserving all nine primary modules.
+- Consolidated legacy status views into URL-addressable in-page filters and kept old deep links working through explicit compatibility mappings.
+- Reduced the default top bar to hierarchy, module-aware New, transient state, context-appropriate lock, and More.
+- Added progressive disclosure to longer forms without removing or resetting hidden values, and moved low-frequency workspace controls into calmer on-demand settings.
+
+### Motion
+
+- Added coherent, restrained route and smart-view transitions without remounting workspace state.
+- Added sidebar, modal, popover, drawer, theme, workspace, and lock/unlock transition polish based on four semantic timing tokens.
+- Added a global `prefers-reduced-motion` contract and regression coverage; no motion dependency was added.
+
+### Compatibility
+
+- Existing standard and encrypted workspace data is unchanged.
+- Portable schema remains v4, standard database remains v4, and encrypted container remains v1.
+- Existing `v0.2.1` PWA, user-confirmed update, offline, backup, and encrypted-workspace behavior remains in place.
 
 ## [0.2.1] - 2026-08-13
 
