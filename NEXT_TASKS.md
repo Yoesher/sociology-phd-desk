@@ -11,9 +11,10 @@
 - [x] Add researcher-first README entry, bilingual getting-started guides, and a durable A/B/C origin-risk decision; retain current shared origin with explicit risk and no cross-origin IndexedDB claim.
 - [x] Pass final automated gates from a clean install and inspect the emitted manifest/service worker/static cache list: strict lint 0 warnings, typecheck, 31 files / 285 tests, 1,971-module build, 24 static precache entries, direct persistence/postpone/offline regressions, and build-time no-runtime-route verification.
 - [x] Re-run the final browser matrix: fresh personal onboarding; standard and encrypted/locked update; real two-tab refusal and peer notice; offline edit/reload/online recovery; English desktop and 390 × 844 mobile; browser mode; and deletion of both synthetic QA workspaces. Earlier same-branch smoke supplies fresh Chinese/persisted language and zero-console evidence. Installed standalone remains honest NOT RUN because the in-app browser exposes no controllable OS install surface.
-- [x] Open Draft feature PR [#24](https://github.com/Yoesher/sociology-phd-desk/pull/24); its initial exact head `7266fa6` passed push/PR CI. Push the final correction head, re-run exact-head CI, self-review, mark ready, merge, and pass exact-main CI plus Pages deployment.
-- [ ] Verify public manifest/service worker/offline/update behavior and exact build SHA; publish annotated `v0.2.1` tag and latest non-draft GitHub Release only after all required gates pass.
-- [ ] Close Issue #23, update exact remote evidence/metrics, and stop without starting v0.3.
+- [x] Merge feature [PR #24](https://github.com/Yoesher/sociology-phd-desk/pull/24) from exact final head `e59d1af070d8ff801842cc591873e6d313311d24` after push/PR CI and P0 = 0 / P1 = 0 self-review; verify squash `main` `671cef2fdb62bc4f10f281ccd496cc04ddc2b9a9`, exact-main CI, Pages, deployment, and Issue #23 closure.
+- [x] Verify the deployed manifest, service worker, icons, exact app/build SHA, and static-only cache contract over public HTTP. Record public interactive/offline smoke honestly as LIMITED PASS / NOT RUN after the browser bridge timed out; do not infer it from HTTP inspection.
+- [ ] Open the `release/0.2.1` PR, pass exact-head CI and self-review, squash-merge, and pass exact-main CI plus Pages.
+- [ ] Publish annotated `v0.2.1` tag and latest non-draft GitHub Release only after the release revision gates pass; then update exact remote evidence/metrics and stop without starting v0.3.
 
 ## P0 — Phase 3A bilingual gate (complete)
 
