@@ -15,6 +15,11 @@
 - [x] Verify the deployed manifest, service worker, icons, exact app/build SHA, and static-only cache contract over public HTTP. Record public interactive/offline smoke honestly as LIMITED PASS / NOT RUN after the browser bridge timed out; do not infer it from HTTP inspection.
 - [x] Open release [PR #25](https://github.com/Yoesher/sociology-phd-desk/pull/25), pass exact-head push/PR CI and P0 = 0 / P1 = 0 self-review, squash-merge as `8db828faaa94f7591dbd806abe90916335862187`, and pass exact-main CI plus Pages/deployment.
 - [x] Publish annotated `v0.2.1` tag object `e481de4ac1acfeca98191cfacc81bee55d96ce69` and the latest non-draft, non-prerelease [GitHub Release](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1); update exact remote evidence/metrics and stop without starting v0.3.
+- [x] Repair the `v0.2.1` Release's corrupted Chinese metadata in place from an explicit UTF-8 notes file; verify Chinese/English sentinels through the GitHub API and confirm Release ID, annotated tag object, exact release SHA, and `v0.2.0` remain unchanged.
+
+## P1 — release-process maintenance
+
+- [ ] Merge the scoped UTF-8 Release Notes guard from Issue #27 after exact-head CI and self-review; it must remain release-process-only and must not publish another version.
 
 ## P0 — Phase 3A bilingual gate (complete)
 

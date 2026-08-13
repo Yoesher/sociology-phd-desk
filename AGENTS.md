@@ -70,6 +70,14 @@ npm run build
 
 Run the commands against the final shared revision. If another agent is working concurrently, recheck changed files and rerun relevant verification after their changes land.
 
+## GitHub Release Notes encoding
+
+- Write any Release Notes containing non-ASCII text to an explicit UTF-8 Markdown file before upload.
+- Use `gh release create/edit --notes-file <path>`; do not pass a long multilingual body through `--notes` or an encoding-dependent shell pipeline.
+- Before upload, run `node scripts/verify-release-notes.mjs --file <path> --sentinel <expected-phrase>` to require strict UTF-8 decoding, byte round-trip, the expected sentinel, and no run of eight or more question marks.
+- After upload, run the same guard in `--remote <owner/repo> <tag>` mode so the GitHub API body—not only the local file or CLI exit code—is verified.
+- For metadata repairs, also verify the Release ID, tag object, and dereferenced release commit. Never move or recreate a valid tag merely to repair Release text.
+
 ## Session closeout
 
 Before handing off:

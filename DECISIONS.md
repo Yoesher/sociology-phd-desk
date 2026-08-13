@@ -208,3 +208,12 @@ Persistent storage is requested only after user action, because browser approval
 - Static cache scope and names are project-specific, but shared-origin script trust remains wider than the repository path.
 - Any future canonical-origin change requires a separate accepted migration design before PWA deployment on that origin.
 - Web use remains the primary distribution path; PWA installation is optional, no account or default synchronization is introduced, and device transfer remains encrypted-backup based.
+
+## ADR-019 — UTF-8 file and API round-trip gate for multilingual GitHub Release Notes
+
+- **Date:** 2026-08-13
+- **Status:** Accepted
+- **Decision:** Every GitHub Release body containing non-ASCII text must be authored as an explicit UTF-8 Markdown file and uploaded with `gh release create/edit --notes-file`. Before upload, the file must pass strict UTF-8 decoding, byte round-trip, at least one expected non-ASCII sentinel, and rejection of eight or more consecutive question marks. After upload, the published body must be read back through the GitHub API and pass the same content guard. Metadata-only repairs must additionally verify that the Release ID, annotated tag object, and dereferenced release commit are unchanged.
+- **Rationale:** The initial `v0.2.1` Release body reached GitHub with its Chinese text already replaced by question marks even though the English section, tag, release ID, and release commit were correct. A CLI exit code proved only that metadata was accepted, not that multilingual text survived the local-to-remote encoding path.
+- **Alternatives:** Pass multilingual notes through a long shell argument; depend on the active console code page or default redirection encoding; validate only the rendered browser page; delete and recreate the tag or Release.
+- **Consequences:** Release preparation uses `scripts/verify-release-notes.mjs` locally and against the GitHub API. Maintainers keep the tag and code identity independent from editable Release metadata, and must not claim metadata PASS until the remote body has been verified.

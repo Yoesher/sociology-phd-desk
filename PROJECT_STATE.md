@@ -11,6 +11,7 @@ This file is the factual handoff record for maintainers and future Codex session
 - Package/lock and published release: `0.2.1`; exact release SHA `8db828faaa94f7591dbd806abe90916335862187`
 - Release status: [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) is latest, non-draft, and non-prerelease; annotated tag object `e481de4ac1acfeca98191cfacc81bee55d96ce69` dereferences to the exact release SHA. Existing `v0.2.0` remains unmoved.
 - Current target: finish this documentation-only publication closeout and stop; do not start `v0.3.0`
+- Release metadata repair: the original `v0.2.1` GitHub API body contained question-mark corruption in its Chinese section while `v0.2.0` remained valid Unicode. Release `369842240` was repaired in place from a verified UTF-8 notes file; the API read-back now passes Chinese and English sentinels with no question-mark run. Tag object `e481de4ac1acfeca98191cfacc81bee55d96ce69` still dereferences to release SHA `8db828faaa94f7591dbd806abe90916335862187`; no tag or code identity moved. Maintenance Issue #27 tracks the permanent UTF-8 file/API round-trip guard. Its local candidate passed `npm ci`, lint with 0 warnings, typecheck, 31 files / 285 tests, the production PWA build, positive remote verification, and negative corruption/sentinel cases; PR/remote CI/merge remain pending.
 
 ### v0.2.1 released architecture
 
