@@ -1,0 +1,19 @@
+{
+  "addons": {
+    "sociology-phd-desk@yoesher.github.io": {
+      "updates": [
+        {
+          "version": "0.1.0",
+          "update_link": "https://github.com/Yoesher/sociology-phd-desk/releases/download/v0.3.0/sociology-phd-desk-zotero-0.1.0.xpi",
+          "update_hash": "sha256:008dfed9ee5f3ffade6df034bf60a0aab1f483034cbf704978d8ded3f05eb8ea",
+          "applications": {
+            "zotero": {
+              "strict_min_version": "8.0",
+              "strict_max_version": "9.0.*"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
