@@ -39,6 +39,23 @@ function NestedModalHarness() {
   )
 }
 
+function AutoFocusNestedModalHarness() {
+  const [workspaceOpen, setWorkspaceOpen] = useState(false)
+  const [editorOpen, setEditorOpen] = useState(false)
+
+  return (
+    <>
+      <button type="button" onClick={() => setWorkspaceOpen(true)}>Open workspace</button>
+      <Modal open={workspaceOpen} title="Workspace" onClose={() => setWorkspaceOpen(false)}>
+        <button type="button" onClick={() => setEditorOpen(true)}>Open editor</button>
+      </Modal>
+      <Modal open={editorOpen} title="Editor" onClose={() => setEditorOpen(false)}>
+        <label>Draft<input autoFocus /></label>
+      </Modal>
+    </>
+  )
+}
+
 describe('Modal stack', () => {
   afterEach(cleanup)
 
@@ -117,6 +134,20 @@ describe('Modal stack', () => {
     expect(confirmClose).toHaveFocus()
     expect(workspaceDialog).toHaveAttribute('inert')
     expect(workspaceDialog).toHaveAttribute('aria-hidden', 'true')
+  })
+
+  it('restores focus to the nested trigger even when new content takes focus during mount', async () => {
+    const user = userEvent.setup()
+    render(<I18nProvider><AutoFocusNestedModalHarness /></I18nProvider>)
+
+    await user.click(screen.getByRole('button', { name: 'Open workspace' }))
+    const editorTrigger = screen.getByRole('button', { name: 'Open editor' })
+    await user.click(editorTrigger)
+    expect(screen.getByRole('dialog', { name: 'Editor' })).toBeInTheDocument()
+
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog', { name: 'Editor' })).not.toBeInTheDocument()
+    expect(editorTrigger).toHaveFocus()
   })
 })
 
