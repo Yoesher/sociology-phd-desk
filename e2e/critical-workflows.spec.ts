@@ -5,6 +5,7 @@ import {
   openWorkspaceCenter,
   syntheticPrefix,
   waitForApp,
+  waitForPersistedProjectTitle,
 } from './helpers'
 
 test.describe('desktop critical research workflows', () => {
@@ -33,6 +34,7 @@ test.describe('desktop critical research workflows', () => {
     await dialog.getByLabel('项目标题').fill(renamedProject)
     await dialog.getByRole('button', { name: '保存更改' }).click()
     await expect(page.getByRole('row').filter({ hasText: renamedProject })).toBeVisible()
+    await waitForPersistedProjectTitle(page, renamedProject)
 
     await page.reload()
     await waitForApp(page)

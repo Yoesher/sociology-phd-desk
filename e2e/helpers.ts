@@ -62,6 +62,53 @@ export async function createProject(page: Page, title: string) {
   await expect(page.getByRole('row').filter({ hasText: title })).toBeVisible()
 }
 
+export async function waitForPersistedProjectTitle(page: Page, title: string) {
+  await expect.poll(
+    () => page.evaluate(async (expectedTitle) => {
+      const databases = await indexedDB.databases()
+      const names = databases
+        .map((database) => database.name)
+        .filter((name): name is string => Boolean(name?.startsWith('sociology-phd-desk-workspace-')))
+
+      const containsProject = (databaseName: string) => new Promise<boolean>((resolve) => {
+        const openRequest = indexedDB.open(databaseName)
+        openRequest.onerror = () => resolve(false)
+        openRequest.onsuccess = () => {
+          const database = openRequest.result
+          if (!database.objectStoreNames.contains('projects')) {
+            database.close()
+            resolve(false)
+            return
+          }
+
+          const transaction = database.transaction('projects', 'readonly')
+          const request = transaction.objectStore('projects').getAll()
+          request.onerror = () => {
+            database.close()
+            resolve(false)
+          }
+          request.onsuccess = () => {
+            const found = request.result.some((record) => (
+              typeof record === 'object' &&
+              record !== null &&
+              'title' in record &&
+              record.title === expectedTitle
+            ))
+            database.close()
+            resolve(found)
+          }
+        }
+      })
+
+      for (const name of names) {
+        if (await containsProject(name)) return true
+      }
+      return false
+    }, title),
+    { message: `project ${title} was not committed to IndexedDB`, timeout: 10_000 },
+  ).toBe(true)
+}
+
 export async function expectNoHorizontalOverflow(page: Page) {
   const metrics = await page.evaluate(() => ({
     viewportWidth: window.innerWidth,
