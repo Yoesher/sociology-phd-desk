@@ -181,3 +181,15 @@ Theory Memo references on current `main` add the same protection for their proje
 - retained plaintext is removed only through a current authenticated encrypted session plus source-identity/alias checks; cleanup/deletion failures retain UI-discoverable recoverable state.
 
 See the bilingual threat model for what portability and encryption do not protect: [中文](zh-CN/privacy-model.md) / [English](en/privacy-model.md).
+
+## v0.3.0 guarded import preflight
+
+The current v0.3.0 candidate keeps import parsing local and bounded. Selecting a file does not create or modify a workspace. Before confirmation, the interface reports its source format and version, the explicit supported migration chain, record counts, matching stable IDs, blocking identity/relationship conflicts, and the relevant plaintext or encrypted risk.
+
+| Import surface | File/transport ceiling | Record and field ceilings |
+| --- | ---: | --- |
+| Portable workspace JSON | 32 MiB, checked before `File.text()` | 25,000 records per domain collection; 100,000 total; existing strict schema string limits |
+| Encrypted `.sociologydesk` | 64 MiB ciphertext plus canonical base64/wrapper overhead, checked before `File.text()` | same post-authentication workspace limits |
+| Zotero Handoff v1 bundle | 8 MiB; URL-fragment handoff 12 Ki encoded characters | 1,000 items; 1,000-character title; 250,000-character abstract; 1,000 creators; 2,000 tags |
+
+Encrypted preflight authenticates the backup passphrase and validates/migrates the decrypted payload only in memory. Final restore authenticates again before creating a registry route or physical workspace. The application never silently truncates imported research or bibliographic content to satisfy these limits. Unsupported future versions and malformed, oversized, ambiguous, or relationship-invalid inputs fail closed.
