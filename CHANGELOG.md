@@ -11,6 +11,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Separated active-route state from desktop navigation expansion so the current primary module can be collapsed and reopened without leaving the page or losing its breadcrumb.
 - Persisted the collapse preference as local application chrome; query-only Smart View changes no longer force the active group open, and research workspace data remains unchanged.
 
+### Security & Maintenance
+
+- Moved CI and Pages to the current official Node 24-backed action majors, including checkout/setup, artifact handling, and Pages deployment.
+- Added bounded weekly Dependabot checks for npm and GitHub Actions plus official JavaScript/TypeScript CodeQL analysis.
+- Added a release gate that blocks high or critical npm dependency advisories without treating registry failures as a pass.
+
 ## [0.2.2] - 2026-08-13
 
 ### Changed
