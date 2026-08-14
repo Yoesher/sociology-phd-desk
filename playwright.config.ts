@@ -1,9 +1,10 @@
 import { defineConfig } from '@playwright/test'
 
 const localChromium = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
+const previewUrl = 'http://127.0.0.1:4179'
 const webServerCommand = process.env.CI
-  ? 'npm run preview -- --host 127.0.0.1 --port 4173'
-  : 'npm run build && npm run preview -- --host 127.0.0.1 --port 4173'
+  ? 'npm run preview -- --host 127.0.0.1 --port 4179'
+  : 'npm run build && npm run preview -- --host 127.0.0.1 --port 4179'
 
 export default defineConfig({
   testDir: './e2e',
@@ -16,7 +17,7 @@ export default defineConfig({
     ? [['line'], ['html', { open: 'never', outputFolder: 'playwright-report' }]]
     : 'line',
   use: {
-    baseURL: 'http://127.0.0.1:4173',
+    baseURL: previewUrl,
     browserName: 'chromium',
     launchOptions: localChromium ? { executablePath: localChromium } : undefined,
     locale: 'zh-CN',
@@ -36,8 +37,8 @@ export default defineConfig({
   ],
   webServer: {
     command: webServerCommand,
-    url: 'http://127.0.0.1:4173',
-    reuseExistingServer: !process.env.CI,
+    url: previewUrl,
+    reuseExistingServer: false,
     timeout: 180_000,
   },
 })
