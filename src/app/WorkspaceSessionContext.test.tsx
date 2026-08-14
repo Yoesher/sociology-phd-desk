@@ -609,6 +609,7 @@ describe('WorkspaceSessionProvider flush boundaries', () => {
       .mockResolvedValueOnce(nextSession)
     const factory = () => fixture.manager as unknown as WorkspaceSessionManager
     const noChannel = () => null
+    const visibilityListeners = vi.spyOn(document, 'addEventListener')
     render(
       <I18nProvider>
         <WorkspaceSessionProvider
@@ -622,9 +623,15 @@ describe('WorkspaceSessionProvider flush boundaries', () => {
       </I18nProvider>,
     )
     await waitFor(() => expect(getContext().accessState).toBe('unlocked'))
+    await waitFor(() => expect(
+      visibilityListeners.mock.calls.filter(([type]) => type === 'visibilitychange').length,
+    ).toBeGreaterThanOrEqual(2))
 
     act(() => document.dispatchEvent(new Event('visibilitychange')))
-    await waitFor(() => expect(oldPort.refresh).toHaveBeenCalledTimes(1))
+    await waitFor(
+      () => expect(oldPort.refresh).toHaveBeenCalledTimes(1),
+      { timeout: 5_000 },
+    )
     await act(async () => getContext().selectWorkspace(nextEntry.id))
     expect(getContext().session?.entry.id).toBe(nextEntry.id)
 
