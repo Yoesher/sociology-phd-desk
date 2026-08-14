@@ -4,6 +4,7 @@ dist/
 dist-ssr/
 coverage/
 .vite/
+integrations/zotero-plugin/dist/
 
 # Logs
 logs/

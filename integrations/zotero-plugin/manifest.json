@@ -1,0 +1,15 @@
+{
+	"manifest_version": 2,
+	"name": "Sociology PhD Desk",
+	"version": "0.1.0",
+	"description": "Send selected bibliographic items to Sociology PhD Desk for a reviewed import.",
+	"homepage_url": "https://github.com/Yoesher/sociology-phd-desk",
+	"applications": {
+		"zotero": {
+			"id": "sociology-phd-desk@yoesher.github.io",
+			"update_url": "https://raw.githubusercontent.com/Yoesher/sociology-phd-desk/main/integrations/zotero-plugin/updates.json",
+			"strict_min_version": "8.0",
+			"strict_max_version": "9.0.*"
+		}
+	}
+}
