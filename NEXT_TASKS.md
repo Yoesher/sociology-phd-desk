@@ -1,6 +1,6 @@
 # Next Tasks
 
-> `v0.2.2` remains the published release. The authorized `v0.3.0` milestone is now active with Issues #34–#37 plus existing #5/#6. Work must remain sequential; no `v0.3.0` Release is claimed.
+> `v0.2.2` remains the published release. The authorized `v0.3.0` milestone is active. Navigation, Zotero, Import Guard, and browser E2E are merged through exact main `22c68d6`; Issues #44/#45 and the release-time Issue #37 map gate remain. No `v0.3.0` Release is claimed.
 
 ## P0 — v0.3.0 completed foundations and active gates
 
@@ -10,16 +10,19 @@
 - [x] Pass the complete local gate: 33 files / 303 tests, production build, typecheck, lint, and diff check; complete bilingual desktop/mobile browser smoke with zero console entries.
 - [x] Commit/push, open PR with `Closes #34`, pass exact-head CI and P0 = 0 / P1 = 0 self-review, merge, and verify exact-main CI/Pages before Phase B.
 - [x] Merge the app-side Zotero Handoff v1, Literature provenance/dedup/preview, schema v5, encrypted v3/v4→v5 compatibility, and bilingual workflow through PR #39; pass exact-main CI/Pages.
-- [ ] Finish the isolated Zotero 8 GUI install/send/disable/uninstall/restart gate before marking Draft PR #40 ready. Automated 0.1.0 plugin source, 6 Node tests, deterministic XPI/checksum, root 314-test gate, and exact-head CI pass; real GUI evidence remains NOT RUN.
+- [x] Finish isolated Zotero 8 and Zotero 9 GUI install/send/duplicate/fallback/disable/uninstall/restart gates using synthetic profiles only; merge plugin PR #40 and verify exact-main CI/Pages.
 - [x] Implement the Issue #5 Import Guard candidate on `feat/import-guards`: two-step write-free workspace/encrypted preflight, file/record/string bounds, explicit migrations, collection+ID collisions, relationship conflicts, bilingual risk UI, 36 files / 320 tests, and production/PWA build.
-- [ ] Commit/push the Import Guard candidate, open its scoped PR, pass exact-head CI/self-review, merge, and verify exact-main CI/Pages before Phase D.
+- [x] Commit/push the Import Guard candidate, merge PR #41 after exact-head CI/self-review, and verify exact-main CI/Pages.
+- [x] Complete Issue #6 browser E2E through PR #43: Chromium desktop and 390 × 844 coverage, synthetic standard/encrypted/import/export/stale-tab/modal/PWA flows, failure-only artifacts, exact-head CI/self-review, squash merge, and exact-main CI/Pages/deployment on `22c68d6`.
 
 ## P0 — v0.3.0 later phases (blocked until Phase A exact-main passes)
 
-- [ ] Phase B remaining: Issue #36 isolated-profile Zotero 8 manual gate and plugin PR merge.
-- [ ] Phase C remaining: Issue #5 remote PR/CI/main/Pages closeout; schema v5 itself is already merged through app-side Zotero PR #39.
+- [x] Phase B: Issue #36 isolated-profile Zotero 8/9 manual gate and plugin PR merge.
+- [x] Phase C: Issue #5 remote PR/CI/main/Pages closeout; schema v5 is merged through app-side Zotero PR #39.
 - [ ] Phase D: Issue #37 — current official province-map source/terms/approval/completeness gate; enable no production map unless every mandatory gate passes.
-- [ ] Phase E/F: Issue #6 browser E2E plus Dependabot, CodeQL where available, diagnostic export, feedback template, citation/maintainer metadata, release checklist, and truthful Codex-for-OSS draft.
+- [x] Phase E: Issue #6 browser E2E, deterministic reload persistence, failure-only artifacts, and exact-main CI/Pages closeout.
+- [ ] Phase F1: Issue #44 — merge the current Node 24-backed official Actions majors, bounded Dependabot, CodeQL v4, and high/critical npm audit after exact-head CI/self-review. Current local candidate gates pass; remote state is pending.
+- [ ] Phase F2: Issue #45 — privacy-safe diagnostics, bilingual feedback entry/template, citation/maintainer metadata, release checklist, and truthful Codex-for-OSS draft.
 
 ## P0 — v0.2.2 Simplicity & Motion
 

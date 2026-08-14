@@ -10,9 +10,9 @@ Sociology PhD Desk is local-first research workflow software. Its threat model d
 
 ## Supported versions
 
-The latest formal public release is [`v0.1.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0). Security fixes are normally developed against the latest maintained `main` revision; no long-term support window or response-time service level is promised during this early public stage.
+The latest formal public release is [`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2). Security fixes are normally developed against the latest maintained `main` revision; no long-term support window or response-time service level is promised during this early public stage.
 
-The private-local-workspace and encrypted-vault work described below passed its Phase 3C Pull Request, CI, review, merge, exact-`main` CI, and Pages gates and is deployed on public `main`. It remains `Unreleased` and is not part of formal release `v0.1.0`. Verified delivery state belongs in [PROJECT_STATE.md](PROJECT_STATE.md).
+The authorized `v0.3.0` cycle is unreleased. Verified delivery state, exact revisions, and release boundaries belong in [PROJECT_STATE.md](PROJECT_STATE.md); a merged feature on `main` is not a published release by itself.
 
 ## Report a vulnerability
 
@@ -76,3 +76,5 @@ Use institutional storage, encryption, access controls, retention schedules, and
 ## Dependency and change hygiene
 
 Security-sensitive changes should include tests where feasible and pass lint, type checking, tests, and the production build. Dependency updates must be reviewed for provenance, license compatibility, and changes to network behavior. The core application must not add telemetry, trackers, cloud synchronization, or external AI calls by default.
+
+The repository uses bounded weekly Dependabot checks for npm and GitHub Actions, official GitHub CodeQL analysis for JavaScript/TypeScript, and a release audit that fails on high or critical npm advisories. A registry or service outage is an unavailable gate, not a passing audit. Moderate and low findings are reviewed and recorded but do not automatically block a release unless their concrete impact crosses the release's P0/P1 boundary.
