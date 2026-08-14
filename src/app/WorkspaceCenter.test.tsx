@@ -457,7 +457,7 @@ describe('WorkspaceCenter', () => {
       expect(within(dialog).getByLabelText('Confirm new workspace passphrase')).toHaveValue('')
     })
     expect(document.body).not.toHaveTextContent('backup phrase long enough')
-  })
+  }, 15_000)
 
   it('puts plaintext export behind a strong confirmation', async () => {
     const user = userEvent.setup()

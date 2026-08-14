@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import {
   AlertTriangle,
@@ -113,10 +113,16 @@ function syncModalEnvironment() {
   }
 }
 
-function registerModal(entry: Omit<ModalStackEntry, 'restoreTargets'>) {
+function registerModal(
+  entry: Omit<ModalStackEntry, 'restoreTargets'>,
+  preferredRestoreTarget?: HTMLElement | null,
+) {
   const activeElement = document.activeElement
   const currentTop = modalStack.at(-1)
   const restoreTargets = [
+    ...(preferredRestoreTarget instanceof HTMLElement && preferredRestoreTarget !== document.body
+      ? [preferredRestoreTarget]
+      : []),
     ...(activeElement instanceof HTMLElement && activeElement !== document.body ? [activeElement] : []),
     ...(currentTop?.restoreTargets ?? []),
   ].filter((element, index, elements) => elements.indexOf(element) === index)
@@ -288,11 +294,20 @@ export function Modal({
   const descriptionId = useId()
   const stackId = useId()
   const dialogRef = useRef<HTMLElement>(null)
+  const restoreTargetRef = useRef<HTMLElement | null>(null)
   const onCloseRef = useRef(onClose)
   const [present, setPresent] = useState(open)
   const [closing, setClosing] = useState(false)
   const rendered = present && !(import.meta.env.MODE === 'test' && !open)
   onCloseRef.current = onClose
+
+  useLayoutEffect(() => {
+    if (!open) return
+    const activeElement = document.activeElement
+    if (activeElement instanceof HTMLElement && activeElement !== document.body) {
+      restoreTargetRef.current = activeElement
+    }
+  }, [open])
 
   useEffect(() => {
     if (open) {
@@ -315,11 +330,14 @@ export function Modal({
     return () => window.clearTimeout(timer)
   }, [open, present])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const dialog = dialogRef.current
     if (!rendered || !dialog) return
 
-    registerModal({ id: stackId, dialog, onClose: () => onCloseRef.current() })
+    registerModal(
+      { id: stackId, dialog, onClose: () => onCloseRef.current() },
+      restoreTargetRef.current,
+    )
     return () => unregisterModal(stackId)
   }, [rendered, stackId])
 

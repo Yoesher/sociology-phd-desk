@@ -57,6 +57,7 @@ export default defineConfig({
     },
   },
   test: {
+    include: ['src/**/*.test.{ts,tsx}'],
     environment: 'jsdom',
     setupFiles: [resolve(process.cwd(), 'src/test/setup.ts')],
     restoreMocks: true,
