@@ -302,11 +302,18 @@ export function Modal({
   onCloseRef.current = onClose
 
   useLayoutEffect(() => {
-    if (!open) return
-    const activeElement = document.activeElement
-    if (activeElement instanceof HTMLElement && activeElement !== document.body) {
-      restoreTargetRef.current = activeElement
+    if (!open) {
+      restoreTargetRef.current = null
+      return
     }
+    const activeElement = document.activeElement
+    const dialog = dialogRef.current
+    restoreTargetRef.current =
+      activeElement instanceof HTMLElement &&
+      activeElement !== document.body &&
+      !dialog?.contains(activeElement)
+        ? activeElement
+        : null
   }, [open])
 
   useEffect(() => {
