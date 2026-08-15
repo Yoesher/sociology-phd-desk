@@ -174,7 +174,7 @@ See [architecture overview](docs/architecture/overview.md), [data model](docs/ar
 
 ## Roadmap
 
-The `0.1` line established the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure; `v0.2.x` released the bilingual workstation, encrypted workspaces, Theory, simplified navigation, and PWA. The authorized `v0.3.0` cycle has merged active-navigation collapse, Zotero Handoff/plugin, import guards, browser E2E, and security automation to `main`, but no formal `v0.3.0` Release exists yet. The province-level China fieldwork map remains governed by four hard source, redistribution, approval-metadata, and completeness gates; while any gate is blocked, no map may ship and a map-mandatory `v0.3.0` cannot be marked PASS.
+The `0.1` line established the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure; `v0.2.x` released the bilingual workstation, encrypted workspaces, Theory, simplified navigation, and PWA. The authorized non-map `v0.3.0` work is merged to `main`: active-navigation collapse, Zotero Handoff/plugin, import guards, browser E2E, security automation, and privacy-safe diagnostics. The 2026-08-15 release-time review still found all four province-level China fieldwork-map source, redistribution, approval-metadata, and completeness gates BLOCKED. Because the frozen cycle made that map mandatory, `v0.3.0` is BLOCKED / NOT RELEASED and has no tag or GitHub Release.
 
 See [ROADMAP.md](ROADMAP.md). Roadmap entries are intentions, not delivery promises.
 

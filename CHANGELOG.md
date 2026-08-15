@@ -20,6 +20,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Added bilingual in-app issue/researcher-feedback links with no workspace payload, a sensitive-data warning feedback template, citation and maintainer metadata, and a reusable maintainer release checklist.
 - Added a current-form Codex for Open Source evidence register and character-limited draft while retaining zero verified external testers/contributors and prohibiting automatic submission.
 
+### Deferred
+
+- Revalidated the China fieldwork-map gate against current official source, distribution, approval, and completeness evidence. All four mandatory gates remain BLOCKED; no production map asset or region workflow shipped, and the map-mandatory `v0.3.0` was not released.
+
 ## [0.2.2] - 2026-08-13
 
 ### Changed

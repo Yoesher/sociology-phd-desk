@@ -1,8 +1,8 @@
 # 中国研究地图：数据来源与合规门禁
 
 > 状态：**BLOCKED**
-> 核验日期：2026-08-12
-> 适用范围：Phase 3D / Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8)，现为 `CLOSED_NOT_PLANNED`
+> 核验日期：2026-08-12；v0.3.0 发布时复核：2026-08-15
+> 适用范围：Phase 3D / Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8) 与发布时 Issue [#37](https://github.com/Yoesher/sociology-phd-desk/issues/37)，均为 `CLOSED_NOT_PLANNED`
 > 收口状态：仅文档 [PR #16](https://github.com/Yoesher/sociology-phd-desk/pull/16) 已合并为 [`ca4429f`](https://github.com/Yoesher/sociology-phd-desk/commit/ca4429facfa124e85c3dba37f9ce7da270a82601)，exact-`main` CI 与 Pages 通过；没有地图交付。
 
 本文件记录中国研究地图在提交任何生产行政区目录、边界几何或公开交互地图之前必须通过的来源、许可、审图和完整性核验。它不是法律意见；涉及地图公开展示、数据再分发或格式转换时，维护者仍需取得主管部门或合格地图服务机构的正式确认。
@@ -17,6 +17,17 @@
 | `NATIONAL_MAP_COMPLETENESS` | `BLOCKED / NOT TESTABLE` | 在没有获准的最终资产前，无法验证全国省—地—县层级、港澳台、南海诸岛、钓鱼岛及移动端不裁切等完整性要求。 |
 
 任一门禁不是 `PASS`，Phase 3D 地图实现就不能合并或部署。中国研究地图因此暂缓实施并排除在 `v0.2.0` 之外；该结论不阻塞本版本中的理论研究、导航、论文与投稿整合或稳定化工作。
+
+## 2026-08-15 发布时复核
+
+维护者针对 `v0.3.0` 只对已知官方一手页面进行了窄范围复核，没有下载数据、批量采集目录、登录地图服务或执行爬虫：
+
+- [1:100 万公众版基础地理信息数据](https://www.webmap.cn/commres.do?method=result100W)仍明确说明下载内容是矢量数据而非最终地图，公开成图须依法履行地图审核程序。
+- [全国地理信息资源目录服务条款](https://www.webmap.cn/main.do?clickFlag=about&method=otherService)仍规定，未经主管机构允许，不得有偿或无偿转让数据，也不得将其作为向外分发的数据库、产品或服务的一部分。
+- [标准地图服务](https://bzdt.tianditu.gov.cn/)没有向本项目提供覆盖响应式交互转换、GitHub 仓库、Pages、分叉与归档的书面许可；项目也没有最终成品的审图号、批准样图、有效期和资产哈希。
+- [民政部行政区划代码服务](https://dmfw.mca.gov.cn/XzqhVersionPublish.html)仍不能替代边界几何权利、公开地图审图或港澳台完整下级层级来源。
+
+因此四项结果原值保留。发布时 Issue [#37](https://github.com/Yoesher/sociology-phd-desk/issues/37#issuecomment-5300741522)按 `not planned` 关闭；这表示实施条件未满足，不表示地图已完成。由于本轮冻结合同把地图设为 `v0.3.0` 必选项，`v0.3.0` 处于 **BLOCKED / NOT RELEASED**，不得创建发布分支、tag 或 GitHub Release。
 
 ## 候选来源核验
 
@@ -109,4 +120,4 @@ Phase 3D 只有在以下证据全部落盘并经维护者复核后才可继续�
 
 ## 当前仓库边界
 
-本次 BLOCKED 收口只提交了文档与项目状态记录。PR #16 已合并，Issue #8 已按 not planned 关闭；这些流程状态不会把任何门禁改成 PASS。仓库中不得新增 `public/map/**`、中国 SVG/GeoJSON/TopoJSON、行政区生产主数据、外部地图请求或启用地区写入的生产代码。Phase 3D 在自身门禁通过前保持暂缓且不属于 `v0.2.0`；非地图发布工作可以独立继续。
+本次 BLOCKED 收口只提交了文档与项目状态记录。PR #16 已合并，Issues #8/#37 已按 `not planned` 关闭；这些流程状态不会把任何门禁改成 PASS。仓库中不得新增 `public/map/**`、中国 SVG/GeoJSON/TopoJSON、行政区生产主数据、外部地图请求或启用地区写入的生产代码。Phase 3D 在自身门禁通过前保持暂缓；本轮地图必选的 `v0.3.0` 不能发布。
