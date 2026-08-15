@@ -40,7 +40,7 @@ This document follows the current [official Codex for Open Source form](https://
 
 ## Evidence snapshot
 
-Public API snapshot after PR #51 merged on 2026-08-15 and before the final documentation truth correction: 3 Stars, 0 Forks, 3 open Issues, 17 closed Issues, 3 open Pull Requests (automated Dependabot updates), 28 merged Pull Requests, 4 Releases, 0 verified external testers, and 0 verified external human contributors in project records. The current published release is `v0.2.2`; all authorized non-map `v0.3.0` increments are merged, but the mandatory map compliance gate is BLOCKED and `v0.3.0` is not released.
+Public API snapshot after PR #52 merged on 2026-08-15 and before the release PR: 3 Stars, 0 Forks, 3 open Issues, 17 closed Issues, 3 open Pull Requests (automated Dependabot updates), 29 merged Pull Requests, 4 Releases, 0 verified external testers, and 0 verified external human contributors in project records. The current published release is `v0.2.2`; all authorized non-map `v0.3.0` increments are merged, and the map is DEFERRED/excluded rather than a release blocker. The candidate has not yet become a tag or Release.
 
 Maintenance evidence includes reproducible local and CI gates, exact-head self-review, exact-main CI/Pages verification, CodeQL, weekly Dependabot, high/critical npm audit gating, browser E2E with synthetic fixtures, encrypted-workspace migration tests, and a reproducible Zotero plugin tested only with isolated synthetic Zotero 8 and Zotero 9 profiles.
 
@@ -48,6 +48,6 @@ Maintenance evidence includes reproducible local and CI gates, exact-head self-r
 
 `APPLICATION_READINESS = MODERATE`
 
-The project shows unusually strong maintenance, privacy, migration, security, and release evidence for its age, and it addresses a clear sociology ResearchOps gap. It does not yet show meaningful external adoption: known external testers and verified external human contributors remain zero. The honest recommendation is not to publish the blocked `v0.3.0` from this cycle; instead, recruit consented real researcher testing for the released and merged non-map workflows, record issues/feedback, and then reassess whether to apply.
+The project shows unusually strong maintenance, privacy, migration, security, and release evidence for its age, and it addresses a clear sociology ResearchOps gap. It does not yet show meaningful external adoption: known external testers and verified external human contributors remain zero. The honest recommendation remains `WAIT_FOR_MORE_USAGE`: finish the independently gated non-map `v0.3.0` release, recruit consented real researcher testing, record issues/feedback, and then reassess whether to apply.
 
 No application should be submitted until the maintainer personally supplies the private identity, ChatGPT email, and Organization ID fields and approves the final text.

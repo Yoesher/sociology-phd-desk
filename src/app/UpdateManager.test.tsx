@@ -79,7 +79,7 @@ describe('activateWaitingWorker', () => {
   it('captures the install prompt at application startup for later user action', async () => {
     window.localStorage.clear()
     window.localStorage.setItem(APP_SETTINGS_STORAGE_KEY, JSON.stringify({ language: 'en' }))
-    window.localStorage.setItem('sociology-phd-desk:release-notes:0.2.1', 'seen')
+    window.localStorage.setItem('sociology-phd-desk:release-notes:0.3.0', 'seen')
     const prompt = vi.fn().mockResolvedValue(undefined)
     const installEvent = new Event('beforeinstallprompt') as Event & {
       prompt: () => Promise<void>
@@ -104,7 +104,7 @@ describe('activateWaitingWorker', () => {
   it('lets the user postpone a waiting update without activating or reloading it', async () => {
     window.localStorage.clear()
     window.localStorage.setItem(APP_SETTINGS_STORAGE_KEY, JSON.stringify({ language: 'en' }))
-    window.localStorage.setItem('sociology-phd-desk:release-notes:0.2.1', 'seen')
+    window.localStorage.setItem('sociology-phd-desk:release-notes:0.3.0', 'seen')
     const worker = { postMessage: vi.fn() }
     const registration = {
       waiting: worker,
@@ -139,7 +139,7 @@ describe('activateWaitingWorker', () => {
   it('announces offline and online recovery without claiming synchronization', async () => {
     window.localStorage.clear()
     window.localStorage.setItem(APP_SETTINGS_STORAGE_KEY, JSON.stringify({ language: 'en' }))
-    window.localStorage.setItem('sociology-phd-desk:release-notes:0.2.1', 'seen')
+    window.localStorage.setItem('sociology-phd-desk:release-notes:0.3.0', 'seen')
     render(
       <I18nProvider>
         <UpdateManagerProvider><span>Research workspace</span></UpdateManagerProvider>

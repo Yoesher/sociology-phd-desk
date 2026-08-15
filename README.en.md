@@ -18,6 +18,16 @@ Manage the full research lifecycle—from literature and fieldwork to quantitati
 
 See the complete [English getting-started guide](docs/en/getting-started.md).
 
+### `v0.3.0` — Zotero integration and safer imports
+
+The `v0.3.0` release candidate adds selected-reference Zotero handoff, an explicit import preview, reproducible Zotero plugin `0.1.0`, schema-v5 migration, import-size guards, browser E2E, and privacy-safe diagnostics. The formal tag, Release, and public XPI will be published only after this candidate passes its PR, exact-main, Pages, and asset-verification gates.
+
+## Zotero integration
+
+Zotero remains the system of record for bibliography, PDFs, notes, annotations, and citations. After installing the plugin, select one or more references in Zotero 8 or Zotero 9, right-click Send to Sociology PhD Desk, then choose the project, reading status, and priority in the Desk preview before confirming any write.
+
+The plugin transfers allowlisted bibliographic metadata only. It does not read or import PDFs, attachments, private notes, annotations, full text, account data, or synchronization state. A public `[Download the Zotero plugin]` link will be added only after the `v0.3.0` Release asset is uploaded and verified; see the [English Zotero integration guide](docs/en/zotero-integration.md) for the current candidate boundary.
+
 ### `v0.2.2` — Simplicity & restrained motion
 
 [`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) reduces secondary-navigation complexity, consolidates status views into in-page filters, simplifies the top bar and workspace settings, and adds coherent, restrained motion for routes, dialogs, drawers, and state changes without changing research data or schema versions. It fully respects `prefers-reduced-motion` and adds no animation dependency.
@@ -174,7 +184,7 @@ See [architecture overview](docs/architecture/overview.md), [data model](docs/ar
 
 ## Roadmap
 
-The `0.1` line established the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure; `v0.2.x` released the bilingual workstation, encrypted workspaces, Theory, simplified navigation, and PWA. The authorized non-map `v0.3.0` work is merged to `main`: active-navigation collapse, Zotero Handoff/plugin, import guards, browser E2E, security automation, and privacy-safe diagnostics. The 2026-08-15 release-time review still found all four province-level China fieldwork-map source, redistribution, approval-metadata, and completeness gates BLOCKED. Because the frozen cycle made that map mandatory, `v0.3.0` is BLOCKED / NOT RELEASED and has no tag or GitHub Release.
+The `0.1` line established the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure; `v0.2.x` released the bilingual workstation, encrypted workspaces, Theory, simplified navigation, and PWA. The `v0.3.0` candidate focuses on active-navigation collapse, Zotero Handoff/plugin, import guards, browser E2E, security automation, and privacy-safe diagnostics. The province-level China fieldwork map is deferred because public-source, redistribution, project-review, and completeness requirements are not yet verifiable for this deployment. It is excluded from v0.3.0 and may be reconsidered only if those conditions materially change.
 
 See [ROADMAP.md](ROADMAP.md). Roadmap entries are intentions, not delivery promises.
 

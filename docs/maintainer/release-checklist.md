@@ -54,13 +54,12 @@ npm run test:zotero
 - [ ] Manual smoke covers Zotero 8 and the locally installed Zotero 9 where available: install, restart if required, one article, one book, Chinese/English titles, multiple creators, DOI/no DOI, multi-select, duplicate resend, large-batch fallback, disable, uninstall, and restart.
 - [ ] Release claims name only the Zotero versions actually verified.
 
-## 6. China map compliance hard gate
+## 6. China map inclusion or deferral gate
 
-- [ ] `MAP_SOURCE_VERIFIED = PASS` using release-time official evidence.
-- [ ] `MAP_LICENSE_VERIFIED = PASS` for the exact public redistribution and transformation.
-- [ ] `MAP_APPROVAL_METADATA = PASS` with the required approval/review record for the exact output.
-- [ ] `NATIONAL_MAP_COMPLETENESS = PASS`, including Hong Kong, Macao, Taiwan, required islands/insets, attribution, and no cropping.
-- [ ] If any item is BLOCKED/UNKNOWN, do not ship map assets or map claims and do not mark a map-mandatory release PASS.
+- [ ] If a release includes the map, require `MAP_SOURCE_VERIFIED`, `MAP_LICENSE_VERIFIED`, `MAP_APPROVAL_METADATA`, and `NATIONAL_MAP_COMPLETENESS` to be PASS for the exact deployed output.
+- [ ] If a release defers the map, preserve the bilingual source/compliance evidence and explicitly exclude map code, geometry, administrative catalogs, external map calls, region persistence, and completion claims.
+- [ ] Confirm participant GPS and precise-location fields are absent in either path.
+- [ ] For `v0.3.0`, record the map as DEFERRED and excluded; its BLOCKED gates do not become PASS and do not block the verified non-map release.
 
 ## 7. Privacy, security, accessibility, and diagnostics
 

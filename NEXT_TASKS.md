@@ -1,8 +1,8 @@
 # Next Tasks
 
-> `v0.2.2` remains the published release. All authorized non-map `v0.3.0` feature increments are merged and exact-main verified through `f7dbbcd4`; documentation-only blocker closeout PR #51 subsequently merged as `b5db4004` and passed exact-main CI, CodeQL, Pages, and deployment. The mandatory release-time map review retained all four gates as BLOCKED. Issue #37 is closed `not planned`; `v0.3.0` is BLOCKED / NOT RELEASED. Do not create a release branch, tag, or Release.
+> `v0.2.2` remains the published release while `release/0.3.0` is prepared from exact verified main `79d2d5a`. All authorized non-map work is merged. The map review still has four BLOCKED gates, but the map is formally DEFERRED and excluded from `v0.3.0`; it no longer blocks this release. Tag, Release, public XPI, PR/CI, and exact-main publication evidence remain pending.
 
-## P0 — v0.3.0 completed foundations and final blocker
+## P0 — v0.3.0 release finalization
 
 - [x] Create milestone `v0.3.0`, Issue #34, and dedicated branch `fix/active-navigation-collapse` from exact verified main `f4a4baa`.
 - [x] Separate route activity from desktop expansion; allow active collapse/reopen; preserve active styling, breadcrumb, query navigation, compact/mobile behavior, and local-only preference storage.
@@ -15,16 +15,19 @@
 - [x] Commit/push the Import Guard candidate, merge PR #41 after exact-head CI/self-review, and verify exact-main CI/Pages.
 - [x] Complete Issue #6 browser E2E through PR #43: Chromium desktop and 390 × 844 coverage, synthetic standard/encrypted/import/export/stale-tab/modal/PWA flows, failure-only artifacts, exact-head CI/self-review, squash merge, and exact-main CI/Pages/deployment on `22c68d6`.
 
-## P0 — v0.3.0 remaining phases
+## P0 — v0.3.0 release chain
 
 - [x] Phase B: Issue #36 isolated-profile Zotero 8/9 manual gate and plugin PR merge.
 - [x] Phase C: Issue #5 remote PR/CI/main/Pages closeout; schema v5 is merged through app-side Zotero PR #39.
-- [x] Phase D: revalidate Issue #37 against current official province-map source/terms/approval/completeness evidence. Result on 2026-08-15: source BLOCKED; license BLOCKED; approval metadata BLOCKED; national completeness BLOCKED / NOT TESTABLE. No production map was enabled; Issue #37 closed `not planned`. This is a release blocker, not a feature PASS.
+- [x] Phase D: preserve the Issue #37 review: source BLOCKED; license BLOCKED; approval metadata BLOCKED; national completeness BLOCKED / NOT TESTABLE. Close it `not planned`, ship no map, and treat the map as DEFERRED rather than a `v0.3.0` release blocker.
 - [x] Phase E: Issue #6 browser E2E, deterministic reload persistence, failure-only artifacts, and exact-main CI/Pages closeout.
 - [x] Phase F1: Issue #44 — merge current Node 24-backed official Actions majors, bounded Dependabot, CodeQL v4, and official-registry high/critical npm audit through PR #46; exact-head CI/CodeQL, self-review P0 = 0 / P1 = 0, exact-main CI/CodeQL/Pages/deployment passed on `a8ce50d`.
 - [x] Phase F2: complete Issue #45 through PR #50 for privacy-safe diagnostics, bilingual feedback entry/template, citation/maintainer metadata, release checklist, and truthful Codex-for-OSS draft. Exact head `ad5b427` passed push/PR CI, CodeQL, and P0 = 0 / P1 = 0 self-review; squash main `f7dbbcd4` passed exact-main CI `31866861053`, CodeQL `31866861181`, Pages `31866861000`, and deployment `5917489979`.
 - [x] Merge documentation-only blocker closeout PR #51 as `b5db4004` after exact-head push/PR CI, CodeQL, and P0 = 0 / P1 = 0 review; pass exact-main CI `31867678590`, CodeQL `31867678601`, Pages `31867678706`, and deployment `5917613148` without changing a map gate or publishing `v0.3.0`.
-- [x] Stop the cycle at `V0.3.0 BLOCKED / NOT RELEASED`. Do not start a release branch, create `v0.3.0`, or begin further v0.3 work while the mandatory map contract remains unsatisfied.
+- [x] Pass the full local release gate: 37 files / 328 tests, 9 browser E2E passes with 7 project-configured skips, production/PWA build, 8/8 Zotero plugin tests, independent deterministic XPI checksum, high/critical audit 0, synthetic-only browser and migration review, and no real Zotero/profile/account data.
+- [ ] Open `release: Sociology PhD Desk v0.3.0`, pass exact-head CI/CodeQL and P0 = 0 / P1 = 0 maintainer self-review, then merge the reviewed tree.
+- [ ] Verify exact main CI/CodeQL/Pages/public deployment, create an annotated `v0.3.0` tag, publish UTF-8 bilingual Release Notes and both Zotero assets, and verify the downloaded public XPI checksum.
+- [ ] Complete a documentation-only post-release closeout with current public metrics, then stop at `V0.3.0 ADOPTION & EXTERNAL TESTING`; do not start `v0.4`.
 
 ## P0 — v0.2.2 Simplicity & Motion
 

@@ -27,7 +27,7 @@
 - [标准地图服务](https://bzdt.tianditu.gov.cn/)没有向本项目提供覆盖响应式交互转换、GitHub 仓库、Pages、分叉与归档的书面许可；项目也没有最终成品的审图号、批准样图、有效期和资产哈希。
 - [民政部行政区划代码服务](https://dmfw.mca.gov.cn/XzqhVersionPublish.html)仍不能替代边界几何权利、公开地图审图或港澳台完整下级层级来源。
 
-因此四项结果原值保留。发布时 Issue [#37](https://github.com/Yoesher/sociology-phd-desk/issues/37#issuecomment-5300741522)按 `not planned` 关闭；这表示实施条件未满足，不表示地图已完成。由于本轮冻结合同把地图设为 `v0.3.0` 必选项，`v0.3.0` 处于 **BLOCKED / NOT RELEASED**，不得创建发布分支、tag 或 GitHub Release。
+因此四项结果原值保留。发布时 Issue [#37](https://github.com/Yoesher/sociology-phd-desk/issues/37#issuecomment-5300741522)按 `not planned` 关闭；这表示实施条件未满足，不表示地图已完成。后续发布决策只改变版本范围：地图正式从 `v0.3.0` 排除，不再阻塞其余已验证功能，四项地图门禁本身仍未通过。
 
 ## 候选来源核验
 
@@ -120,4 +120,4 @@ Phase 3D 只有在以下证据全部落盘并经维护者复核后才可继续�
 
 ## 当前仓库边界
 
-本次 BLOCKED 收口只提交了文档与项目状态记录。PR #16 已合并，Issues #8/#37 已按 `not planned` 关闭；这些流程状态不会把任何门禁改成 PASS。仓库中不得新增 `public/map/**`、中国 SVG/GeoJSON/TopoJSON、行政区生产主数据、外部地图请求或启用地区写入的生产代码。Phase 3D 在自身门禁通过前保持暂缓；本轮地图必选的 `v0.3.0` 不能发布。
+本次 BLOCKED 收口只提交了文档与项目状态记录。PR #16 已合并，Issues #8/#37 已按 `not planned` 关闭；这些流程状态不会把任何门禁改成 PASS。仓库中不得新增 `public/map/**`、中国 SVG/GeoJSON/TopoJSON、行政区生产主数据、外部地图请求或启用地区写入的生产代码。中国省级田野地图因公开地图来源、再分发、项目审图与完整性条件尚未形成可验证闭环，暂缓发布。该功能不再阻塞 v0.3.0，未来只有在合规条件明确后才重新评估。

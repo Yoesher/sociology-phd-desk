@@ -13,4 +13,4 @@ npm run build:zotero
 
 The deterministic build writes the XPI and checksum to `integrations/zotero-plugin/dist/`. The build script creates the archive twice in memory and fails if the bytes differ.
 
-Install the XPI only into an isolated Zotero 8 or Zotero 9 testing profile during development. `v0.3.0` is blocked and was not released, so no public plugin asset currently exists; the bilingual Zotero integration guides record this distribution boundary instead of pointing to a nonexistent Release.
+Install the XPI only into an isolated Zotero 8 or Zotero 9 testing profile during development. The `v0.3.0` candidate will publish this file as a Release asset only after its reproducible build, checksum, PR, exact-main, and public-download gates pass; until then the bilingual guides intentionally omit a public asset link.
