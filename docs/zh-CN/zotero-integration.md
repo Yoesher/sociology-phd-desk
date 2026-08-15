@@ -4,11 +4,9 @@ Sociology PhD Desk Zotero 插件 `0.1.0` 支持 Zotero 8 和 Zotero 9；发布�
 
 ## 安装
 
-1. 从 Sociology PhD Desk `v0.3.0` GitHub Release 下载 `sociology-phd-desk-zotero-0.1.0.xpi` 和同名 `.sha256` 文件。
-2. 核对 XPI 的 SHA-256 与校验文件一致。
-3. 打开 Zotero 8 或 Zotero 9 的“工具 → 插件”。
-4. 点击齿轮菜单，选择“从文件安装插件”，并选中 XPI。
-5. 如果 Zotero 提示，重启 Zotero。
+`v0.3.0` 因强制地图合规门禁未通过而没有发布，因此目前不存在可供普通用户下载的 `v0.3.0` Release XPI。请勿使用不存在的 Release 链接，也不要把源码构建描述成正式发布。
+
+维护者或明确同意参加测试的研究者可以从精确仓库修订执行 `npm ci` 和 `npm run build:zotero`，在 `integrations/zotero-plugin/dist/` 生成 `sociology-phd-desk-zotero-0.1.0.xpi` 与 `.sha256`。核对 SHA-256 后，只在隔离的 Zotero 8 或 Zotero 9 测试 profile 中通过“工具 → 插件 → 齿轮菜单 → 从文件安装插件”安装，并按提示重启。正式公开安装步骤将在未来单独授权并实际发布插件资产后更新。
 
 ## 发送文献
 
