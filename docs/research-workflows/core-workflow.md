@@ -1,6 +1,6 @@
 # Core Sociology Research Workflow
 
-This document explains the research lifecycle the product is intended to coordinate. It does not prescribe a single method or linear research practice. Published [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1), at exact release SHA [`8db828f`](https://github.com/Yoesher/sociology-phd-desk/commit/8db828faaa94f7591dbd806abe90916335862187), retains the complete v0.2.0 research workflow while adding installable/offline distribution and user-approved updates; it adds no research entity.
+This document explains the research lifecycle the product is intended to coordinate. It does not prescribe a single method or linear research practice. Published [`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0), at exact release SHA [`bb0d32f`](https://github.com/Yoesher/sociology-phd-desk/commit/bb0d32fe99348204ba89a16d6469014ae38e0ecf), retains the complete local-first workflow while adding guarded Zotero provenance/import and browser E2E; it does not import private Zotero notes, PDFs, attachments, or annotations.
 
 ## Lifecycle map
 

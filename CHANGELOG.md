@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-No unreleased changes are recorded after the `v0.3.0` release candidate.
+No unreleased changes are recorded after the formal `v0.3.0` Release.
 
 ## [0.3.0] - 2026-08-15
 
