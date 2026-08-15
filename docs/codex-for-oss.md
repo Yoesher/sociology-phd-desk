@@ -2,18 +2,18 @@
 
 Sociology PhD Desk may consider applying to an OpenAI open-source support program in the future. This file is an evidence register, not an application and not a claim of eligibility. No application should be submitted automatically.
 
-## Current v0.3.0 maintenance snapshot
+## v0.3.0 maintenance snapshot after PR #51
 
-**Collected on 2026-08-15 from public repository/release APIs and project records.**
+**Collected on 2026-08-15 from public repository/release APIs and project records after PR #51 merged and before this documentation truth correction.**
 
-| Metric | Current verified value | Interpretation |
+| Metric | Verified snapshot value | Interpretation |
 | --- | --- | --- |
-| Public repository | [Yoesher/sociology-phd-desk](https://github.com/Yoesher/sociology-phd-desk) | Public MIT-licensed repository; current verified `main` after PR #50 is `f7dbbcd4c861517beb952a0526d2c4b1982beff4`. |
+| Public repository | [Yoesher/sociology-phd-desk](https://github.com/Yoesher/sociology-phd-desk) | Public MIT-licensed repository; the non-map feature tree after PR #50 is `f7dbbcd4c861517beb952a0526d2c4b1982beff4`, followed by documentation-only blocker closeout PR #51 at `b5db4004f5a8d180e063451de98921f461a5e9f9`. Both exact-main gates passed. |
 | Current release | [`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) | Latest of 4 non-draft, non-prerelease Releases; `v0.3.0` is not released. |
 | Maintainer | `Yoesher` | Primary maintainer; this is not external-community evidence. |
 | Stars / Forks | 3 / 0 | Public repository API values; Stars are not users, testers, or endorsements. |
 | Issues | 3 open / 17 closed | Public issue-only API count; Pull Requests are excluded. Issues #45 and #37 closed as completed and `not planned`, respectively. |
-| Pull Requests | 3 open / 27 merged | The three open PRs are automated Dependabot updates. Project records verify no external human Pull Request. |
+| Pull Requests | 3 open / 28 merged | The three open PRs are automated Dependabot updates. Project records verify no external human Pull Request. |
 | Known external testers | 0 verified | Maintainer tests, isolated Zotero profiles, CI, and browser automation are not external testing. |
 | Known external human contributors | 0 verified | Current project records verify none; automated dependency PRs are not human contributors. |
 | Institutional adoption | None known | No institution has supplied adoption evidence. |

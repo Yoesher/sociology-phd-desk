@@ -1,6 +1,6 @@
 # Next Tasks
 
-> `v0.2.2` remains the published release. All authorized non-map `v0.3.0` increments are merged and exact-main verified through `f7dbbcd4`, but the mandatory release-time map review retained all four gates as BLOCKED. Issue #37 is closed `not planned`; `v0.3.0` is BLOCKED / NOT RELEASED. Do not create a release branch, tag, or Release.
+> `v0.2.2` remains the published release. All authorized non-map `v0.3.0` feature increments are merged and exact-main verified through `f7dbbcd4`; documentation-only blocker closeout PR #51 subsequently merged as `b5db4004` and passed exact-main CI, CodeQL, Pages, and deployment. The mandatory release-time map review retained all four gates as BLOCKED. Issue #37 is closed `not planned`; `v0.3.0` is BLOCKED / NOT RELEASED. Do not create a release branch, tag, or Release.
 
 ## P0 — v0.3.0 completed foundations and final blocker
 
@@ -23,6 +23,7 @@
 - [x] Phase E: Issue #6 browser E2E, deterministic reload persistence, failure-only artifacts, and exact-main CI/Pages closeout.
 - [x] Phase F1: Issue #44 — merge current Node 24-backed official Actions majors, bounded Dependabot, CodeQL v4, and official-registry high/critical npm audit through PR #46; exact-head CI/CodeQL, self-review P0 = 0 / P1 = 0, exact-main CI/CodeQL/Pages/deployment passed on `a8ce50d`.
 - [x] Phase F2: complete Issue #45 through PR #50 for privacy-safe diagnostics, bilingual feedback entry/template, citation/maintainer metadata, release checklist, and truthful Codex-for-OSS draft. Exact head `ad5b427` passed push/PR CI, CodeQL, and P0 = 0 / P1 = 0 self-review; squash main `f7dbbcd4` passed exact-main CI `31866861053`, CodeQL `31866861181`, Pages `31866861000`, and deployment `5917489979`.
+- [x] Merge documentation-only blocker closeout PR #51 as `b5db4004` after exact-head push/PR CI, CodeQL, and P0 = 0 / P1 = 0 review; pass exact-main CI `31867678590`, CodeQL `31867678601`, Pages `31867678706`, and deployment `5917613148` without changing a map gate or publishing `v0.3.0`.
 - [x] Stop the cycle at `V0.3.0 BLOCKED / NOT RELEASED`. Do not start a release branch, create `v0.3.0`, or begin further v0.3 work while the mandatory map contract remains unsatisfied.
 
 ## P0 — v0.2.2 Simplicity & Motion

@@ -4,11 +4,9 @@ Sociology PhD Desk Zotero plugin `0.1.0` supports Zotero 8 and Zotero 9. The rel
 
 ## Install
 
-1. Download `sociology-phd-desk-zotero-0.1.0.xpi` and its `.sha256` file from the Sociology PhD Desk `v0.3.0` GitHub Release.
-2. Verify that the XPI SHA-256 matches the checksum file.
-3. In Zotero 8 or Zotero 9, open Tools → Plugins.
-4. Open the gear menu, choose Install Plugin From File, and select the XPI.
-5. Restart Zotero if prompted.
+`v0.3.0` was not released because its mandatory map-compliance gate did not pass, so no public `v0.3.0` Release XPI currently exists. Do not use a nonexistent Release link or describe a source build as a published plugin.
+
+Maintainers or researchers who explicitly agree to testing may run `npm ci` and `npm run build:zotero` from an exact repository revision. This generates `sociology-phd-desk-zotero-0.1.0.xpi` and its `.sha256` file under `integrations/zotero-plugin/dist/`. After verifying the SHA-256, install it only in an isolated Zotero 8 or Zotero 9 testing profile through Tools → Plugins → gear menu → Install Plugin From File, then restart if prompted. Public installation instructions will be updated only after a separately authorized release actually publishes the plugin assets.
 
 ## Send references
 

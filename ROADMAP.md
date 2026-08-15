@@ -25,7 +25,7 @@ The product remains sociology-specific and complements, rather than replaces, sp
 
 Phase 3 uses independently verified increments. Listing an increment here does not mean it has shipped; verified status remains in [PROJECT_STATE.md](PROJECT_STATE.md).
 
-**Current release:** [`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) remains the latest published version. The authorized non-map `v0.3.0` increments—navigation collapse, Zotero/schema v5 and plugin, guarded imports, browser E2E, security automation, and privacy-safe diagnostics—are merged through exact main `f7dbbcd4`. The mandatory Phase 3D China Research Map still has all four gates **BLOCKED**; therefore `v0.3.0` is BLOCKED / NOT RELEASED and no further v0.3 work is authorized by this cycle.
+**Current release:** [`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) remains the latest published version. The authorized non-map `v0.3.0` increments—navigation collapse, Zotero/schema v5 and plugin, guarded imports, browser E2E, security automation, and privacy-safe diagnostics—are merged through feature exact main `f7dbbcd4`; documentation-only blocker closeout PR #51 later merged as `b5db4004`. The mandatory Phase 3D China Research Map still has all four gates **BLOCKED**; therefore `v0.3.0` is BLOCKED / NOT RELEASED and no further v0.3 work is authorized by this cycle.
 
 Every implemented increment follows the same evidence chain: scoped Issue → dedicated feature branch → implementation and tests → Pull Request → passing PR CI → maintainer self-review → squash merge → passing `main` CI → GitHub Pages verification. The map's blocked gate applies to the map alone; each non-map increment must pass its own complete gate before the next begins.
 
