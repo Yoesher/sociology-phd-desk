@@ -168,13 +168,13 @@ Phase 3C adds `.sociologydesk` encrypted backup for encrypted workspaces. It is 
 
 ## Architecture
 
-The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith. Merged Phase 3B adds research questions, analytical claims, and their explicit links. Merged Phase 3C adds a metadata-only registry, per-workspace database adapters, a session gate, and a Web Crypto vault outside the domain workspace. Merged Theory adds `TheoryMemo` and advances the portable/standard axes from v3 to v4; container, vault, and registry remain independently at v1.
+The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith. Merged research-graph and Theory work adds explicit stable-ID relationships and `TheoryMemo`; local workspaces use a metadata-only registry, per-workspace database adapters, a session gate, and Web Crypto vault. Current `main` uses portable/standard v5 for separate Zotero external references; container, vault, and registry remain independently at v1.
 
 See [architecture overview](docs/architecture/overview.md), [data model](docs/architecture/data-model.md), and [decisions](DECISIONS.md).
 
 ## Roadmap
 
-The `0.1` line established the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure. `v0.2.0` has released the Chinese-first bilingual foundation, Research Question–Claim graph, private/encrypted local workspaces, Theory Research, hierarchical navigation, and integrated Manuscripts & Publishing. This cycle stops after post-release documentation closeout and does not start `v0.3.0`. The China Research Map is deferred and excluded because no verifiable public-source, redistribution, and map-approval chain has been established. It may resume only after those conditions change and are independently reviewed.
+The `0.1` line established the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure; `v0.2.x` released the bilingual workstation, encrypted workspaces, Theory, simplified navigation, and PWA. The authorized `v0.3.0` cycle has merged active-navigation collapse, Zotero Handoff/plugin, import guards, browser E2E, and security automation to `main`, but no formal `v0.3.0` Release exists yet. The province-level China fieldwork map remains governed by four hard source, redistribution, approval-metadata, and completeness gates; while any gate is blocked, no map may ship and a map-mandatory `v0.3.0` cannot be marked PASS.
 
 See [ROADMAP.md](ROADMAP.md). Roadmap entries are intentions, not delivery promises.
 
@@ -184,6 +184,7 @@ Researchers, research software engineers, designers, and documentation contribut
 
 - Read [CONTRIBUTING.en.md](CONTRIBUTING.en.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 - Use the bug, feature, or research-workflow issue form that best fits the report.
+- Researcher testing can use the [bilingual feedback form](https://github.com/Yoesher/sociology-phd-desk/issues/new?template=researcher_testing_feedback.yml) with synthetic or fully redacted material only.
 - Never attach identifiable participant information, private fieldnotes, transcripts, credentials, or proprietary research data.
 - Run lint, type checking, tests, and the production build before opening a pull request.
 
@@ -195,7 +196,7 @@ Sociology PhD Desk is a workflow tool, not an ethics review, consent-management,
 
 ## Project integrity
 
-Project activity, users, stars, forks, downloads, issues, pull requests, releases, and external adoption are reported only when they can be verified. The current evidence register is maintained in [docs/codex-for-oss.md](docs/codex-for-oss.md). The project has not automatically applied to any external program.
+Project activity, users, stars, forks, downloads, issues, pull requests, releases, and external adoption are reported only when they can be verified. The evidence register is maintained in [docs/codex-for-oss.md](docs/codex-for-oss.md); public maintainer and citation metadata are in [MAINTAINERS.md](MAINTAINERS.md) and [CITATION.cff](CITATION.cff). The project has not automatically applied to any external program.
 
 ## License
 

@@ -1,6 +1,6 @@
 # Next Tasks
 
-> `v0.2.2` remains the published release. The authorized `v0.3.0` milestone is active. Navigation, Zotero, Import Guard, and browser E2E are merged through exact main `22c68d6`; Issues #44/#45 and the release-time Issue #37 map gate remain. No `v0.3.0` Release is claimed.
+> `v0.2.2` remains the published release. The authorized `v0.3.0` milestone is active. Navigation, Zotero, Import Guard, browser E2E, and security/dependency automation are merged through exact main `a8ce50d`; Issue #45 is a local candidate and the release-time Issue #37 map gate remains. No `v0.3.0` Release is claimed.
 
 ## P0 — v0.3.0 completed foundations and active gates
 
@@ -15,14 +15,14 @@
 - [x] Commit/push the Import Guard candidate, merge PR #41 after exact-head CI/self-review, and verify exact-main CI/Pages.
 - [x] Complete Issue #6 browser E2E through PR #43: Chromium desktop and 390 × 844 coverage, synthetic standard/encrypted/import/export/stale-tab/modal/PWA flows, failure-only artifacts, exact-head CI/self-review, squash merge, and exact-main CI/Pages/deployment on `22c68d6`.
 
-## P0 — v0.3.0 later phases (blocked until Phase A exact-main passes)
+## P0 — v0.3.0 remaining phases
 
 - [x] Phase B: Issue #36 isolated-profile Zotero 8/9 manual gate and plugin PR merge.
 - [x] Phase C: Issue #5 remote PR/CI/main/Pages closeout; schema v5 is merged through app-side Zotero PR #39.
 - [ ] Phase D: Issue #37 — current official province-map source/terms/approval/completeness gate; enable no production map unless every mandatory gate passes.
 - [x] Phase E: Issue #6 browser E2E, deterministic reload persistence, failure-only artifacts, and exact-main CI/Pages closeout.
-- [ ] Phase F1: Issue #44 — merge the current Node 24-backed official Actions majors, bounded Dependabot, CodeQL v4, and high/critical npm audit after exact-head CI/self-review. Current local candidate gates pass; remote state is pending.
-- [ ] Phase F2: Issue #45 — privacy-safe diagnostics, bilingual feedback entry/template, citation/maintainer metadata, release checklist, and truthful Codex-for-OSS draft.
+- [x] Phase F1: Issue #44 — merge current Node 24-backed official Actions majors, bounded Dependabot, CodeQL v4, and official-registry high/critical npm audit through PR #46; exact-head CI/CodeQL, self-review P0 = 0 / P1 = 0, exact-main CI/CodeQL/Pages/deployment passed on `a8ce50d`.
+- [ ] Phase F2: Issue #45 — finish the remote PR chain for privacy-safe diagnostics, bilingual feedback entry/template, citation/maintainer metadata, release checklist, and truthful Codex-for-OSS draft. The exact local candidate passed `npm ci`, official-registry audit with zero vulnerabilities, lint with zero warnings, typecheck, 37 files / 328 unit tests, production/PWA build, 9 Playwright tests with 7 project-configured skips, 8 Zotero synthetic tests plus reproducible-XPI verification, YAML parsing, and diff check. PR/CI/self-review/merge/exact-main remain pending.
 
 ## P0 — v0.2.2 Simplicity & Motion
 

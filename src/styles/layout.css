@@ -309,9 +309,15 @@
   padding-inline: 7px;
 }
 
-.settings-nav__tools > button {
+.settings-nav__tools > button,
+.settings-nav__tools > a {
+  display: flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 0;
   color: inherit;
   text-align: left;
+  text-decoration: none;
   background: transparent;
 }
 

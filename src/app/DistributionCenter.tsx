@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Download, HardDrive, Laptop, RefreshCw, ShieldCheck } from 'lucide-react'
+import { Download, FileDown, HardDrive, Laptop, RefreshCw, ShieldCheck } from 'lucide-react'
 import { Button, Field } from '../components/ui'
 import { useI18n } from '../i18n'
 import type { WorkspaceRegistryEntry } from '../models/workspace-registry'
@@ -11,6 +11,13 @@ import {
   writeBackupReminderDays,
   type BackupReminderDays,
 } from './backupReminder'
+import type { WorkspaceData } from '../models/domain'
+import {
+  buildDiagnosticReport,
+  detectPwaDisplayMode,
+  downloadDiagnosticReport,
+  inspectServiceWorker,
+} from './diagnostics'
 
 type PersistenceState = 'checking' | 'unsupported' | 'granted' | 'not-granted'
 interface StorageEstimate { usage: number; quota: number }
@@ -18,9 +25,11 @@ interface StorageEstimate { usage: number; quota: number }
 export function DistributionCenter({
   activeWorkspace,
   onOpenBackup,
+  onPrepareDiagnostics,
 }: {
   activeWorkspace: WorkspaceRegistryEntry | null
   onOpenBackup?: () => void
+  onPrepareDiagnostics?: () => Promise<WorkspaceData>
 }) {
   const { locale, t, formatDate } = useI18n()
   const update = useUpdateManager()
@@ -29,6 +38,8 @@ export function DistributionCenter({
   const [reminderDays, setReminderDays] = useState<BackupReminderDays>(readBackupReminderDays)
   const [storageEstimate, setStorageEstimate] = useState<StorageEstimate | null>(null)
   const [installationHelpOpen, setInstallationHelpOpen] = useState(false)
+  const [exportingDiagnostics, setExportingDiagnostics] = useState(false)
+  const [diagnosticStatus, setDiagnosticStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
   useEffect(() => {
     let active = true
@@ -75,6 +86,32 @@ export function DistributionCenter({
   const formatStorage = (bytes: number) => new Intl.NumberFormat(locale, {
     style: 'unit', unit: 'megabyte', maximumFractionDigits: 1,
   }).format(bytes / 1_048_576)
+
+  const exportDiagnostics = async () => {
+    if (!activeWorkspace || !onPrepareDiagnostics || exportingDiagnostics) return
+    setExportingDiagnostics(true)
+    setDiagnosticStatus('idle')
+    try {
+      const [snapshot, serviceWorker] = await Promise.all([
+        onPrepareDiagnostics(),
+        inspectServiceWorker(update.state),
+      ])
+      const generatedAt = new Date().toISOString()
+      downloadDiagnosticReport(buildDiagnosticReport({
+        generatedAt,
+        entry: activeWorkspace,
+        snapshot,
+        userAgent: navigator.userAgent,
+        pwaMode: detectPwaDisplayMode(),
+        serviceWorker,
+      }))
+      setDiagnosticStatus('success')
+    } catch {
+      setDiagnosticStatus('error')
+    } finally {
+      setExportingDiagnostics(false)
+    }
+  }
 
   return (
     <section className="distribution-center" aria-labelledby="distribution-center-title">
@@ -177,6 +214,26 @@ export function DistributionCenter({
             <li>{t('distribution.transfer.step3')}</li>
           </ol>
           {onOpenBackup && <Button onClick={onOpenBackup}>{t('distribution.transfer.action')}</Button>}
+        </article>
+        <article>
+          <FileDown size={20} />
+          <h3>{t('distribution.diagnostics.title')}</h3>
+          <p>{t('distribution.diagnostics.body')}</p>
+          <p>{t('distribution.diagnostics.privacy')}</p>
+          {!onPrepareDiagnostics && <p>{t('distribution.diagnostics.unlock')}</p>}
+          <Button
+            disabled={!onPrepareDiagnostics || exportingDiagnostics}
+            onClick={() => void exportDiagnostics()}
+          >
+            {t(exportingDiagnostics
+              ? 'distribution.diagnostics.exporting'
+              : 'distribution.diagnostics.action')}
+          </Button>
+          {diagnosticStatus !== 'idle' && (
+            <p role={diagnosticStatus === 'error' ? 'alert' : 'status'}>
+              {t(`distribution.diagnostics.${diagnosticStatus}`)}
+            </p>
+          )}
         </article>
       </div>
 

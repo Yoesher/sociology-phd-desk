@@ -16,6 +16,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Moved CI and Pages to the current official Node 24-backed action majors, including checkout/setup, artifact handling, and Pages deployment.
 - Added bounded weekly Dependabot checks for npm and GitHub Actions plus official JavaScript/TypeScript CodeQL analysis.
 - Added a release gate that blocks high or critical npm dependency advisories without treating registry failures as a pass.
+- Added a local-only, versioned diagnostic export that flushes and verifies an unlocked workspace, then emits only app/browser/schema/PWA/service-worker/migration status and aggregate record counts. Workspace identifiers and all research or Zotero content, passphrases, and keys are excluded.
+- Added bilingual in-app issue/researcher-feedback links with no workspace payload, a sensitive-data warning feedback template, citation and maintainer metadata, and a reusable maintainer release checklist.
+- Added a current-form Codex for Open Source evidence register and character-limited draft while retaining zero verified external testers/contributors and prohibiting automatic submission.
 
 ## [0.2.2] - 2026-08-13
 
