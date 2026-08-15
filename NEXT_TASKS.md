@@ -1,8 +1,8 @@
 # Next Tasks
 
-> `v0.2.2` remains the published release. The authorized `v0.3.0` milestone is active. Navigation, Zotero, Import Guard, browser E2E, and security/dependency automation are merged through exact main `a8ce50d`; Issue #45 is a local candidate and the release-time Issue #37 map gate remains. No `v0.3.0` Release is claimed.
+> `v0.2.2` remains the published release. All authorized non-map `v0.3.0` increments are merged and exact-main verified through `f7dbbcd4`, but the mandatory release-time map review retained all four gates as BLOCKED. Issue #37 is closed `not planned`; `v0.3.0` is BLOCKED / NOT RELEASED. Do not create a release branch, tag, or Release.
 
-## P0 — v0.3.0 completed foundations and active gates
+## P0 — v0.3.0 completed foundations and final blocker
 
 - [x] Create milestone `v0.3.0`, Issue #34, and dedicated branch `fix/active-navigation-collapse` from exact verified main `f4a4baa`.
 - [x] Separate route activity from desktop expansion; allow active collapse/reopen; preserve active styling, breadcrumb, query navigation, compact/mobile behavior, and local-only preference storage.
@@ -19,10 +19,11 @@
 
 - [x] Phase B: Issue #36 isolated-profile Zotero 8/9 manual gate and plugin PR merge.
 - [x] Phase C: Issue #5 remote PR/CI/main/Pages closeout; schema v5 is merged through app-side Zotero PR #39.
-- [ ] Phase D: Issue #37 — current official province-map source/terms/approval/completeness gate; enable no production map unless every mandatory gate passes.
+- [x] Phase D: revalidate Issue #37 against current official province-map source/terms/approval/completeness evidence. Result on 2026-08-15: source BLOCKED; license BLOCKED; approval metadata BLOCKED; national completeness BLOCKED / NOT TESTABLE. No production map was enabled; Issue #37 closed `not planned`. This is a release blocker, not a feature PASS.
 - [x] Phase E: Issue #6 browser E2E, deterministic reload persistence, failure-only artifacts, and exact-main CI/Pages closeout.
 - [x] Phase F1: Issue #44 — merge current Node 24-backed official Actions majors, bounded Dependabot, CodeQL v4, and official-registry high/critical npm audit through PR #46; exact-head CI/CodeQL, self-review P0 = 0 / P1 = 0, exact-main CI/CodeQL/Pages/deployment passed on `a8ce50d`.
-- [ ] Phase F2: Issue #45 — finish the remote PR chain for privacy-safe diagnostics, bilingual feedback entry/template, citation/maintainer metadata, release checklist, and truthful Codex-for-OSS draft. The exact local candidate passed `npm ci`, official-registry audit with zero vulnerabilities, lint with zero warnings, typecheck, 37 files / 328 unit tests, production/PWA build, 9 Playwright tests with 7 project-configured skips, 8 Zotero synthetic tests plus reproducible-XPI verification, YAML parsing, and diff check. PR/CI/self-review/merge/exact-main remain pending.
+- [x] Phase F2: complete Issue #45 through PR #50 for privacy-safe diagnostics, bilingual feedback entry/template, citation/maintainer metadata, release checklist, and truthful Codex-for-OSS draft. Exact head `ad5b427` passed push/PR CI, CodeQL, and P0 = 0 / P1 = 0 self-review; squash main `f7dbbcd4` passed exact-main CI `31866861053`, CodeQL `31866861181`, Pages `31866861000`, and deployment `5917489979`.
+- [x] Stop the cycle at `V0.3.0 BLOCKED / NOT RELEASED`. Do not start a release branch, create `v0.3.0`, or begin further v0.3 work while the mandatory map contract remains unsatisfied.
 
 ## P0 — v0.2.2 Simplicity & Motion
 

@@ -8,17 +8,17 @@ Sociology PhD Desk may consider applying to an OpenAI open-source support progra
 
 | Metric | Current verified value | Interpretation |
 | --- | --- | --- |
-| Public repository | [Yoesher/sociology-phd-desk](https://github.com/Yoesher/sociology-phd-desk) | Public MIT-licensed repository; current verified `main` before Issue #45 is `a8ce50d55ce826da751ddf856f73c31f2cc0a8a1`. |
+| Public repository | [Yoesher/sociology-phd-desk](https://github.com/Yoesher/sociology-phd-desk) | Public MIT-licensed repository; current verified `main` after PR #50 is `f7dbbcd4c861517beb952a0526d2c4b1982beff4`. |
 | Current release | [`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) | Latest of 4 non-draft, non-prerelease Releases; `v0.3.0` is not released. |
 | Maintainer | `Yoesher` | Primary maintainer; this is not external-community evidence. |
 | Stars / Forks | 3 / 0 | Public repository API values; Stars are not users, testers, or endorsements. |
-| Issues | 5 open / 15 closed | Public issue-only API count; Pull Requests are excluded. |
-| Pull Requests | 3 open / 26 merged | The three open PRs are automated Dependabot updates. Project records verify no external human Pull Request. |
+| Issues | 3 open / 17 closed | Public issue-only API count; Pull Requests are excluded. Issues #45 and #37 closed as completed and `not planned`, respectively. |
+| Pull Requests | 3 open / 27 merged | The three open PRs are automated Dependabot updates. Project records verify no external human Pull Request. |
 | Known external testers | 0 verified | Maintainer tests, isolated Zotero profiles, CI, and browser automation are not external testing. |
 | Known external human contributors | 0 verified | Current project records verify none; automated dependency PRs are not human contributors. |
 | Institutional adoption | None known | No institution has supplied adoption evidence. |
 
-The `v0.3.0` milestone has merged the active-navigation collapse fix, Zotero literature handoff/import and reproducible plugin 0.1.0, guarded import preflight, browser E2E, and security/dependency automation through PRs #38, #39, #40, #41, #42, #43, and #46. Exact-main CI and Pages were verified after each merge. Zotero manual evidence used isolated synthetic testing profiles for Zotero 8 and the locally installed Zotero 9.0.6; no real Zotero library, account, profile, notes, attachments, or sync state was accessed. Issue #45 is the current local diagnostics/feedback/maintenance-metadata candidate and is not yet merged.
+The `v0.3.0` milestone merged the active-navigation collapse fix, Zotero literature handoff/import and reproducible plugin 0.1.0, guarded import preflight, browser E2E, security/dependency automation, and privacy-safe diagnostics/feedback through PRs #38, #39, #40, #41, #42, #43, #46, and #50. Exact-main CI and Pages were verified after each merge. Zotero manual evidence used isolated synthetic testing profiles for Zotero 8 and the locally installed Zotero 9.0.6; no real Zotero library, account, profile, notes, attachments, or sync state was accessed. The mandatory China map gate remained BLOCKED, so no `v0.3.0` Release was created.
 
 `APPLICATION_READINESS = MODERATE — strong maintenance evidence, limited external adoption evidence.` The current form-aligned draft is [codex-for-oss-application-draft.md](codex-for-oss-application-draft.md). No application has been submitted.
 

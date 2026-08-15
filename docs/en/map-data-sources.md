@@ -1,8 +1,8 @@
 # China Research Map: data-source and compliance gate
 
 > Status: **BLOCKED**
-> Reviewed: 2026-08-12
-> Scope: Phase 3D / Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8), now `CLOSED_NOT_PLANNED`
+> Reviewed: 2026-08-12; v0.3.0 release-time revalidation: 2026-08-15
+> Scope: Phase 3D / Issue [#8](https://github.com/Yoesher/sociology-phd-desk/issues/8) and release-time Issue [#37](https://github.com/Yoesher/sociology-phd-desk/issues/37), both `CLOSED_NOT_PLANNED`
 > Closeout: documentation-only [PR #16](https://github.com/Yoesher/sociology-phd-desk/pull/16) merged as [`ca4429f`](https://github.com/Yoesher/sociology-phd-desk/commit/ca4429facfa124e85c3dba37f9ce7da270a82601); exact-`main` CI and Pages passed. No map shipped.
 
 This file records the provenance, licensing, map-review, and completeness evidence required before the China Research Map may ship any production administrative catalog, boundary geometry, or public interactive map. It is not legal advice. Public map display, data redistribution, and format conversion still require formal confirmation from the competent authority or a qualified mapping provider.
@@ -17,6 +17,17 @@ This file records the provenance, licensing, map-review, and completeness eviden
 | `NATIONAL_MAP_COMPLETENESS` | `BLOCKED / NOT TESTABLE` | Without an approved final asset, the province–prefecture–county hierarchy, Hong Kong, Macao, Taiwan, South China Sea islands, Diaoyu Dao, and no-cropping requirements cannot be tested. |
 
 If any gate is not `PASS`, the Phase 3D map implementation cannot merge or deploy. The China Research Map is therefore deferred and excluded from `v0.2.0`; these findings do not block the release's non-map Theory, navigation, publishing, or stabilization work.
+
+## 2026-08-15 release-time revalidation
+
+For `v0.3.0`, the maintainer narrowly rechecked the known first-party official pages. No dataset was downloaded, no catalog was collected in bulk, no map-service account was used, and no crawler was run:
+
+- The [1:1,000,000 public base-data page](https://www.webmap.cn/commres.do?method=result100W) still identifies the download as vector data rather than a final map and requires map review for a map published to society.
+- The [National Catalogue service terms](https://www.webmap.cn/main.do?clickFlag=about&method=otherService) still state that, without permission from the competent authority, data may not be transferred for payment or free of charge or used as part of a database, product, or service distributed externally.
+- The [Standard Map Service](https://bzdt.tianditu.gov.cn/) has not supplied this project with written rights covering responsive interactive transformation, GitHub repositories, Pages, forks, and archives. The project also lacks a final-output review number, approved specimen, validity period, and asset hash.
+- The [Ministry of Civil Affairs division-code service](https://dmfw.mca.gov.cn/XzqhVersionPublish.html) does not replace geometry rights, public-map approval, or complete sourced sublevels for Hong Kong, Macao, and Taiwan.
+
+All four gate values therefore remain unchanged. Release-time Issue [#37](https://github.com/Yoesher/sociology-phd-desk/issues/37#issuecomment-5300741522) was closed as `not planned`; that means the implementation conditions were not met, not that a map was completed. Because the frozen scope made the map mandatory for `v0.3.0`, the release is **BLOCKED / NOT RELEASED** and no release branch, tag, or GitHub Release may be created.
 
 ## Candidate-source review
 
@@ -109,4 +120,4 @@ Phase 3D may resume only after all of the following evidence is committed and ma
 
 ## Current repository boundary
 
-This BLOCKED closeout added only documentation and project-state records. PR #16 is merged and Issue #8 is closed as not planned; those workflow states do not turn any gate into PASS. The repository must not gain `public/map/**`, a China SVG/GeoJSON/TopoJSON asset, a production administrative catalog, an external map request, or production code that stores unverified region references. Phase 3D remains deferred until its own gates pass and is not part of `v0.2.0`; non-map release work may proceed independently.
+This BLOCKED closeout added only documentation and project-state records. PR #16 is merged and Issues #8/#37 are closed as `not planned`; those workflow states do not turn any gate into PASS. The repository must not gain `public/map/**`, a China SVG/GeoJSON/TopoJSON asset, a production administrative catalog, an external map request, or production code that stores unverified region references. Phase 3D remains deferred until its own gates pass; the map-mandatory `v0.3.0` cannot be released.

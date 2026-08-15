@@ -40,7 +40,7 @@ This document follows the current [official Codex for Open Source form](https://
 
 ## Evidence snapshot
 
-As of 2026-08-15: 3 Stars, 0 Forks, 5 open Issues, 15 closed Issues, 3 open Pull Requests (automated Dependabot updates), 26 merged Pull Requests, 4 Releases, 0 verified external testers, and 0 verified external human contributors in project records. The current published release is `v0.2.2`; `v0.3.0` is under active milestone development and is not yet released.
+As of 2026-08-15: 3 Stars, 0 Forks, 3 open Issues, 17 closed Issues, 3 open Pull Requests (automated Dependabot updates), 27 merged Pull Requests, 4 Releases, 0 verified external testers, and 0 verified external human contributors in project records. The current published release is `v0.2.2`; all authorized non-map `v0.3.0` increments are merged, but the mandatory map compliance gate is BLOCKED and `v0.3.0` is not released.
 
 Maintenance evidence includes reproducible local and CI gates, exact-head self-review, exact-main CI/Pages verification, CodeQL, weekly Dependabot, high/critical npm audit gating, browser E2E with synthetic fixtures, encrypted-workspace migration tests, and a reproducible Zotero plugin tested only with isolated synthetic Zotero 8 and Zotero 9 profiles.
 

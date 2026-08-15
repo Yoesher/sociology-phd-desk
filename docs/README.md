@@ -2,7 +2,7 @@
 
 This directory contains durable product, architecture, workflow, release, and project-integrity documentation.
 
-Current status boundary: [`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) remains the latest formal Release. The authorized `v0.3.0` milestone is active with navigation, Zotero Handoff/plugin, portable/standard schema v5, guarded imports, browser E2E, and security automation merged; diagnostics/feedback metadata and the release-time China map compliance gate remain in progress. No `v0.3.0` Release is claimed. See [`../PROJECT_STATE.md`](../PROJECT_STATE.md).
+Current status boundary: [`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) remains the latest formal Release. The authorized non-map `v0.3.0` work is merged through exact main `f7dbbcd4`, including navigation, Zotero/schema v5, guarded imports, browser E2E, security automation, and privacy-safe diagnostics. The mandatory release-time China map review remained BLOCKED on all four gates, so `v0.3.0` is BLOCKED / NOT RELEASED and no tag or Release exists. See [`../PROJECT_STATE.md`](../PROJECT_STATE.md).
 
 ## Architecture
 
