@@ -250,6 +250,15 @@ Persistent storage is requested only after user action, because browser approval
 - **Date:** 2026-08-15
 - **Status:** Accepted for the v0.3.0 diagnostics candidate
 - **Decision:** Diagnostic export is a local, user-triggered JSON download built from an explicit versioned allowlist. It may include application/build/schema versions, browser user agent, browser/PWA and service-worker state, standard/encrypted workspace mode, aggregate per-collection counts, and coarse migration/schema status. It must not include workspace names or identifiers, record identifiers, titles, aliases, notes, claims, TheoryMemo text, evidence, Zotero metadata, passphrases, keys, or any user-authored research content. The application never uploads the file automatically.
+
 - **Consistency boundary:** Before deriving counts, an open workspace runtime flushes pending writes and re-reads the latest committed snapshot while verifying session and workspace identity. A locked, unopened, changed, or unverifiable session cannot export counts. The verified snapshot is reduced immediately to counts and is not embedded in the report.
 - **Feedback boundary:** In-app issue and research-workflow feedback actions use static GitHub form URLs with no workspace-derived query or fragment. Both public forms warn users to attach only synthetic or fully redacted material.
 - **Consequences:** Diagnostic changes require allowlist and content-absence tests. New report fields need an explicit privacy review; adding arbitrary error payloads, storage keys, URLs containing handoff data, or record samples is prohibited.
+
+## ADR-024 — Defer the China Research Map from v0.3.0 without weakening its compliance gate
+
+- **Date:** 2026-08-15
+- **Status:** Accepted
+- **Decision:** The province-level China fieldwork map is DEFERRED and excluded from `v0.3.0`. The four existing source, redistribution/license, project-review metadata, and national-completeness gates remain BLOCKED / NOT TESTABLE; no gate is reinterpreted as PASS. The release ships no map code, geometry, administrative master catalog, external map API or tile request, region persistence, precise participant location, or completion claim. This decision supersedes only the earlier release-sequencing consequence that made the map mandatory for `v0.3.0`; it does not rewrite the prior evidence or architecture decisions.
+- **Rationale:** The verified non-map release adds independently useful, tested Zotero, migration, import-safety, navigation, browser, security, diagnostic, and maintenance improvements. Holding those changes indefinitely would not improve the unresolved map evidence. Preserving the compliance audit while removing the map from this release keeps both the product claim and the legal/data-integrity boundary honest.
+- **Consequences:** 中国省级田野地图因公开地图来源、再分发、项目审图与完整性条件尚未形成可验证闭环，暂缓发布。该功能不再阻塞 v0.3.0，未来只有在合规条件明确后才重新评估。 The feature may be reconsidered only if those conditions materially change and a future scoped issue reopens the complete gate. This is not a claim that the map is illegal, impossible, completed, or abandoned forever.

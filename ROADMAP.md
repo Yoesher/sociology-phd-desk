@@ -25,7 +25,7 @@ The product remains sociology-specific and complements, rather than replaces, sp
 
 Phase 3 uses independently verified increments. Listing an increment here does not mean it has shipped; verified status remains in [PROJECT_STATE.md](PROJECT_STATE.md).
 
-**Current release:** [`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) remains the latest published version. The authorized non-map `v0.3.0` increments—navigation collapse, Zotero/schema v5 and plugin, guarded imports, browser E2E, security automation, and privacy-safe diagnostics—are merged through feature exact main `f7dbbcd4`; documentation-only blocker closeout PR #51 later merged as `b5db4004`. The mandatory Phase 3D China Research Map still has all four gates **BLOCKED**; therefore `v0.3.0` is BLOCKED / NOT RELEASED and no further v0.3 work is authorized by this cycle.
+**Current release:** [`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) remains the latest published version while the non-map `v0.3.0` release candidate is finalized from exact main `79d2d5a`. Navigation collapse, Zotero/schema v5 and plugin, guarded imports, browser E2E, security automation, and privacy-safe diagnostics are merged. The Phase 3D China Research Map keeps all four gates **BLOCKED**, but is DEFERRED and excluded from `v0.3.0`; it no longer blocks that release.
 
 Every implemented increment follows the same evidence chain: scoped Issue → dedicated feature branch → implementation and tests → Pull Request → passing PR CI → maintainer self-review → squash merge → passing `main` CI → GitHub Pages verification. The map's blocked gate applies to the map alone; each non-map increment must pass its own complete gate before the next begins.
 
@@ -60,7 +60,7 @@ Every implemented increment follows the same evidence chain: scoped Issue → de
 - Do not use an arbitrary third-party boundary file as a temporary substitute. If the source and legal conditions cannot be verified, the map remains planned rather than shipped.
 - Preserve local-first operation, never transmit user notes or fieldwork data to GitHub Pages or a map service, and provide a useful non-map fallback for linked regional research notes.
 
-The 2026-08-12 review found every mandatory map gate blocked. A 2026-08-15 release-time revalidation found the official distribution and map-review boundary unchanged, retained all four BLOCKED results, and closed Issue #37 as `not planned`. No production map or asset shipped. Because the authorized v0.3.0 contract made the map mandatory, this blocks the release as a whole. A later cycle may reconsider the feature only after all four gates are independently verified.
+The 2026-08-12 review found every mandatory map gate blocked. A 2026-08-15 release-time revalidation found the official distribution and map-review boundary unchanged, retained all four BLOCKED results, and closed Issue #37 as `not planned`. No production map or asset shipped. The province-level China fieldwork map is deferred because public-source, redistribution, project-review, and completeness requirements are not yet verifiable for this deployment. It is excluded from v0.3.0 and may be reconsidered only if those conditions materially change.
 
 ### Phase 3E — Theory Research workspace (released in `v0.2.0`)
 
@@ -132,7 +132,7 @@ Release criteria:
 
 ## `0.3.x` — reproducibility and qualitative traceability
 
-The attempted `v0.3.0` cycle completed and merged its non-map maintenance and Zotero scope but stopped at `BLOCKED / NOT RELEASED` on 2026-08-15 because the mandatory China map gates did not pass. The entries below remain future direction, not an active release commitment.
+The `v0.3.0` cycle completed and merged its non-map maintenance and Zotero scope. Its release candidate excludes the deferred China map and must complete the normal release, asset, and exact-main gates before publication. The entries below remain future direction, not part of this release.
 
 - Dataset, variable dictionary, sample restriction, model specification, robustness check, timestamp, code version, and output relationships.
 - Analysis-run comparison without attempting to replace Stata, R, or Python.

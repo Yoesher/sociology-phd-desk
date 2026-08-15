@@ -81,7 +81,7 @@ describe('DistributionCenter', () => {
     expect(await screen.findByText(/10 MB used of 100 MB/i)).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /Request persistent storage/i }))
     expect(navigator.storage.persist).toHaveBeenCalledOnce()
-    expect(screen.getByText('App version').nextSibling).toHaveTextContent('0.2.2')
+    expect(screen.getByText('App version').nextSibling).toHaveTextContent('0.3.0')
     expect(screen.getByText('Portable schema').nextSibling).toHaveTextContent('5')
     expect(screen.getByText('Database schema').nextSibling).toHaveTextContent('5')
     expect(screen.getByText('Encrypted container').nextSibling).toHaveTextContent('1')

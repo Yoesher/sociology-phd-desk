@@ -6,23 +6,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-### Fixed
+No unreleased changes are recorded after the `v0.3.0` release candidate.
 
-- Separated active-route state from desktop navigation expansion so the current primary module can be collapsed and reopened without leaving the page or losing its breadcrumb.
-- Persisted the collapse preference as local application chrome; query-only Smart View changes no longer force the active group open, and research workspace data remains unchanged.
+## [0.3.0] - 2026-08-15
 
-### Security & Maintenance
+### Added
 
-- Moved CI and Pages to the current official Node 24-backed action majors, including checkout/setup, artifact handling, and Pages deployment.
-- Added bounded weekly Dependabot checks for npm and GitHub Actions plus official JavaScript/TypeScript CodeQL analysis.
-- Added a release gate that blocks high or critical npm dependency advisories without treating registry failures as a pass.
-- Added a local-only, versioned diagnostic export that flushes and verifies an unlocked workspace, then emits only app/browser/schema/PWA/service-worker/migration status and aggregate record counts. Workspace identifiers and all research or Zotero content, passphrases, and keys are excluded.
-- Added bilingual in-app issue/researcher-feedback links with no workspace payload, a sensitive-data warning feedback template, citation and maintainer metadata, and a reusable maintainer release checklist.
-- Added a current-form Codex for Open Source evidence register and character-limited draft while retaining zero verified external testers/contributors and prohibiting automatic submission.
+- Zotero literature handoff with selected-item and multi-item transfer, guarded bulk-file fallback, explicit import preview, stable external-source provenance, and conservative duplicate suggestions.
+- Sociology PhD Desk Zotero plugin `0.1.0`, reproducibly packaged for Zotero 8 and Zotero 9 from synthetic-profile-only test evidence.
+- Shared write-free import preflight, file-size checks, per-collection and whole-workspace record ceilings, and authenticated legacy encrypted-workspace migration to portable schema v5.
+- Browser end-to-end coverage for critical navigation, import, migration, PWA, offline, encrypted-workspace, and update workflows.
+- Privacy-safe local diagnostic export, researcher-feedback workflow, CodeQL, Dependabot, current GitHub Actions, `CITATION.cff`, `MAINTAINERS.md`, and reusable release-maintenance documentation.
+
+### Changed
+
+- Allowed the active primary navigation group to be manually collapsed and reopened while preserving the current route, breadcrumb, and a browser-local collapse preference.
+- Advanced portable workspaces and standard IndexedDB storage to schema v5 for explicit Zotero external-reference provenance; container, vault, registry, and Zotero handoff formats remain independently versioned at v1.
+- Kept exact Zotero identity updates from overwriting project, reading status, priority, why-read rationale, or local notes.
+
+### Privacy
+
+- Zotero handoff accepts allowlisted bibliographic metadata only. It does not import PDFs, attachments, annotations, private notes, full text, storage paths, account data, or synchronization state.
+- Diagnostics exclude research text, workspace identities, Zotero metadata, passphrases, and keys; no cloud synchronization, account system, telemetry, or required AI service was introduced.
+- All Zotero installation and GUI evidence used isolated synthetic profiles; no real library, account, or sync profile was accessed.
 
 ### Deferred
 
-- Revalidated the China fieldwork-map gate against current official source, distribution, approval, and completeness evidence. All four mandatory gates remain BLOCKED; no production map asset or region workflow shipped, and the map-mandatory `v0.3.0` was not released.
+- The province-level China fieldwork map is deferred because public-source, redistribution, project-review, and completeness requirements are not yet verifiable for this deployment. It is excluded from v0.3.0 and may be reconsidered only if those conditions materially change. No map code, geometry, administrative catalog, external map API, region persistence, or participant GPS shipped.
+- Claim–Evidence–Manuscript provenance, advanced quantitative reproducibility, advanced qualitative coding, global search, command palette, accounts, cloud sync, and AI features remain outside this release.
 
 ## [0.2.2] - 2026-08-13
 
@@ -162,7 +173,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Explicit guidance against storing directly identifying participant information.
 - Central schema and relationship validation before persistence or export.
 
-[Unreleased]: https://github.com/Yoesher/sociology-phd-desk/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/Yoesher/sociology-phd-desk/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/Yoesher/sociology-phd-desk/compare/v0.2.2...v0.3.0
+[0.2.2]: https://github.com/Yoesher/sociology-phd-desk/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/Yoesher/sociology-phd-desk/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Yoesher/sociology-phd-desk/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.1.0
