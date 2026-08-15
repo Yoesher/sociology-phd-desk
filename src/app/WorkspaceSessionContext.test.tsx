@@ -208,6 +208,35 @@ describe('WorkspaceSessionProvider flush boundaries', () => {
     expect(flush.mock.invocationCallOrder[0]).toBeLessThan(refreshLatest.mock.invocationCallOrder[0])
   })
 
+  it('returns a verified snapshot for diagnostics only after pending writes are flushed', async () => {
+    const { manager } = managerFixture()
+    const flush = vi.fn().mockResolvedValue(undefined)
+    const latestSnapshot = createDemoWorkspace(new Date('2026-08-15T01:00:00.000Z'))
+    latestSnapshot.workspace.id = 'demo-workspace'
+    const refreshLatest = vi.fn().mockResolvedValue(latestSnapshot)
+    render(
+      <WorkspaceSessionProvider
+        managerFactory={() => manager as unknown as WorkspaceSessionManager}
+        channelFactory={() => null}
+        lockingStorage={null}
+      >
+        <Probe flush={flush} refreshLatest={refreshLatest} />
+      </WorkspaceSessionProvider>,
+    )
+    await waitFor(() => expect(getContext().accessState).toBe('unlocked'))
+
+    let diagnosticSnapshot: ReturnType<typeof createDemoWorkspace> | undefined
+    await act(async () => {
+      diagnosticSnapshot = await getContext().prepareDiagnosticSnapshot()
+    })
+
+    expect(diagnosticSnapshot).toEqual(latestSnapshot)
+    expect(diagnosticSnapshot).not.toBe(latestSnapshot)
+    expect(flush).toHaveBeenCalledOnce()
+    expect(refreshLatest).toHaveBeenCalledOnce()
+    expect(flush.mock.invocationCallOrder[0]).toBeLessThan(refreshLatest.mock.invocationCallOrder[0])
+  })
+
   it('rejects application update preparation when the final committed read fails', async () => {
     const { manager } = managerFixture()
     const flush = vi.fn().mockResolvedValue(undefined)

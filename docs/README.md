@@ -2,7 +2,7 @@
 
 This directory contains durable product, architecture, workflow, release, and project-integrity documentation.
 
-Current status boundary: [`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) is published from exact release SHA [`8db828f`](https://github.com/Yoesher/sociology-phd-desk/commit/8db828faaa94f7591dbd806abe90916335862187). It adds PWA distribution, offline application-shell startup, safe user-approved updates, storage-persistence visibility, and local backup reminders without changing portable/standard v4 or encrypted container/vault/registry v1. The China Research Map remains excluded. See [`../PROJECT_STATE.md`](../PROJECT_STATE.md).
+Current status boundary: [`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) remains the latest formal Release. The authorized `v0.3.0` milestone is active with navigation, Zotero Handoff/plugin, portable/standard schema v5, guarded imports, browser E2E, and security automation merged; diagnostics/feedback metadata and the release-time China map compliance gate remain in progress. No `v0.3.0` Release is claimed. See [`../PROJECT_STATE.md`](../PROJECT_STATE.md).
 
 ## Architecture
 
@@ -25,10 +25,14 @@ Current status boundary: [`v0.2.1`](https://github.com/Yoesher/sociology-phd-des
 
 ## Maintenance and release
 
-- [Release checklist](release-checklist.md)
+- [Public release checklist](release-checklist.md)
+- [Maintainer release gate](maintainer/release-checklist.md)
 - [Browser E2E and manual accessibility checklist](browser-e2e-checklist.md)
 - [Screenshot register](screenshots/README.md)
 - [Open-source evidence register](codex-for-oss.md)
+- [Codex for Open Source application draft](codex-for-oss-application-draft.md)
+- Maintainers and public contact routes: [`../MAINTAINERS.md`](../MAINTAINERS.md)
+- Citation metadata: [`../CITATION.cff`](../CITATION.cff)
 - Current state: [`../PROJECT_STATE.md`](../PROJECT_STATE.md)
 - Prioritized work: [`../NEXT_TASKS.md`](../NEXT_TASKS.md)
 

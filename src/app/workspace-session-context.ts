@@ -36,6 +36,8 @@ export interface WorkspaceSessionContextValue {
   lockActiveWorkspace: () => Promise<void>
   /** Flushes and re-reads the active workspace before a user-approved app update. */
   prepareForApplicationUpdate: () => Promise<void>
+  /** Flushes and verifies the active workspace before deriving a content-free diagnostic report. */
+  prepareDiagnosticSnapshot: () => Promise<WorkspaceData>
   /** Cooperating-tab/missed-signal invalidation: closes locally without rebroadcasting. */
   invalidateActiveSession: (
     workspaceId?: string,

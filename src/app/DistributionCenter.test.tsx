@@ -6,6 +6,11 @@ import { APP_SETTINGS_STORAGE_KEY } from '../i18n/settings'
 import type { WorkspaceRegistryEntry } from '../models/workspace-registry'
 import { UpdateManagerContext } from './update-manager-context'
 import { DistributionCenter } from './DistributionCenter'
+import { createDemoWorkspace } from '../models/demo'
+
+const serviceWorkerDescriptor = Object.getOwnPropertyDescriptor(navigator, 'serviceWorker')
+const createObjectUrlDescriptor = Object.getOwnPropertyDescriptor(URL, 'createObjectURL')
+const revokeObjectUrlDescriptor = Object.getOwnPropertyDescriptor(URL, 'revokeObjectURL')
 
 const workspace: WorkspaceRegistryEntry = {
   id: 'workspace',
@@ -39,7 +44,15 @@ describe('DistributionCenter', () => {
       value: vi.fn().mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() }),
     })
   })
-  afterEach(cleanup)
+  afterEach(() => {
+    cleanup()
+    if (serviceWorkerDescriptor) Object.defineProperty(navigator, 'serviceWorker', serviceWorkerDescriptor)
+    else Reflect.deleteProperty(navigator, 'serviceWorker')
+    if (createObjectUrlDescriptor) Object.defineProperty(URL, 'createObjectURL', createObjectUrlDescriptor)
+    else Reflect.deleteProperty(URL, 'createObjectURL')
+    if (revokeObjectUrlDescriptor) Object.defineProperty(URL, 'revokeObjectURL', revokeObjectUrlDescriptor)
+    else Reflect.deleteProperty(URL, 'revokeObjectURL')
+  })
 
   it('shows the complete version axis and accurately reports a denied persistence request', async () => {
     const user = userEvent.setup()
@@ -142,5 +155,64 @@ describe('DistributionCenter', () => {
     )
     expect(await screen.findByText(/does not expose a persistent-storage request/i)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Request persistent storage' })).not.toBeInTheDocument()
+  })
+
+  it('keeps diagnostics local, verifies pending writes, and exposes bilingual privacy boundaries', async () => {
+    window.localStorage.setItem(APP_SETTINGS_STORAGE_KEY, JSON.stringify({ language: 'zh-CN' }))
+    const user = userEvent.setup()
+    const snapshot = createDemoWorkspace(new Date('2026-08-15T00:00:00.000Z'))
+    const onPrepareDiagnostics = vi.fn().mockResolvedValue(snapshot)
+    const registration = { active: { state: 'activated' }, waiting: null, installing: null }
+    Object.defineProperty(navigator, 'serviceWorker', {
+      configurable: true,
+      value: {
+        controller: {},
+        getRegistration: vi.fn().mockResolvedValue(registration),
+      },
+    })
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      value: vi.fn().mockReturnValue('blob:diagnostics'),
+    })
+    Object.defineProperty(URL, 'revokeObjectURL', {
+      configurable: true,
+      value: vi.fn(),
+    })
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined)
+
+    render(
+      <I18nProvider>
+        <UpdateManagerContext.Provider value={{
+          state: 'idle', supported: true, updateAvailable: false, applying: false, checking: false,
+          error: false, installAvailable: false, installed: true, otherTabsOpen: false,
+          peerUpdateRequested: false, checkForUpdate: vi.fn(), applyUpdate: vi.fn(), requestInstall: vi.fn(),
+        }}>
+          <DistributionCenter activeWorkspace={workspace} onPrepareDiagnostics={onPrepareDiagnostics} />
+        </UpdateManagerContext.Provider>
+      </I18nProvider>,
+    )
+
+    expect(screen.getByText(/报告不含工作台名称或 ID/)).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '导出诊断信息' }))
+    await waitFor(() => expect(onPrepareDiagnostics).toHaveBeenCalledOnce())
+    expect(click).toHaveBeenCalledOnce()
+    expect(URL.createObjectURL).toHaveBeenCalledOnce()
+    expect(await screen.findByText('不含研究内容的诊断报告已下载到本地。')).toBeInTheDocument()
+  })
+
+  it('does not export counts from a locked or unopened workspace', async () => {
+    render(
+      <I18nProvider>
+        <UpdateManagerContext.Provider value={{
+          state: 'idle', supported: false, updateAvailable: false, applying: false, checking: false,
+          error: false, installAvailable: false, installed: false, otherTabsOpen: false,
+          peerUpdateRequested: false, checkForUpdate: vi.fn(), applyUpdate: vi.fn(), requestInstall: vi.fn(),
+        }}>
+          <DistributionCenter activeWorkspace={workspace} />
+        </UpdateManagerContext.Provider>
+      </I18nProvider>,
+    )
+    expect(screen.getByRole('button', { name: 'Export diagnostics' })).toBeDisabled()
+    expect(screen.getByText(/Open or unlock the active workspace/i)).toBeInTheDocument()
   })
 })

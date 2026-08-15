@@ -119,6 +119,29 @@ describe('hierarchical research navigation shell', () => {
     expect(screen.getByTestId('location')).toHaveTextContent('/literature?view=all')
   })
 
+  it('opens static privacy-safe issue forms without attaching workspace data', async () => {
+    const user = userEvent.setup()
+    const data = createDemoWorkspace(new Date('2026-08-15T00:00:00.000Z'))
+    data.workspace.name = 'SECRET WORKSPACE NAME'
+    data.projects[0]!.title = 'SECRET PROJECT TITLE'
+    renderShell('/literature?view=all', data)
+
+    await user.click(screen.getByRole('button', { name: '更多操作' }))
+    const bug = screen.getByRole('link', { name: '报告问题' })
+    const feedback = screen.getByRole('link', { name: '提供研究工作流反馈' })
+    expect(bug).toHaveAttribute(
+      'href',
+      'https://github.com/Yoesher/sociology-phd-desk/issues/new?template=bug_report.yml',
+    )
+    expect(feedback).toHaveAttribute(
+      'href',
+      'https://github.com/Yoesher/sociology-phd-desk/issues/new?template=researcher_testing_feedback.yml',
+    )
+    expect(`${bug.getAttribute('href')} ${feedback.getAttribute('href')}`).not.toMatch(
+      /SECRET WORKSPACE NAME|SECRET PROJECT TITLE/,
+    )
+  })
+
   it('allows the active group to collapse and reopen without changing the route or breadcrumb', async () => {
     const user = userEvent.setup()
     renderShell('/literature?view=reading')

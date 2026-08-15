@@ -1,0 +1,73 @@
+name: Researcher testing feedback / 研究者试用反馈
+description: Share a research-workflow experience using synthetic or fully redacted examples only. / 仅用合成或完整脱敏示例反馈研究工作流体验。
+title: "[Researcher feedback]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for testing Sociology PhD Desk. This public form does not receive any workspace data automatically.
+
+        **Do not upload real research materials.** Do not include participant names or aliases, contact details, transcripts, fieldnotes, restricted datasets, unpublished manuscript text, Zotero notes or attachments, credentials, passphrases, encryption keys, or identifying local paths. Use the demo workspace, synthetic records, or fully redacted screenshots.
+
+        感谢试用 Sociology PhD Desk。此公开表单不会自动接收任何工作台数据。
+
+        **请勿上传真实研究材料。** 请勿填写受访者姓名或别名、联系方式、访谈稿、田野笔记、受限数据集、未发表论文正文、Zotero 笔记或附件、凭据、口令、加密密钥或可识别的本机路径。请使用示例工作台、合成记录或完整脱敏截图。
+
+  - type: dropdown
+    id: research_type
+    attributes:
+      label: Research approach / 研究类型
+      options:
+        - Quantitative / 定量
+        - Qualitative / 定性
+        - Theory / 理论
+        - Mixed methods / 混合方法
+        - Other or prefer not to say / 其他或不便说明
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Operating system and browser / 操作系统与浏览器
+      placeholder: Windows 11, Chrome 140 / macOS 15, Safari 19
+    validations:
+      required: true
+
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Workflow attempted / 尝试的工作流
+      description: Describe the goal and steps using synthetic or fully redacted information. / 请只用合成或完整脱敏信息描述目标与步骤。
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What was difficult or did not work? / 遇到了什么困难或问题？
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior or improvement / 期望的行为或改进
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Optional sanitized screenshots / 可选的脱敏截图
+      description: Remove all real research content, account details, local paths, and secrets before attaching. / 上传前请移除所有真实研究内容、账号信息、本机路径和秘密。
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety confirmation / 安全确认
+      options:
+        - label: I included only synthetic or fully redacted material and no secrets or identifiable research data. / 我只提供了合成或完整脱敏材料，不含秘密或可识别研究数据。
+          required: true

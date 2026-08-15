@@ -163,6 +163,9 @@ export function WorkspaceExperience() {
       onImportEncrypted={workspaceSession.importEncryptedWorkspaceFile}
       onPreflightPlaintext={workspaceSession.preflightPlaintextWorkspaceFile}
       onPreflightEncrypted={workspaceSession.preflightEncryptedWorkspaceFile}
+      onPrepareDiagnostics={activeSessionOpen
+        ? workspaceSession.prepareDiagnosticSnapshot
+        : undefined}
     />
   )
 

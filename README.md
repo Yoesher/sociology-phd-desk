@@ -168,13 +168,13 @@ Phase 3C 为加密工作台增加 `.sociologydesk` 加密备份。它是独立�
 
 ## 架构
 
-当前基础采用 React、TypeScript 和 Vite。Dexie 提供 IndexedDB 数据层，Zod 验证可迁移数据，Vitest 覆盖可测试的应用逻辑。持久化、领域逻辑和页面组件保持分离。研究图谱增加稳定 ID 的研究问题、主张与显式关系；本地工作区层增加元数据注册表、每工作区数据库适配器、会话门与 Web Crypto 加密库；Theory 增加 `TheoryMemo`。portable/standard 为 v4，container/vault/registry 分别保持 v1。
+当前基础采用 React、TypeScript 和 Vite。Dexie 提供 IndexedDB 数据层，Zod 验证可迁移数据，Vitest 覆盖可测试的应用逻辑。持久化、领域逻辑和页面组件保持分离。研究图谱增加稳定 ID 的研究问题、主张与显式关系；本地工作区层增加元数据注册表、每工作区数据库适配器、会话门与 Web Crypto 加密库；Theory 增加 `TheoryMemo`。当前 `main` 的 portable/standard 为 v5（新增独立 Zotero 外部来源记录），container/vault/registry 分别保持 v1。
 
 参阅[架构概览](docs/architecture/overview.md)、[数据模型](docs/architecture/data-model.md)和[架构决策](DECISIONS.md)。
 
 ## 路线图
 
-`0.1` 系列建立核心研究生命周期、安全导入导出、质量门禁和公开维护基础。`v0.2.0` 已发布简中优先双语基础、研究问题—主张图谱、本地私密/加密工作区、Theory Research、二级导航，以及论文与投稿整合；本轮在发布后文档收尾处停止，不启动 `v0.3.0`。中国研究地图因公开地图来源、再分发与审图条件未形成可验证闭环而暂缓，不属于 `v0.2.0`；未来只有在合规条件变化并重新核验后才会恢复。
+`0.1` 系列建立核心研究生命周期、安全导入导出、质量门禁和公开维护基础；`v0.2.x` 已发布双语工作站、加密工作台、Theory、简化导航与 PWA。已授权的 `v0.3.0` 周期正在 `main` 上完成可折叠活动导航、Zotero Handoff/插件、导入防护、浏览器 E2E 与安全自动化，但尚未形成正式 Release。省级中国田野地图仍受来源、再分发、审图元数据和全国完整性四项硬门禁约束；门禁未全部通过时不得发布地图，也不得把地图必选范围的 `v0.3.0` 标为 PASS。
 
 详见 [ROADMAP.md](ROADMAP.md)。路线图描述方向，不是交付承诺。
 
@@ -184,6 +184,7 @@ Phase 3C 为加密工作台增加 `.sociologydesk` 加密备份。它是独立�
 
 - 阅读[中文贡献指南](CONTRIBUTING.md)和[行为准则](CODE_OF_CONDUCT.md)。
 - 使用最适合问题的缺陷、功能或研究工作流 Issue 表单。
+- 研究者试用反馈可使用[双语反馈表单](https://github.com/Yoesher/sociology-phd-desk/issues/new?template=researcher_testing_feedback.yml)，且只能附合成或完整脱敏材料。
 - 切勿附上可识别参与者信息、私人田野笔记、访谈文本、凭据或专有研究数据。
 - 打开 Pull Request 前运行 lint、类型检查、测试和生产构建。
 
@@ -195,7 +196,7 @@ Sociology PhD Desk 是工作流工具，不是伦理审查、知情同意管理�
 
 ## 项目诚信
 
-项目活动、用户、Star、Fork、下载量、Issue、Pull Request、Release 与外部采用情况，只在能够核验时报告。当前证据登记维护在 [docs/codex-for-oss.md](docs/codex-for-oss.md)。项目不会自动申请任何外部计划。
+项目活动、用户、Star、Fork、下载量、Issue、Pull Request、Release 与外部采用情况，只在能够核验时报告。当前证据登记维护在 [docs/codex-for-oss.md](docs/codex-for-oss.md)，维护者与引用信息见 [MAINTAINERS.md](MAINTAINERS.md) 和 [CITATION.cff](CITATION.cff)。项目不会自动申请任何外部计划。
 
 ## 许可证
 

@@ -392,6 +392,8 @@ export function AppShell() {
         <summary>{t('navigation.advanced')}</summary>
         <div className="settings-nav__tools">
           <button type="button" onClick={() => openWorkspaceCenter('distribution')}>{t('distribution.center.tab')}</button>
+          <a href="https://github.com/Yoesher/sociology-phd-desk/issues/new?template=bug_report.yml" target="_blank" rel="noreferrer">{t('navigation.reportIssue')}</a>
+          <a href="https://github.com/Yoesher/sociology-phd-desk/issues/new?template=researcher_testing_feedback.yml" target="_blank" rel="noreferrer">{t('navigation.researchFeedback')}</a>
           <span>{t('navigation.dataDiagnostics')}</span>
           <WorkspaceTools compact />
         </div>
@@ -627,6 +629,8 @@ export function AppShell() {
               <button type="button" onClick={() => openWorkspaceCenter('distribution')}>{t('distribution.install.title')}</button>
               <button type="button" disabled={!update.supported || update.checking} onClick={() => void update.checkForUpdate()}>{t(update.checking ? 'distribution.update.checking' : 'distribution.update.check')}</button>
               <a href="https://github.com/Yoesher/sociology-phd-desk/blob/main/docs/zh-CN/getting-started.md" target="_blank" rel="noreferrer">{t('navigation.help')}</a>
+              <a href="https://github.com/Yoesher/sociology-phd-desk/issues/new?template=bug_report.yml" target="_blank" rel="noreferrer">{t('navigation.reportIssue')}</a>
+              <a href="https://github.com/Yoesher/sociology-phd-desk/issues/new?template=researcher_testing_feedback.yml" target="_blank" rel="noreferrer">{t('navigation.researchFeedback')}</a>
             </div>}
           </div>
         </div>

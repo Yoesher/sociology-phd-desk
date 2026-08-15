@@ -437,6 +437,43 @@ export function WorkspaceSessionProvider({
     }
   }, [])
 
+  const prepareDiagnosticSnapshot = useCallback(async (): Promise<WorkspaceData> => {
+    const current = sessionRef.current
+    const runtime = researchRuntimeRef.current
+    if (
+      !current || !runtime || runtime.workspaceId !== current.entry.id ||
+      runtime.storageId !== current.storageId
+    ) {
+      throw new LocalWorkspaceManagerError(
+        'workspace-not-ready',
+        'An unlocked active workspace is required for a diagnostic report.',
+      )
+    }
+    const transitionGeneration = sessionTransitionGenerationRef.current
+    await runtime.flushPendingWrites()
+    if (
+      sessionRef.current !== current ||
+      sessionTransitionGenerationRef.current !== transitionGeneration
+    ) {
+      throw new LocalWorkspaceManagerError(
+        'revision-conflict',
+        'The local workspace session changed while preparing diagnostics.',
+      )
+    }
+    const latest = await runtime.refreshLatest()
+    if (
+      sessionRef.current !== current ||
+      sessionTransitionGenerationRef.current !== transitionGeneration ||
+      latest.workspace.id !== current.entry.id
+    ) {
+      throw new LocalWorkspaceManagerError(
+        'revision-conflict',
+        'The local workspace could not be verified before preparing diagnostics.',
+      )
+    }
+    return structuredClone(latest)
+  }, [])
+
   const adoptSession = useCallback(async (
     manager: WorkspaceSessionManager,
     opened: OpenedLocalWorkspaceSession,
@@ -1526,6 +1563,7 @@ export function WorkspaceSessionProvider({
     unlockActiveEncrypted,
     lockActiveWorkspace,
     prepareForApplicationUpdate,
+    prepareDiagnosticSnapshot,
     invalidateActiveSession,
     selectWorkspace,
     createWorkspace,
@@ -1574,6 +1612,7 @@ export function WorkspaceSessionProvider({
     preflightPlaintextFile,
     lockActiveWorkspace,
     prepareForApplicationUpdate,
+    prepareDiagnosticSnapshot,
     invalidateActiveSession,
     openActiveStandard,
     renameWorkspace,

@@ -38,6 +38,7 @@ import type {
 } from './WorkspaceAccessGate'
 import type { WorkspaceImportPreflight } from '../utils/import-preflight'
 import { ImportPreflightSummary } from './ImportPreflightSummary'
+import type { WorkspaceData } from '../models/domain'
 
 export type WorkspaceCenterSection = 'workspaces' | 'privacy' | 'backup' | 'distribution'
 
@@ -89,6 +90,7 @@ export interface WorkspaceCenterProps {
   /** The parent validates/decrypts the container and creates a new isolated workspace. */
   onImportEncrypted?: (request: WorkspaceEncryptedImportRequest) => void | Promise<void>
   onPreflightEncrypted?: (file: File, passphrase: string) => Promise<WorkspaceImportPreflight>
+  onPrepareDiagnostics?: () => Promise<WorkspaceData>
 }
 
 interface CreateDraft {
@@ -195,6 +197,7 @@ export function WorkspaceCenter({
   onImportEncrypted,
   onPreflightPlaintext,
   onPreflightEncrypted,
+  onPrepareDiagnostics,
 }: WorkspaceCenterProps) {
   const { t } = useI18n()
   const [section, setSection] = useState<WorkspaceCenterSection>(initialSection)
@@ -1006,7 +1009,11 @@ export function WorkspaceCenter({
               </section>
             )}
             {section === 'distribution' && (
-              <DistributionCenter activeWorkspace={activeWorkspace} onOpenBackup={() => setSection('backup')} />
+              <DistributionCenter
+                activeWorkspace={activeWorkspace}
+                onOpenBackup={() => setSection('backup')}
+                onPrepareDiagnostics={onPrepareDiagnostics}
+              />
             )}
           </div>
         </div>
