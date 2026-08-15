@@ -25,7 +25,7 @@ The product remains sociology-specific and complements, rather than replaces, sp
 
 Phase 3 uses independently verified increments. Listing an increment here does not mean it has shipped; verified status remains in [PROJECT_STATE.md](PROJECT_STATE.md).
 
-**Current release:** [`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) remains the latest published version while the non-map `v0.3.0` release candidate is finalized from exact main `79d2d5a`. Navigation collapse, Zotero/schema v5 and plugin, guarded imports, browser E2E, security automation, and privacy-safe diagnostics are merged. The Phase 3D China Research Map keeps all four gates **BLOCKED**, but is DEFERRED and excluded from `v0.3.0`; it no longer blocks that release.
+**Current release:** [`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0) is published from exact release SHA `bb0d32fe99348204ba89a16d6469014ae38e0ecf`. Navigation collapse, Zotero/schema v5 and plugin, guarded imports, browser E2E, security automation, and privacy-safe diagnostics are released. The Phase 3D China Research Map keeps all four gates **BLOCKED**, but is DEFERRED and excluded from `v0.3.0`.
 
 Every implemented increment follows the same evidence chain: scoped Issue → dedicated feature branch → implementation and tests → Pull Request → passing PR CI → maintainer self-review → squash merge → passing `main` CI → GitHub Pages verification. The map's blocked gate applies to the map alone; each non-map increment must pass its own complete gate before the next begins.
 
@@ -132,7 +132,7 @@ Release criteria:
 
 ## `0.3.x` — reproducibility and qualitative traceability
 
-The `v0.3.0` cycle completed and merged its non-map maintenance and Zotero scope. Its release candidate excludes the deferred China map and must complete the normal release, asset, and exact-main gates before publication. The entries below remain future direction, not part of this release.
+The `v0.3.0` cycle completed and released its non-map maintenance and Zotero scope after the normal release, asset, and exact-main gates passed. It excludes the deferred China map. The entries below remain future direction, not part of this release, and no `v0.4` implementation starts during the adoption/testing stage.
 
 - Dataset, variable dictionary, sample restriction, model specification, robustness check, timestamp, code version, and output relationships.
 - Analysis-run comparison without attempting to replace Stata, R, or Python.

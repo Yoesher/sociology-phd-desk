@@ -86,3 +86,7 @@ npm run test:zotero
 - [ ] Create a non-draft, non-prerelease GitHub Release with `--notes-file`; attach the Zotero XPI and checksum when applicable.
 - [ ] Verify the remote Release body with the same UTF-8 guard and confirm tag object → exact release commit → reviewed tree.
 - [ ] Update current-state docs and dated public metrics without fabricating users, testers, contributors, downloads, or adoption.
+
+## Latest completed evidence — v0.3.0
+
+The reusable boxes above remain intentionally unchecked for future releases. For `v0.3.0`, [PR #53](https://github.com/Yoesher/sociology-phd-desk/pull/53) passed exact-head push/PR CI, CodeQL, and P0 = 0 / P1 = 0 self-review before squash merge as exact release SHA `bb0d32fe99348204ba89a16d6469014ae38e0ecf`. Exact-main CI, CodeQL, Pages/deployment, annotated tag, UTF-8 Release, public XPI/checksum assets, and a fresh public-download hash verification passed. Public interaction was a LIMITED PASS because the browser bridge timed out before the English/mobile public checks; the complete local browser and automated gates remain separately recorded in `PROJECT_STATE.md`.

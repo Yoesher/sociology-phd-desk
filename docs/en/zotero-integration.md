@@ -1,12 +1,12 @@
 # Zotero integration
 
-Sociology PhD Desk Zotero plugin `0.1.0` supports Zotero 8 and Zotero 9. The release candidate completed install, restart, send, disable, and uninstall checks with isolated synthetic profiles on Zotero 8.0.4 and Zotero 9.0.6; no real user library was used. Zotero remains responsible for collecting references, PDFs, notes, annotations, and citations. The Desk receives only whitelisted bibliographic metadata from items the user explicitly selects, and the user chooses the project, reading status, priority, and why-read rationale in a preview.
+Sociology PhD Desk Zotero plugin `0.1.0` supports Zotero 8 and Zotero 9. The published build completed install, restart, send, disable, and uninstall checks with isolated synthetic profiles on Zotero 8.0.4 and Zotero 9.0.6; no real user library was used. Zotero remains responsible for collecting references, PDFs, notes, annotations, and citations. The Desk receives only whitelisted bibliographic metadata from items the user explicitly selects, and the user chooses the project, reading status, priority, and why-read rationale in a preview.
 
 ## Install
 
-The `v0.3.0` release candidate will ship the plugin as a formal Release asset, but it does not provide or invent a download link before the Release exists and the public XPI has been uploaded and verified.
+Download the published [`sociology-phd-desk-zotero-0.1.0.xpi`](https://github.com/Yoesher/sociology-phd-desk/releases/download/v0.3.0/sociology-phd-desk-zotero-0.1.0.xpi) and its [SHA-256 file](https://github.com/Yoesher/sociology-phd-desk/releases/download/v0.3.0/sociology-phd-desk-zotero-0.1.0.sha256) from the formal `v0.3.0` Release. The verified digest is `e940f29bb803774a9311b0b5c8f40776558c9362bfa58f28c01681e5ed7795ee`.
 
-Maintainers may run `npm ci` and `npm run build:zotero` from the exact candidate revision. This generates `sociology-phd-desk-zotero-0.1.0.xpi` and its `.sha256` file under `integrations/zotero-plugin/dist/`. After verifying the SHA-256, install it only in an isolated Zotero 8 or Zotero 9 testing profile through Tools → Plugins → gear menu → Install Plugin From File, then restart if prompted. The public download link will be added only after the final Release assets are uploaded, downloaded publicly, and hash-verified again.
+In Zotero, open Tools → Plugins → gear menu → Install Plugin From File, select the downloaded XPI, and restart if prompted. Maintainers can reproduce the same files with `npm ci` and `npm run build:zotero` from exact release SHA `bb0d32fe99348204ba89a16d6469014ae38e0ecf`; a fresh public download was independently hash-verified after publication. Development and compatibility checks must still use isolated synthetic Zotero profiles rather than a real library/account/sync profile.
 
 ## Send references
 

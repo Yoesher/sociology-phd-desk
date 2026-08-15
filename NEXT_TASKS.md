@@ -1,8 +1,8 @@
 # Next Tasks
 
-> `v0.2.2` remains the published release while `release/0.3.0` is prepared from exact verified main `79d2d5a`. All authorized non-map work is merged. The map review still has four BLOCKED gates, but the map is formally DEFERRED and excluded from `v0.3.0`; it no longer blocks this release. Tag, Release, public XPI, PR/CI, and exact-main publication evidence remain pending.
+> [`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0) is the latest formal Release at exact SHA `bb0d32fe99348204ba89a16d6469014ae38e0ecf`. The map review still has four BLOCKED gates, but the map is formally DEFERRED and excluded. `NEXT_STAGE = V0.3.0 ADOPTION & EXTERNAL TESTING`; do not start `v0.4`.
 
-## P0 — v0.3.0 release finalization
+## P0 — v0.3.0 release finalization (complete)
 
 - [x] Create milestone `v0.3.0`, Issue #34, and dedicated branch `fix/active-navigation-collapse` from exact verified main `f4a4baa`.
 - [x] Separate route activity from desktop expansion; allow active collapse/reopen; preserve active styling, breadcrumb, query navigation, compact/mobile behavior, and local-only preference storage.
@@ -15,7 +15,7 @@
 - [x] Commit/push the Import Guard candidate, merge PR #41 after exact-head CI/self-review, and verify exact-main CI/Pages.
 - [x] Complete Issue #6 browser E2E through PR #43: Chromium desktop and 390 × 844 coverage, synthetic standard/encrypted/import/export/stale-tab/modal/PWA flows, failure-only artifacts, exact-head CI/self-review, squash merge, and exact-main CI/Pages/deployment on `22c68d6`.
 
-## P0 — v0.3.0 release chain
+## P0 — v0.3.0 release chain (complete)
 
 - [x] Phase B: Issue #36 isolated-profile Zotero 8/9 manual gate and plugin PR merge.
 - [x] Phase C: Issue #5 remote PR/CI/main/Pages closeout; schema v5 is merged through app-side Zotero PR #39.
@@ -25,9 +25,9 @@
 - [x] Phase F2: complete Issue #45 through PR #50 for privacy-safe diagnostics, bilingual feedback entry/template, citation/maintainer metadata, release checklist, and truthful Codex-for-OSS draft. Exact head `ad5b427` passed push/PR CI, CodeQL, and P0 = 0 / P1 = 0 self-review; squash main `f7dbbcd4` passed exact-main CI `31866861053`, CodeQL `31866861181`, Pages `31866861000`, and deployment `5917489979`.
 - [x] Merge documentation-only blocker closeout PR #51 as `b5db4004` after exact-head push/PR CI, CodeQL, and P0 = 0 / P1 = 0 review; pass exact-main CI `31867678590`, CodeQL `31867678601`, Pages `31867678706`, and deployment `5917613148` without changing a map gate or publishing `v0.3.0`.
 - [x] Pass the full local release gate: 37 files / 328 tests, 9 browser E2E passes with 7 project-configured skips, production/PWA build, 8/8 Zotero plugin tests, independent deterministic XPI checksum, high/critical audit 0, synthetic-only browser and migration review, and no real Zotero/profile/account data.
-- [ ] Open `release: Sociology PhD Desk v0.3.0`, pass exact-head CI/CodeQL and P0 = 0 / P1 = 0 maintainer self-review, then merge the reviewed tree.
-- [ ] Verify exact main CI/CodeQL/Pages/public deployment, create an annotated `v0.3.0` tag, publish UTF-8 bilingual Release Notes and both Zotero assets, and verify the downloaded public XPI checksum.
-- [ ] Complete a documentation-only post-release closeout with current public metrics, then stop at `V0.3.0 ADOPTION & EXTERNAL TESTING`; do not start `v0.4`.
+- [x] Open [release PR #53](https://github.com/Yoesher/sociology-phd-desk/pull/53), pass exact-head push/PR CI, CodeQL and P0 = 0 / P1 = 0 maintainer self-review, then merge the reviewed tree as exact release SHA `bb0d32f`.
+- [x] Verify exact-main CI/CodeQL/Pages/deployment, create annotated `v0.3.0`, publish UTF-8 bilingual Release Notes and both Zotero assets, and verify the downloaded public XPI checksum `e940f29b…`.
+- [x] Complete the release evidence record and enter `V0.3.0 ADOPTION & EXTERNAL TESTING`; this documentation-only closeout records the final public metrics without starting `v0.4`.
 
 ## P0 — v0.2.2 Simplicity & Motion
 

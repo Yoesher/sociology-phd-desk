@@ -20,13 +20,13 @@ See the complete [English getting-started guide](docs/en/getting-started.md).
 
 ### `v0.3.0` — Zotero integration and safer imports
 
-The `v0.3.0` release candidate adds selected-reference Zotero handoff, an explicit import preview, reproducible Zotero plugin `0.1.0`, schema-v5 migration, import-size guards, browser E2E, and privacy-safe diagnostics. The formal tag, Release, and public XPI will be published only after this candidate passes its PR, exact-main, Pages, and asset-verification gates.
+[`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0) is formally released with selected-reference Zotero handoff, an explicit import preview, reproducible Zotero plugin `0.1.0`, schema-v5 migration, import-size guards, browser E2E, and privacy-safe diagnostics. The release PR, exact-main CI, CodeQL, Pages, UTF-8 Release Notes, and public-asset verification all passed.
 
 ## Zotero integration
 
 Zotero remains the system of record for bibliography, PDFs, notes, annotations, and citations. After installing the plugin, select one or more references in Zotero 8 or Zotero 9, right-click Send to Sociology PhD Desk, then choose the project, reading status, and priority in the Desk preview before confirming any write.
 
-The plugin transfers allowlisted bibliographic metadata only. It does not read or import PDFs, attachments, private notes, annotations, full text, account data, or synchronization state. A public `[Download the Zotero plugin]` link will be added only after the `v0.3.0` Release asset is uploaded and verified; see the [English Zotero integration guide](docs/en/zotero-integration.md) for the current candidate boundary.
+The plugin transfers allowlisted bibliographic metadata only. It does not read or import PDFs, attachments, private notes, annotations, full text, account data, or synchronization state. Ordinary users can [download the Zotero plugin](https://github.com/Yoesher/sociology-phd-desk/releases/download/v0.3.0/sociology-phd-desk-zotero-0.1.0.xpi) and compare the [public SHA-256 checksum](https://github.com/Yoesher/sociology-phd-desk/releases/download/v0.3.0/sociology-phd-desk-zotero-0.1.0.sha256); see the [English Zotero integration guide](docs/en/zotero-integration.md) for installation and tested boundaries.
 
 ### `v0.2.2` — Simplicity & restrained motion
 
@@ -184,7 +184,7 @@ See [architecture overview](docs/architecture/overview.md), [data model](docs/ar
 
 ## Roadmap
 
-The `0.1` line established the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure; `v0.2.x` released the bilingual workstation, encrypted workspaces, Theory, simplified navigation, and PWA. The `v0.3.0` candidate focuses on active-navigation collapse, Zotero Handoff/plugin, import guards, browser E2E, security automation, and privacy-safe diagnostics. The province-level China fieldwork map is deferred because public-source, redistribution, project-review, and completeness requirements are not yet verifiable for this deployment. It is excluded from v0.3.0 and may be reconsidered only if those conditions materially change.
+The `0.1` line established the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure; `v0.2.x` released the bilingual workstation, encrypted workspaces, Theory, simplified navigation, and PWA. Released `v0.3.0` focuses on active-navigation collapse, Zotero Handoff/plugin, import guards, browser E2E, security automation, and privacy-safe diagnostics. The province-level China fieldwork map is deferred because public-source, redistribution, project-review, and completeness requirements are not yet verifiable for this deployment. It is excluded from v0.3.0 and may be reconsidered only if those conditions materially change.
 
 See [ROADMAP.md](ROADMAP.md). Roadmap entries are intentions, not delivery promises.
 

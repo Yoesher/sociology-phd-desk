@@ -24,7 +24,7 @@ This document follows the current [official Codex for Open Source form](https://
 
 **Draft (463 characters):**
 
-> Sociology PhD Desk is an MIT-licensed, local-first ResearchOps workstation built for privacy-sensitive sociology. It connects theory, qualitative and quantitative work, evidence, literature, fieldwork, and publishing without accounts or required cloud storage. The project has 4 releases, CI, browser E2E, CodeQL, guarded migrations, PWA delivery, and an open-source Zotero integration. Adoption is early: 3 stars and 0 verified external testers as of 2026-08-15.
+> Sociology PhD Desk is an MIT-licensed, local-first ResearchOps workstation built for privacy-sensitive sociology. It connects theory, qualitative and quantitative work, evidence, literature, fieldwork, and publishing without accounts or required cloud storage. The project has 5 releases, CI, browser E2E, CodeQL, guarded migrations, PWA delivery, and an open-source Zotero integration. Adoption is early: 3 stars and 0 verified external testers as of 2026-08-15.
 
 ## How will you use API credits? — maximum 500 characters
 
@@ -40,7 +40,7 @@ This document follows the current [official Codex for Open Source form](https://
 
 ## Evidence snapshot
 
-Public API snapshot after PR #52 merged on 2026-08-15 and before the release PR: 3 Stars, 0 Forks, 3 open Issues, 17 closed Issues, 3 open Pull Requests (automated Dependabot updates), 29 merged Pull Requests, 4 Releases, 0 verified external testers, and 0 verified external human contributors in project records. The current published release is `v0.2.2`; all authorized non-map `v0.3.0` increments are merged, and the map is DEFERRED/excluded rather than a release blocker. The candidate has not yet become a tag or Release.
+Public API snapshot after release PR #53 merged and `v0.3.0` was published on 2026-08-15, before the documentation-closeout PR: 3 Stars, 0 Forks, 3 open Issues, 17 closed Issues, 3 open Pull Requests (automated Dependabot updates), 30 merged Pull Requests, 5 Releases, 0 verified external testers, and 0 verified external human contributors in project records. The map remains DEFERRED/excluded rather than a release blocker.
 
 Maintenance evidence includes reproducible local and CI gates, exact-head self-review, exact-main CI/Pages verification, CodeQL, weekly Dependabot, high/critical npm audit gating, browser E2E with synthetic fixtures, encrypted-workspace migration tests, and a reproducible Zotero plugin tested only with isolated synthetic Zotero 8 and Zotero 9 profiles.
 
@@ -48,6 +48,6 @@ Maintenance evidence includes reproducible local and CI gates, exact-head self-r
 
 `APPLICATION_READINESS = MODERATE`
 
-The project shows unusually strong maintenance, privacy, migration, security, and release evidence for its age, and it addresses a clear sociology ResearchOps gap. It does not yet show meaningful external adoption: known external testers and verified external human contributors remain zero. The honest recommendation remains `WAIT_FOR_MORE_USAGE`: finish the independently gated non-map `v0.3.0` release, recruit consented real researcher testing, record issues/feedback, and then reassess whether to apply.
+The project shows unusually strong maintenance, privacy, migration, security, and release evidence for its age, and it addresses a clear sociology ResearchOps gap. It does not yet show meaningful external adoption: known external testers and verified external human contributors remain zero. The honest recommendation remains `WAIT_FOR_MORE_USAGE`: recruit consented real researcher testing, record issues/feedback, and then reassess whether to apply.
 
 No application should be submitted until the maintainer personally supplies the private identity, ChatGPT email, and Organization ID fields and approves the final text.

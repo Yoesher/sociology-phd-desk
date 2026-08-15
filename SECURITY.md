@@ -10,9 +10,9 @@ Sociology PhD Desk is local-first research workflow software. Its threat model d
 
 ## Supported versions
 
-The latest formal public release is [`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2). Security fixes are normally developed against the latest maintained `main` revision; no long-term support window or response-time service level is promised during this early public stage.
+The latest formal public release is [`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0). Security fixes are normally developed against the latest maintained `main` revision; no long-term support window or response-time service level is promised during this early public stage.
 
-The authorized `v0.3.0` candidate is unreleased and excludes the deferred China map. Verified delivery state, exact revisions, and release boundaries belong in [PROJECT_STATE.md](PROJECT_STATE.md); a merged feature or release branch is not a published release by itself.
+Published `v0.3.0` excludes the deferred China map and preserves all four blocked map-compliance gates. Verified delivery state, exact revisions, and release boundaries belong in [PROJECT_STATE.md](PROJECT_STATE.md); a merged feature or release branch is not a published release by itself.
 
 ## Report a vulnerability
 

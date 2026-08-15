@@ -20,13 +20,13 @@
 
 ### `v0.3.0` — Zotero 联动与更安全的导入
 
-`v0.3.0` 发布候选加入 Zotero 选中文献交接、明确的导入预览、可复现的 Zotero 插件 `0.1.0`、schema v5 迁移、导入体量防护、浏览器端到端测试与隐私安全诊断。正式 tag、Release 和公开 XPI 只有在本候选通过 PR、exact-main、Pages 与资产校验后才会发布。
+[`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0) 已正式发布，加入 Zotero 选中文献交接、明确的导入预览、可复现的 Zotero 插件 `0.1.0`、schema v5 迁移、导入体量防护、浏览器端到端测试与隐私安全诊断。Release PR、exact-main CI、CodeQL、Pages、UTF-8 Release Notes 与公开资产校验均已通过。
 
 ## Zotero 联动
 
 Zotero 仍是书目、PDF、笔记、标注和引用的权威系统。安装插件后，在 Zotero 8 或 Zotero 9 中选中一篇或多篇文献，右键选择“发送到 Sociology PhD Desk”；工作站会打开导入预览，由你选择项目、阅读状态、优先级并确认后才写入。
 
-插件只交接允许的书目元数据，不读取或导入 PDF、附件、私有笔记、批注、全文、账号或同步信息。正式公开的 `[下载 Zotero 插件]` 链接会在 `v0.3.0` Release 资产上传并校验后加入；当前候选的安装与测试边界见[中文 Zotero 联动指南](docs/zh-CN/zotero-integration.md)。
+插件只交接允许的书目元数据，不读取或导入 PDF、附件、私有笔记、批注、全文、账号或同步信息。普通用户可以[下载 Zotero 插件](https://github.com/Yoesher/sociology-phd-desk/releases/download/v0.3.0/sociology-phd-desk-zotero-0.1.0.xpi)，并用[公开 SHA-256 校验文件](https://github.com/Yoesher/sociology-phd-desk/releases/download/v0.3.0/sociology-phd-desk-zotero-0.1.0.sha256)核对；安装步骤与测试边界见[中文 Zotero 联动指南](docs/zh-CN/zotero-integration.md)。
 
 ### `v0.2.2` — 简洁与克制动效
 
@@ -184,7 +184,7 @@ Phase 3C 为加密工作台增加 `.sociologydesk` 加密备份。它是独立�
 
 ## 路线图
 
-`0.1` 系列建立核心研究生命周期、安全导入导出、质量门禁和公开维护基础；`v0.2.x` 已发布双语工作站、加密工作台、Theory、简化导航与 PWA。`v0.3.0` 候选聚焦可折叠活动导航、Zotero Handoff/插件、导入防护、浏览器 E2E、安全自动化与隐私安全诊断。中国省级田野地图因公开地图来源、再分发、项目审图与完整性条件尚未形成可验证闭环，暂缓发布。该功能不再阻塞 v0.3.0，未来只有在合规条件明确后才重新评估。
+`0.1` 系列建立核心研究生命周期、安全导入导出、质量门禁和公开维护基础；`v0.2.x` 已发布双语工作站、加密工作台、Theory、简化导航与 PWA。已发布的 `v0.3.0` 聚焦可折叠活动导航、Zotero Handoff/插件、导入防护、浏览器 E2E、安全自动化与隐私安全诊断。中国省级田野地图因公开地图来源、再分发、项目审图与完整性条件尚未形成可验证闭环，暂缓发布。该功能不再阻塞 v0.3.0，未来只有在合规条件明确后才重新评估。
 
 详见 [ROADMAP.md](ROADMAP.md)。路线图描述方向，不是交付承诺。
 
