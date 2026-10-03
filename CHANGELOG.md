@@ -6,9 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-The 0.3.1 website-update candidate is undergoing the authorized release checks. The previous-session approval rejection is historical; current deployment evidence will be recorded in PROJECT_STATE.md after exact-main and public acceptance.
+The 0.3.1 website update is deployed; exact verification evidence is in PROJECT_STATE.md. Latest formal GitHub Release/tag remains v0.3.0, and existing tags are unchanged.
 
-## [0.3.1] - 2026-10-03 (website release candidate; deployment verification pending)
+## [0.3.1] - 2026-10-03 (website application update; formal Release/tag unchanged)
 
 ### Added
 

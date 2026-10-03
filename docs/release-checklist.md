@@ -2,6 +2,16 @@
 
 Use this checklist for every release. A checked item means it was verified against the exact release revision.
 
+## `0.3.1` website-update publication checkpoint (S1) — 2026-10-03
+
+- [x] [PR #55](https://github.com/Yoesher/sociology-phd-desk/pull/55) published the scoped PDF, project-space, and task-deadline update as exact main SHA [`7f50ecd`](https://github.com/Yoesher/sociology-phd-desk/commit/7f50ecd209b1a9deac3b9bc38653f798020a5817).
+- [x] Exact-head and exact-main CI, CodeQL, and Pages build/deploy passed. The public application reports `0.3.1` with the matching build identity; fresh independent desktop and phone browser contexts passed the synthetic public workflow smoke. Exact runs, scope, and evidence are recorded in [PROJECT_STATE.md](../PROJECT_STATE.md).
+- [x] Portable workspace, standard database, and authenticated encrypted payload are v6; container, vault database, and registry remain v1. Optional PDFs retain the 5 MiB each / 12 MiB workspace limits; project-scoped writes and backups retain the complete workspace.
+- [x] Existing formal `v0.3.0` Release/tag and Zotero plugin assets were preserved; no tag was created or moved.
+- [x] Operating-system-installed PWA and cross-device manual restore remain **NOT RUN**. The actual S1 → S2 service-worker update is a separate verification record; no old failed update trial is relabeled as PASS.
+
+This checkpoint records S1 publication. Any later documentation commit requires its own exact-main CI, CodeQL, Pages, and public build verification; the current final state remains in `PROJECT_STATE.md`.
+
 ## `v0.2.1` release checkpoint — 2026-08-13
 
 - [x] `V0.2.1 FEATURE FREEZE` is active on `release/0.2.1`; no new research feature or `v0.3.0` work is allowed.
@@ -45,16 +55,19 @@ This checkpoint preserves completed candidate evidence and the verified publicat
 - [ ] Theory Memo create/read/update/delete, project/type/date filters, all bilingual views, same-project question/claim/literature links, deletion protection, UI-only prompts, and theoretical-manuscript reuse work on the exact release revision.
 - [ ] `Theory / Conceptual Work` remains a locale-neutral raw task category while its display label and filters follow the selected language.
 - [ ] Fresh personal data remains empty; the demo's Theory records are minimal, explicitly synthetic, and make no real citation, finding, or theoretical-conclusion claim.
-- [ ] Portable and standard v4 round-trip; v1 → v2 → v3 → v4 migration adds no inferred theory; ambiguous, duplicate, dangling, and cross-project Theory relationships produce zero writes.
-- [ ] Container v1, encrypted-vault database v1, and registry database v1 remain distinct from portable/standard v4; authenticated legacy portable-v3 vaults/backups migrate safely and every failure retains old ciphertext or creates no target.
+- [ ] Portable and standard v6 round-trip; v1 → v2 → v3 → v4 → v5 → v6 migration preserves supported records and infers no theory, Zotero provenance, or attachments; ambiguous, duplicate, dangling, and cross-project Theory relationships produce zero writes.
+- [ ] Container v1, encrypted-vault database v1, and registry database v1 remain distinct from portable/standard v6; authenticated legacy portable-v3/v4/v5 vaults/backups migrate safely and every failure retains old ciphertext or creates no target.
 
 ## Quality gates
 
 - [ ] `npm ci`
+- [ ] `npm run audit:release`
 - [ ] `npm run lint`
 - [ ] `npm run typecheck`
 - [ ] `npm test`
+- [ ] `npm run test:zotero`
 - [ ] `npm run build`
+- [ ] `npm run test:e2e`
 - [ ] Manual desktop and narrow-layout review
 - [ ] Light and dark theme review
 - [ ] Keyboard focus and basic accessibility review
@@ -84,6 +97,8 @@ Attach or record exact outputs; do not infer success from an earlier revision.
 - [ ] Security and research-ethics limitations remain prominent.
 
 ## GitHub and release
+
+Tag and formal GitHub Release checks apply only when those artifacts are in scope. A website-only update retains the existing Release/tag unless their publication is explicitly authorized.
 
 - [ ] Remote repository and visibility are independently verified.
 - [ ] The release commit exists on `main`.

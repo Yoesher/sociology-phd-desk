@@ -6,7 +6,7 @@ JSON export and import provide backup, inspection, and migration for a browser-l
 
 Published [`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0), at exact release SHA [`bb0d32f`](https://github.com/Yoesher/sociology-phd-desk/commit/bb0d32fe99348204ba89a16d6469014ae38e0ecf), uses portable and standard storage v5 while encrypted container v1, encrypted-vault database v1, and registry database v1 remain independently versioned. PWA distribution and application updates do not alter or move workspace payloads. `PROJECT_STATE.md` is the factual gate record.
 
-The `0.3.1` website-update candidate advances portable workspace, standard database, and authenticated encrypted payload to v6 for optional local literature PDFs. The container, vault database, and registry database stay v1. The source behavior below does not establish deployment; see `PROJECT_STATE.md` for actual publication progress.
+The `0.3.1` website update advances portable workspace, standard database, and authenticated encrypted payload to v6 for optional local literature PDFs. The container, vault database, and registry database stay v1. Exact deployment and public-verification evidence is recorded in `PROJECT_STATE.md`.
 
 ## Export envelope
 
@@ -31,12 +31,12 @@ Project spaces change the displayed records only. Both export paths include the 
 Phase 3C defines a separate encrypted-backup container v1. It is not a portable JSON envelope renamed with a custom extension:
 
 - the file extension is `.sociologydesk` and the encrypted-backup purpose is authenticated in its protected header;
-- historically, backups on the exact `v0.2.0` release revision contain a complete, strictly validated portable-v4 workspace and accept authenticated legacy portable-v3 payloads through explicit in-memory migration; new backups in the `0.3.1` candidate contain portable v6, including attached PDFs, and retain authenticated v3/v4/v5 migration support;
+- historically, backups on the exact `v0.2.0` release revision contain a complete, strictly validated portable-v4 workspace and accept authenticated legacy portable-v3 payloads through explicit in-memory migration; new backups in `0.3.1` contain portable v6, including attached PDFs, and retain authenticated v3/v4/v5 migration support;
 - each backup uses a fresh PBKDF2 salt and AES-GCM IV, independent from the local vault and every other backup;
 - the protected header intentionally omits workspace name, logical/binding ID, and research timestamp, although the authenticated/decrypted portable payload contains the canonical exported workspace name;
 - the exact transport wrapper uses canonical JSON field order (`protected`, `iv`, `ciphertext`) and canonical unpadded base64url, but its contents are an authenticated ciphertext container rather than inspectable portable JSON;
 - the wrapper/header is rejected if fields, bytes, encoding, size, or versions are missing, unknown, noncanonical, or unsupported;
-- authentication, the explicit supported migration chain where needed, complete validation, and workspace-identity checks happen before any destination registry or database write: the exact `v0.2.0` revision validated v4 after v3 → v4 migration, and the `0.3.1` candidate validates v6;
+- authentication, the explicit supported migration chain where needed, complete validation, and workspace-identity checks happen before any destination registry or database write: the exact `v0.2.0` revision validated v4 after v3 → v4 migration, and `0.3.1` validates v6;
 - restore always creates a new logical workspace ID and a new encrypted-vault binding; it never overwrites the source workspace merely because the backup carries the same decrypted identity.
 
 The protected header is limited to 8 KiB and ciphertext to 64 MiB. Content is not compressed. The operating system and filesystem can still expose file name, size, location, and file timestamps. There is no password reset or recovery key.
@@ -92,7 +92,7 @@ Phase 3B does not introduce an Evidence↔Claim relationship or an evidence `cla
 
 The v4 envelope retains every v3 collection and adds `theoryMemos`. Every memo has a stable project ID, stable locale-neutral type, and explicit same-project question/claim/literature ID arrays. Missing endpoints, duplicate IDs within an array, and cross-project references fail validation before write. The v5 envelope retains all v4 collections and adds stable, separately validated Zotero provenance records linked to existing Literature items.
 
-The v6 envelope retains the v5 collections and permits optional PDF bytes inside literature records. A v6 backup requires a v6-capable app; the published v5 app is not claimed to read it. Preserve original files and tested backups when moving data between application versions.
+The v6 envelope retains the v5 collections and permits optional PDF bytes inside literature records. A v6 backup requires a v6-capable app; the `v0.3.0` app (schema v5) is not claimed to read it. Preserve original files and tested backups when moving data between application versions.
 
 Malformed legacy graph or theory fields are rejected rather than silently discarded. Unsupported future versions fail validation rather than being guessed or partially imported.
 
@@ -100,11 +100,11 @@ Unsupported future versions should fail safely with an actionable message. Old s
 
 ### Independent current version axes
 
-Phase 3C established the v3/v3/v1/v1/v1 baseline, and Phase 3E advanced portable and standard storage to v4. Published `v0.3.0` uses v5 for Zotero provenance. The `0.3.1` candidate advances portable/standard and authenticated encrypted payload to v6:
+Phase 3C established the v3/v3/v1/v1/v1 baseline, and Phase 3E advanced portable and standard storage to v4. Published `v0.3.0` uses v5 for Zotero provenance. `0.3.1` advances portable/standard and authenticated encrypted payload to v6:
 
 | Version domain | Current version | Scope |
 | --- | ---: | --- |
-| Portable workspace | 6 | Candidate plaintext research payload and v1 → v2 → v3 → v4 → v5 → v6 JSON import/export, including optional PDFs |
+| Portable workspace | 6 | Plaintext research payload and v1 → v2 → v3 → v4 → v5 → v6 JSON import/export, including optional PDFs |
 | Standard workspace database | 6 | Same per-workspace 19-table IndexedDB adapter, permitting PDF content in literature records |
 | Authenticated encrypted payload | 6 | Complete portable snapshot; authenticated v3/v4/v5 migration remains supported |
 | Registry database | 1 | Plaintext routing/recovery metadata only |
