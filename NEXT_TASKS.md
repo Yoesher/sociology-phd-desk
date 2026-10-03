@@ -1,8 +1,8 @@
 # Next Tasks
 
-> Updated 2026-10-03: Application **0.3.1 publication is in progress** on release/v0.3.1-research-feedback. The approved environment now supports real GitHub and browser operations. Public website remains 0.3.0 until exact-main deployment and public acceptance succeed. Latest formal GitHub Release/tag remains v0.3.0; no tag or Release was created or moved.
+> Updated 2026-10-03: Website application **0.3.1 is deployed and verified** through [PR #55](https://github.com/Yoesher/sociology-phd-desk/pull/55), feature merge SHA `7f50ecd209b1a9deac3b9bc38653f798020a5817`. This documentation closeout preserves that exact deployment evidence; every subsequent main SHA must independently pass CI, CodeQL and Pages. Latest formal GitHub Release/tag remains v0.3.0; no tag or Release was created or moved.
 
-## P0 — Scoped feedback improvements (`0.3.1` website candidate)
+## P0 — Scoped feedback improvements (0.3.1 website update complete)
 
 - [x] Separate local PDF selection from Zotero handoff selection; allow manual citation entry without requiring Zotero.
 - [x] Add a persistent complete-literature action and visible/saved counts; clear URL and page filters, show successful saves, retain failed forms, and reopen records for viewing/editing.
@@ -17,7 +17,7 @@
 - [x] Prepare application/package/lock/citation/update metadata as `0.3.1` dated 2026-10-03, with bilingual three-item feature summaries and a source-guide details URL instead of a nonexistent `v0.3.1` Release URL.
 - [x] Preserve the previous-session create_branch rejection (MCP tool call requires approval, but approval policy is never) as history. The current user-authorized continuation uses actual execution-environment approvals; current remote state is separately recorded in PROJECT_STATE.md.
 - [x] Record current-session final checks: lint, typecheck, 39 files / 348 tests (40.35 s), 1,983-module production build, 25-entry PWA contract and zero-vulnerability audit after minimal security patches. The original npm run test:zotero command now passes 8/8 through real approved child-process execution; its earlier spawn EPERM remains historical.
-- [ ] Complete exact-head push/PR CI and CodeQL, expected-head merge, exact-main CI/CodeQL/Pages and public acceptance. Environment approvals now work; do not infer deployment from local PASS. Keep formal Release/tag at v0.3.0.
+- [x] Publish through PR #55: exact-head push/PR CI and CodeQL, expected-head merge, exact-main CI/CodeQL/Pages and independent public desktop/mobile smoke, service-worker registration and update discovery passed at 7f50ecd209b1a9deac3b9bc38653f798020a5817. Formal Release/tag remain v0.3.0. Every documentation closeout main SHA must independently pass the same remote checks and its real public build update; do not reuse the feature SHA's success.
 
 Reported missing literature is not proven data loss and has not been restored from the user's browser database. Checking the complete list and project scope can reveal filtered records; any deeper diagnosis must inspect that user's actual saved workspace without reset or replacement. In-app deadline displays do not send notifications while the webpage is closed.
 

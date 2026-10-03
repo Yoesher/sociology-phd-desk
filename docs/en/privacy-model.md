@@ -6,7 +6,7 @@ This page separates four protection levels that are easy to confuse.
 
 Version note: published [`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0), at exact release SHA [`bb0d32f`](https://github.com/Yoesher/sociology-phd-desk/commit/bb0d32fe99348204ba89a16d6469014ae38e0ecf), uses portable/standard v5 and encrypted container/vault/registry v1. Its service worker precaches application static assets only and does not move workspace data into Cache Storage.
 
-The `0.3.1` website-update candidate uses portable/standard and authenticated encrypted payload v6; container/vault/registry remain v1. The `v0.3.0` paragraphs below retain their historical version facts. Actual publication progress is recorded in [PROJECT_STATE.md](../../PROJECT_STATE.md).
+The `0.3.1` website update uses portable/standard and authenticated encrypted payload v6; container/vault/registry remain v1. The `v0.3.0` paragraphs below retain their historical version facts. Deployment and public-verification evidence is recorded in [PROJECT_STATE.md](../../PROJECT_STATE.md).
 
 Optional literature PDFs in v6 store actual bytes, limited to 5 MiB each and 12 MiB per complete workspace, and are included in full-workspace backups. PDF content in standard IndexedDB and ordinary JSON remains plaintext; encrypted workspaces and `.sociologydesk` backups encrypt attachments with the other research records. Dataset, script, and output paths remain references and do not ingest their files; Zotero handoff remains bibliographic metadata-only. Project spaces change displayed scope without creating a security boundary between projects; writes and backups retain the entire workspace.
 
@@ -36,7 +36,7 @@ An encrypted `.sociologydesk` backup uses a fresh salt and IV independently of t
 
 In published `v0.3.0`, new vaults and backups contain portable v5. Existing portable-v3/v4 ciphertext is authenticated before any migration. Local-vault upgrade writes and reads back a complete v5 container before publishing the new state; wrong passphrase, tamper, encryption failure, storage failure, or read-back failure leaves the old ciphertext available. Restoring a legacy backup migrates only in memory and writes a new v5 vault only after authentication and complete validation. The container, vault-database, and registry-database version numbers remain 1; they must not be confused with the portable payload version.
 
-The `0.3.1` candidate advances the same authentication, complete-validation, and read-back boundary to v6 while retaining migration support for authenticated v3/v4/v5 vaults and backups. The v5 → v6 step preserves existing records and Zotero provenance without inferring attachments. A v6 backup requires a v6-capable app; the existing v5 app is not claimed to read it.
+`0.3.1` advances the same authentication, complete-validation, and read-back boundary to v6 while retaining migration support for authenticated v3/v4/v5 vaults and backups. The v5 → v6 step preserves existing records and Zotero provenance without inferring attachments. A v6 backup requires a v6-capable app; the `v0.3.0` app (schema v5) is not claimed to read it.
 
 New logical IDs, non-bootstrap storage locators and ownership tokens, encrypted binding IDs, salts, and IVs require cryptographically secure browser randomness and fail closed if it is unavailable. Deterministic initial routes only coordinate concurrent first boot and are not secrets.
 
