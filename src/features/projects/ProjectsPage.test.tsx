@@ -102,6 +102,44 @@ describe('ProjectsPage localization and research graph boundary', () => {
     expect(initial.projects.map((project) => project.status)).toContain(theoryProject.status)
   })
 
+  it('handles a rejected project save while retaining the draft and committed snapshot', async () => {
+    const initial = createDemoWorkspace(new Date('2026-08-11T00:00:00.000Z'))
+    const committed = structuredClone(initial)
+    const updateData = vi.fn<WorkspaceContextValue['updateData']>()
+      .mockRejectedValue(new Error('SYNTHETIC project storage failure'))
+    const context: WorkspaceContextValue = {
+      data: initial, loading: false, saving: false, error: null, updateData,
+      setActiveProject: vi.fn(), replaceWith: vi.fn(), mergeWith: vi.fn(),
+      resetDemo: vi.fn(), refresh: vi.fn(), clearError: vi.fn(),
+    }
+    const unhandledRejection = vi.fn()
+    window.addEventListener('unhandledrejection', unhandledRejection)
+    try {
+      const user = userEvent.setup()
+      render(<I18nProvider><WorkspaceContext.Provider value={context}>
+        <MemoryRouter initialEntries={['/projects?view=all']}><ProjectsPage /></MemoryRouter>
+      </WorkspaceContext.Provider></I18nProvider>)
+
+      const row = screen.getByRole('row', { name: /Employment Mobility among Young Adults/ })
+      await user.click(within(row).getByRole('button', { name: '编辑' }))
+      const dialog = screen.getByRole('dialog', { name: '编辑研究项目' })
+      await user.clear(within(dialog).getByLabelText(/项目标题/))
+      await user.type(within(dialog).getByLabelText(/项目标题/), 'SYNTHETIC unsaved project title')
+      await user.clear(within(dialog).getByLabelText('项目备注'))
+      await user.type(within(dialog).getByLabelText('项目备注'), 'SYNTHETIC unsaved project notes')
+      await user.click(within(dialog).getByRole('button', { name: '保存更改' }))
+
+      await waitFor(() => expect(updateData).toHaveBeenCalledOnce())
+      expect(dialog).toBeVisible()
+      expect(within(dialog).getByLabelText(/项目标题/)).toHaveValue('SYNTHETIC unsaved project title')
+      expect(within(dialog).getByLabelText('项目备注')).toHaveValue('SYNTHETIC unsaved project notes')
+      expect(initial).toEqual(committed)
+      expect(unhandledRejection).not.toHaveBeenCalled()
+    } finally {
+      window.removeEventListener('unhandledrejection', unhandledRejection)
+    }
+  })
+
   it('creates and edits a many-to-many claim using stable IDs and blocks linked deletion', async () => {
     const user = userEvent.setup()
     const initial = createDemoWorkspace(new Date('2026-08-11T00:00:00.000Z'))

@@ -6,7 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-No unreleased changes are recorded after the formal `v0.3.0` Release.
+The 0.3.1 website-update candidate is undergoing the authorized release checks. The previous-session approval rejection is historical; current deployment evidence will be recorded in PROJECT_STATE.md after exact-main and public acceptance.
+
+## [0.3.1] - 2026-10-03 (website release candidate; deployment verification pending)
+
+### Added
+
+- Optional local PDF attachments for manual literature records, with separate PDF/Zotero file selection, a 5 MiB per-file limit, a 12 MiB workspace-total limit, and inclusion in portable/encrypted workspace backups.
+- A project-space selector and project entry action that scope project-linked records across the existing research modules, automatically select the project in forms, and retain full-workspace writes and backups. Daily goals remain explicitly workspace-wide.
+- Absolute task deadlines, remaining/overdue days, an in-app deadline summary, a next-seven-days view, and task viewing/editing that preserves completion state and notes.
+
+### Fixed
+
+- Literature records hidden by combinations of page and URL filters can be found with a persistent Show all literature action and visible/saved counts. Successful saves return to the complete scoped list; failed saves retain entered values.
+- Existing literature records can be reopened for viewing/editing, including local attachment download/removal. PDF selection and saving are distinct actions with visible feedback.
+- Scoped Zotero handoff skips sources already linked to another project; cross-project refresh/link actions require returning to all projects.
+
+### Compatibility and privacy
+
+- Portable workspace, standard IndexedDB, and authenticated encrypted payload advance to v6 with explicit v5 → v6 migration and authenticated v3/v4/v5 compatibility. Encrypted container, vault database, and registry database remain v1.
+- Local PDF contents persist with the normal workspace snapshot. Zotero handoff remains metadata-only; citation details still require manual confirmation, and no PDF-text extraction or automatic folder access is added.
+- Task reminders are visible while the application is open; no closed-webpage notification, account, cloud sync, or telemetry is introduced. Reported missing literature is not a verified data-loss diagnosis or a claim of restored user records.
+- The map remains deferred. Package/application version `0.3.1` identifies this website candidate and does not imply a formal GitHub Release or annotated tag.
+
+See [the feedback-improvement guide](docs/feedback-improvements-2026-10-03.md) and [the current verification/deployment record](PROJECT_STATE.md).
 
 ## [0.3.0] - 2026-08-15
 

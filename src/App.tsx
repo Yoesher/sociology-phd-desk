@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, type ReactNode } from 'react'
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from './app/AppShell'
+import { ProjectScopeProvider } from './app/ProjectScope'
 import { WorkspaceAccessGate } from './app/WorkspaceAccessGate'
 import { WorkspaceCenter } from './app/WorkspaceCenter'
 import { WorkspaceProvider } from './app/WorkspaceContext'
@@ -46,7 +47,7 @@ function ResearchRoutes() {
   return (
     <HashRouter>
       <Routes>
-        <Route element={<AppShell />}>
+        <Route element={<ProjectScopeProvider><AppShell /></ProjectScopeProvider>}>
           <Route index element={<RouteBoundary><TodayPage /></RouteBoundary>} />
           <Route path="projects" element={<RouteBoundary><ProjectsPage /></RouteBoundary>} />
           <Route path="literature" element={<RouteBoundary><LiteraturePage /></RouteBoundary>} />

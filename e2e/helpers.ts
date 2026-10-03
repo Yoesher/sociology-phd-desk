@@ -2,6 +2,18 @@ import { expect, type Page } from '@playwright/test'
 
 export const syntheticPrefix = 'DEMO E2E'
 
+export function captureBrowserDiagnostics(page: Page) {
+  const pageErrors: string[] = []
+  const consoleProblems: string[] = []
+  page.on('pageerror', (error) => pageErrors.push(error.message))
+  page.on('console', (message) => {
+    if (message.type() === 'error' || message.type() === 'warning') {
+      consoleProblems.push(`${message.type()}: ${message.text()}`)
+    }
+  })
+  return { pageErrors, consoleProblems }
+}
+
 export async function dismissReleaseSummary(page: Page) {
   const summary = page.getByRole('dialog', { name: /v\d+\.\d+\.\d+ 更新摘要/ })
   const opened = await summary.waitFor({ state: 'visible', timeout: 2_000 })
@@ -9,22 +21,41 @@ export async function dismissReleaseSummary(page: Page) {
   if (!opened) return
   await summary.getByRole('button', { name: '知道了' }).click()
   await expect(summary).toBeHidden()
+  await expect(page.locator('.modal-backdrop[data-closing="true"]')).toHaveCount(0)
 }
 
 export async function waitForApp(page: Page) {
   await expect(page.locator('.app-shell')).toBeVisible()
   await dismissReleaseSummary(page)
-  await expect(page.getByRole('navigation', { name: '研究工作区' })).toBeVisible()
+  // A bare root first canonicalizes to its default Smart View. Opening a drawer
+  // before that route commit races AppShell's intentional close-on-navigation.
+  await expect(page).toHaveURL(/#\/.*(?:\?|&)view=[^&#]+/)
+  if ((page.viewportSize()?.width ?? 1280) <= 1024) {
+    await expect(page.getByRole('button', { name: '打开导航', exact: true })).toBeVisible()
+  } else {
+    await expect(page.getByRole('navigation', { name: '研究工作区' })).toBeVisible()
+  }
 }
 
 export async function openWorkspaceCenter(page: Page) {
   const center = page.getByRole('dialog', { name: '本地工作台', exact: true })
   if (await center.isVisible().catch(() => false)) return center
 
-  await page.getByRole('button', { name: '更多操作' }).click()
-  const more = page.getByRole('dialog', { name: '更多操作' })
-  await expect(more).toBeVisible()
-  await more.getByRole('button', { name: '工作空间与设置' }).click()
+  if ((page.viewportSize()?.width ?? 1280) <= 1024) {
+    const drawer = page.getByRole('dialog', { name: '模块导航', exact: true })
+    if (!await drawer.isVisible()) {
+      await page.getByRole('button', { name: '打开导航', exact: true }).click()
+    }
+    await expect(drawer).toBeVisible()
+    const settings = drawer.getByRole('button', { name: '工作空间与设置', exact: true })
+    if (await settings.getAttribute('aria-expanded') !== 'true') await settings.click()
+    await drawer.getByRole('button', { name: '我的工作台', exact: true }).click()
+  } else {
+    await page.getByRole('button', { name: '更多操作' }).click()
+    const more = page.getByRole('dialog', { name: '更多操作' })
+    await expect(more).toBeVisible()
+    await more.getByRole('button', { name: '工作空间与设置' }).click()
+  }
   await expect(center).toBeVisible()
   await expect(center.getByRole('button', { name: '关闭对话框' })).toBeFocused()
   return center

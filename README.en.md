@@ -8,6 +8,12 @@ Manage the full research lifecycle—from literature and fieldwork to quantitati
 
 ## Start now
 
+### `0.3.1` website-update candidate — 2026-10-03
+
+This candidate adds local PDF attachments and literature viewing/editing, project spaces, and task deadlines that can be revisited and edited. PDFs are limited to 5 MiB each and 12 MiB per workspace and are included in portable/encrypted backups. Project spaces scope project-linked records; deadline reminders are displayed while the app is open.
+
+The user authorized updating the existing GitHub Pages site. The previous session's remote write was blocked by its environment approval policy; the resumed checks, PR, merge, and deployment state are recorded in [PROJECT_STATE.md](PROJECT_STATE.md). `0.3.1` identifies this application candidate. The existing formal GitHub Release/tag is `v0.3.0`; this website update does not create or move tags. See the [feedback guide in Chinese](docs/feedback-improvements-2026-10-03.md).
+
 **Use the web app now:** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
 
 - **No registration or GitHub knowledge:** open the link to create a local workspace; no account, cloud database, or default sync is required.
@@ -103,7 +109,7 @@ A proposed feature should answer a simple question: **does it solve a distinctiv
 
 - Core research records are stored in the browser with IndexedDB. Separate workspaces use separate physical databases, but remain inside one Web-origin trust boundary.
 - No account, default cloud synchronization, analytics, or third-party tracker is required.
-- Local file fields are references; the application is not a secure vault for source datasets or transcripts.
+- Local paths for datasets, analysis scripts, and outputs are references and do not ingest those files. Optional literature PDFs in the `0.3.1` candidate store actual bytes and are included in ordinary/encrypted backups; the application is not a secure vault for source datasets or transcripts.
 - Standard workspaces and ordinary JSON exports are plaintext. Only an explicitly encrypted workspace or `.sociologydesk` backup uses application-layer encryption.
 - Workspace names, timestamps, mode, auto-lock state, and opaque storage-locator metadata remain visible in the plaintext registry. Encryption does not hide approximate database or backup size.
 - AI is not a core dependency. Any future AI suggestion must remain visibly separate from source evidence.
@@ -174,11 +180,13 @@ Ordinary JSON export is an inspectable, portable, **plaintext** workspace. Treat
 
 `v0.2.0` exports portable v4 and continues to accept supported v1, v2, and v3 files by applying explicit v1 → v2 → v3 → v4 transformations before the same strict validation; v3 → v4 creates only an empty `theoryMemos` collection. See [data portability](docs/data-portability.md) for migration details and the research-graph boundary.
 
+The `0.3.1` candidate exports portable v6 and migrates supported older JSON through v1 → v2 → v3 → v4 → v5 → v6. The v5 → v6 step preserves literature and Zotero provenance without inferring PDF attachments. Project spaces change the displayed scope; writes and backups retain the complete workspace and other projects. Ordinary JSON containing PDFs remains plaintext. A v6 backup requires a v6-capable app and cannot be read by the existing v5 app.
+
 Phase 3C adds `.sociologydesk` encrypted backup for encrypted workspaces. It is a separate container-v1 format, not ordinary JSON with a different extension. Restore authenticates and validates the entire backup before creating an independent workspace with a new logical workspace ID. A wrong passphrase or damaged ciphertext writes no destination workspace. See [data portability](docs/data-portability.md) and the [privacy and encryption model](docs/en/privacy-model.md) for the format and failure boundaries.
 
 ## Architecture
 
-The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith. Merged research-graph and Theory work adds explicit stable-ID relationships and `TheoryMemo`; local workspaces use a metadata-only registry, per-workspace database adapters, a session gate, and Web Crypto vault. Current `main` uses portable/standard v5 for separate Zotero external references; container, vault, and registry remain independently at v1.
+The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith. Merged research-graph and Theory work adds explicit stable-ID relationships and `TheoryMemo`; local workspaces use a metadata-only registry, per-workspace database adapters, a session gate, and Web Crypto vault. Formal `v0.3.0` uses portable/standard v5 for separate Zotero external references. This `0.3.1` candidate uses portable/standard and authenticated encrypted payload v6; container, vault, and registry remain independently at v1.
 
 See [architecture overview](docs/architecture/overview.md), [data model](docs/architecture/data-model.md), and [decisions](DECISIONS.md).
 

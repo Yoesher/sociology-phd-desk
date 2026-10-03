@@ -5,7 +5,7 @@ import {
   RESEARCH_METHODS,
   type ResearchProject,
 } from '../../models/domain'
-import { useWorkspace } from '../../hooks/useWorkspace'
+import { useProjectWorkspace as useWorkspace } from '../../hooks/useProjectWorkspace'
 import { daysUntil, entityMeta, todayIso, truncate } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import { useModuleSearch } from '../../hooks/useModuleSearch'
@@ -28,6 +28,7 @@ import {
   type Tone,
 } from '../../components/ui'
 import { ResearchGraphWorkspace } from './ResearchGraphWorkspace'
+import { useProjectScope } from '../../app/project-scope-context'
 
 interface ProjectDraft {
   title: string
@@ -69,6 +70,7 @@ function matchesProjectView(project: ResearchProject, view: ProjectView): boolea
 }
 
 export function ProjectsPage() {
+  const { enter: enterProject } = useProjectScope()
   const { data, updateData, setActiveProject } = useWorkspace()
   const { t, formatDate, formatNumber, labelEnum } = useI18n()
   const [search, setSearch] = useState('')
@@ -356,7 +358,10 @@ export function ProjectsPage() {
           </>
         }
       >
-        <form id="project-form" className="form-grid" onSubmit={(event) => void saveProject(event)}>
+        <form id="project-form" className="form-grid" onSubmit={(event) => {
+          // WorkspaceContext presents persistence errors or the stale-session gate.
+          void saveProject(event).catch(() => undefined)
+        }}>
           <Field label={t('projects.form.title')} required className="form-span-2">
             <input autoFocus required value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} placeholder={t('projects.form.titlePlaceholder')} />
           </Field>
@@ -389,6 +394,7 @@ export function ProjectsPage() {
           size="xl"
           footer={
             <>
+              <Button onClick={() => { void enterProject(detail.id).then(() => setDetail(null)).catch(() => undefined) }}>{t('feedback.project.enter')}</Button>
               <Button onClick={() => void setActiveProject(detail.id)}>{t('projects.detail.makePrimary')}</Button>
               <Button variant="primary" onClick={() => openEdit(detail)}>{t('projects.detail.edit')}</Button>
             </>

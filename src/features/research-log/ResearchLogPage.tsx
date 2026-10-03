@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { ArrowRight, CalendarDays, ScrollText } from 'lucide-react'
 import type { ResearchLogEntry } from '../../models/domain'
-import { useWorkspace } from '../../hooks/useWorkspace'
+import { useProjectWorkspace as useWorkspace } from '../../hooks/useProjectWorkspace'
 import {
   entityMeta,
   projectLabel,

@@ -1,6 +1,27 @@
 # Next Tasks
 
-> [`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0) is the latest formal Release at exact SHA `bb0d32fe99348204ba89a16d6469014ae38e0ecf`. The map review still has four BLOCKED gates, but the map is formally DEFERRED and excluded. `NEXT_STAGE = V0.3.0 ADOPTION & EXTERNAL TESTING`; do not start `v0.4`.
+> Updated 2026-10-03: Application **0.3.1 publication is in progress** on release/v0.3.1-research-feedback. The approved environment now supports real GitHub and browser operations. Public website remains 0.3.0 until exact-main deployment and public acceptance succeed. Latest formal GitHub Release/tag remains v0.3.0; no tag or Release was created or moved.
+
+## P0 — Scoped feedback improvements (`0.3.1` website candidate)
+
+- [x] Separate local PDF selection from Zotero handoff selection; allow manual citation entry without requiring Zotero.
+- [x] Add a persistent complete-literature action and visible/saved counts; clear URL and page filters, show successful saves, retain failed forms, and reopen records for viewing/editing.
+- [x] Persist optional PDF content in literature records and include it in portable/encrypted backups, with 5 MiB per-file and 12 MiB total workspace limits.
+- [x] Add explicit portable/standard schema v6 and authenticated v3/v4/v5 encrypted migration compatibility; preserve legacy records and Zotero provenance without inventing attachments.
+- [x] Add project-scoped display across the existing modules, automatic project assignment, and full-snapshot writes/backups that retain other-project data.
+- [x] Display task due dates, remaining/overdue days, upcoming work, and task viewing/editing; preserve completion status and notes.
+- [x] Provide both Simplified Chinese and English UI messages, and record ADR-025 plus the [candidate use guide](docs/feedback-improvements-2026-10-03.md).
+- [x] Complete the current-session final unit gate: 39 files / 348 tests (40.35 s); a new regression verifies project-save rejection handling and draft retention. Earlier 347-test candidate results remain historical evidence in PROJECT_STATE.md.
+- [x] Run unmodified npm run lint, npm run typecheck and npm run build through real environment approvals; production/PWA contract passed. No temporary runtime adapter is included or used for the final commands.
+- [x] Execute real final browser workflows: 20 passed (3.7 min), 0 retries / 0 flaky / 0 skipped, with desktop and mobile enabled for all scenes, full other-project records and PDF/JSON/encrypted-backup/restore assertions. Previous spawn EPERM is a historical checkpoint.
+- [x] Prepare application/package/lock/citation/update metadata as `0.3.1` dated 2026-10-03, with bilingual three-item feature summaries and a source-guide details URL instead of a nonexistent `v0.3.1` Release URL.
+- [x] Preserve the previous-session create_branch rejection (MCP tool call requires approval, but approval policy is never) as history. The current user-authorized continuation uses actual execution-environment approvals; current remote state is separately recorded in PROJECT_STATE.md.
+- [x] Record current-session final checks: lint, typecheck, 39 files / 348 tests (40.35 s), 1,983-module production build, 25-entry PWA contract and zero-vulnerability audit after minimal security patches. The original npm run test:zotero command now passes 8/8 through real approved child-process execution; its earlier spawn EPERM remains historical.
+- [ ] Complete exact-head push/PR CI and CodeQL, expected-head merge, exact-main CI/CodeQL/Pages and public acceptance. Environment approvals now work; do not infer deployment from local PASS. Keep formal Release/tag at v0.3.0.
+
+Reported missing literature is not proven data loss and has not been restored from the user's browser database. Checking the complete list and project scope can reveal filtered records; any deeper diagnosis must inspect that user's actual saved workspace without reset or replacement. In-app deadline displays do not send notifications while the webpage is closed.
+
+> Historical release closeout (2026-08-15): [`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0) is the latest formal Release in that record at exact SHA `bb0d32fe99348204ba89a16d6469014ae38e0ecf`. The map review has four BLOCKED gates; the map is formally DEFERRED and excluded. The scoped feedback candidate remains within `V0.3.0 ADOPTION & EXTERNAL TESTING`; do not start broader `v0.4` work.
 
 ## P0 — v0.3.0 release finalization (complete)
 

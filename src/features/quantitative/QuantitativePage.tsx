@@ -6,7 +6,7 @@ import {
   type AnalysisRun,
   type Dataset,
 } from '../../models/domain'
-import { useWorkspace } from '../../hooks/useWorkspace'
+import { useProjectWorkspace as useWorkspace } from '../../hooks/useProjectWorkspace'
 import { entityMeta, todayIso, truncate } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import { useModuleSearch } from '../../hooks/useModuleSearch'

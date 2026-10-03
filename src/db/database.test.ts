@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { SociologyPhdDeskDatabase } from './database'
 import { createDemoWorkspace } from '../models/demo'
 import { WorkspaceValidationError } from '../utils/workspace-transfer'
+import { StandardWorkspaceRepository, WORKSPACE_COLLECTIONS, workspaceSnapshotsEqual } from './workspaceRepository'
 
 function legacyGraphRecords() {
   const demo = createDemoWorkspace(new Date('2026-04-10T09:30:00.000Z'))
@@ -23,6 +24,72 @@ function legacyGraphRecords() {
 }
 
 describe('database migrations', () => {
+  it('opens a populated published v5 database as v6 and retains all research records and Zotero provenance', async () => {
+    const databaseName = `sociology-phd-desk-v5-migration-${crypto.randomUUID()}`
+    const legacyDatabase = new Dexie(databaseName)
+    legacyDatabase.version(5).stores({
+      workspaces: '&id, revision, updatedAt',
+      projects: '&id, status, method, updatedAt',
+      researchQuestions: '&id, projectId, status, updatedAt',
+      claims: '&id, projectId, status, updatedAt',
+      claimQuestionLinks: '&id, projectId, claimId, researchQuestionId, updatedAt',
+      theoryMemos: '&id, projectId, memoType, updatedAt',
+      tasks: '&id, projectId, status, category, dueDate, priority',
+      literature: '&id, projectId, status, priority, year',
+      literatureExternalReferences: '&id, literatureItemId, provider, &[provider+externalLibraryId+externalItemKey], importedAt',
+      fieldSites: '&id, projectId, status',
+      interviews: '&id, projectId, fieldSiteId, status, interviewDate',
+      fieldVisits: '&id, projectId, fieldSiteId, date',
+      datasets: '&id, projectId, name',
+      analysisRuns: '&id, projectId, datasetId, status, date',
+      evidence: '&id, projectId, evidenceType, supportLevel',
+      researchLogs: '&id, projectId, date',
+      manuscripts: '&id, projectId, status, deadline',
+      submissions: '&id, projectId, manuscriptId, status, submissionDate',
+      reviewerComments: '&id, submissionId, status, severity',
+    })
+    const workspace = createDemoWorkspace(new Date('2026-10-03T00:00:00.000Z'))
+    workspace.workspace.revision = 7
+    workspace.literatureExternalReferences = [{
+      id: 'synthetic-v5-zotero-source',
+      createdAt: workspace.exportedAt,
+      updatedAt: workspace.exportedAt,
+      isDemo: true,
+      literatureItemId: workspace.literature[0]!.id,
+      provider: 'zotero',
+      externalLibraryId: 'synthetic-library',
+      externalItemKey: 'SYNTH001',
+      externalVersion: 3,
+      importedAt: workspace.exportedAt,
+    }]
+    let repository: StandardWorkspaceRepository | undefined
+    try {
+      await legacyDatabase.table('workspaces').put(workspace.workspace)
+      for (const collection of WORKSPACE_COLLECTIONS) {
+        await legacyDatabase.table(collection).bulkPut(workspace[collection])
+      }
+      expect(legacyDatabase.verno).toBe(5)
+      legacyDatabase.close()
+      const upgradedDatabase = new SociologyPhdDeskDatabase(databaseName)
+      repository = new StandardWorkspaceRepository(upgradedDatabase, workspace.workspace.id)
+      const upgraded = await repository.getWorkspaceSnapshot()
+      expect(upgradedDatabase.verno).toBe(6)
+      expect(upgraded?.version).toBe(6)
+      expect(upgraded && workspaceSnapshotsEqual(upgraded, workspace)).toBe(true)
+      expect(upgraded?.workspace.revision).toBe(7)
+      expect(upgraded?.literatureExternalReferences).toEqual(workspace.literatureExternalReferences)
+      expect(upgraded?.literature.every((item) => item.localPdf === undefined)).toBe(true)
+      repository.close()
+      repository = new StandardWorkspaceRepository(new SociologyPhdDeskDatabase(databaseName), workspace.workspace.id)
+      const reopened = await repository.getWorkspaceSnapshot()
+      expect(reopened && workspaceSnapshotsEqual(reopened, workspace)).toBe(true)
+    } finally {
+      legacyDatabase.close()
+      repository?.close()
+      await Dexie.delete(databaseName)
+    }
+  })
+
   it('upgrades v1 through revisions and first-class graph tables without losing source text', async () => {
     const databaseName = `sociology-phd-desk-migration-${crypto.randomUUID()}`
     const legacyDatabase = new Dexie(databaseName)
@@ -46,7 +113,7 @@ describe('database migrations', () => {
     try {
       const migrated = await upgradedDatabase.workspaces.get(String(legacyWorkspace['id']))
       expect(migrated?.revision).toBe(0)
-      expect(upgradedDatabase.verno).toBe(5)
+      expect(upgradedDatabase.verno).toBe(6)
       expect(await upgradedDatabase.researchQuestions.count()).toBe(1)
       expect(await upgradedDatabase.claims.count()).toBe(1)
       expect(await upgradedDatabase.claimQuestionLinks.count()).toBe(0)
@@ -124,7 +191,7 @@ describe('database migrations', () => {
     const upgradedDatabase = new SociologyPhdDeskDatabase(databaseName)
     try {
       await upgradedDatabase.open()
-      expect(upgradedDatabase.verno).toBe(5)
+      expect(upgradedDatabase.verno).toBe(6)
       expect(await upgradedDatabase.projects.count()).toBe(1)
       expect(await upgradedDatabase.researchQuestions.count()).toBe(1)
       expect(await upgradedDatabase.claims.count()).toBe(1)

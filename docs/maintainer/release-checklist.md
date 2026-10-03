@@ -31,9 +31,11 @@ npm run test:zotero
 ## 3. Data and migration gate
 
 - [ ] Fresh current-schema standard and encrypted workspaces open, write, lock/unlock, export, and restore.
-- [ ] Portable migrations v1 → v2 → v3 → v4 → v5 and direct v4 → v5 pass.
-- [ ] Standard IndexedDB migrations v1 → v2 → v3 → v4 → v5 and direct v4 → v5 pass.
-- [ ] Existing authenticated encrypted local payload v4 → v5 and encrypted backup v4 → v5 pass without writing on wrong passphrase, tamper, or failed migration.
+- [ ] Portable migrations v1 → v2 → v3 → v4 → v5 → v6 and direct v5 → v6 pass.
+- [ ] Standard IndexedDB migrations through v6 and direct v5 → v6 preserve existing records and Zotero provenance.
+- [ ] Existing authenticated encrypted local payloads and encrypted backups v3/v4/v5 → v6 pass without writing on wrong passphrase, tamper, or failed migration.
+- [ ] Optional local PDFs survive standard/encrypted persistence and portable/encrypted backups; size/content guards reject invalid or oversized attachments before writes.
+- [ ] Project-scoped edits preserve the full workspace, including all other projects and their records.
 - [ ] Current-schema portable/encrypted round trips preserve stable IDs and user-authored content.
 - [ ] Import preflight remains write-free and all size/count/string guards pass.
 

@@ -23,7 +23,7 @@ import type {
 } from '../models/domain'
 import { migrateV2ResearchGraphCollections } from '../utils/workspace-transfer'
 
-export const DATABASE_SCHEMA_VERSION = 5 as const
+export const DATABASE_SCHEMA_VERSION = 6 as const
 export const LEGACY_DATABASE_NAME = 'sociology-phd-desk' as const
 
 const databaseStoresV1 = {
@@ -125,6 +125,7 @@ export class SociologyPhdDeskDatabase extends Dexie {
         }
       })
     this.version(4).stores(databaseStoresV4)
+    this.version(5).stores(databaseStoresV5)
     this.version(DATABASE_SCHEMA_VERSION).stores(databaseStoresV5)
   }
 }

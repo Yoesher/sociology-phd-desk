@@ -6,6 +6,8 @@ JSON export and import provide backup, inspection, and migration for a browser-l
 
 Published [`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0), at exact release SHA [`bb0d32f`](https://github.com/Yoesher/sociology-phd-desk/commit/bb0d32fe99348204ba89a16d6469014ae38e0ecf), uses portable and standard storage v5 while encrypted container v1, encrypted-vault database v1, and registry database v1 remain independently versioned. PWA distribution and application updates do not alter or move workspace payloads. `PROJECT_STATE.md` is the factual gate record.
 
+The `0.3.1` website-update candidate advances portable workspace, standard database, and authenticated encrypted payload to v6 for optional local literature PDFs. The container, vault database, and registry database stay v1. The source behavior below does not establish deployment; see `PROJECT_STATE.md` for actual publication progress.
+
 ## Export envelope
 
 An ordinary portable JSON export contains:
@@ -16,23 +18,25 @@ An ordinary portable JSON export contains:
 - explicitly synthetic/demo marker where applicable;
 - validated collections of supported research objects.
 
-It should not contain analytics IDs, machine credentials, secrets, source file contents, or a hidden remote identifier. Local path references may still be sensitive and should be reviewed before sharing.
+It should not contain analytics IDs, machine credentials, secrets, or a hidden remote identifier. Dataset, script, and output paths remain references and do not include those files' contents. The v6 envelope does include explicitly attached literature PDF bytes as `localPdf: { fileName, size, base64 }`. Attachment content and local path references may be sensitive and should be reviewed before sharing.
 
 Ordinary JSON is plaintext even when it was exported from an unlocked encrypted workspace. The UI must warn before producing it; the `.json` path remains useful for inspection and migration but is not an encrypted backup.
 
 Before either export path is generated, the active snapshot and registry route are refreshed and the registry's canonical `displayName` is copied into the output payload. This export-only copy does not rewrite the active research database or advance `workspace.revision`. Best-effort `lastExportedAt` bookkeeping happens separately in registry metadata and may advance only `registryRevision`.
+
+Project spaces change the displayed records only. Both export paths include the complete workspace, every project, and its attached PDFs; scoped writes likewise preserve records outside the displayed project. Each PDF is limited to 5 MiB and the complete workspace's PDF content to 12 MiB. Size is checked before file reading; save/import validation checks the PDF header, filename, canonical base64, declared size, and aggregate capacity. Zotero handoff continues to import bibliographic metadata only.
 
 ## Encrypted `.sociologydesk` backup
 
 Phase 3C defines a separate encrypted-backup container v1. It is not a portable JSON envelope renamed with a custom extension:
 
 - the file extension is `.sociologydesk` and the encrypted-backup purpose is authenticated in its protected header;
-- new backups on the exact `v0.2.0` release revision contain a complete, strictly validated portable-v4 workspace; authenticated legacy portable-v3 payloads are supported only through explicit in-memory migration;
+- historically, backups on the exact `v0.2.0` release revision contain a complete, strictly validated portable-v4 workspace and accept authenticated legacy portable-v3 payloads through explicit in-memory migration; new backups in the `0.3.1` candidate contain portable v6, including attached PDFs, and retain authenticated v3/v4/v5 migration support;
 - each backup uses a fresh PBKDF2 salt and AES-GCM IV, independent from the local vault and every other backup;
 - the protected header intentionally omits workspace name, logical/binding ID, and research timestamp, although the authenticated/decrypted portable payload contains the canonical exported workspace name;
 - the exact transport wrapper uses canonical JSON field order (`protected`, `iv`, `ciphertext`) and canonical unpadded base64url, but its contents are an authenticated ciphertext container rather than inspectable portable JSON;
 - the wrapper/header is rejected if fields, bytes, encoding, size, or versions are missing, unknown, noncanonical, or unsupported;
-- authentication, explicit v3 → v4 migration where needed, complete portable-v4 validation, and workspace-identity checks happen before any destination registry or database write;
+- authentication, the explicit supported migration chain where needed, complete validation, and workspace-identity checks happen before any destination registry or database write: the exact `v0.2.0` revision validated v4 after v3 → v4 migration, and the `0.3.1` candidate validates v6;
 - restore always creates a new logical workspace ID and a new encrypted-vault binding; it never overwrites the source workspace merely because the backup carries the same decrypted identity.
 
 The protected header is limited to 8 KiB and ciphertext to 64 MiB. Content is not compressed. The operating system and filesystem can still expose file name, size, location, and file timestamps. There is no password reset or recovery key.
@@ -71,7 +75,7 @@ Database schema and portable format versions solve different problems. An intern
 
 The exact `v0.2.0` release revision uses IndexedDB schema v4 and portable workspace v4, including the `theoryMemos` collection merged in Phase 3E. These axes remain independent from each other and from package version `0.2.0`.
 
-Current portable import composes supported migration explicitly as v1 → v2 → v3 → v4 → v5. The v4 → v5 step adds an empty `literatureExternalReferences` collection and never infers Zotero links:
+Candidate portable import composes supported migration explicitly as v1 → v2 → v3 → v4 → v5 → v6. The v4 → v5 step adds an empty `literatureExternalReferences` collection and never infers Zotero links; v5 → v6 preserves records without inventing PDF attachments:
 
 1. v1 → v2 supplies the application discriminator and initial optimistic revision that the pre-release v1 envelope did not contain.
 2. v2 → v3 removes the legacy `Project.researchQuestion` field after creating a stable-ID `ResearchQuestion` under the same project for each non-empty value.
@@ -80,6 +84,7 @@ Current portable import composes supported migration explicitly as v1 → v2 →
 5. Migration does not perform semantic matching, fuzzy matching, or infer that a Claim answers a ResearchQuestion. Legacy `claimQuestionLinks` therefore starts empty.
 6. v3 → v4 adds only `theoryMemos: []`. It never converts logs, notes, tasks, claims, literature annotations, or other user-authored text into theory content. A v3 envelope that already contains a `theoryMemos` field is ambiguous and rejected rather than guessed.
 7. v4 → v5 adds only `literatureExternalReferences: []`. It never infers Zotero identity from DOI, ISBN, title, authors, year, URLs, or user-authored literature text. A v4 envelope that already contains the v5 collection is ambiguous and rejected rather than guessed.
+8. v5 → v6 changes only the envelope version and preserves existing literature and Zotero provenance. A v5 envelope with a `localPdf` property is rejected rather than interpreted as historical attachment data.
 
 The v3 envelope adds `researchQuestions`, `claims`, and `claimQuestionLinks`. Each record uses a stable ID. A `ClaimQuestionLink` names `projectId`, `researchQuestionId`, and `claimId`; both endpoints must exist in that same project, and a duplicate endpoint pair is invalid. Text is never used as a foreign key.
 
@@ -87,30 +92,33 @@ Phase 3B does not introduce an Evidence↔Claim relationship or an evidence `cla
 
 The v4 envelope retains every v3 collection and adds `theoryMemos`. Every memo has a stable project ID, stable locale-neutral type, and explicit same-project question/claim/literature ID arrays. Missing endpoints, duplicate IDs within an array, and cross-project references fail validation before write. The v5 envelope retains all v4 collections and adds stable, separately validated Zotero provenance records linked to existing Literature items.
 
+The v6 envelope retains the v5 collections and permits optional PDF bytes inside literature records. A v6 backup requires a v6-capable app; the published v5 app is not claimed to read it. Preserve original files and tested backups when moving data between application versions.
+
 Malformed legacy graph or theory fields are rejected rather than silently discarded. Unsupported future versions fail validation rather than being guessed or partially imported.
 
 Unsupported future versions should fail safely with an actionable message. Old supported formats should migrate through tested transformations.
 
 ### Independent current version axes
 
-Phase 3C established the v3/v3/v1/v1/v1 baseline, and Phase 3E advanced the first two axes to v4. Published `v0.3.0` advances only portable and standard storage to v5 for Zotero provenance:
+Phase 3C established the v3/v3/v1/v1/v1 baseline, and Phase 3E advanced portable and standard storage to v4. Published `v0.3.0` uses v5 for Zotero provenance. The `0.3.1` candidate advances portable/standard and authenticated encrypted payload to v6:
 
 | Version domain | Current version | Scope |
 | --- | ---: | --- |
-| Portable workspace | 5 | Current plaintext research payload and v1 → v2 → v3 → v4 → v5 JSON import/export |
-| Standard workspace database | 5 | Current per-workspace 19-table IndexedDB adapter including workspace metadata |
+| Portable workspace | 6 | Candidate plaintext research payload and v1 → v2 → v3 → v4 → v5 → v6 JSON import/export, including optional PDFs |
+| Standard workspace database | 6 | Same per-workspace 19-table IndexedDB adapter, permitting PDF content in literature records |
+| Authenticated encrypted payload | 6 | Complete portable snapshot; authenticated v3/v4/v5 migration remains supported |
 | Registry database | 1 | Plaintext routing/recovery metadata only |
 | Encrypted-vault database | 1 | One ciphertext record and CAS coordinates |
 | Encrypted container / backup | 1 | Local-vault and encrypted-backup cryptographic envelopes with distinct authenticated purposes |
 
-These numbers are not the package version. A future change to cryptography, the registry, or portable semantics must advance the affected axis explicitly rather than reinterpret v1/v5 in place.
+These numbers are not the package version. A future change to cryptography, the registry, or portable semantics must advance the affected axis explicitly rather than reinterpret an existing version in place.
 
 ## Legacy singleton migration
 
 The previous physical singleton database is named `sociology-phd-desk`. Phase 3C migration treats it as a recovery source, not a target to mutate:
 
-1. Discover and read the supported v1/v2/v3/v4 source without changing it.
-2. Compose the existing database/portable migrations into one valid portable-v5 snapshot.
+1. Discover and read the supported v1/v2/v3/v4/v5 source without changing it.
+2. Compose the existing database/portable migrations into one valid portable-v6 snapshot.
 3. Reserve a fresh opaque standard-workspace target only after checking registry routes, conversion/recovery locators, migration ledgers, reserved names, and physical existence; an unknown or aliased database is never cleared for reuse.
 4. Write the complete snapshot, close/reopen the physical target, read it back, validate it, and compare it semantically with the source.
 5. Re-read the legacy source and publish a ready registry route only if its identity, revision, and complete content are unchanged; otherwise record a recoverable failure and retain the source.
@@ -122,7 +130,7 @@ The legacy database is never automatically deleted. A migration cannot classify 
 
 Conversion is a two-stage operation coordinated per physical workspace:
 
-1. Under a cross-tab-safe exclusive lock, refresh the latest standard snapshot, preflight a fresh encrypted database name, and durably attach an `encryptedConversion` reservation to the standard route **before** target creation. Create the vault, read back its actual ciphertext, authenticate/decrypt it, strictly validate portable v5, compare it semantically, and re-read the still-current standard source. Only then promote the registry route to encrypted mode and record the standard source as retained.
+1. Under a cross-tab-safe exclusive lock, refresh the latest standard snapshot, preflight a fresh encrypted database name, and durably attach an `encryptedConversion` reservation to the standard route **before** target creation. Create the vault, read back its actual ciphertext, authenticate/decrypt it, strictly validate portable v6, compare it semantically, and re-read the still-current standard source. Only then promote the registry route to encrypted mode and record the standard source as retained.
 2. After a later successful encrypted reopen, the user may request separate plaintext cleanup. Pending research writes are flushed first. The manager then requires the current unlocked encrypted session and takes stable lexically ordered exclusive locks on the encrypted target and plaintext source using their actual physical database names. While both locks remain held, it refreshes/authenticates the current vault, rechecks the route, proves that the source database name is not shared or aliased, and reads the source identity before deletion. Failure before or during physical deletion leaves the source recorded as pending. Failure after physical deletion but before registry finalization may leave a conservative `cleanup-pending` marker until an idempotent retry verifies absence. Even successful IndexedDB deletion is logical deletion, not a secure-erasure guarantee.
 
 The reservation makes interrupted staging explicit:
@@ -143,12 +151,12 @@ Portable validation rejects missing link endpoints, cross-project links, and dup
 
 A question or claim referenced by `ClaimQuestionLink` is protected from deletion until the relationship is explicitly removed. Project deletion is likewise blocked while questions, claims, or link records remain. Import, merge, and replacement must not silently cascade-delete these records or leave orphaned links.
 
-Theory Memo references on current `main` add the same protection for their project, question, claim, and literature endpoints. Deleting a memo removes only that memo; import, merge, replacement, and deletion must not cascade through its relationships.
+Theory Memo references add the same protection for their project, question, claim, and literature endpoints. Deleting a memo removes only that memo; import, merge, replacement, and deletion must not cascade through its relationships.
 
 ## Required tests
 
 - current-version export validates against its own schema;
-- deterministic v1 → v2 → v3 → v4 migration and each supported adjacent path produce the same valid current envelope;
+- deterministic v1 → v2 → v3 → v4 → v5 → v6 migration and each supported adjacent path produce the same valid current envelope;
 - legacy project-question text migrates without remaining on the v3 project record;
 - legacy evidence claim text remains unchanged while same-project exact-trimmed claims receive deterministic IDs;
 - migration creates no inferred Claim–ResearchQuestion links;
@@ -166,14 +174,16 @@ Theory Memo references on current `main` add the same protection for their proje
 - database or validation failure does not leave partial state;
 - demo markers and relationship IDs survive round trip;
 - sensitive-path warning is visible in the UI.
-- idempotent v1/v2/v3/v4 legacy-singleton copy, physical read-back, semantic equality, and failure retention;
+- idempotent v1/v2/v3/v4/v5 legacy-singleton copy, physical read-back, semantic equality, and failure retention;
 - target-storage collision, orphaned target, interrupted provisioning, and retry behavior without deleting an unrelated database;
 - deterministic concurrent bootstrap convergence and edited-legacy-demo classification as personal beside a separate pristine demo;
 - fresh empty personal workspace and separate exact synthetic demo workspace, including demo-only reset and deleted-demo behavior;
 - same entity IDs in separate physical databases remain isolated and cross-workspace endpoints are rejected;
 - stale standard sessions cannot recreate or modify plaintext after conversion, cleanup, or deletion;
 - encrypted local/backup round trips, independent salt/IV generation, wrong-passphrase and tamper generic failures, strict canonical wrapper parsing, and authentication-before-write;
-- authenticated legacy portable-v3/v4 vault/backup migration to v5, verified read-back, idempotent repeat unlock, and old-ciphertext retention on every failure path;
+- authenticated legacy portable-v3/v4/v5 vault/backup migration to v6, verified read-back, idempotent repeat unlock, and old-ciphertext retention on every failure path;
+- optional PDF bytes survive ordinary export, standard database reopen, encrypted persistence, and encrypted backup restore; bad encodings/headers/sizes and file/workspace capacity overflow fail safely;
+- scoped writes and JSON/encrypted backups retain all projects and records outside the display projection;
 - lock, reload, auto-lock, lock-epoch delayed-write rejection, and cross-tab route transition behavior;
 - plaintext JSON export from standard/encrypted workspaces remains visibly distinct from `.sociologydesk` encrypted backup;
 - canonical registry-name export copies do not persist a domain rename or advance the workspace-data revision;

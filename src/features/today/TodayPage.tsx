@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useContext, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { ScrollText } from 'lucide-react'
 import {
   PRIORITIES,
@@ -7,7 +7,8 @@ import {
   type ResearchTask,
   type WorkspaceData,
 } from '../../models/domain'
-import { useWorkspace } from '../../hooks/useWorkspace'
+import { useProjectWorkspace as useWorkspace } from '../../hooks/useProjectWorkspace'
+import { useProjectScope } from '../../app/project-scope-context'
 import { WorkspaceSessionContext } from '../../app/workspace-session-context'
 import { entityMeta, isOverdue, todayIso } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
@@ -89,18 +90,23 @@ function isTrulyEmptyPersonalWorkspace(data: WorkspaceData): boolean {
 }
 
 export function TodayPage() {
-  const { data, updateData, setActiveProject } = useWorkspace()
+  const { projectId: scopeId } = useProjectScope()
+  const { data, updateData, setActiveProject, saving } = useWorkspace()
   const workspaceSession = useContext(WorkspaceSessionContext)
-  const { locale, t, formatNumber, labelEnum } = useI18n()
+  const { locale, t, formatDate, formatNumber, labelEnum } = useI18n()
   const [taskOpen, setTaskOpen] = useState(false)
   const [logOpen, setLogOpen] = useState(false)
   const [task, setTask] = useState(emptyTask)
+  const [editingTask, setEditingTask] = useState<ResearchTask | null>(null)
+  const [taskMessage, setTaskMessage] = useState('')
+  const [taskError, setTaskError] = useState(false)
+  const taskSaving = useRef(false)
   const [log, setLog] = useState(emptyLog)
   const [goals, setGoals] = useState<string[] | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<ResearchTask['category'] | ''>('')
   const { searchParams, updateSearch } = useModuleSearch('today')
   const view = (searchParams.get('view') || 'overview') as TodayView
-  const taskFilter = searchParams.get('filter') || (view === 'tasks' ? 'today' : 'all')
+  const taskFilter = searchParams.get('filter') || 'all'
 
   const today = todayIso()
   const dateLabel = new Intl.DateTimeFormat(locale, {
@@ -114,6 +120,7 @@ export function TodayPage() {
     const filtered = (data?.tasks ?? []).filter((item) => {
       if (view === 'tasks' && taskFilter === 'today') return item.dueDate === today && item.status !== 'Done'
       if (view === 'tasks' && taskFilter === 'overdue') return isOverdue(item.dueDate, item.status)
+      if (view === 'tasks' && taskFilter === 'upcoming') return item.status !== 'Done' && dueWithinWeek(item.dueDate, today)
       if (view === 'tasks' && taskFilter === 'completed') {
         return item.status === 'Done' && dueWithinPastWeek(item.updatedAt.slice(0, 10), today)
       }
@@ -141,7 +148,9 @@ export function TodayPage() {
     const handleQuickAdd = (event: Event) => {
       const detail = (event as QuickAddEvent).detail
       if (detail?.module !== 'today' || detail.action !== 'task') return
-      setTask({ ...emptyTask, projectId: data?.workspace.activeProjectId || '' })
+      setTask({ ...emptyTask, dueDate: todayIso(), projectId: data?.workspace.activeProjectId || '' })
+      setEditingTask(null)
+      setTaskError(false)
       setTaskOpen(true)
     }
     window.addEventListener(QUICK_ADD_EVENT, handleQuickAdd)
@@ -159,15 +168,31 @@ export function TodayPage() {
 
   const saveTask = async (event: FormEvent) => {
     event.preventDefault()
+    if (taskSaving.current) return
+    taskSaving.current = true
+    setTaskError(false)
     const record: ResearchTask = {
-      ...entityMeta('task'),
+      ...(editingTask || entityMeta('task')),
       ...task,
+      title: task.title.trim(),
+      dueDate: task.dueDate || undefined,
+      updatedAt: new Date().toISOString(),
+      isDemo: false,
       projectId: task.projectId || data.workspace.activeProjectId || '',
-      status: 'To Do',
+      status: editingTask?.status || 'To Do',
     }
-    await updateData((current) => ({ ...current, tasks: [record, ...current.tasks] }))
-    setTask(emptyTask)
-    setTaskOpen(false)
+    try {
+      await updateData((current) => ({ ...current, tasks: editingTask ? current.tasks.map((item) => item.id === record.id ? { ...record, status: item.status, createdAt: item.createdAt } : item) : [record, ...current.tasks] }))
+      setTask(emptyTask)
+      setTaskOpen(false)
+      setTaskMessage(t('feedback.task.saved'))
+      setCategoryFilter('')
+      updateSearch({ view: 'tasks', filter: 'all' })
+    } catch {
+      setTaskError(true)
+    } finally {
+      taskSaving.current = false
+    }
   }
 
   const saveLog = async (event: FormEvent) => {
@@ -207,9 +232,23 @@ export function TodayPage() {
   }
 
   const openTaskForm = () => {
-    setTask({ ...emptyTask, projectId: data.workspace.activeProjectId || '' })
+    setTask({ ...emptyTask, dueDate: todayIso(), projectId: data.workspace.activeProjectId || data.projects[0]?.id || '' })
+    setEditingTask(null)
+    setTaskError(false)
     setTaskOpen(true)
   }
+
+  const openEditTask = (item: ResearchTask) => {
+    setEditingTask(item)
+    setTaskError(false)
+    setTask({ title: item.title, projectId: item.projectId, category: item.category, priority: item.priority, dueDate: item.dueDate || '', notes: item.notes })
+    setTaskOpen(true)
+  }
+
+  const deadlineDays = (date: string) => Math.round((Date.parse(`${date}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86_400_000)
+  const dueTodayCount = data.tasks.filter((item) => item.status !== 'Done' && item.dueDate === today).length
+  const dueSoonCount = data.tasks.filter((item) => item.status !== 'Done' && item.dueDate && deadlineDays(item.dueDate) > 0 && deadlineDays(item.dueDate) <= 6).length
+  const overdueCount = data.tasks.filter((item) => isOverdue(item.dueDate, item.status)).length
 
   const openLogForm = () => {
     setLog({ ...emptyLog, projectId: data.workspace.activeProjectId || '' })
@@ -289,7 +328,7 @@ export function TodayPage() {
       <div className="today-grid">
         <section className="panel panel--goals">
           <SectionHeader
-            title={t('today.goals.title')}
+            title={t(scopeId ? 'feedback.project.sharedGoals' : 'today.goals.title')}
             description={t('today.goals.description')}
             action={
               goals ? (
@@ -351,9 +390,11 @@ export function TodayPage() {
         <section className="panel">
           <SectionHeader
             title={t('today.tasks.title')}
-            description={t('today.tasks.description')}
+            description={t('feedback.task.description')}
             action={<Button size="sm" variant="ghost" onClick={openTaskForm}>{t('today.tasks.add')}</Button>}
           />
+          {taskMessage && <p role="status" className="feedback-success">{taskMessage}</p>}
+          <p className="task-deadline-summary">{t('feedback.task.reminder', { today: formatNumber(dueTodayCount), soon: formatNumber(dueSoonCount), overdue: formatNumber(overdueCount) })}</p>
           {view === 'tasks' && <FilterChips
             ariaLabel={t('today.tasks.viewFilter')}
             value={taskFilter}
@@ -361,6 +402,7 @@ export function TodayPage() {
             options={[
               { value: 'all', label: t('common.all') },
               { value: 'today', label: t('today.tasks.today') },
+              { value: 'upcoming', label: t('feedback.task.upcoming') },
               { value: 'overdue', label: t('today.tasks.overdue') },
               { value: 'completed', label: t('today.tasks.completed') },
             ]}
@@ -375,19 +417,20 @@ export function TodayPage() {
           {visibleTasks.length ? (
             <div className="check-list">
               {visibleTasks.map((item) => (
-                <CheckRow
-                  key={item.id}
+                <div key={item.id} className="task-edit-row"><CheckRow
                   checked={item.status === 'Done'}
                   label={item.title}
                   onChange={() => void toggleTask(item)}
                   meta={
                     <>
                       {isOverdue(item.dueDate, item.status) && <Badge tone="danger">{t('today.tasks.overdue')}</Badge>}
+                      <span className="task-deadline">{item.dueDate ? t('feedback.task.deadline', { date: formatDate(item.dueDate) }) : t('feedback.task.none')}</span>
+                      {item.dueDate && item.status !== 'Done' && <Badge tone={deadlineDays(item.dueDate) < 0 ? 'danger' : deadlineDays(item.dueDate) <= 2 ? 'warning' : 'neutral'}>{t(deadlineDays(item.dueDate) < 0 ? 'feedback.task.late' : deadlineDays(item.dueDate) === 0 ? 'feedback.task.today' : 'feedback.task.remaining', { days: formatNumber(Math.abs(deadlineDays(item.dueDate))) })}</Badge>}
                       <span>{localizedProjectLabel(item.projectId)}</span>
                       <span>{labelEnum(item.category)}</span>
                     </>
                   }
-                />
+                /><Button size="sm" variant="ghost" aria-label={t('feedback.task.editName', { title: item.title })} onClick={() => openEditTask(item)}>{t('feedback.task.edit')}</Button></div>
               ))}
             </div>
           ) : (
@@ -432,17 +475,18 @@ export function TodayPage() {
 
       <Modal
         open={taskOpen}
-        title={t('today.taskForm.title')}
+        title={t(editingTask ? 'feedback.task.editTitle' : 'today.taskForm.title')}
         description={t('today.taskForm.description')}
-        onClose={() => setTaskOpen(false)}
+        onClose={() => { if (!taskSaving.current) setTaskOpen(false) }}
         footer={
           <>
-            <Button onClick={() => setTaskOpen(false)}>{t('common.cancel')}</Button>
-            <Button variant="primary" type="submit" form="today-task-form">{t('today.taskForm.submit')}</Button>
+            <Button disabled={saving} onClick={() => { if (!taskSaving.current) setTaskOpen(false) }}>{t('common.cancel')}</Button>
+            <Button disabled={saving} variant="primary" type="submit" form="today-task-form">{t(editingTask ? 'common.save' : 'today.taskForm.submit')}</Button>
           </>
         }
       >
         <form id="today-task-form" className="form-grid" onSubmit={(event) => void saveTask(event)}>
+          {taskError && <p role="alert" className="text-danger form-span-2">{t('feedback.task.failed')}</p>}
           <Field label={t('today.taskForm.task')} required className="form-span-2">
             <input required autoFocus value={task.title} onChange={(event) => setTask({ ...task, title: event.target.value })} placeholder={t('today.taskForm.taskPlaceholder')} />
           </Field>

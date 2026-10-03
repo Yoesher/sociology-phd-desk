@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use Sociology PhD Desk in your work, please cite this software and its exact release version."
+message: "If you use Sociology PhD Desk in your work, please cite this software and its exact application version."
 title: "Sociology PhD Desk"
 type: software
 authors:
@@ -7,6 +7,6 @@ authors:
     website: "https://github.com/Yoesher"
 repository-code: "https://github.com/Yoesher/sociology-phd-desk"
 url: "https://yoesher.github.io/sociology-phd-desk/"
-version: 0.3.0
-date-released: 2026-08-15
+version: 0.3.1
+date-released: 2026-10-03
 license: MIT

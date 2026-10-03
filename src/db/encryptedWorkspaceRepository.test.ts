@@ -12,6 +12,7 @@ import {
 import {
   createSyntheticLegacyV3Backup,
   createSyntheticLegacyV3LocalContainer,
+  createSyntheticLegacyV5LocalContainer,
 } from '../crypto/legacyV3TestFixture.test-helper'
 import { createDemoWorkspace } from '../models/demo'
 import type { WorkspaceData } from '../models/domain'
@@ -92,8 +93,10 @@ function recordBytes(record: EncryptedVaultRecord): string {
 async function installLegacyV3Vault(
   id: string,
   workspace: WorkspaceData,
+  payloadVersion: 3 | 5 = 3,
 ): Promise<EncryptedVaultRecord> {
-  const container = await createSyntheticLegacyV3LocalContainer(
+  const createContainer = payloadVersion === 5 ? createSyntheticLegacyV5LocalContainer : createSyntheticLegacyV3LocalContainer
+  const container = await createContainer(
     workspace,
     PASSPHRASE,
     {
@@ -117,6 +120,23 @@ async function installLegacyV3Vault(
 }
 
 describe('encrypted workspace repository', () => {
+  it('opens a published v5 vault and upgrades it once without changing research content', async () => {
+    const id = bindingId()
+    const workspace = createDemoWorkspace(ANCHOR)
+    const legacy = await installLegacyV3Vault(id, workspace, 5)
+    await expect(unlockEncryptedWorkspace(id, WRONG_PASSPHRASE)).rejects.toThrow()
+    expect(recordBytes((await inspectEncryptedWorkspaceRecord(id))!)).toBe(recordBytes(legacy))
+    const first = track(await unlockEncryptedWorkspace(id, PASSPHRASE))
+    expect(first.workspace).toEqual(workspace)
+    const upgraded = (await inspectEncryptedWorkspaceRecord(id))!
+    expect(inspectLocalProtectedHeader(upgraded).payloadVersion).toBe(6)
+    expect(upgraded.storageRevision).toBe(legacy.storageRevision)
+    expect(upgraded.keyInvocation).toBe(2)
+    first.close()
+    const reopened = track(await unlockEncryptedWorkspace(id, PASSPHRASE))
+    expect(reopened.workspace).toEqual(workspace)
+    expect(reopened.coordinates.keyInvocation).toBe(2)
+  })
   it('atomically upgrades an authenticated v3 vault once and reads back v5', async () => {
     const id = bindingId()
     const workspace = createDemoWorkspace(ANCHOR)
@@ -130,7 +150,7 @@ describe('encrypted workspace repository', () => {
     })
     const upgraded = await inspectEncryptedWorkspaceRecord(id)
     expect(upgraded).not.toBeNull()
-    expect(upgraded && inspectLocalProtectedHeader(upgraded).payloadVersion).toBe(5)
+    expect(upgraded && inspectLocalProtectedHeader(upgraded).payloadVersion).toBe(6)
     expect(upgraded?.storageRevision).toBe(legacy.storageRevision)
     expect(upgraded?.keyInvocation).toBe(2)
     first.close()
@@ -251,8 +271,8 @@ describe('encrypted workspace repository', () => {
       ),
     )
     const record = await inspectEncryptedWorkspaceRecord(restored.bindingId)
-    expect(record && inspectLocalProtectedHeader(record).payloadVersion).toBe(5)
-    expect(restored.workspace.version).toBe(5)
+    expect(record && inspectLocalProtectedHeader(record).payloadVersion).toBe(6)
+    expect(restored.workspace.version).toBe(6)
     expect(restored.workspace.theoryMemos).toEqual([])
     expect(restored.workspace.literatureExternalReferences).toEqual([])
   })

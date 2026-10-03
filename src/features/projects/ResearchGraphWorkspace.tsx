@@ -10,7 +10,7 @@ import {
   type ResearchQuestionStatus,
 } from '../../models/domain'
 import { entityMeta, truncate } from '../../app/format'
-import { useWorkspace } from '../../hooks/useWorkspace'
+import { useProjectWorkspace as useWorkspace } from '../../hooks/useProjectWorkspace'
 import { useI18n } from '../../i18n'
 import {
   AddButton,

@@ -4,13 +4,17 @@ import {
   LITERATURE_STATUSES,
   PRIORITIES,
   type LiteratureItem,
+  type LiteraturePdf,
 } from '../../models/domain'
-import { useWorkspace } from '../../hooks/useWorkspace'
+import { useProjectWorkspace as useWorkspace } from '../../hooks/useProjectWorkspace'
+import { useProjectScope } from '../../app/project-scope-context'
 import { useI18n } from '../../i18n'
 import { entityMeta, truncate } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import { useModuleSearch } from '../../hooks/useModuleSearch'
 import { ProjectSelect } from '../../components/ProjectSelect'
+import { readLocalPdf, MAX_WORKSPACE_PDF_BYTES } from './local-pdf'
+import { PdfDownload } from './PdfDownload'
 import {
   applyZoteroImport,
   buildZoteroImportPreview,
@@ -48,6 +52,7 @@ interface LiteratureDraft {
   priority: LiteratureItem['priority']
   whyRead: string
   notes: string
+  localPdf?: LiteraturePdf
 }
 
 const emptyDraft = (): LiteratureDraft => ({
@@ -75,7 +80,8 @@ const statusTone = (status: LiteratureItem['status']): Tone => {
 type LiteratureView = 'inbox' | 'reading' | 'cited' | 'all'
 
 export function LiteraturePage() {
-  const { data, updateData } = useWorkspace()
+  const { projectId: scopeId } = useProjectScope()
+  const { data, fullData, updateData, saving } = useWorkspace()
   const { t, formatNumber, labelEnum } = useI18n()
   const [search, setSearch] = useState('')
   const [projectFilter, setProjectFilter] = useState('')
@@ -91,17 +97,25 @@ export function LiteraturePage() {
   const [zoteroError, setZoteroError] = useState(false)
   const zoteroFileInput = useRef<HTMLInputElement>(null)
   const [draft, setDraft] = useState<LiteratureDraft>(emptyDraft)
+  const [editing, setEditing] = useState<LiteratureItem | null>(null)
+  const [saveMessage, setSaveMessage] = useState('')
+  const [saveError, setSaveError] = useState('')
+  const [pdfBusy, setPdfBusy] = useState(false)
+  const saveInFlight = useRef(false)
+  const pdfFileInput = useRef<HTMLInputElement>(null)
+  const pdfRequest = useRef(0)
   const { searchParams, updateSearch } = useModuleSearch('literature')
   const view = (searchParams.get('view') || 'inbox') as LiteratureView
   const urlStatus = searchParams.get('status') || ''
 
   const openZoteroPreview = (preview: ZoteroImportPreview) => {
+    setSaveError('')
     setZoteroPreview(preview)
     setZoteroChoices(Object.fromEntries(preview.items.map((item) => [zoteroSourceIdentity(item.source), {
       externalLibraryId: String(item.source.libraryID),
       itemKey: item.source.itemKey,
-      decision: item.defaultDecision,
-      literatureItemId: item.exactLiterature?.id || item.suggestions[0]?.id,
+      decision: scopeId && item.exactLiterature && item.exactLiterature.projectId !== scopeId ? 'skip' : item.defaultDecision,
+      literatureItemId: item.exactLiterature?.id || item.suggestions.find((source) => !scopeId || source.projectId === scopeId)?.id,
     }])))
     setZoteroProjectId(data?.workspace.activeProjectId || data?.projects[0]?.id || '')
     setZoteroStatus('Inbox')
@@ -115,7 +129,7 @@ export function LiteraturePage() {
     const fragment = searchParams.get('zotero-handoff')
     if (!fragment) return
     try {
-      openZoteroPreview(buildZoteroImportPreview(data, parseZoteroHandoffFragment(fragment)))
+      openZoteroPreview(buildZoteroImportPreview(fullData || data, parseZoteroHandoffFragment(fragment)))
     } catch {
       setZoteroError(true)
     } finally {
@@ -146,7 +160,11 @@ export function LiteraturePage() {
     const handleQuickAdd = (event: Event) => {
       const detail = (event as QuickAddEvent).detail
       if (detail?.module !== 'literature' || detail.action !== 'literature') return
+      pdfRequest.current += 1
+      setPdfBusy(false)
       setDraft({ ...emptyDraft(), projectId: data?.workspace.activeProjectId || data?.projects[0]?.id || '' })
+      setEditing(null)
+      setSaveError('')
       setFormOpen(true)
     }
     window.addEventListener(QUICK_ADD_EVENT, handleQuickAdd)
@@ -161,6 +179,10 @@ export function LiteraturePage() {
   }
 
   const openCreate = () => {
+    pdfRequest.current += 1
+    setPdfBusy(false)
+    setEditing(null)
+    setSaveError('')
     setDraft({ ...emptyDraft(), projectId: data.workspace.activeProjectId || data.projects[0]?.id || '' })
     setFormOpen(true)
   }
@@ -169,7 +191,7 @@ export function LiteraturePage() {
     if (!file) return
     try {
       if (file.size > MAX_ZOTERO_BUNDLE_BYTES) throw new Error('Zotero bundle is too large.')
-      openZoteroPreview(buildZoteroImportPreview(data, parseZoteroHandoffJson(await file.text())))
+      openZoteroPreview(buildZoteroImportPreview(fullData || data, parseZoteroHandoffJson(await file.text())))
     } catch {
       setZoteroError(true)
     }
@@ -177,22 +199,37 @@ export function LiteraturePage() {
 
   const confirmZoteroImport = async (event: FormEvent) => {
     event.preventDefault()
-    if (!zoteroPreview) return
-    await updateData((current) => applyZoteroImport(current, {
-      preview: zoteroPreview,
-      choices: Object.values(zoteroChoices),
-      projectId: zoteroProjectId,
-      status: zoteroStatus,
-      priority: zoteroPriority,
-      whyRead: zoteroWhyRead,
-    }))
-    setZoteroPreview(null)
+    if (!zoteroPreview || saveInFlight.current) return
+    saveInFlight.current = true
+    setSaveError('')
+    try {
+      await updateData((current) => applyZoteroImport(current, {
+        preview: zoteroPreview,
+        choices: Object.values(zoteroChoices),
+        projectId: zoteroProjectId,
+        status: zoteroStatus,
+        priority: zoteroPriority,
+        whyRead: zoteroWhyRead,
+      }))
+      showAllLiterature()
+      setSaveMessage(t('feedback.literature.imported'))
+      setZoteroPreview(null)
+    } catch {
+      setSaveError(t('feedback.literature.failed'))
+    } finally {
+      saveInFlight.current = false
+    }
   }
 
   const saveLiterature = async (event: FormEvent) => {
     event.preventDefault()
+    if (saveInFlight.current || pdfBusy) return
+    saveInFlight.current = true
+    setSaveError('')
     const record: LiteratureItem = {
-      ...entityMeta('literature'),
+      ...(editing || entityMeta('literature')),
+      updatedAt: new Date().toISOString(),
+      isDemo: false,
       title: draft.title.trim(),
       authors: draft.authors.split(/[;,\n]/).map((author) => author.trim()).filter(Boolean),
       year: draft.year ? Number(draft.year) : undefined,
@@ -204,9 +241,62 @@ export function LiteraturePage() {
       priority: draft.priority,
       whyRead: draft.whyRead,
       notes: draft.notes,
+      localPdf: draft.localPdf,
     }
-    await updateData((current) => ({ ...current, literature: [record, ...current.literature] }))
+    try {
+      await updateData((current) => {
+        const otherPdfBytes = current.literature.filter((item) => item.id !== record.id).reduce((total, item) => total + (item.localPdf?.size || 0), 0)
+        if (otherPdfBytes + (record.localPdf?.size || 0) > MAX_WORKSPACE_PDF_BYTES) throw new Error('pdf-total-limit')
+        return { ...current, literature: editing ? current.literature.map((item) => item.id === record.id ? { ...record, createdAt: item.createdAt } : item) : [record, ...current.literature] }
+      })
+      showAllLiterature()
+      setSaveMessage(t('feedback.literature.saved', { title: record.title }))
+      setFormOpen(false)
+    } catch (error) {
+      setSaveError(t(error instanceof Error && error.message === 'pdf-total-limit' ? 'feedback.pdf.limit' : 'feedback.literature.failed'))
+    } finally {
+      saveInFlight.current = false
+    }
+  }
+
+  const showAllLiterature = () => {
+    setSearch(''); setProjectFilter(''); setStatusFilter(''); setPriorityFilter('')
+    updateSearch({ view: 'all', status: null })
+  }
+
+  const openEdit = (item: LiteratureItem) => {
+    pdfRequest.current += 1
+    setPdfBusy(false)
+    setEditing(item)
+    setSaveError('')
+    setDraft({ title: item.title, authors: item.authors.join('; '), year: item.year ? String(item.year) : '', journal: item.journal || '', doi: item.doi || '', url: item.url || '', projectId: item.projectId, status: item.status, priority: item.priority, whyRead: item.whyRead, notes: item.notes, localPdf: item.localPdf })
+    setFormOpen(true)
+  }
+
+  const choosePdf = async (file?: File) => {
+    if (!file) return
+    const request = ++pdfRequest.current
+    setPdfBusy(true)
+    setSaveError('')
+    try {
+      const pdf = await readLocalPdf(file)
+      if (request === pdfRequest.current) setDraft((current) => ({ ...current, title: current.title || file.name.replace(/\.pdf$/i, ''), localPdf: pdf }))
+    } catch {
+      if (request === pdfRequest.current) setSaveError(t('feedback.pdf.invalid'))
+    } finally {
+      if (request === pdfRequest.current) setPdfBusy(false)
+    }
+  }
+
+  const closeLiteratureForm = () => {
+    if (saveInFlight.current) return
+    pdfRequest.current += 1
+    setPdfBusy(false)
     setFormOpen(false)
+  }
+
+  const closeZoteroPreview = () => {
+    if (!saveInFlight.current) setZoteroPreview(null)
   }
 
   const updateStatus = async (id: string, status: LiteratureItem['status']) => {
@@ -230,12 +320,12 @@ export function LiteraturePage() {
         eyebrow={t('literature.header.eyebrow')}
         title={t('literature.header.title')}
         description={t('literature.header.description')}
-        actions={<><input ref={zoteroFileInput} className="literature-zotero-file" type="file" tabIndex={-1} aria-hidden="true" accept=".spdzotero,.sociology-zotero.json,application/json" onChange={(event) => { void chooseZoteroFile(event.target.files?.[0]); event.target.value = '' }} /><Button onClick={() => zoteroFileInput.current?.click()}><Upload size={15} />{t('literature.zotero.import')}</Button><AddButton onClick={openCreate}>{t('literature.actions.add')}</AddButton></>}
+        actions={<><input ref={zoteroFileInput} className="literature-zotero-file" hidden type="file" tabIndex={-1} aria-hidden="true" accept=".spdzotero,.sociology-zotero.json,application/json" onChange={(event) => { void chooseZoteroFile(event.target.files?.[0]); event.target.value = '' }} /><input ref={pdfFileInput} className="literature-zotero-file" hidden type="file" tabIndex={-1} aria-hidden="true" accept=".pdf,application/pdf" onChange={(event) => { void choosePdf(event.target.files?.[0]); event.target.value = '' }} /><Button onClick={() => { openCreate(); pdfFileInput.current?.click() }}>{t('feedback.pdf.add')}</Button><Button onClick={() => zoteroFileInput.current?.click()}><Upload size={15} />{t('feedback.literature.zoteroFile')}</Button><AddButton onClick={openCreate}>{t('literature.actions.add')}</AddButton></>}
       />
 
       <section className="boundary-note">
         <LibraryBig size={18} />
-        <div><strong>{t('literature.boundary.title')}</strong><p>{t('literature.boundary.description')}</p></div>
+        <div><strong>{t('feedback.literature.title')}</strong><p>{t('feedback.literature.manual')}</p></div>
       </section>
 
       <div className="stats-grid stats-grid--four">
@@ -246,6 +336,8 @@ export function LiteraturePage() {
       </div>
 
       <section className="panel">
+        {saveMessage && <p role="status" className="feedback-success">{saveMessage}</p>}
+        <div className="literature-recovery"><Button size="sm" onClick={showAllLiterature}>{t('feedback.literature.all')}</Button><span>{t('feedback.literature.count', { visible: formatNumber(filtered.length), total: formatNumber(data.literature.length) })}</span></div>
         {view === 'reading' && <FilterChips ariaLabel={t('literature.form.status')} value={urlStatus} onChange={(status) => updateSearch({ status })} options={[
           { value: '', label: t('common.all') },
           ...(['To Read', 'Reading', 'Read'] as const).map((status) => ({ value: status, label: labelEnum(status) })),
@@ -283,6 +375,8 @@ export function LiteraturePage() {
                   <select value={item.status} onChange={(event) => void updateStatus(item.id, event.target.value as LiteratureItem['status'])} aria-label={t('literature.item.updateStatusAria', { title: item.title })}>
                     {LITERATURE_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}
                   </select>
+                  {item.localPdf && <PdfDownload pdf={item.localPdf} />}
+                  <Button size="sm" variant="ghost" onClick={() => openEdit(item)}>{t('feedback.literature.edit')}</Button>
                 </div>
               </article>
             ))}
@@ -291,22 +385,25 @@ export function LiteraturePage() {
           <EmptyState
             title={data.literature.length ? t('literature.empty.filteredTitle') : t('literature.empty.initialTitle')}
             description={data.literature.length ? t('literature.empty.filteredDescription') : t('literature.empty.initialDescription')}
-            action={data.literature.length ? <Button onClick={() => { setSearch(''); setProjectFilter(''); setStatusFilter(''); setPriorityFilter('') }}>{t('literature.actions.clearFilters')}</Button> : <AddButton onClick={openCreate}>{t('literature.actions.addFirst')}</AddButton>}
+            action={data.literature.length ? <Button onClick={showAllLiterature}>{t('literature.actions.clearFilters')}</Button> : <AddButton onClick={openCreate}>{t('literature.actions.addFirst')}</AddButton>}
           />
         )}
       </section>
 
       <Modal
         open={formOpen}
-        title={t('literature.form.title')}
-        description={t('literature.form.description')}
-        onClose={() => setFormOpen(false)}
+        title={t(editing ? 'feedback.literature.editTitle' : 'literature.form.title')}
+        description={t('feedback.literature.formHint')}
+        onClose={closeLiteratureForm}
         size="lg"
-        footer={<><Button onClick={() => setFormOpen(false)}>{t('common.cancel')}</Button><Button variant="primary" type="submit" form="literature-form">{t('literature.form.submit')}</Button></>}
+        footer={<><Button disabled={saving} onClick={closeLiteratureForm}>{t('common.cancel')}</Button><Button disabled={saving || pdfBusy} variant="primary" type="submit" form="literature-form">{t(editing ? 'common.save' : 'literature.form.submit')}</Button></>}
       >
         <form id="literature-form" className="form-grid" onSubmit={(event) => void saveLiterature(event)}>
+          {saveError && <p role="alert" className="text-danger form-span-2">{saveError}</p>}
+          <Field label={t('feedback.pdf.field')} hint={t('feedback.pdf.hint')} className="form-span-2"><input aria-label={t('feedback.pdf.field')} type="file" accept=".pdf,application/pdf" disabled={pdfBusy || saving} onChange={(event) => { void choosePdf(event.target.files?.[0]); event.target.value = '' }} /></Field>
+          {draft.localPdf && <div className="form-span-2"><p>{t('feedback.pdf.selected', { name: draft.localPdf.fileName })}</p><Button size="sm" onClick={() => setDraft({ ...draft, localPdf: undefined })}>{t('feedback.pdf.remove')}</Button></div>}
           <Field label={t('literature.form.sourceTitle')} required className="form-span-2"><input autoFocus required value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} /></Field>
-          <Field label={t('literature.form.authors')} required className="form-span-2" hint={t('literature.form.authorsHint')}><input required value={draft.authors} onChange={(event) => setDraft({ ...draft, authors: event.target.value })} placeholder={t('literature.form.authorsPlaceholder')} /></Field>
+          <Field label={t('literature.form.authors')} required={!draft.localPdf} className="form-span-2" hint={t('literature.form.authorsHint')}><input required={!draft.localPdf} value={draft.authors} onChange={(event) => setDraft({ ...draft, authors: event.target.value })} placeholder={t('literature.form.authorsPlaceholder')} /></Field>
           <Field label={t('literature.form.project')} required><ProjectSelect required projects={data.projects} value={draft.projectId} onChange={(projectId) => setDraft({ ...draft, projectId })} /></Field>
           <Field label={t('literature.form.status')}><select value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value as LiteratureItem['status'] })}>{LITERATURE_STATUSES.map((status) => <option key={status} value={status}>{labelEnum(status)}</option>)}</select></Field>
           <Field label={t('literature.form.whyRead')} required><textarea required rows={4} value={draft.whyRead} onChange={(event) => setDraft({ ...draft, whyRead: event.target.value })} placeholder={t('literature.form.whyReadPlaceholder')} /></Field>
@@ -325,11 +422,12 @@ export function LiteraturePage() {
         open={Boolean(zoteroPreview)}
         title={t('literature.zotero.previewTitle')}
         description={t('literature.zotero.previewDescription')}
-        onClose={() => setZoteroPreview(null)}
+        onClose={closeZoteroPreview}
         size="xl"
-        footer={<><Button onClick={() => setZoteroPreview(null)}>{t('common.cancel')}</Button><Button variant="primary" type="submit" form="zotero-import-form">{t('literature.zotero.confirm')}</Button></>}
+        footer={<><Button disabled={saving} onClick={closeZoteroPreview}>{t('common.cancel')}</Button><Button variant="primary" disabled={saving} type="submit" form="zotero-import-form">{t('literature.zotero.confirm')}</Button></>}
       >
         {zoteroPreview && <form id="zotero-import-form" className="zotero-preview" onSubmit={(event) => void confirmZoteroImport(event)}>
+          {saveError && <p role="alert" className="text-danger">{saveError}</p>}
           <p className="boundary-note">{t('literature.zotero.privateBoundary')}</p>
           <div className="badge-row">
             <Badge>{t('literature.zotero.items', { count: formatNumber(zoteroPreview.items.length) })}</Badge>
@@ -347,17 +445,19 @@ export function LiteraturePage() {
             {zoteroPreview.items.map((item) => {
               const identity = zoteroSourceIdentity(item.source)
               const choice = zoteroChoices[identity]!
-              const candidates = item.suggestions
+              const candidates = item.suggestions.filter((source) => !scopeId || source.projectId === scopeId)
+              const outsideScope = Boolean(scopeId && item.exactLiterature && item.exactLiterature.projectId !== scopeId)
               return <article key={identity} className="zotero-preview__item">
                 <div><strong>{item.source.title}</strong><p>{item.source.creators.map((creator) => creator.name || [creator.firstName, creator.lastName].filter(Boolean).join(' ')).filter(Boolean).join('; ')}</p><small>Zotero · {item.source.itemKey}</small></div>
-                <Field label={t('literature.zotero.decision', { title: item.source.title })}><select value={choice.decision} onChange={(event) => setZoteroChoices({ ...zoteroChoices, [identity]: { ...choice, decision: event.target.value as ZoteroImportChoice['decision'] } })}>{!item.exactLiterature && <option value="create">{t('literature.zotero.create')}</option>}{item.exactLiterature && <option value="refresh">{t('literature.zotero.refresh')}</option>}{!item.exactLiterature && candidates.length > 0 && <option value="link">{t('literature.zotero.link')}</option>}<option value="skip">{t('literature.zotero.skip')}</option></select></Field>
+                {outsideScope && <p>{t('feedback.literature.outsideScope')}</p>}
+                <Field label={t('literature.zotero.decision', { title: item.source.title })}><select disabled={outsideScope} value={choice.decision} onChange={(event) => setZoteroChoices({ ...zoteroChoices, [identity]: { ...choice, decision: event.target.value as ZoteroImportChoice['decision'] } })}>{!item.exactLiterature && <option value="create">{t('literature.zotero.create')}</option>}{item.exactLiterature && !outsideScope && <option value="refresh">{t('literature.zotero.refresh')}</option>}{!item.exactLiterature && candidates.length > 0 && <option value="link">{t('literature.zotero.link')}</option>}<option value="skip">{t('literature.zotero.skip')}</option></select></Field>
                 {choice.decision === 'link' && <Field label={t('literature.zotero.linkTarget', { title: item.source.title })}><select required value={choice.literatureItemId || ''} onChange={(event) => setZoteroChoices({ ...zoteroChoices, [identity]: { ...choice, literatureItemId: event.target.value } })}>{candidates.map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.title}</option>)}</select></Field>}
               </article>
             })}
           </div>
         </form>}
       </Modal>
-      {zoteroError && <div role="alert" className="toast toast--error"><span>{t('literature.zotero.invalid')}</span><button type="button" onClick={() => setZoteroError(false)}>{t('common.close')}</button></div>}
+      {zoteroError && <div role="alert" className="toast toast--error"><span>{t('feedback.literature.zoteroInvalid')}</span><button type="button" onClick={() => setZoteroError(false)}>{t('common.close')}</button></div>}
     </div>
   )
 }

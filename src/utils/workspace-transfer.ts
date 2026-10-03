@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { isValidLiteraturePdf, MAX_PDF_BYTES, MAX_WORKSPACE_PDF_BYTES } from '../features/literature/local-pdf'
 import {
   ANALYSIS_RUN_STATUSES,
   ANALYSIS_SOFTWARE,
@@ -183,6 +184,11 @@ const literatureSchema = entityMetadataSchema
     doi: z.string().trim().min(1).max(500).optional(),
     isbn: z.string().trim().min(1).max(500).optional(),
     issn: z.string().trim().min(1).max(500).optional(),
+    localPdf: z.object({
+      fileName: z.string().min(1).max(255),
+      size: z.number().int().min(5).max(MAX_PDF_BYTES),
+      base64: z.string().min(8).max(Math.ceil(MAX_PDF_BYTES / 3) * 4).regex(/^[A-Za-z0-9+/]*={0,2}$/),
+    }).strict().refine(isValidLiteraturePdf, 'Invalid PDF attachment.').optional(),
     url: urlSchema.optional(),
     projectId: idSchema,
     status: z.enum(LITERATURE_STATUSES),
@@ -928,17 +934,24 @@ export function migrateWorkspaceV4ToV5(input: unknown): unknown {
 
   return {
     ...input,
-    version: WORKSPACE_SCHEMA_VERSION,
+    version: 5,
     literatureExternalReferences: [],
   }
 }
 
+/** v6 permits optional local PDFs; historical records and metadata are retained unchanged. */
+export function migrateWorkspaceV5ToV6(input: unknown): unknown {
+  if (!isRecord(input) || input['version'] !== 5) return input
+  if (Array.isArray(input['literature']) && input['literature'].some((item: unknown) => isRecord(item) && Object.prototype.hasOwnProperty.call(item, 'localPdf'))) return input
+  return { ...input, version: WORKSPACE_SCHEMA_VERSION }
+}
+
 function migrateLegacyWorkspace(input: unknown): unknown {
-  return migrateWorkspaceV4ToV5(
+  return migrateWorkspaceV5ToV6(migrateWorkspaceV4ToV5(
     migrateWorkspaceV3ToV4(
       migrateWorkspaceV2ToV3(migrateWorkspaceV1ToV2(input)),
     ),
-  )
+  ))
 }
 
 /**
@@ -961,6 +974,9 @@ export function validateWorkspace(input: unknown): WorkspaceValidationResult {
   }
 
   const data = parsed.data as WorkspaceData
+  if (data.literature.reduce((total, item) => total + (item.localPdf?.size || 0), 0) > MAX_WORKSPACE_PDF_BYTES) {
+    return { success: false, issues: [{ path: ['literature'], message: 'PDF attachments exceed the workspace limit.' }] }
+  }
   const duplicateIssues = [
     ...duplicateIdIssues('projects', data.projects),
     ...duplicateIdIssues('researchQuestions', data.researchQuestions),

@@ -7,7 +7,7 @@ import {
   type ReviewerComment,
   type Submission,
 } from '../../models/domain'
-import { useWorkspace } from '../../hooks/useWorkspace'
+import { useProjectWorkspace as useWorkspace } from '../../hooks/useProjectWorkspace'
 import { entityMeta, projectLabel, truncate } from '../../app/format'
 import { useI18n } from '../../i18n'
 import { ProjectSelect } from '../../components/ProjectSelect'

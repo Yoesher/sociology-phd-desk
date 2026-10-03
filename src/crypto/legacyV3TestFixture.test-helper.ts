@@ -10,6 +10,7 @@ import {
   PBKDF2_ITERATIONS,
   PBKDF2_SALT_BYTES,
   PREVIOUS_ENCRYPTED_PAYLOAD_VERSION,
+  ZOTERO_ENCRYPTED_PAYLOAD_VERSION,
 } from './constants'
 import { encodeBase64Url } from './encoding'
 import type { BinaryEncryptedContainer, LocalContainerExpectations } from './encryptedContainer'
@@ -18,12 +19,13 @@ function historicalWorkspace(
   workspace: WorkspaceData,
   payloadVersion:
     | typeof LEGACY_ENCRYPTED_PAYLOAD_VERSION
-    | typeof PREVIOUS_ENCRYPTED_PAYLOAD_VERSION,
+    | typeof PREVIOUS_ENCRYPTED_PAYLOAD_VERSION
+    | typeof ZOTERO_ENCRYPTED_PAYLOAD_VERSION,
 ): Record<string, unknown> {
   const legacy = structuredClone(workspace) as unknown as Record<string, unknown>
   legacy['version'] = payloadVersion
   if (payloadVersion === LEGACY_ENCRYPTED_PAYLOAD_VERSION) delete legacy['theoryMemos']
-  delete legacy['literatureExternalReferences']
+  if (payloadVersion < ZOTERO_ENCRYPTED_PAYLOAD_VERSION) delete legacy['literatureExternalReferences']
   return legacy
 }
 
@@ -60,7 +62,8 @@ async function encryptLegacyFixture(
   salt: Uint8Array,
   payloadVersion:
     | typeof LEGACY_ENCRYPTED_PAYLOAD_VERSION
-    | typeof PREVIOUS_ENCRYPTED_PAYLOAD_VERSION,
+    | typeof PREVIOUS_ENCRYPTED_PAYLOAD_VERSION
+    | typeof ZOTERO_ENCRYPTED_PAYLOAD_VERSION,
 ): Promise<BinaryEncryptedContainer> {
   const protectedBytes = new TextEncoder().encode(JSON.stringify(protectedHeader))
   const iv = globalThis.crypto.getRandomValues(new Uint8Array(AES_GCM_IV_BYTES))
@@ -203,4 +206,55 @@ export async function createSyntheticLegacyV4Backup(
     iv: encodeBase64Url(container.iv),
     ciphertext: encodeBase64Url(container.ciphertext),
   })
+}
+
+export async function createSyntheticLegacyV5Backup(
+  workspace: WorkspaceData,
+  passphrase: string,
+): Promise<string> {
+  const salt = globalThis.crypto.getRandomValues(new Uint8Array(PBKDF2_SALT_BYTES))
+  const container = await encryptLegacyFixture(
+    workspace,
+    passphrase,
+    {
+      application: WORKSPACE_APPLICATION,
+      purpose: ENCRYPTED_BACKUP_PURPOSE,
+      containerVersion: ENCRYPTED_CONTAINER_VERSION,
+      payloadVersion: ZOTERO_ENCRYPTED_PAYLOAD_VERSION,
+      kdf: kdfHeader(salt),
+      cipher: cipherHeader(),
+    },
+    salt,
+    ZOTERO_ENCRYPTED_PAYLOAD_VERSION,
+  )
+  return JSON.stringify({
+    protected: encodeBase64Url(container.protected),
+    iv: encodeBase64Url(container.iv),
+    ciphertext: encodeBase64Url(container.ciphertext),
+  })
+}
+
+export async function createSyntheticLegacyV5LocalContainer(
+  workspace: WorkspaceData,
+  passphrase: string,
+  expected: LocalContainerExpectations,
+): Promise<BinaryEncryptedContainer> {
+  const salt = globalThis.crypto.getRandomValues(new Uint8Array(PBKDF2_SALT_BYTES))
+  return encryptLegacyFixture(
+    workspace,
+    passphrase,
+    {
+      application: WORKSPACE_APPLICATION,
+      purpose: LOCAL_WORKSPACE_PURPOSE,
+      containerVersion: ENCRYPTED_CONTAINER_VERSION,
+      payloadVersion: ZOTERO_ENCRYPTED_PAYLOAD_VERSION,
+      bindingId: expected.bindingId,
+      storageRevision: expected.storageRevision,
+      keyInvocation: expected.keyInvocation,
+      kdf: kdfHeader(salt),
+      cipher: cipherHeader(),
+    },
+    salt,
+    ZOTERO_ENCRYPTED_PAYLOAD_VERSION,
+  )
 }

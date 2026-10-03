@@ -195,6 +195,40 @@
   font-size: 0.61rem;
 }
 
+.project-scope-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin-bottom: 22px;
+  padding: 14px 18px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-md);
+}
+
+.project-scope-bar label { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.project-scope-bar label > span { white-space: nowrap; font-weight: 600; }
+.project-scope-bar select { min-width: 180px; max-width: 340px; }
+.project-scope-bar p { margin: 0; color: var(--ink-soft); font-size: 0.78rem; }
+.literature-recovery { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-bottom: 16px; }
+.literature-recovery > span { color: var(--muted); font-size: 0.78rem; }
+.feedback-success { color: var(--success); overflow-wrap: anywhere; }
+.task-deadline-summary { color: var(--ink-soft); font-size: 0.8rem; margin: 0 0 16px; }
+.task-edit-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.task-edit-row:last-child { border-bottom: 0; }
+.task-edit-row .check-row { grid-template-columns: 24px minmax(0, 1fr); }
+.task-edit-row .check-row__label { overflow-wrap: anywhere; }
+.task-edit-row .check-row__meta { grid-column: 2; justify-content: flex-start; flex-wrap: wrap; color: var(--muted); }
+.task-deadline { color: var(--ink-soft); font-weight: 600; }
+
+@media (max-width: 600px) {
+  .project-scope-bar label { width: 100%; }
+  .project-scope-bar select { min-width: 0; width: 100%; }
+  .task-edit-row { grid-template-columns: minmax(0, 1fr); }
+  .task-edit-row > .button { justify-self: end; }
+}
+
 .mini-timeline {
   display: grid;
 }
@@ -999,10 +1033,13 @@
 
 .literature-row__controls {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   gap: 7px;
 }
+
+.literature-row__controls a.button { display: inline-flex; width: auto; height: auto; padding: 7px 10px; }
 
 .literature-row__controls a {
   display: grid;
