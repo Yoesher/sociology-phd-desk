@@ -1167,6 +1167,7 @@ button.record-title:hover strong {
 
   .page-header__actions {
     width: 100%;
+    flex-wrap: wrap;
     padding-left: 35px;
   }
 
