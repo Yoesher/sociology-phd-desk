@@ -31,8 +31,8 @@ describe('unified import preflight', () => {
 
     expect(preflight).toMatchObject({
       sourceFormat: 'portable-workspace-json',
-      sourceVersion: 5,
-      targetVersion: 5,
+      sourceVersion: 6,
+      targetVersion: 6,
       migrationSteps: [],
       conflictCount: 0,
     })
@@ -41,7 +41,7 @@ describe('unified import preflight', () => {
     expect(file.text).toHaveBeenCalledOnce()
   })
 
-  it('reports the full legacy v1 to v5 migration chain without inferring new records', () => {
+  it('reports the full legacy v1 to v6 migration chain without inferring new records', () => {
     const legacy = createDemoWorkspace(new Date('2026-08-14T00:00:00.000Z')) as unknown as Record<string, unknown>
     legacy.version = 1
     delete legacy.researchQuestions
@@ -53,14 +53,14 @@ describe('unified import preflight', () => {
     projects.forEach((project) => { project.researchQuestion = 'Synthetic legacy question' })
 
     const preflight = preflightPortableWorkspaceText(JSON.stringify(legacy))
-    expect(preflight.migrationSteps).toEqual(['v1 → v2', 'v2 → v3', 'v3 → v4', 'v4 → v5'])
+    expect(preflight.migrationSteps).toEqual(['v1 → v2', 'v2 → v3', 'v3 → v4', 'v4 → v5', 'v5 → v6'])
     expect(preflight.collectionCounts.theoryMemos).toBe(0)
     expect(preflight.collectionCounts.literatureExternalReferences).toBe(0)
   })
 
   it('rejects future schemas, per-collection abuse, and oversized files before reading', async () => {
     const future = createDemoWorkspace() as unknown as Record<string, unknown>
-    future.version = 6
+    future.version = 7
     expect(() => preflightPortableWorkspaceText(JSON.stringify(future))).toThrow()
 
     const excessive = createDemoWorkspace()
@@ -104,8 +104,8 @@ describe('unified import preflight', () => {
     )
     expect(preflight).toMatchObject({
       sourceFormat: 'encrypted-workspace-backup',
-      sourceVersion: 5,
-      targetVersion: 5,
+      sourceVersion: 6,
+      targetVersion: 6,
       migrationSteps: [],
       duplicateCount: 0,
       conflictCount: 0,

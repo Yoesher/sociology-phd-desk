@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test'
-import { dismissReleaseSummary, expectNoHorizontalOverflow } from './helpers'
+import { captureBrowserDiagnostics, dismissReleaseSummary, expectNoHorizontalOverflow } from './helpers'
 
 test('boots a fresh local workspace in Chinese without horizontal overflow', async ({ page }, testInfo) => {
+  const diagnostics = captureBrowserDiagnostics(page)
   await page.goto('/#/?view=overview')
   await dismissReleaseSummary(page)
 
@@ -15,13 +16,30 @@ test('boots a fresh local workspace in Chinese without horizontal overflow', asy
   }
 
   await expectNoHorizontalOverflow(page)
+  expect(diagnostics).toEqual({ pageErrors: [], consoleProblems: [] })
 })
 
-test('supports bilingual controls and keyboard-safe narrow navigation', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== 'narrow-chromium')
+test('supports bilingual controls and keyboard-safe navigation', async ({ page }, testInfo) => {
+  const diagnostics = captureBrowserDiagnostics(page)
   testInfo.setTimeout(45_000)
   await page.goto('/#/?view=overview')
   await dismissReleaseSummary(page)
+  if (testInfo.project.name === 'desktop-chromium') {
+    const moreButton = page.getByRole('button', { name: /^(更多操作|More actions)$/ })
+    await moreButton.click()
+    const more = page.getByRole('dialog', { name: '更多操作', exact: true })
+    await expect(more).toBeVisible()
+    await more.getByRole('button', { name: 'English', exact: true }).click()
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('dialog', { name: 'More actions', exact: true })).toBeHidden()
+    await expect(moreButton).toBeFocused()
+    await page.reload()
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+    await expectNoHorizontalOverflow(page)
+    expect(diagnostics).toEqual({ pageErrors: [], consoleProblems: [] })
+    return
+  }
   const moreButton = page.getByRole('button', { name: '更多' })
   await moreButton.click()
 
@@ -45,4 +63,5 @@ test('supports bilingual controls and keyboard-safe narrow navigation', async ({
   await page.keyboard.press('Escape')
   await expect(englishDrawer).toBeHidden()
   await expectNoHorizontalOverflow(page)
+  expect(diagnostics).toEqual({ pageErrors: [], consoleProblems: [] })
 })

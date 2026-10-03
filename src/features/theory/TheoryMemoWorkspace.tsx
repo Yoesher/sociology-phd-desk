@@ -14,7 +14,7 @@ import {
   Modal,
   SectionHeader,
 } from '../../components/ui'
-import { useWorkspace } from '../../hooks/useWorkspace'
+import { useProjectWorkspace as useWorkspace } from '../../hooks/useProjectWorkspace'
 import { useI18n, type MessageKey } from '../../i18n'
 import {
   THEORY_MEMO_TYPES,

@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { cleanup, render, screen, within, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
@@ -91,5 +91,38 @@ describe('TodayPage theory work mode', () => {
     expect(screen.getByText(overdueTitle)).toBeInTheDocument()
     expect(screen.queryByText(futureTitle)).not.toBeInTheDocument()
     expect(initial.tasks).toHaveLength(2)
+  })
+
+  it('shows saved deadlines and lets the researcher revisit notes and change the deadline', async () => {
+    localStorage.setItem('sociology-phd-desk-settings', JSON.stringify({ language: 'en' }))
+    const demo = createDemoWorkspace()
+    const title = 'SYNTHETIC deadline task'
+    demo.tasks = [{ ...demo.tasks[0]!, title, dueDate: '2099-01-10', notes: 'SYNTHETIC task notes', status: 'Done' }]
+    const user = userEvent.setup()
+    renderToday(demo, '/?view=tasks')
+    expect(screen.getByText(/Due:.*2099/)).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: `View and edit ${title}` }))
+    const dialog = screen.getByRole('dialog', { name: 'View and edit task' })
+    expect(within(dialog).getByLabelText('Due date')).toHaveValue('2099-01-10')
+    expect(within(dialog).getByLabelText('Notes')).toHaveValue('SYNTHETIC task notes')
+    await user.clear(within(dialog).getByLabelText('Due date'))
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(screen.getByText('No deadline')).toBeInTheDocument()
+    expect(screen.getByText(title).closest('.check-row')).toHaveClass('check-row--done')
+  })
+
+  it('offers a next-seven-days view that excludes completed and later work', () => {
+    localStorage.setItem('sociology-phd-desk-settings', JSON.stringify({ language: 'en' }))
+    const demo = createDemoWorkspace()
+    demo.tasks = [
+      { ...demo.tasks[0]!, id: 'soon', title: 'SYNTHETIC due today', dueDate: todayIso(), status: 'To Do' },
+      { ...demo.tasks[0]!, id: 'completed', title: 'SYNTHETIC done today', dueDate: todayIso(), status: 'Done' },
+      { ...demo.tasks[0]!, id: 'later', title: 'SYNTHETIC due later', dueDate: '2099-01-01', status: 'To Do' },
+    ]
+    renderToday(demo, '/?view=tasks&filter=upcoming')
+    expect(screen.getByText('SYNTHETIC due today')).toBeInTheDocument()
+    expect(screen.queryByText('SYNTHETIC done today')).not.toBeInTheDocument()
+    expect(screen.queryByText('SYNTHETIC due later')).not.toBeInTheDocument()
   })
 })

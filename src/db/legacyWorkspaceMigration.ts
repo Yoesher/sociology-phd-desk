@@ -93,7 +93,7 @@ export async function readLegacySingleton(
   try {
     await database.open()
     const databaseVersion = database.verno
-    if (![1, 2, 3, 4, 5].includes(databaseVersion)) {
+    if (![1, 2, 3, 4, 5, 6].includes(databaseVersion)) {
       throw new LegacyWorkspaceMigrationError(
         'unsupported-version',
         `Legacy database version ${databaseVersion} is not supported.`,

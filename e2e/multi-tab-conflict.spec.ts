@@ -1,14 +1,19 @@
 import { expect, test } from '@playwright/test'
-import { createProject, createStandardWorkspace, syntheticPrefix, waitForApp } from './helpers'
+import { captureBrowserDiagnostics, createProject, createStandardWorkspace, syntheticPrefix, waitForApp } from './helpers'
 
-test('a stale tab cannot overwrite a newer committed workspace snapshot', async ({ browser }, testInfo) => {
-  test.skip(testInfo.project.name !== 'desktop-chromium')
+test('a stale tab cannot overwrite a newer committed workspace snapshot', async ({ browser, baseURL }, testInfo) => {
   testInfo.setTimeout(60_000)
-  const context = await browser.newContext({ locale: 'zh-CN', viewport: { width: 1280, height: 720 } })
+  const context = await browser.newContext({
+    baseURL,
+    locale: 'zh-CN',
+    viewport: testInfo.project.use.viewport,
+    hasTouch: testInfo.project.use.hasTouch,
+  })
   await context.addInitScript(() => {
     Object.defineProperty(window, 'BroadcastChannel', { value: undefined, configurable: true })
   })
   const first = await context.newPage()
+  const firstDiagnostics = captureBrowserDiagnostics(first)
   await first.goto('/')
   await waitForApp(first)
 
@@ -18,6 +23,7 @@ test('a stale tab cannot overwrite a newer committed workspace snapshot', async 
   await createProject(first, project)
 
   const second = await context.newPage()
+  const secondDiagnostics = captureBrowserDiagnostics(second)
   await second.goto('/#/projects?view=all')
   await waitForApp(second)
   await expect(second.getByRole('row').filter({ hasText: project })).toBeVisible()
@@ -43,5 +49,7 @@ test('a stale tab cannot overwrite a newer committed workspace snapshot', async 
   await waitForApp(second)
   await expect(second.getByRole('row').filter({ hasText: winner })).toBeVisible()
   await expect(second.getByText(stale, { exact: true })).toHaveCount(0)
+  expect(firstDiagnostics).toEqual({ pageErrors: [], consoleProblems: [] })
+  expect(secondDiagnostics).toEqual({ pageErrors: [], consoleProblems: [] })
   await context.close()
 })

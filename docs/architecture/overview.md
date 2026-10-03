@@ -6,6 +6,8 @@ Sociology PhD Desk is a local-first browser application that coordinates researc
 
 Published [`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0), at exact release SHA [`bb0d32f`](https://github.com/Yoesher/sociology-phd-desk/commit/bb0d32fe99348204ba89a16d6469014ae38e0ecf), retains the local-first PWA/workspace architecture and advances portable and standard storage to v5 for allowlisted Zotero provenance. Encrypted container, vault database, and registry database remain independently versioned at v1. Evidence boundaries are recorded in `PROJECT_STATE.md`.
 
+This document also describes the `0.3.1` website-update candidate: portable workspace, standard database, and authenticated encrypted payload are v6. Optional local literature PDFs are stored with their records; project spaces are display projections over complete-workspace writes and backups. This is a source-version description, not deployment evidence; current publication state remains in `PROJECT_STATE.md`.
+
 ## Technology foundation
 
 - **React** renders the application shell and feature interfaces.
@@ -29,14 +31,14 @@ I18nProvider and application settings
         ↓
 WorkspaceSessionProvider → WorkspaceAccessGate
         ↓ only while unlocked
-WorkspaceProvider → routes, feature pages, reusable components
+WorkspaceProvider → ProjectScopeProvider → routes, feature pages, reusable components
         ↓
 Domain services, whole-workspace validation, import/export
         ↓
 LocalWorkspaceManager and session-bound repository port
         ↓
 metadata-only registry DB v1
-        ├─ standard workspace DB v5 (19 plaintext tables including workspace metadata)
+        ├─ standard workspace DB v6 (19 plaintext tables including workspace metadata)
         └─ encrypted vault DB v1 (one authenticated ciphertext record)
 ```
 
@@ -54,6 +56,8 @@ Application settings are not part of `WorkspaceData`, IndexedDB domain tables, o
 
 Own workflows for Today, Projects, Literature, Theory Research, Fieldwork, Quantitative, Evidence, Research Log, and Manuscripts & Publishing. Project detail also owns the bilingual Research Questions, Claims, and Research Graph workspace merged in Phase 3B. The merged Theory route provides overview and filtered memo views plus a theoretical-manuscript view while reusing existing project/graph/literature/manuscript objects rather than creating parallel copies. The merged publishing presentation composes Manuscript, Submission, and ReviewerComment without collapsing their independent schemas. A feature may compose objects from several stores, but persistent writes should pass through domain/repository functions.
 
+In the `0.3.1` candidate, `useProjectWorkspace` exposes the selected project's display projection while retaining the complete snapshot for every mutation. Backup, diagnostics, migration, conflicts, and Zotero deduplication use the full workspace. Today's goals remain workspace-wide. Session storage may remember the selected project ID as UI context; it does not isolate project storage or contain research text.
+
 ### Domain model and services
 
 Own entity types, allowed states, relationships, ID generation, dates, validation, and cross-object rules. They should remain testable without rendering a route.
@@ -69,7 +73,7 @@ Owns Dexie schema versions, transactions, indexes, migrations, and repository me
 Phase 3C has three persistence roles:
 
 1. `sociology-phd-desk-registry` schema v1 stores workspace routing and recovery metadata only. Canonical display name, timestamps, kind, encryption mode, auto-lock, migration/cleanup state, an interrupted-conversion target reservation, schema versions, registry revision, and opaque storage locators are plaintext. Research content, passphrases, derived keys, verifiers, and content digests are forbidden.
-2. Each standard personal or synthetic-demo workspace uses a separate physical database. Published `v0.3.0` uses IndexedDB schema v5 with 19 tables including workspace metadata, `theoryMemos`, and `literatureExternalReferences`. The tables remain plaintext and writes validate complete `WorkspaceData` v5 snapshots. Phase 3C originally established the per-workspace boundary at schema v3 with 17 tables; Phase 3E advanced it to v4, and v0.3.0 adds only the Zotero-provenance table at v5.
+2. Each standard personal or synthetic-demo workspace uses a separate physical database. The `0.3.1` candidate uses IndexedDB schema v6 with the same 19 tables, including workspace metadata, `theoryMemos`, and `literatureExternalReferences`. The tables remain plaintext and writes validate complete `WorkspaceData` v6 snapshots, including optional `LiteratureItem.localPdf` bytes. Phase 3C originally established the per-workspace boundary at schema v3 with 17 tables; Phase 3E advanced it to v4, and published v0.3.0 added the Zotero-provenance table at v5.
 3. Each encrypted workspace uses a separate encrypted-vault database v1 with exactly one ciphertext record plus plaintext `storageRevision`, `lockEpoch`, `keyInvocation`, and encryption-attempt coordinates. It has no domain tables or plaintext workspace name.
 
 Physical database separation prevents accidental cross-workspace joins in cooperating code, but all databases remain inside the browser origin's trust boundary. The repository also validates the snapshot's workspace identity and rejects cross-workspace endpoints. Physical preflight/ownership rules treat ready and incomplete routes, conversion reservations, retained sources, migration ledgers, the registry database, and reserved database-name prefixes as one alias space; an unexplained existing database is never cleared as if it were fresh staging.
@@ -78,12 +82,14 @@ Random logical IDs, non-bootstrap locators, ownership tokens, encrypted bindings
 
 IndexedDB schema v3 added the Phase 3B stores for questions, claims, and claim–question links; its v2 → v3 upgrade migrates project/evidence text deterministically through the same research-graph semantics used at the portable boundary. Schema v4 adds only `theoryMemos`; schema v5 adds only `literatureExternalReferences` for allowlisted Zotero identity/provenance. Neither migration infers research content.
 
+Schema v6 retains those stores and permits optional literature PDF content as `{ fileName, size, base64 }`. Files are limited to 5 MiB each and 12 MiB across the complete workspace. File size is checked before reading; validation checks filename, PDF header, canonical base64, declared byte length, and aggregate capacity. Dataset/script/output path fields remain references only, and Zotero handoff remains metadata-only.
+
 ### Portability boundary
 
 Owns export envelopes, schema versions, validation, import previews, collision detection, merge, and explicit replacement. External input is untrusted even when it came from an earlier export.
 
-- Ordinary JSON is the inspectable, plaintext portable `WorkspaceData` format. Published `v0.3.0` writes portable v5 and composes v1 → v2 → v3 → v4 → v5, preserving legacy `Evidence.claim`, never inferring Claim↔Question links or Zotero provenance, adding an empty `theoryMemos` collection at v3 → v4, and adding an empty `literatureExternalReferences` collection at v4 → v5.
-- `.sociologydesk` is a different encrypted-backup container. Container v1 remains unchanged. The implementation authenticates a legacy portable-v3/v4 payload before in-memory migration and complete v5 validation; restore creates no target until that boundary passes, and local-vault upgrade publishes v5 ciphertext only after verified read-back.
+- Ordinary JSON is the inspectable, plaintext portable `WorkspaceData` format. The `0.3.1` candidate writes portable v6 and composes v1 → v2 → v3 → v4 → v5 → v6, preserving legacy `Evidence.claim`, never inferring Claim↔Question links or Zotero provenance, adding an empty `theoryMemos` collection at v3 → v4, and adding an empty `literatureExternalReferences` collection at v4 → v5. The v5 → v6 step preserves existing records without inferring attachments. Explicitly attached PDFs are included in the complete export.
+- `.sociologydesk` is a different encrypted-backup container. Container v1 remains unchanged. The implementation authenticates a legacy portable-v3/v4/v5 payload before in-memory migration and complete v6 validation; restore creates no target until that boundary passes, and local-vault upgrade publishes v6 ciphertext only after verified read-back. Attached PDF bytes share the workspace's encryption and backup boundary.
 - At export, the current registry `displayName` is copied into the generated plaintext or encrypted payload after the active snapshot/route is refreshed. This does not rewrite the active domain database or advance its workspace-data revision; optional last-export bookkeeping is a separate registry update.
 - Portable version, standard database version, registry database version, encrypted-vault database version, and encrypted-container version are independent axes even when some currently use the same integer.
 
@@ -142,6 +148,7 @@ Priority order:
 7. Message-key and interpolation parity, locale preference, raw enum values, locale-independent export semantics, and unchanged user research content.
 8. Registry isolation, legacy migration idempotence, provisioning/deletion recovery, standard/encrypted session identity, wrong-passphrase/tamper zero-write behavior, lock/reload/auto-lock, backup restore, retained-plaintext cleanup, demo separation, and cross-tab stale-session rejection.
 9. Theory memo CRUD/filter/view behavior, same-project links, deletion protection, raw task-category stability, UI-only prompts, v3 → v4 empty migration, and authenticated encrypted-v3 compatibility.
+10. v5 → v6 preservation, PDF byte-identical standard/portable/encrypted round trips and capacity failures, full-workspace writes/backups under project scope, and task edits retaining completion state and notes.
 
 Every release revision must run lint, type checking, tests, and production build. Manual route review complements tests; it does not replace them.
 

@@ -8,6 +8,12 @@
 
 ## 立即开始
 
+### `0.3.1` 网站更新候选 — 2026-10-03
+
+本次候选新增本地 PDF 附件与文献查看编辑、项目空间，以及可重新查看和修改的任务截止日期。PDF 每个最大 5 MiB、每个工作区合计最大 12 MiB，并随便携或加密备份保存；项目空间统一显示项目记录；期限提示在打开应用时显示。
+
+用户已授权更新现有 GitHub Pages。上一会话的远端写入曾被环境审批策略阻断；本次接续发布的检查、PR、合并与部署状态以[项目状态](PROJECT_STATE.md)为准。`0.3.1` 是本次应用候选版本，既有正式 GitHub Release/tag 为 `v0.3.0`，本次不创建或移动标签。见[本次使用说明](docs/feedback-improvements-2026-10-03.md)。
+
 **直接使用网页版：** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
 
 - **无需注册或 GitHub 知识：** 打开链接即可建立本地工作台；不需要账号、云数据库或默认同步。
@@ -103,7 +109,7 @@ Zotero 仍是书目、PDF、笔记、标注和引用的权威系统。安装插�
 
 - 核心研究记录通过 IndexedDB 保存在浏览器本地；不同工作台使用独立物理数据库，但仍处于同一 Web 来源的信任边界内。
 - 不要求账号、默认云同步、分析统计或第三方跟踪器。
-- 本地文件字段只是引用；本应用不是源数据或访谈文本的安全保管库。
+- 数据集、分析脚本和输出等本地路径字段只是引用，不读取其所指文件。`0.3.1` 候选中的可选文献 PDF 则保存实际字节，并随普通或加密备份保存；本应用不是源数据或访谈文本的安全保管库。
 - 标准工作台及其普通 JSON 导出是明文；只有明确标为加密工作台或 `.sociologydesk` 加密备份的内容使用应用层加密。
 - 工作台名称、时间、模式、自动锁定和不透明存储定位信息保留在明文注册表中；加密不隐藏数据库或备份的大致大小。
 - AI 不是核心依赖。未来任何 AI 建议都必须与来源证据清晰区分。
@@ -174,11 +180,13 @@ CI 也执行这组命令。只有在当前修订上实际成功运行后，才�
 
 `v0.2.0` 导出 portable v4，并继续接受受支持的 v1、v2、v3 文件，通过显式 v1 → v2 → v3 → v4 转换后再执行同一套严格验证；v3 → v4 只创建空 `theoryMemos` 集合。迁移细节与研究图谱边界见[数据迁移说明](docs/data-portability.md)。
 
+本次 `0.3.1` 候选导出 portable v6，按 v1 → v2 → v3 → v4 → v5 → v6 迁移受支持的旧 JSON；v5 → v6 保留文献及 Zotero 来源信息，不推断 PDF 附件。项目空间只改变显示范围，写入和备份始终保留完整工作台及其他项目数据。含 PDF 的普通 JSON 仍是明文；v6 备份需要支持 v6 的应用，不能由既有 v5 应用读取。
+
 Phase 3C 为加密工作台增加 `.sociologydesk` 加密备份。它是独立的 container v1 格式，而不是换扩展名的普通 JSON；恢复时先认证和验证完整备份，再用新的逻辑工作台 ID 创建独立工作台。口令错误或密文损坏不会写入目标工作台。格式与失败边界见[数据迁移说明](docs/data-portability.md)和[隐私与加密模型](docs/zh-CN/privacy-model.md)。
 
 ## 架构
 
-当前基础采用 React、TypeScript 和 Vite。Dexie 提供 IndexedDB 数据层，Zod 验证可迁移数据，Vitest 覆盖可测试的应用逻辑。持久化、领域逻辑和页面组件保持分离。研究图谱增加稳定 ID 的研究问题、主张与显式关系；本地工作区层增加元数据注册表、每工作区数据库适配器、会话门与 Web Crypto 加密库；Theory 增加 `TheoryMemo`。当前 `main` 的 portable/standard 为 v5（新增独立 Zotero 外部来源记录），container/vault/registry 分别保持 v1。
+当前基础采用 React、TypeScript 和 Vite。Dexie 提供 IndexedDB 数据层，Zod 验证可迁移数据，Vitest 覆盖可测试的应用逻辑。持久化、领域逻辑和页面组件保持分离。研究图谱增加稳定 ID 的研究问题、主张与显式关系；本地工作区层增加元数据注册表、每工作区数据库适配器、会话门与 Web Crypto 加密库；Theory 增加 `TheoryMemo`。正式 `v0.3.0` 的 portable/standard 为 v5（新增独立 Zotero 外部来源记录）；本次 `0.3.1` 候选的 portable/standard 与 authenticated encrypted payload 为 v6，container/vault/registry 分别保持 v1。
 
 参阅[架构概览](docs/architecture/overview.md)、[数据模型](docs/architecture/data-model.md)和[架构决策](DECISIONS.md)。
 

@@ -8,7 +8,7 @@ export type EntityId = string
 export type ISODate = string
 export type ISODateTime = string
 
-export const WORKSPACE_SCHEMA_VERSION = 5 as const
+export const WORKSPACE_SCHEMA_VERSION = 6 as const
 export const WORKSPACE_APPLICATION = 'sociology-phd-desk' as const
 
 export const RESEARCH_METHODS = [
@@ -211,6 +211,12 @@ export interface ResearchTask extends EntityMetadata {
   notes: string
 }
 
+export interface LiteraturePdf {
+  fileName: string
+  size: number
+  base64: string
+}
+
 export interface LiteratureItem extends EntityMetadata {
   title: string
   authors: string[]
@@ -225,6 +231,7 @@ export interface LiteratureItem extends EntityMetadata {
   doi?: string
   isbn?: string
   issn?: string
+  localPdf?: LiteraturePdf
   url?: string
   projectId: EntityId
   status: LiteratureStatus

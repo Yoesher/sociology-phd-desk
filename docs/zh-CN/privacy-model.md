@@ -6,6 +6,10 @@ Sociology PhD Desk 采用本地优先设计：核心功能不要求账户或云�
 
 版本说明：已发布的 [`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0) 位于精确发布 SHA [`bb0d32f`](https://github.com/Yoesher/sociology-phd-desk/commit/bb0d32fe99348204ba89a16d6469014ae38e0ecf)，使用 portable/standard v5 与 encrypted container/vault/registry v1；其 Service Worker 只预缓存应用静态资源，不会把工作区数据移入 Cache Storage。
 
+本次 `0.3.1` 网站更新候选使用 portable/standard 与 authenticated encrypted payload v6；container/vault/registry 仍为 v1。下述 `v0.3.0` 段落保留其历史版本事实；实际发布进展见 [PROJECT_STATE.md](../../PROJECT_STATE.md)。
+
+v6 中可选的文献 PDF 保存实际字节，单个最大 5 MiB、整个工作台合计最大 12 MiB，并随文献进入完整工作台备份。普通 IndexedDB 与普通 JSON 中的 PDF 内容仍为明文；加密工作台与 `.sociologydesk` 备份会将附件与其他研究记录一起加密。数据集、脚本、输出等路径字段仍只是引用，不读取其所指文件；Zotero 联动仍仅交接书目元数据。项目空间只改变显示范围，不构成项目之间的安全隔离，写入与备份保留整个工作台。
+
 ## A. 浏览器隔离
 
 普通工作台以常规结构化数据存入 IndexedDB。浏览器的同源策略通常会把它与其他来源和浏览器配置文件隔离，但凡是能够在本应用来源下执行的脚本和 Service Worker，都属于同一信任边界。同一来源下仅路径不同的应用，并不会因此成为彼此隔离的独立来源。
@@ -31,6 +35,8 @@ Sociology PhD Desk 采用本地优先设计：核心功能不要求账户或云�
 加密 `.sociologydesk` 备份会独立于本地工作台以及其他备份重新生成盐和 IV。其受保护头部不含工作台名称、绑定 ID 或研究时间戳，但解密后的 portable 载荷会包含导出时从注册表复制的规范显示名称；普通 JSON 导出也会明文复制同一名称。这种仅用于导出的复制不会重写活动研究快照，也不会增加工作台数据修订号。操作系统和文件系统仍可能暴露文件名、大小、位置和文件时间。恢复时先认证并严格验证整个备份，再使用新的逻辑工作台 ID 创建存储修订号为 0 的独立工作台；认证失败不会写入目标记录。
 
 在已发布的 `v0.3.0` 中，新建加密库与备份承载 portable v5。已有 portable-v3/v4 密文必须先通过认证再迁移；本地加密库只有在完整 v5 容器写入并读回核验后才发布新状态。口令错误、篡改、加密失败、存储失败或读回失败都会保留旧密文。恢复旧备份只在内存中迁移，认证与完整验证通过后才写入新的 v5 加密库。container、vault database 与 registry database 的版本号仍是 1，不能与 portable 载荷版本混为一谈。
+
+`0.3.1` 候选将同一认证、完整验证及读回边界推进到 v6，并保留 authenticated v3/v4/v5 加密库和备份的迁移兼容。v5 → v6 保留旧记录及 Zotero 来源，不推断附件。v6 备份需要支持 v6 的应用，不能假定既有 v5 应用可读取它。
 
 新建逻辑 ID、非首次启动的存储定位符与所有权令牌、加密绑定 ID、盐和 IV 都要求浏览器提供密码学安全随机数；缺少该能力时会直接失败。确定性的初始路由只用于让并发首次启动收敛，并不是秘密。
 

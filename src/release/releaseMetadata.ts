@@ -1,19 +1,17 @@
 export const releaseMetadata = Object.freeze({
-  version: '0.3.0',
-  releaseDate: '2026-08-15',
-  releaseUrl: 'https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0',
+  version: '0.3.1',
+  releaseDate: '2026-10-03',
+  releaseUrl: 'https://github.com/Yoesher/sociology-phd-desk/blob/main/docs/feedback-improvements-2026-10-03.md',
   summary: {
     en: [
-      'Collapsible active navigation groups with a persistent preference',
-      'Zotero selected-reference handoff with an explicit import preview',
-      'Guarded imports and authenticated workspace migrations to schema v5',
-      'Browser E2E, security automation, and privacy-safe diagnostics',
+      'Local PDF attachments and a complete literature list with view/edit',
+      'Project spaces automatically scope records across research modules',
+      'Visible task deadlines, upcoming reminders, and task editing',
     ],
     'zh-CN': [
-      '活动导航组支持手动折叠，并记住本地偏好',
-      'Zotero 选中文献可发送到明确的导入预览',
-      '导入防护与通过认证的工作台 schema v5 迁移',
-      '浏览器端到端测试、安全自动化与隐私安全诊断',
+      '本地 PDF 附件、显示全部文献与查看编辑',
+      '项目空间统一显示各研究模块中的项目记录',
+      '任务截止日期、未来七天提示与查看编辑',
     ],
   },
 })

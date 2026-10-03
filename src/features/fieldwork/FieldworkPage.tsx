@@ -8,7 +8,7 @@ import {
   type FieldVisit,
   type Interview,
 } from '../../models/domain'
-import { useWorkspace } from '../../hooks/useWorkspace'
+import { useProjectWorkspace as useWorkspace } from '../../hooks/useProjectWorkspace'
 import { useI18n, type MessageKey } from '../../i18n'
 import { entityMeta, todayIso, truncate } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'

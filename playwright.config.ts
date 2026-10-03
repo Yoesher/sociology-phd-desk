@@ -1,10 +1,14 @@
 import { defineConfig } from '@playwright/test'
 
 const localChromium = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
-const previewUrl = 'http://127.0.0.1:4179'
+const previewPort = Number(process.env.PLAYWRIGHT_PORT || 4179)
+if (!Number.isInteger(previewPort) || previewPort < 1 || previewPort > 65535) {
+  throw new Error('PLAYWRIGHT_PORT must be a valid TCP port.')
+}
+const previewUrl = `http://127.0.0.1:${previewPort}`
 const webServerCommand = process.env.CI
-  ? 'npm run preview -- --host 127.0.0.1 --port 4179'
-  : 'npm run build && npm run preview -- --host 127.0.0.1 --port 4179'
+  ? `npm run preview -- --host 127.0.0.1 --port ${previewPort}`
+  : `npm run build && npm run preview -- --host 127.0.0.1 --port ${previewPort}`
 
 export default defineConfig({
   testDir: './e2e',

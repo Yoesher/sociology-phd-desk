@@ -2,7 +2,6 @@ import { expect, test } from '@playwright/test'
 import { waitForApp } from './helpers'
 
 test('starts from the production app shell offline and recovers online', async ({ context, page }, testInfo) => {
-  test.skip(testInfo.project.name !== 'desktop-chromium')
   testInfo.setTimeout(60_000)
 
   await page.goto('/#/?view=overview')

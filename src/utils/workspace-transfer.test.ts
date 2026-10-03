@@ -66,7 +66,7 @@ describe('workspace JSON transfer', () => {
 
     const imported = importWorkspaceJson(JSON.stringify(legacy))
 
-    expect(imported.version).toBe(5)
+    expect(imported.version).toBe(6)
     expect(imported.application).toBe('sociology-phd-desk')
     expect(imported.workspace.revision).toBe(0)
     expect(imported.projects).toHaveLength(legacyProjects.length)
@@ -125,7 +125,7 @@ describe('workspace JSON transfer', () => {
 
     expect(migrated['version']).toBe(5)
     expect(migrated['literatureExternalReferences']).toEqual([])
-    expect(imported.version).toBe(5)
+    expect(imported.version).toBe(6)
     expect(imported.literatureExternalReferences).toEqual([])
   })
 

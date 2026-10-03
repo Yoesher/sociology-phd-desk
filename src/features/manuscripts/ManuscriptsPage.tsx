@@ -4,7 +4,7 @@ import {
   MANUSCRIPT_STATUSES,
   type Manuscript,
 } from '../../models/domain'
-import { useWorkspace } from '../../hooks/useWorkspace'
+import { useProjectWorkspace as useWorkspace } from '../../hooks/useProjectWorkspace'
 import {
   entityMeta,
   projectLabel,

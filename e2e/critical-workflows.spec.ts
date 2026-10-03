@@ -1,5 +1,6 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 import {
+  captureBrowserDiagnostics,
   createProject,
   createStandardWorkspace,
   openWorkspaceCenter,
@@ -8,12 +9,17 @@ import {
   waitForPersistedProjectTitle,
 } from './helpers'
 
-test.describe('desktop critical research workflows', () => {
+test.describe('critical research workflows at both viewports', () => {
+  const diagnostics = new WeakMap<Page, ReturnType<typeof captureBrowserDiagnostics>>()
   test.beforeEach(async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name !== 'desktop-chromium')
+    diagnostics.set(page, captureBrowserDiagnostics(page))
     testInfo.setTimeout(60_000)
     await page.goto('/')
     await waitForApp(page)
+  })
+
+  test.afterEach(async ({ page }) => {
+    expect(diagnostics.get(page)).toEqual({ pageErrors: [], consoleProblems: [] })
   })
 
   test('creates, edits, reloads, and deletes project, evidence, and fieldwork records', async ({ page }) => {

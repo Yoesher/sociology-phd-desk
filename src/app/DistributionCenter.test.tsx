@@ -7,6 +7,7 @@ import type { WorkspaceRegistryEntry } from '../models/workspace-registry'
 import { UpdateManagerContext } from './update-manager-context'
 import { DistributionCenter } from './DistributionCenter'
 import { createDemoWorkspace } from '../models/demo'
+import { buildInfo } from './buildInfo'
 
 const serviceWorkerDescriptor = Object.getOwnPropertyDescriptor(navigator, 'serviceWorker')
 const createObjectUrlDescriptor = Object.getOwnPropertyDescriptor(URL, 'createObjectURL')
@@ -81,9 +82,9 @@ describe('DistributionCenter', () => {
     expect(await screen.findByText(/10 MB used of 100 MB/i)).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /Request persistent storage/i }))
     expect(navigator.storage.persist).toHaveBeenCalledOnce()
-    expect(screen.getByText('App version').nextSibling).toHaveTextContent('0.3.0')
-    expect(screen.getByText('Portable schema').nextSibling).toHaveTextContent('5')
-    expect(screen.getByText('Database schema').nextSibling).toHaveTextContent('5')
+    expect(screen.getByText('App version').nextSibling).toHaveTextContent(buildInfo.appVersion)
+    expect(screen.getByText('Portable schema').nextSibling).toHaveTextContent('6')
+    expect(screen.getByText('Database schema').nextSibling).toHaveTextContent('6')
     expect(screen.getByText('Encrypted container').nextSibling).toHaveTextContent('1')
     expect(screen.getByText('Build date').nextSibling).not.toBeEmptyDOMElement()
   })

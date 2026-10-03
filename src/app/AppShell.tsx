@@ -32,6 +32,9 @@ import {
   type PrimaryModuleId,
 } from './navigation'
 import { dispatchQuickAdd } from './navigationEvents'
+import { ProjectScopeBar } from './ProjectScope'
+import { useProjectScope } from './project-scope-context'
+import { projectDisplayData } from '../hooks/useProjectWorkspace'
 import { useTheme } from '../hooks/useTheme'
 import { IconButton } from '../components/ui'
 import { WorkspaceTools } from './WorkspaceTools'
@@ -119,6 +122,7 @@ function todayIso() {
 }
 
 export function AppShell() {
+  const { projectId: scopeId } = useProjectScope()
   const { theme, toggleTheme } = useTheme()
   const { t } = useI18n()
   const update = useContext(UpdateManagerContext) ?? unavailableUpdateManager
@@ -212,17 +216,18 @@ export function AppShell() {
   }, [mobileMenuOpen, mobileMenuPresence.closing, mobileMenuPresence.rendered])
 
   const badgeCounts = useMemo<Record<NavigationBadgeId, number>>(() => {
-    if (!data) return { overdue: 0, processing: 0, failed: 0, revision: 0 }
+    const visibleData = projectDisplayData(data, scopeId)
+    if (!visibleData) return { overdue: 0, processing: 0, failed: 0, revision: 0 }
     const today = todayIso()
     return {
-      overdue: data.tasks.filter((task) => task.dueDate && task.dueDate < today && task.status !== 'Done').length,
-      processing: data.interviews.filter((item) => item.status !== 'Cancelled' && [item.transcriptStatus, item.codingStatus, item.memoStatus].some((status) => !['Complete', 'Not Applicable'].includes(status))).length,
-      failed: data.analysisRuns.filter((run) => run.status === 'Failed').length,
+      overdue: visibleData.tasks.filter((task) => task.dueDate && task.dueDate < today && task.status !== 'Done').length,
+      processing: visibleData.interviews.filter((item) => item.status !== 'Cancelled' && [item.transcriptStatus, item.codingStatus, item.memoStatus].some((status) => !['Complete', 'Not Applicable'].includes(status))).length,
+      failed: visibleData.analysisRuns.filter((run) => run.status === 'Failed').length,
       revision:
-        data.manuscripts.filter((manuscript) => manuscript.status === 'Revision').length +
-        data.submissions.filter((submission) => submission.status === 'Revision').length,
+        visibleData.manuscripts.filter((manuscript) => manuscript.status === 'Revision').length +
+        visibleData.submissions.filter((submission) => submission.status === 'Revision').length,
     }
-  }, [data])
+  }, [data, scopeId])
 
   const modeLabelKey: MessageKey = activeWorkspace?.encryptionMode === 'encrypted'
     ? hasRetainedPlaintextSource(activeWorkspace)
@@ -650,7 +655,8 @@ export function AppShell() {
             <button type="button" onClick={clearError}>{t('common.dismiss')}</button>
           </div>
         )}
-        <PageTransitionBoundary><Outlet /></PageTransitionBoundary>
+        <ProjectScopeBar />
+        <PageTransitionBoundary><div key={scopeId}><Outlet /></div></PageTransitionBoundary>
       </main>
 
       <nav className="mobile-bottom-nav" aria-label={t('navigation.mobileAria')}>

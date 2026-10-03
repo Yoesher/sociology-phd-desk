@@ -1,4 +1,6 @@
 import type { ResearchProject } from '../models/domain'
+import { useEffect } from 'react'
+import { useProjectScope } from '../app/project-scope-context'
 import { useI18n } from '../i18n'
 
 export function ProjectSelect({
@@ -21,13 +23,19 @@ export function ProjectSelect({
   disabled?: boolean
 }) {
   const { t } = useI18n()
+  const { projectId } = useProjectScope()
+  const effectiveId = projectId || value
+  useEffect(() => {
+    const defaultId = projectId || (required && projects.length === 1 ? projects[0]?.id : '')
+    if (defaultId && value !== defaultId) onChange(defaultId)
+  }, [projectId, required, projects, value, onChange])
   return (
     <select
-      value={value}
+      value={effectiveId}
       aria-label={ariaLabel || (includeAll ? t('common.projectFilter') : undefined)}
       onChange={(event) => onChange(event.target.value)}
       required={required}
-      disabled={disabled}
+      disabled={disabled || Boolean(projectId)}
     >
       {includeAll ? (
         <option value="">{allLabel || t('common.allProjects')}</option>

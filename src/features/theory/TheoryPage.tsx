@@ -10,7 +10,7 @@ import {
   SectionHeader,
   StatCard,
 } from '../../components/ui'
-import { useWorkspace } from '../../hooks/useWorkspace'
+import { useProjectWorkspace as useWorkspace } from '../../hooks/useProjectWorkspace'
 import { useI18n } from '../../i18n'
 import { useModuleSearch } from '../../hooks/useModuleSearch'
 import type { Claim, Manuscript, TheoryMemo } from '../../models/domain'
