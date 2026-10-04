@@ -525,6 +525,7 @@ function createDemoWorkspaceFixture(now: Date, includeTheory: boolean): Workspac
     literature,
     literatureExternalReferences: [],
     fieldSites,
+    fieldMaps: [],
     interviews,
     fieldVisits,
     datasets,

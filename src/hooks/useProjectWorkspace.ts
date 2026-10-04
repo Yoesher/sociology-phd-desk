@@ -20,6 +20,7 @@ export function projectDisplayData(data: WorkspaceData | null, projectId: string
     literature: data.literature.filter((item) => item.projectId === projectId),
     literatureExternalReferences: data.literatureExternalReferences.filter((item) => literatureIds.has(item.literatureItemId)),
     fieldSites: data.fieldSites.filter((item) => item.projectId === projectId),
+    fieldMaps: data.fieldMaps.filter((item) => item.projectId === projectId),
     interviews: data.interviews.filter((item) => item.projectId === projectId),
     fieldVisits: data.fieldVisits.filter((item) => item.projectId === projectId),
     datasets: data.datasets.filter((item) => item.projectId === projectId),

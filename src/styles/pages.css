@@ -2123,3 +2123,15 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+.attachment-capacity {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.attachment-capacity strong { display: block; font-size: 13px; }
+.attachment-capacity meter { display: block; width: 100%; height: 0.75rem; margin-top: 8px; }
+.attachment-capacity p { margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }

@@ -1,8 +1,33 @@
 # Next Tasks
 
-> Updated 2026-10-03: Website application **0.3.1 is deployed and verified** through [PR #55](https://github.com/Yoesher/sociology-phd-desk/pull/55), feature merge SHA `7f50ecd209b1a9deac3b9bc38653f798020a5817`. This documentation closeout preserves that exact deployment evidence; every subsequent main SHA must independently pass CI, CodeQL and Pages. Latest formal GitHub Release/tag remains v0.3.0; no tag or Release was created or moved.
+> Updated 2026-10-04: **0.4.0 is an unreleased local-material/storage/date candidate**. Public baseline remains verified 0.3.1 final S2 main `3e4967c3cbb05cf96f3bd72edd90ae1d78027a4f`, through [PR #55](https://github.com/Yoesher/sociology-phd-desk/pull/55) and [PR #56](https://github.com/Yoesher/sociology-phd-desk/pull/56). Exact-S2 CI `37118668392`, CodeQL `37118668412`, Pages `37118668404` and deployment `6826847135` passed, including 348 unit / 8 Zotero / 20 desktop+phone E2E tests and native S1 → S2 retention. The new candidate must pass its own gates. Latest formal Release/tag remains v0.3.0; none is created or moved here.
 
-## P0 — Scoped feedback improvements (0.3.1 website update complete)
+## P0 — 0.4.0 candidate completion and verification (not published)
+
+The user separately authorized this new iteration after the 0.3.1 release. Its earlier no-v0.4 instruction remains historical, rather than a restriction on this explicit new scope. Local imported-image annotation does not complete the deferred nationwide map.
+
+- [x] Implement bilingual local PNG/JPEG maps/sketches with title/project, material-rights/coarse-location confirmation, same-project field-site markers, linked visits/interviews and existing record forms. Bound images to 2 MiB each / 4 MiB per full workspace, ≤8,192 pixels per edge and ≤16 million pixels; preserve raw image bytes and possible EXIF rather than claiming automatic anonymity.
+- [x] Preserve original sites when deleting maps/markers; explicitly confirm clearing markers on image replacement; protect referenced site/project changes; retain drafts/records on save failures. Keep full-snapshot writes/backups despite the displayed project scope.
+- [x] Add v7 portable/standard/authenticated payload migration with empty legacy field-map collections and retained older compatibility; keep container/vault/registry v1.
+- [x] Implement PDF 10 MiB each / 20 MiB aggregate and lazy decoding on download; full ordinary JSON 32 MiB export/growth protection, non-growing legacy over-budget writes and existing bounded encrypted preservation, without truncation.
+- [x] Add local-midnight/focus/visibility date refresh while the app is open; no closed-page system notification.
+- [x] Record initial local-map/i18n focused tests: four files / 29 tests PASS; focused UI lint zero warnings. This does not establish final shared-revision or real desktop/phone acceptance.
+- [x] Run original npm test: 46 files / 422 tests PASS in 140.43 s after strict new-behavior/schema assertion corrections and maxWorkers=2 for large-heap tests; retain the initial 413-pass/9-fail history without weakening timeouts/required assertions. npm run audit:release found 0 vulnerabilities; original npm run test:zotero passed 8/8 with no skips, and the generated plugin hash was restored to the formal asset.
+- [ ] Run the exact final commands: npm ci; npm run audit:release; npm run lint; npm run typecheck; npm test; npm run test:zotero; npm run build; npm run test:e2e. Preserve real errors, skip/retry counts and final revision identity.
+- [ ] Complete the pending twelve targeted real desktop/phone cases and full npm run test:e2e: map import, linked record, scaled marker click/percentage/keyboard, refresh, replacement/delete protection, save-error preservation, other-project retention and full JSON/encrypted restore; retain existing PWA/import/export/Zotero flows and console/no-overflow assertions.
+- [ ] Complete final P0/P1, version/migration, capacity, generated-file exclusion, bilingual and link review. Keep the formal Zotero asset hash unchanged; no new plugin release.
+- [ ] Record the user's publication decision and, if proceeding, exact-head push/PR CI and CodeQL, expected-head merge, final-main CI/CodeQL/Pages and fresh synthetic public desktop/phone acceptance. Real waiting-worker update must preserve records and attachment bytes. Do not reuse 0.3.1 success for this candidate.
+- [ ] Record actual final state in PROJECT_STATE.md; no new tag/formal Release unless separately requested. Test only synthetic workspaces and entitled synthetic sketches; never reset user research data.
+
+## P1 — attachment architecture after this bounded candidate
+
+- [ ] Design independent attachment storage with explicit ownership, migration, consistency, quotas and orphan cleanup before raising attachment limits further.
+- [ ] Design chunked authenticated backup/restore with versioned manifests, integrity checks, partial-failure recovery and complete-workspace retention. Do not call chunked files an authenticated backup without a reviewed format and restore evidence.
+- [ ] Verify larger-workspace browser memory and desktop/phone restore behavior before describing support for a larger PDF library. Current 10/20 MiB PDF and 2/4 MiB image bounds still apply; none of this architecture is implemented now.
+
+National source/redistribution/project-review/completeness gates remain **BLOCKED**. Local user-image storage is an architectural scope distinction, not a legal exemption; no national geometry, production administrative catalog, online tiles, participant GPS or public image export belongs in this candidate. [Use and recovery guide](docs/local-field-maps-and-storage-2026-10-04.md).
+
+## Historical completed scope — 0.3.1 website update
 
 - [x] Separate local PDF selection from Zotero handoff selection; allow manual citation entry without requiring Zotero.
 - [x] Add a persistent complete-literature action and visible/saved counts; clear URL and page filters, show successful saves, retain failed forms, and reopen records for viewing/editing.
@@ -18,6 +43,7 @@
 - [x] Preserve the previous-session create_branch rejection (MCP tool call requires approval, but approval policy is never) as history. The current user-authorized continuation uses actual execution-environment approvals; current remote state is separately recorded in PROJECT_STATE.md.
 - [x] Record current-session final checks: lint, typecheck, 39 files / 348 tests (40.35 s), 1,983-module production build, 25-entry PWA contract and zero-vulnerability audit after minimal security patches. The original npm run test:zotero command now passes 8/8 through real approved child-process execution; its earlier spawn EPERM remains historical.
 - [x] Publish through PR #55: exact-head push/PR CI and CodeQL, expected-head merge, exact-main CI/CodeQL/Pages and independent public desktop/mobile smoke, service-worker registration and update discovery passed at 7f50ecd209b1a9deac3b9bc38653f798020a5817. Formal Release/tag remain v0.3.0. Every documentation closeout main SHA must independently pass the same remote checks and its real public build update; do not reuse the feature SHA's success.
+- [x] Complete documentation closeout PR #56 at final S2 main `3e4967c3cbb05cf96f3bd72edd90ae1d78027a4f`: exact-S2 CI/CodeQL/Pages/deployment and fresh public desktop/phone smoke passed; real S1 → S2 native updates retained complete synthetic records and PDF bytes on both viewports. This later acceptance resolves the staged-update checkpoint without rewriting earlier failures as passes.
 
 Reported missing literature is not proven data loss and has not been restored from the user's browser database. Checking the complete list and project scope can reveal filtered records; any deeper diagnosis must inspect that user's actual saved workspace without reset or replacement. In-app deadline displays do not send notifications while the webpage is closed.
 

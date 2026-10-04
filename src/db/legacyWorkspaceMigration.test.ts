@@ -2,6 +2,7 @@ import Dexie from 'dexie'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { createDemoWorkspace, DEMO_WORKSPACE_ID } from '../models/demo'
 import { WORKSPACE_APPLICATION } from '../models/domain'
+import { syntheticFieldMap } from '../utils/field-map.test-helper'
 import { SociologyPhdDeskDatabase } from './database'
 import {
   LegacyWorkspaceMigrationError,
@@ -214,6 +215,30 @@ describe('legacy singleton migration', () => {
       expect(await registryDatabase.migrations.count()).toBe(1)
     },
   )
+
+  it('copies a v7 singleton including local sketch images and annotations while retaining its source', async () => {
+    const legacyName = `legacy-v7-map-${crypto.randomUUID()}`
+    legacyNames.push(legacyName)
+    const snapshot = createDemoWorkspace(new Date('2026-10-04T00:00:00.000Z'))
+    snapshot.fieldMaps = [syntheticFieldMap(snapshot)]
+    const source = new StandardWorkspaceRepository(new SociologyPhdDeskDatabase(legacyName))
+    await source.initializeWorkspace(snapshot)
+    source.close()
+    const before = await readLegacySingleton(legacyName)
+    expect(before.status).toBe('workspace')
+    const migrated = await migrateLegacySingleton(registryDatabase, { legacyDatabaseName: legacyName })
+    expect(migrated.status).toBe('migrated')
+    expect(migrated.entry!.kind).toBe('personal')
+    const factory = new WorkspaceRepositoryFactory(registryDatabase)
+    const target = await factory.openStandardWorkspace(migrated.entry!.id)
+    try {
+      expect(target.snapshot.fieldMaps).toEqual(snapshot.fieldMaps)
+    } finally { target.close() }
+    const after = await readLegacySingleton(legacyName)
+    if (before.status !== 'workspace' || after.status !== 'workspace') throw new Error('Expected preserved singleton snapshots.')
+    expect(after.databaseVersion).toBe(7)
+    expect(workspaceSnapshotsEqual(before.snapshot, after.snapshot)).toBe(true)
+  })
 
   it('classifies only the exact current fixture as demo', async () => {
     const pristineName = `legacy-pristine-${crypto.randomUUID()}`

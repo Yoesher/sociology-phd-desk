@@ -14,6 +14,8 @@ import { entityMeta, todayIso, truncate } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import { useModuleSearch } from '../../hooks/useModuleSearch'
 import { matchesFieldworkInterviewView } from './fieldworkViews'
+import { LocalFieldMaps } from './LocalFieldMaps'
+import { WorkspaceCapacityError } from '../../utils/workspace-capacity'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
   AddButton,
@@ -35,7 +37,7 @@ import {
 type RegistryTab = 'sites' | 'interviews' | 'visits'
 type RecordKind = 'site' | 'interview' | 'visit'
 
-type FieldworkView = 'overview' | 'field' | 'interviews' | 'processing'
+type FieldworkView = 'overview' | 'field' | 'interviews' | 'processing' | 'maps'
 
 const siteDraft = () => ({ nameOrAlias: '', projectId: '', status: 'Planned' as FieldSite['status'], notes: '' })
 const interviewDraft = () => ({
@@ -138,6 +140,19 @@ export function FieldworkPage() {
     setValidationMessageKey(null)
   }
 
+  const saveSafely = async (action: () => Promise<void>) => {
+    try { await action() }
+    catch (failure) { setValidationMessageKey(failure instanceof WorkspaceCapacityError ? 'feedback.backup.tooLarge' : 'fieldMaps.error.saveFailed') }
+  }
+
+  const createForSite = (kind: 'visit' | 'interview', selected: FieldSite) => {
+    setEditingId(null)
+    setValidationMessageKey(null)
+    if (kind === 'visit') setVisit({ ...visitDraft(), projectId: selected.projectId, fieldSiteId: selected.id })
+    else setInterview({ ...interviewDraft(), projectId: selected.projectId, fieldSiteId: selected.id })
+    setFormKind(kind)
+  }
+
   const openCreate = (kind: RecordKind) => {
     setEditingId(null)
     setValidationMessageKey(null)
@@ -195,7 +210,8 @@ export function FieldworkPage() {
       const original = data.fieldSites.find((item) => item.id === editingId)
       const hasLinkedRecords =
         data.interviews.some((item) => item.fieldSiteId === editingId) ||
-        data.fieldVisits.some((item) => item.fieldSiteId === editingId)
+        data.fieldVisits.some((item) => item.fieldSiteId === editingId) ||
+        data.fieldMaps.some((map) => map.markers.some((marker) => marker.fieldSiteId === editingId))
       if (!projectExists || !original || (hasLinkedRecords && original.projectId !== site.projectId)) {
         setValidationMessageKey('fieldwork.validation.siteProject')
         return
@@ -270,10 +286,12 @@ export function FieldworkPage() {
     if (!deleteTarget) return
     if (
       deleteTarget.kind === 'site' &&
-      data.fieldVisits.some((item) => item.fieldSiteId === deleteTarget.id)
+      (data.fieldVisits.some((item) => item.fieldSiteId === deleteTarget.id) ||
+        data.fieldMaps.some((map) => map.markers.some((marker) => marker.fieldSiteId === deleteTarget.id)))
     ) return
     await updateData((current) => {
       if (deleteTarget.kind === 'site') {
+        if (current.fieldMaps.some((map) => map.markers.some((marker) => marker.fieldSiteId === deleteTarget.id)) || current.fieldVisits.some((item) => item.fieldSiteId === deleteTarget.id)) throw new Error('field-site-protected')
         return {
           ...current,
           fieldSites: current.fieldSites.filter((item) => item.id !== deleteTarget.id),
@@ -302,9 +320,13 @@ export function FieldworkPage() {
     deleteTarget?.kind === 'site'
       ? data.fieldVisits.filter((item) => item.fieldSiteId === deleteTarget.id).length
       : 0
+  const blockingSiteMarkers = deleteTarget?.kind === 'site'
+    ? data.fieldMaps.filter((map) => map.markers.some((marker) => marker.fieldSiteId === deleteTarget.id)).length
+    : 0
   const editingSiteLinks = editingId && formKind === 'site'
     ? data.interviews.filter((item) => item.fieldSiteId === editingId).length +
-      data.fieldVisits.filter((item) => item.fieldSiteId === editingId).length
+      data.fieldVisits.filter((item) => item.fieldSiteId === editingId).length +
+      data.fieldMaps.filter((map) => map.markers.some((marker) => marker.fieldSiteId === editingId)).length
     : 0
 
   return (
@@ -314,10 +336,12 @@ export function FieldworkPage() {
         eyebrow={t('fieldwork.header.eyebrow')}
         title={t('fieldwork.header.title')}
         description={t('fieldwork.header.description')}
-        actions={<AddButton onClick={() => openCreate(effectiveTab === 'sites' ? 'site' : effectiveTab === 'interviews' ? 'interview' : 'visit')}>{t(effectiveTab === 'sites' ? 'fieldwork.actions.addSite' : effectiveTab === 'interviews' ? 'fieldwork.actions.addInterview' : 'fieldwork.actions.addVisit')}</AddButton>}
+        actions={<AddButton onClick={() => openCreate(view === 'maps' || effectiveTab === 'sites' ? 'site' : effectiveTab === 'interviews' ? 'interview' : 'visit')}>{t(view === 'maps' || effectiveTab === 'sites' ? 'fieldwork.actions.addSite' : effectiveTab === 'interviews' ? 'fieldwork.actions.addInterview' : 'fieldwork.actions.addVisit')}</AddButton>}
       />
 
       <PrivacyNotice />
+
+      {view === 'maps' ? <LocalFieldMaps data={data} updateData={updateData} onEditSite={editSite} onCreateVisit={(selected) => createForSite('visit', selected)} onCreateInterview={(selected) => createForSite('interview', selected)} /> : <>
 
       <div className="stats-grid stats-grid--four">
         <StatCard label={t('fieldwork.stats.activeSites')} value={formatNumber(activeSites)} detail={t('fieldwork.stats.registeredSites', { count: formatNumber(data.fieldSites.length) })} tone="blue" />
@@ -419,6 +443,7 @@ export function FieldworkPage() {
           </div>
         ) : <EmptyState title={t('fieldwork.empty.visitsTitle')} description={t('fieldwork.empty.visitsDescription')} action={<AddButton onClick={() => openCreate('visit')}>{t('fieldwork.empty.visitsAction')}</AddButton>} />)}
       </section>
+      </>}
 
       <Modal
         open={formKind === 'site'}
@@ -428,13 +453,13 @@ export function FieldworkPage() {
         footer={<><Button onClick={closeForm}>{t('common.cancel')}</Button><Button type="submit" form="site-form" variant="primary">{editingId ? t('fieldwork.siteForm.save') : t('fieldwork.siteForm.add')}</Button></>}
       >
         <PrivacyNotice compact />
-        <form id="site-form" className="form-grid form-grid--spaced" onSubmit={(event) => void saveSite(event)}>
+        <form id="site-form" className="form-grid form-grid--spaced" onSubmit={(event) => void saveSafely(() => saveSite(event))}>
           {validationMessageKey && <p className="text-danger form-span-2" role="alert">{t(validationMessageKey)}</p>}
           <Field label={t('fieldwork.siteForm.name')} required className="form-span-2"><input autoFocus required value={site.nameOrAlias} onChange={(event) => setSite({ ...site, nameOrAlias: event.target.value })} placeholder={t('fieldwork.siteForm.namePlaceholder')} /></Field>
           <Field
             label={t('fieldwork.siteForm.project')}
             required
-            hint={editingSiteLinks ? t('fieldwork.siteForm.linkedHint', { count: formatNumber(editingSiteLinks) }) : undefined}
+            hint={editingId && data.fieldMaps.some((map) => map.markers.some((marker) => marker.fieldSiteId === editingId)) ? t('fieldMaps.siteProjectProtected') : editingSiteLinks ? t('fieldwork.siteForm.linkedHint', { count: formatNumber(editingSiteLinks) }) : undefined}
           >
             <ProjectSelect
               required
@@ -458,7 +483,7 @@ export function FieldworkPage() {
         footer={<><Button onClick={closeForm}>{t('common.cancel')}</Button><Button type="submit" form="interview-form" variant="primary">{editingId ? t('fieldwork.interviewForm.save') : t('fieldwork.interviewForm.add')}</Button></>}
       >
         <PrivacyNotice compact />
-        <form id="interview-form" className="form-grid form-grid--spaced" onSubmit={(event) => void saveInterview(event)}>
+        <form id="interview-form" className="form-grid form-grid--spaced" onSubmit={(event) => void saveSafely(() => saveInterview(event))}>
           {validationMessageKey && <p className="text-danger form-span-2" role="alert">{t(validationMessageKey)}</p>}
           <Field label={t('fieldwork.interviewForm.alias')} required><input autoFocus required value={interview.participantAlias} onChange={(event) => setInterview({ ...interview, participantAlias: event.target.value })} placeholder={t('fieldwork.interviewForm.aliasPlaceholder')} /></Field>
           <Field label={t('fieldwork.interviewForm.project')} required><ProjectSelect required projects={data.projects} value={interview.projectId} onChange={(projectId) => setInterview({ ...interview, projectId, fieldSiteId: '' })} /></Field>
@@ -483,7 +508,7 @@ export function FieldworkPage() {
         footer={<><Button onClick={closeForm}>{t('common.cancel')}</Button><Button type="submit" form="visit-form" variant="primary">{editingId ? t('fieldwork.visitForm.save') : t('fieldwork.visitForm.add')}</Button></>}
       >
         <PrivacyNotice compact />
-        <form id="visit-form" className="form-grid form-grid--spaced" onSubmit={(event) => void saveVisit(event)}>
+        <form id="visit-form" className="form-grid form-grid--spaced" onSubmit={(event) => void saveSafely(() => saveVisit(event))}>
           {validationMessageKey && <p className="text-danger form-span-2" role="alert">{t(validationMessageKey)}</p>}
           <Field label={t('fieldwork.visitForm.date')} required><input required type="date" value={visit.date} onChange={(event) => setVisit({ ...visit, date: event.target.value })} /></Field>
           <Field label={t('fieldwork.visitForm.project')} required><ProjectSelect required projects={data.projects} value={visit.projectId} onChange={(projectId) => setVisit({ ...visit, projectId, fieldSiteId: '' })} /></Field>
@@ -496,24 +521,24 @@ export function FieldworkPage() {
       </Modal>
 
       <ConfirmDialog
-        open={Boolean(deleteTarget) && blockingSiteVisits === 0}
+        open={Boolean(deleteTarget) && blockingSiteVisits === 0 && blockingSiteMarkers === 0}
         title={t('fieldwork.delete.title', { name: deleteTarget?.label || t('fieldwork.delete.fallbackName') })}
-        description={deleteTarget?.kind === 'site' ? t('fieldwork.delete.siteDescription') : t('fieldwork.delete.recordDescription')}
+        description={validationMessageKey === 'fieldMaps.error.saveFailed' || validationMessageKey === 'feedback.backup.tooLarge' ? t(validationMessageKey) : deleteTarget?.kind === 'site' ? t('fieldwork.delete.siteDescription') : t('fieldwork.delete.recordDescription')}
         confirmLabel={t('fieldwork.delete.confirm')}
-        onCancel={() => setDeleteTarget(null)}
-        onConfirm={deleteRecord}
+        onCancel={() => { setDeleteTarget(null); setValidationMessageKey(null) }}
+        onConfirm={() => saveSafely(deleteRecord)}
       />
       <Modal
-        open={Boolean(deleteTarget) && blockingSiteVisits > 0}
-        title={t('fieldwork.delete.blockedTitle')}
-        description={t('fieldwork.delete.blockedDescription')}
+        open={Boolean(deleteTarget) && (blockingSiteVisits > 0 || blockingSiteMarkers > 0)}
+        title={t(blockingSiteMarkers ? 'fieldMaps.siteDeleteTitle' : 'fieldwork.delete.blockedTitle')}
+        description={t(blockingSiteMarkers ? 'fieldMaps.siteDeleteProtected' : 'fieldwork.delete.blockedDescription')}
         onClose={() => setDeleteTarget(null)}
         size="sm"
         footer={<Button variant="primary" onClick={() => setDeleteTarget(null)}>{t('fieldwork.delete.keep')}</Button>}
       >
         <div className="confirm-panel confirm-panel--primary">
           <MapPinned size={20} />
-          <p>{t(blockingSiteVisits === 1 ? 'fieldwork.delete.blockedOne' : 'fieldwork.delete.blockedMany', { count: formatNumber(blockingSiteVisits) })}</p>
+          <p>{blockingSiteMarkers ? t('fieldMaps.siteDeleteProtected') : t(blockingSiteVisits === 1 ? 'fieldwork.delete.blockedOne' : 'fieldwork.delete.blockedMany', { count: formatNumber(blockingSiteVisits) })}</p>
         </div>
       </Modal>
     </div>

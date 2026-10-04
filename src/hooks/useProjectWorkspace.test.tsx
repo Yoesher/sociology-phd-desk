@@ -7,6 +7,7 @@ import { ProjectScopeBar, ProjectScopeProvider } from '../app/ProjectScope'
 import { createDemoWorkspace } from '../models/demo'
 import { I18nProvider } from '../i18n'
 import { projectDisplayData, useProjectWorkspace } from './useProjectWorkspace'
+import { syntheticFieldMap } from '../utils/field-map.test-helper'
 
 beforeEach(() => { sessionStorage.clear(); localStorage.clear() })
 afterEach(cleanup)
@@ -14,11 +15,14 @@ afterEach(cleanup)
 describe('project working space', () => {
   it('filters related records without mutating the source snapshot', () => {
     const full = createDemoWorkspace()
+    full.fieldMaps = full.projects.slice(0, 2).map((project, i) => ({ ...syntheticFieldMap(full), id: `SYNTHETIC-map-${i}`, projectId: project.id, markers: [] }))
     const before = structuredClone(full)
     const project = full.projects[0]!.id
     const scoped = projectDisplayData(full, project)!
     expect(scoped.projects.map((item) => item.id)).toEqual([project])
     expect(scoped.tasks.every((item) => item.projectId === project)).toBe(true)
+    expect(scoped.fieldMaps.map((item) => item.projectId)).toEqual([project])
+    expect(full.fieldMaps).toHaveLength(2)
     expect(scoped.literatureExternalReferences.every((item) => scoped.literature.some((source) => source.id === item.literatureItemId))).toBe(true)
     expect(full).toEqual(before)
     expect(projectDisplayData(full, '')).toBe(full)

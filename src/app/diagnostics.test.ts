@@ -17,7 +17,7 @@ const entry: WorkspaceRegistryEntry = {
   encryptionMode: 'encrypted',
   createdAt: '2026-08-15T00:00:00.000Z',
   updatedAt: '2026-08-15T00:00:00.000Z',
-  schemaVersion: 6,
+  schemaVersion: 7,
   storageSchemaVersion: 1,
   registryRevision: 7,
   autoLock: 15,

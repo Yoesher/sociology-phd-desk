@@ -51,13 +51,13 @@ function workspaceSet() {
 function renderCenter(overrides: Partial<WorkspaceCenterProps> = {}) {
   const preflight: WorkspaceImportPreflight = {
     sourceFormat: 'portable-workspace-json',
-    sourceVersion: 6,
-    targetVersion: 6,
+    sourceVersion: 7,
+    targetVersion: 7,
     migrationSteps: [],
     collectionCounts: {
       projects: 0, researchQuestions: 0, claims: 0, claimQuestionLinks: 0,
       theoryMemos: 0, tasks: 0, literature: 0, literatureExternalReferences: 0,
-      fieldSites: 0, interviews: 0, fieldVisits: 0, datasets: 0, analysisRuns: 0,
+      fieldSites: 0, fieldMaps: 0, interviews: 0, fieldVisits: 0, datasets: 0, analysisRuns: 0,
       evidence: 0, researchLogs: 0, manuscripts: 0, submissions: 0, reviewerComments: 0,
     },
     totalRecords: 0,

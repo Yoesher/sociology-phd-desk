@@ -8,6 +8,7 @@ import {
   LEGACY_ENCRYPTED_PAYLOAD_VERSION,
   PREVIOUS_ENCRYPTED_PAYLOAD_VERSION,
   ZOTERO_ENCRYPTED_PAYLOAD_VERSION,
+  PDF_ENCRYPTED_PAYLOAD_VERSION,
   LocalWorkspaceCryptoSession,
   MAX_KEY_INVOCATIONS,
   WebCryptoUnavailableError,
@@ -254,8 +255,8 @@ export async function inspectEncryptedWorkspaceRecord(
 }
 
 /**
- * Re-encrypts an authenticated v3 payload as v4 without changing the logical
- * workspace revision. The old ciphertext remains the committed value until a
+ * Re-encrypts an authenticated historical payload as the current version
+ * without changing the logical workspace revision. The old ciphertext remains the committed value until a
  * fully authenticated candidate has won the vault CAS and been read back in
  * that same transaction. A failed post-commit authentication restores the old
  * ciphertext when the candidate is still the current generation.
@@ -272,7 +273,8 @@ async function upgradeLegacyEncryptedWorkspace(
   if (
     opened.payloadVersion !== LEGACY_ENCRYPTED_PAYLOAD_VERSION &&
     opened.payloadVersion !== PREVIOUS_ENCRYPTED_PAYLOAD_VERSION &&
-    opened.payloadVersion !== ZOTERO_ENCRYPTED_PAYLOAD_VERSION
+    opened.payloadVersion !== ZOTERO_ENCRYPTED_PAYLOAD_VERSION &&
+    opened.payloadVersion !== PDF_ENCRYPTED_PAYLOAD_VERSION
   ) {
     throw new EncryptedContainerAuthenticationError()
   }
@@ -498,6 +500,11 @@ export class UnlockedEncryptedWorkspace {
         this.#workspace.workspace.id,
         nextWorkspace.workspace.id,
       )
+    }
+
+    const validation = validateWorkspace(nextWorkspace)
+    if (!validation.success) {
+      throw new WorkspaceValidationError('The workspace failed save validation.', validation.issues)
     }
 
     const expected = { ...this.#coordinates }

@@ -151,7 +151,7 @@ test('local PDF, project space, and editable task deadlines survive reload', asy
   expect(snapshot.tasks.find((item: { title: string }) => item.title === 'DEMO E2E second-project task')).toMatchObject({
     projectId: secondProjectId, dueDate: '2098-01-10', status: 'To Do', notes: 'DEMO E2E retain other-project notes',
   })
-  expect(snapshot.version).toBe(6)
+  expect(snapshot.version).toBe(7)
   expect(snapshot.literature).toHaveLength(2)
   expect(snapshot.tasks).toHaveLength(2)
   await expect(warning).toBeHidden()

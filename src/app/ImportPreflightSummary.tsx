@@ -12,6 +12,7 @@ const collectionLabels: Record<string, MessageKey> = {
   literature: 'workspace.collection.literature',
   literatureExternalReferences: 'workspace.collection.literatureExternalReferences',
   fieldSites: 'workspace.collection.fieldSites',
+  fieldMaps: 'workspace.collection.fieldMaps',
   interviews: 'workspace.collection.interviews',
   fieldVisits: 'workspace.collection.fieldVisits',
   datasets: 'workspace.collection.datasets',

@@ -2,6 +2,17 @@
 
 Sociology PhD Desk is being developed as a long-lived open-source research tool. This roadmap describes direction, not a promise of dates or adoption. Verified current status belongs in [PROJECT_STATE.md](PROJECT_STATE.md); user-visible changes belong in [CHANGELOG.md](CHANGELOG.md).
 
+## 0.4.0 scoped candidate — 2026-10-04, unreleased
+
+The user separately authorized local imported-map/sketch annotation after the verified 0.3.1 release. The earlier release's no-v0.4 boundary remains a historical scope record; this new iteration is limited to local materials, bounded attachments and foreground calendar refresh. Public baseline is 0.3.1 final S2 main `3e4967c3cbb05cf96f3bd72edd90ae1d78027a4f`; the final integrated gate and publication decision for 0.4.0 remain pending.
+
+- Link user-owned static PNG/JPEG images to same-project field sites and their visits/interviews, using normalized image positions and explicit save/replace/remove flows. Maximum 2 MiB each / 4 MiB per full workspace, 8,192 pixels per edge and 16 million pixels. Use coarse research context without participant homes/precise positions; raw image metadata is retained, and this is not automatic anonymization or legal certification.
+- Advance portable/standard/authenticated payload to v7 without invented maps in legacy records; preserve complete all-project ordinary/encrypted backups and keep container/vault/registry v1.
+- Raise PDF bounds to 10 MiB each / 20 MiB aggregate and decode on download. Keep full readable ordinary JSON at 32 MiB with explicit growth/export rejection and intact legacy reads/migration/non-growing writes; preserve the existing bounded 64 MiB-ciphertext encrypted backup path. No truncation or large-library claim.
+- Refresh open-page local dates at midnight/focus/visibility without closed-webpage notifications. Complete actual desktop/phone, encrypted, capacity, PWA/update and full regression acceptance before any publication claim.
+
+The next capacity priority is **independent attachment storage plus chunked authenticated backup/restore**, with consistency, integrity, quota and failure-recovery design before further PDF expansion. It is not implemented in this candidate. [Detailed usage and limits](docs/local-field-maps-and-storage-2026-10-04.md).
+
 ## Product north star
 
 Build a local-first research orchestration layer that makes this chain increasingly traceable:
@@ -25,7 +36,7 @@ The product remains sociology-specific and complements, rather than replaces, sp
 
 Phase 3 uses independently verified increments. Listing an increment here does not mean it has shipped; verified status remains in [PROJECT_STATE.md](PROJECT_STATE.md).
 
-**Current release:** [`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0) is published from exact release SHA `bb0d32fe99348204ba89a16d6469014ae38e0ecf`. Navigation collapse, Zotero/schema v5 and plugin, guarded imports, browser E2E, security automation, and privacy-safe diagnostics are released. The Phase 3D China Research Map keeps all four gates **BLOCKED**, but is DEFERRED and excluded from `v0.3.0`.
+**Latest formal release:** [`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0) is published from exact release SHA `bb0d32fe99348204ba89a16d6469014ae38e0ecf`. Navigation collapse, Zotero/schema v5 and plugin, guarded imports, browser E2E, security automation, and privacy-safe diagnostics are released. The website independently reached verified 0.3.1 through PRs #55/#56; 0.4.0 is the unreleased candidate above. The Phase 3D China Research Map keeps all four gates **BLOCKED** and remains DEFERRED; local imported images do not complete that feature.
 
 Every implemented increment follows the same evidence chain: scoped Issue → dedicated feature branch → implementation and tests → Pull Request → passing PR CI → maintainer self-review → squash merge → passing `main` CI → GitHub Pages verification. The map's blocked gate applies to the map alone; each non-map increment must pass its own complete gate before the next begins.
 
@@ -61,6 +72,8 @@ Every implemented increment follows the same evidence chain: scoped Issue → de
 - Preserve local-first operation, never transmit user notes or fieldwork data to GitHub Pages or a map service, and provide a useful non-map fallback for linked regional research notes.
 
 The 2026-08-12 review found every mandatory map gate blocked. A 2026-08-15 release-time revalidation found the official distribution and map-review boundary unchanged, retained all four BLOCKED results, and closed Issue #37 as `not planned`. No production map or asset shipped. The province-level China fieldwork map is deferred because public-source, redistribution, project-review, and completeness requirements are not yet verifiable for this deployment. It is excluded from v0.3.0 and may be reconsidered only if those conditions materially change.
+
+The 2026-10-04 official-source recheck also did not establish a deployable national source/rights/review/completeness chain. All four results remain BLOCKED. The independent user-image annotation candidate carries no national content or online map service and supplies no production administrative directory; it is an alternative local workflow, not nationwide map acceptance or a legal exemption.
 
 ### Phase 3E — Theory Research workspace (released in `v0.2.0`)
 
@@ -132,7 +145,7 @@ Release criteria:
 
 ## `0.3.x` — reproducibility and qualitative traceability
 
-The `v0.3.0` cycle completed and released its non-map maintenance and Zotero scope after the normal release, asset, and exact-main gates passed. It excludes the deferred China map. The entries below remain future direction, not part of this release, and no `v0.4` implementation starts during the adoption/testing stage.
+The `v0.3.0` cycle completed and released its non-map maintenance and Zotero scope after the normal release, asset, and exact-main gates passed. It excludes the deferred China map. The entries below remain future direction, not part of that release. Its adoption/testing-stage no-v0.4 boundary and the later 0.3.1 release-only boundary were historical; the user's new 2026-10-04 authorization permits only the scoped candidate above, not these broader research-traceability features.
 
 - Dataset, variable dictionary, sample restriction, model specification, robustness check, timestamp, code version, and output relationships.
 - Analysis-run comparison without attempting to replace Stata, R, or Python.

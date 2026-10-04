@@ -92,6 +92,7 @@ export const navigationItems: readonly NavigationItem[] = [
     views: [
       { id: 'overview', labelKey: 'nav.fieldwork.overview' },
       { id: 'field', labelKey: 'nav.fieldwork.field' },
+      { id: 'maps', labelKey: 'fieldMaps.title' },
       { id: 'interviews', labelKey: 'nav.fieldwork.interviews' },
       { id: 'processing', labelKey: 'nav.fieldwork.processing', badgeId: 'processing' },
     ],

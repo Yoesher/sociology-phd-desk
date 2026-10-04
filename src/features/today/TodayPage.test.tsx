@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { cleanup, render, screen, within, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, within, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
@@ -11,7 +11,7 @@ import { createEmptyWorkspace } from '../../models/empty-workspace'
 import type { WorkspaceData } from '../../models/domain'
 import { TodayPage } from './TodayPage'
 
-function renderToday(initialOverride?: WorkspaceData, route = '/?view=overview') {
+function renderToday(initialOverride?: WorkspaceData, route = '/?view=overview', onUpdate?: WorkspaceContextValue['updateData']) {
   const demo = createDemoWorkspace(new Date())
   const initialData: WorkspaceData = initialOverride ?? {
     ...demo,
@@ -22,7 +22,10 @@ function renderToday(initialOverride?: WorkspaceData, route = '/?view=overview')
 
   function Harness({ children }: { children: ReactNode }) {
     const [data, setData] = useState(initialData)
-    const updateData: WorkspaceContextValue['updateData'] = async (updater) => setData(updater)
+    const updateData: WorkspaceContextValue['updateData'] = async (updater) => {
+      await onUpdate?.(updater)
+      setData(updater)
+    }
     const context: WorkspaceContextValue = {
       data,
       loading: false,
@@ -47,7 +50,10 @@ describe('TodayPage theory work mode', () => {
     window.localStorage.clear()
     window.location.hash = ''
   })
-  afterEach(() => cleanup())
+  afterEach(() => {
+    cleanup()
+    vi.useRealTimers()
+  })
 
   it('offers the stable theory task category and can filter visible tasks by it', async () => {
     const user = userEvent.setup()
@@ -124,5 +130,87 @@ describe('TodayPage theory work mode', () => {
     expect(screen.getByText('SYNTHETIC due today')).toBeInTheDocument()
     expect(screen.queryByText('SYNTHETIC done today')).not.toBeInTheDocument()
     expect(screen.queryByText('SYNTHETIC due later')).not.toBeInTheDocument()
+  })
+
+  it('refreshes the header, deadline summary and open task view at midnight without writing or losing edits', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 9, 3, 23, 59, 58))
+    localStorage.setItem('sociology-phd-desk-settings', JSON.stringify({ language: 'en' }))
+    const demo = createDemoWorkspace()
+    demo.tasks = [
+      { ...demo.tasks[0]!, id: 'pending', title: 'SYNTHETIC pending tonight', dueDate: '2026-10-03', status: 'To Do' },
+      { ...demo.tasks[0]!, id: 'done', title: 'SYNTHETIC completed tonight', dueDate: '2026-10-03', status: 'Done' },
+      { ...demo.tasks[0]!, id: 'undated', title: 'SYNTHETIC no deadline', dueDate: undefined, status: 'To Do' },
+    ]
+    const originalTasks = structuredClone(demo.tasks)
+    const writes = vi.fn()
+    const { container } = renderToday(demo, '/?view=tasks', writes)
+    expect(container.querySelector('.page-header .eyebrow')).toHaveTextContent('October 3, 2026')
+    const pending = screen.getByText('SYNTHETIC pending tonight').closest('.task-edit-row') as HTMLElement
+    expect(within(pending).getByText('Due today')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'View and edit SYNTHETIC completed tonight' }))
+    const dialog = screen.getByRole('dialog', { name: 'View and edit task' })
+    fireEvent.change(within(dialog).getByLabelText('Notes'), { target: { value: 'SYNTHETIC unsaved midnight notes' } })
+
+    act(() => vi.advanceTimersByTime(2_000))
+
+    expect(container.querySelector('.page-header .eyebrow')).toHaveTextContent('October 4, 2026')
+    expect(within(pending).getByText('1 days overdue')).toBeInTheDocument()
+    expect(container.querySelector('.task-deadline-summary')).toHaveTextContent('0 due today')
+    expect(container.querySelector('.task-deadline-summary')).toHaveTextContent('1 overdue')
+    expect(within(dialog).getByLabelText('Notes')).toHaveValue('SYNTHETIC unsaved midnight notes')
+    expect(within(dialog).getByLabelText('Due date')).toHaveValue('2026-10-03')
+    const done = screen.getByText('SYNTHETIC completed tonight').closest('.task-edit-row') as HTMLElement
+    expect(within(done).queryByText(/days overdue/)).not.toBeInTheDocument()
+    expect(screen.getByText('No deadline')).toBeInTheDocument()
+    expect(writes).not.toHaveBeenCalled()
+    expect(demo.tasks).toEqual(originalTasks)
+  })
+
+  it('re-evaluates the future seven-day filter after sleep while preserving completed task status', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 9, 3, 20))
+    localStorage.setItem('sociology-phd-desk-settings', JSON.stringify({ language: 'en' }))
+    const demo = createDemoWorkspace()
+    demo.tasks = [
+      { ...demo.tasks[0]!, id: 'old-today', title: 'SYNTHETIC yesterday after sleep', dueDate: '2026-10-03', status: 'To Do' },
+      { ...demo.tasks[0]!, id: 'last', title: 'SYNTHETIC new seventh day', dueDate: '2026-10-10', status: 'To Do' },
+      { ...demo.tasks[0]!, id: 'done', title: 'SYNTHETIC completed during week', dueDate: '2026-10-04', status: 'Done' },
+    ]
+    const writes = vi.fn()
+    renderToday(demo, '/?view=tasks&filter=upcoming', writes)
+    expect(screen.getByText('SYNTHETIC yesterday after sleep')).toBeInTheDocument()
+    expect(screen.queryByText('SYNTHETIC new seventh day')).not.toBeInTheDocument()
+    vi.setSystemTime(new Date(2026, 9, 4, 8))
+    act(() => window.dispatchEvent(new Event('focus')))
+    expect(screen.queryByText('SYNTHETIC yesterday after sleep')).not.toBeInTheDocument()
+    expect(screen.getByText('SYNTHETIC new seventh day')).toBeInTheDocument()
+    expect(screen.queryByText('SYNTHETIC completed during week')).not.toBeInTheDocument()
+    expect(demo.tasks[2]!.status).toBe('Done')
+    expect(writes).not.toHaveBeenCalled()
+  })
+
+  it('opens new tasks with the current day and saves an unsaved log under the actual day after midnight', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 9, 3, 23, 59, 58))
+    localStorage.setItem('sociology-phd-desk-settings', JSON.stringify({ language: 'en' }))
+    const demo = createDemoWorkspace()
+    demo.researchLogs = []
+    const writes = vi.fn()
+    renderToday(demo, '/?view=overview', writes)
+    fireEvent.click(screen.getByRole('button', { name: 'Add entry' }))
+    const dialog = screen.getByRole('dialog', { name: 'Add today’s research log' })
+    fireEvent.change(within(dialog).getByLabelText(/What changed/), { target: { value: 'SYNTHETIC midnight progress' } })
+    fireEvent.change(within(dialog).getByLabelText(/Next step/), { target: { value: 'SYNTHETIC next step' } })
+    act(() => vi.advanceTimersByTime(2_000))
+    expect(within(dialog).getByLabelText(/What changed/)).toHaveValue('SYNTHETIC midnight progress')
+    await act(async () => fireEvent.submit(document.getElementById('today-log-form')!))
+    const saved = writes.mock.calls[0]![0](demo) as WorkspaceData
+    expect(saved.researchLogs[0]!.date).toBe('2026-10-04')
+    expect(saved.researchLogs[0]!.whatChanged).toBe('SYNTHETIC midnight progress')
+    expect(saved.researchLogs[0]!.nextStep).toBe('SYNTHETIC next step')
+    expect(screen.getByText('SYNTHETIC midnight progress')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Add research task' }))
+    expect(within(screen.getByRole('dialog', { name: 'Add a research task' })).getByLabelText('Due date')).toHaveValue('2026-10-04')
   })
 })

@@ -6,6 +6,7 @@ import {
   type WorkspaceRepositoryPort,
 } from '../db/localWorkspaceManager'
 import { createDemoWorkspace } from '../models/demo'
+import { MAX_SERIALIZED_WORKSPACE_BYTES, workspaceSerializedBytes } from '../utils/workspace-capacity'
 import type { WorkspaceData } from '../models/domain'
 import { WorkspaceContext, type WorkspaceContextValue } from './workspace-context'
 import { WorkspaceProvider } from './WorkspaceContext'
@@ -295,6 +296,117 @@ describe('WorkspaceProvider optimistic write queue', () => {
     // The parent session lifecycle is the sole owner of the port close.
     port.close()
     expect(port.close).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects interactive capacity growth before changing optimistic data or calling the database', async () => {
+    const initial = createDemoWorkspace(new Date('2026-10-04T00:00:00.000Z'))
+    const port = repository()
+    const onExternalLock = vi.fn()
+    render(<WorkspaceProvider repository={port} initialSnapshot={initial} workspaceId={initial.workspace.id} storageId="storage-demo" onExternalLock={onExternalLock}><ContextProbe /></WorkspaceProvider>)
+    await act(async () => {
+      await expect(getContext().updateData((current) => ({
+        ...current,
+        researchLogs: Array.from({ length: 136 }, (_, index) => ({ ...current.researchLogs[0]!, id: `synthetic-growth-${index}`, problem: 'x'.repeat(250_000) })),
+      }))).rejects.toMatchObject({ name: 'WorkspaceCapacityError' })
+    })
+    expect(getContext().data).toBe(initial)
+    expect(getContext().data!.researchLogs).toEqual(initial.researchLogs)
+    expect(port.replaceWorkspace).not.toHaveBeenCalled()
+    expect(port.getWorkspaceSnapshot).not.toHaveBeenCalled()
+    expect(getContext().saving).toBe(false)
+    expect(getContext().error).toBe('save-failed')
+    expect(onExternalLock).not.toHaveBeenCalled()
+  })
+
+  it('allows a large legacy workspace to reduce content while rejecting later growth without losing the saved reduction', async () => {
+    const initial = createDemoWorkspace(new Date('2026-10-04T00:00:00.000Z'))
+    initial.researchLogs = Array.from({ length: 136 }, (_, index) => ({ ...initial.researchLogs[0]!, id: `synthetic-legacy-${index}`, problem: 'x'.repeat(250_000) }))
+    expect(workspaceSerializedBytes(initial)).toBeGreaterThan(MAX_SERIALIZED_WORKSPACE_BYTES)
+    let persisted = initial
+    const port = repository({
+      replaceWorkspace: vi.fn(async (snapshot: WorkspaceData) => { persisted = snapshot; return persisted }),
+      refresh: vi.fn(async () => persisted),
+    })
+    render(<WorkspaceProvider repository={port} initialSnapshot={initial} workspaceId={initial.workspace.id} storageId="storage-demo" onExternalLock={vi.fn()}><ContextProbe /></WorkspaceProvider>)
+    await act(async () => getContext().updateData((current) => ({ ...current, researchLogs: current.researchLogs.map((log, index) => index === 0 ? { ...log, problem: log.problem.slice(0, -2_000) } : log) })))
+    expect(port.replaceWorkspace).toHaveBeenCalledTimes(1)
+    expect(port.replaceWorkspace).toHaveBeenCalledWith(expect.objectContaining({ workspace: expect.objectContaining({ revision: 1 }) }), 0)
+    const reduced = getContext().data!
+    expect(reduced.researchLogs[0]!.problem).toHaveLength(248_000)
+    expect(workspaceSerializedBytes(reduced)).toBeGreaterThan(MAX_SERIALIZED_WORKSPACE_BYTES)
+    await act(async () => {
+      await expect(getContext().updateData((current) => ({ ...current, projects: current.projects.map((project, index) => index === 0 ? { ...project, notes: project.notes + 'SYNTHETIC extra research text' } : project) }))).rejects.toMatchObject({ name: 'WorkspaceCapacityError' })
+    })
+    expect(getContext().data).toBe(reduced)
+    expect(port.replaceWorkspace).toHaveBeenCalledTimes(1)
+  })
+
+  it('checks each queued merge against the latest committed full snapshot and rejects combined capacity growth before replacement', async () => {
+    const initial = createDemoWorkspace(new Date('2026-10-04T00:00:00.000Z'))
+    initial.researchLogs = Array.from({ length: 124 }, (_, index) => ({ ...initial.researchLogs[0]!, id: `synthetic-current-${index}`, problem: 'x'.repeat(250_000) }))
+    const firstImport = { ...initial, researchLogs: [...initial.researchLogs, ...Array.from({ length: 9 }, (_, index) => ({ ...initial.researchLogs[0]!, id: `synthetic-first-merge-${index}` }))] }
+    const secondImport = { ...initial, researchLogs: [...initial.researchLogs, { ...initial.researchLogs[0]!, id: 'synthetic-second-merge' }] }
+    expect(workspaceSerializedBytes(firstImport)).toBeLessThan(MAX_SERIALIZED_WORKSPACE_BYTES)
+    expect(workspaceSerializedBytes(secondImport)).toBeLessThan(MAX_SERIALIZED_WORKSPACE_BYTES)
+    expect(workspaceSerializedBytes({ ...firstImport, researchLogs: [...firstImport.researchLogs, secondImport.researchLogs.at(-1)!] })).toBeGreaterThan(MAX_SERIALIZED_WORKSPACE_BYTES)
+    let persisted = initial
+    let releaseFirst!: () => void
+    const firstGate = new Promise<void>((resolve) => { releaseFirst = resolve })
+    const port = repository({
+      getWorkspaceSnapshot: vi.fn(async () => persisted),
+      replaceWorkspace: vi.fn(async (snapshot: WorkspaceData, expected: number) => {
+        expect(expected).toBe(persisted.workspace.revision)
+        await firstGate
+        persisted = snapshot
+        return persisted
+      }),
+      refresh: vi.fn(async () => persisted),
+    })
+    const onExternalLock = vi.fn()
+    render(<WorkspaceProvider repository={port} initialSnapshot={initial} workspaceId={initial.workspace.id} storageId="storage-demo" onExternalLock={onExternalLock}><ContextProbe /></WorkspaceProvider>)
+    let outcomes: PromiseSettledResult<unknown>[] = []
+    await act(async () => {
+      const first = getContext().mergeWith(firstImport)
+      const second = getContext().mergeWith(secondImport)
+      const both = Promise.allSettled([first, second])
+      await waitFor(() => expect(port.replaceWorkspace).toHaveBeenCalledTimes(1))
+      releaseFirst()
+      outcomes = await both
+    })
+    expect(outcomes[0]).toMatchObject({ status: 'fulfilled', value: { added: { researchLogs: 9 } } })
+    expect(outcomes[1]).toMatchObject({ status: 'rejected', reason: { name: 'WorkspaceCapacityError' } })
+    expect(port.mergeWorkspace).not.toHaveBeenCalled()
+    expect(port.replaceWorkspace).toHaveBeenCalledTimes(1)
+    expect(port.getWorkspaceSnapshot).toHaveBeenCalledTimes(2)
+    expect(getContext().data!.researchLogs).toHaveLength(133)
+    expect(getContext().data!.researchLogs.some((log) => log.id === 'synthetic-second-merge')).toBe(false)
+    expect(getContext().data!.workspace.revision).toBe(1)
+    expect(onExternalLock).not.toHaveBeenCalled()
+  })
+
+  it('merges with the fetched revision CAS and retains the existing safe conflict and identity error semantics', async () => {
+    const initial = createDemoWorkspace(new Date('2026-10-04T00:00:00.000Z'))
+    const fetched = { ...initial, workspace: { ...initial.workspace, revision: 7 } }
+    const port = repository({
+      getWorkspaceSnapshot: vi.fn(async () => fetched),
+      replaceWorkspace: vi.fn().mockRejectedValue(new LocalWorkspaceManagerError('revision-conflict', 'SYNTHETIC sensitive internal text')),
+      refresh: vi.fn(async () => fetched),
+    })
+    const onExternalLock = vi.fn()
+    const rendered = render(<WorkspaceProvider repository={port} initialSnapshot={initial} workspaceId={initial.workspace.id} storageId="storage-demo" onExternalLock={onExternalLock}><ContextProbe /></WorkspaceProvider>)
+    await act(async () => { await expect(getContext().mergeWith(initial)).rejects.toMatchObject({ code: 'revision-conflict' }) })
+    expect(port.replaceWorkspace).toHaveBeenCalledWith(expect.objectContaining({ workspace: expect.objectContaining({ revision: 8 }) }), 7)
+    expect(port.mergeWorkspace).not.toHaveBeenCalled()
+    expect(onExternalLock).toHaveBeenCalledOnce()
+    expect(document.body).not.toHaveTextContent('SYNTHETIC sensitive internal text')
+    rendered.unmount()
+    const identityPort = repository({ getWorkspaceSnapshot: vi.fn(async () => initial), refresh: vi.fn(async () => initial) })
+    const identityLock = vi.fn()
+    render(<WorkspaceProvider repository={identityPort} initialSnapshot={initial} workspaceId={initial.workspace.id} storageId="storage-demo" onExternalLock={identityLock}><ContextProbe /></WorkspaceProvider>)
+    const wrongIdentity = { ...initial, workspace: { ...initial.workspace, id: 'synthetic-different-workspace' } }
+    await act(async () => { await expect(getContext().mergeWith(wrongIdentity)).rejects.toMatchObject({ code: 'invalid-workspace' }) })
+    expect(identityPort.replaceWorkspace).not.toHaveBeenCalled()
+    expect(identityLock).toHaveBeenCalledOnce()
   })
 
   it('invalidates an opened session when refresh detects encrypted tamper', async () => {

@@ -8,7 +8,7 @@ export type EntityId = string
 export type ISODate = string
 export type ISODateTime = string
 
-export const WORKSPACE_SCHEMA_VERSION = 6 as const
+export const WORKSPACE_SCHEMA_VERSION = 7 as const
 export const WORKSPACE_APPLICATION = 'sociology-phd-desk' as const
 
 export const RESEARCH_METHODS = [
@@ -261,6 +261,30 @@ export interface FieldSite extends EntityMetadata {
   notes: string
 }
 
+/** An imported, local research sketch; no geographic coordinate system is inferred. */
+export interface FieldMapImage {
+  fileName: string
+  mimeType: 'image/png' | 'image/jpeg'
+  size: number
+  width: number
+  height: number
+  base64: string
+}
+
+export interface FieldMapMarker {
+  fieldSiteId: EntityId
+  /** Normalized image-relative position, never latitude or longitude. */
+  x: number
+  y: number
+}
+
+export interface FieldMap extends EntityMetadata {
+  projectId: EntityId
+  title: string
+  image: FieldMapImage
+  markers: FieldMapMarker[]
+}
+
 export interface Interview extends EntityMetadata {
   participantAlias: string
   projectId: EntityId
@@ -380,6 +404,7 @@ export interface WorkspaceData {
   literature: LiteratureItem[]
   literatureExternalReferences: LiteratureExternalReference[]
   fieldSites: FieldSite[]
+  fieldMaps: FieldMap[]
   interviews: Interview[]
   fieldVisits: FieldVisit[]
   datasets: Dataset[]

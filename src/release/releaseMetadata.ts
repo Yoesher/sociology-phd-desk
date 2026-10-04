@@ -1,17 +1,17 @@
 export const releaseMetadata = Object.freeze({
-  version: '0.3.1',
-  releaseDate: '2026-10-03',
-  releaseUrl: 'https://github.com/Yoesher/sociology-phd-desk/blob/main/docs/feedback-improvements-2026-10-03.md',
+  version: '0.4.0',
+  releaseDate: '2026-10-04',
+  releaseUrl: 'https://github.com/Yoesher/sociology-phd-desk/blob/main/docs/local-field-maps-and-storage-2026-10-04.md',
   summary: {
     en: [
-      'Local PDF attachments and a complete literature list with view/edit',
-      'Project spaces automatically scope records across research modules',
-      'Visible task deadlines, upcoming reminders, and task editing',
+      'Import local maps or research sketches and mark existing field sites offline',
+      'PDF limits increased to 10 MiB each and 20 MiB per workspace, with capacity indicators',
+      'Local dates and deadline views refresh automatically across midnight',
     ],
     'zh-CN': [
-      '本地 PDF 附件、显示全部文献与查看编辑',
-      '项目空间统一显示各研究模块中的项目记录',
-      '任务截止日期、未来七天提示与查看编辑',
+      '导入本地地图或研究草图，离线标注并关联现有田野点',
+      'PDF 调整为单个 10 MiB、工作台合计 20 MiB，并显示容量用量',
+      '日期与任务期限视图跨过午夜自动更新',
     ],
   },
 })

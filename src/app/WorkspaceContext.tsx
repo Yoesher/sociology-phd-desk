@@ -13,6 +13,9 @@ import {
 } from '../db/localWorkspaceManager'
 import type { EntityMetadata, WorkspaceData } from '../models/domain'
 import { nowIso } from './format'
+import { assertInteractiveBackupBudget } from '../utils/workspace-capacity'
+import { buildMergedWorkspace, WorkspaceIdentityError } from '../db/workspaceRepository'
+import { WorkspaceValidationError } from '../utils/workspace-transfer'
 import {
   WorkspaceContext,
   type WorkspaceContextValue,
@@ -81,6 +84,7 @@ function markUserChanges(current: WorkspaceData, next: WorkspaceData): Workspace
       next.literatureExternalReferences,
     ),
     fieldSites: markEditedRecords(current.fieldSites, next.fieldSites),
+    fieldMaps: markEditedRecords(current.fieldMaps, next.fieldMaps),
     interviews: markEditedRecords(current.interviews, next.interviews),
     fieldVisits: markEditedRecords(current.fieldVisits, next.fieldVisits),
     datasets: markEditedRecords(current.datasets, next.datasets),
@@ -356,6 +360,12 @@ export function WorkspaceProvider({
           updatedAt: nowIso(),
         },
       }
+      try {
+        assertInteractiveBackupBudget(current, snapshot)
+      } catch (capacityError) {
+        if (mountedRef.current) setError(safePersistenceError(capacityError))
+        throw capacityError
+      }
       localMutationGeneration.current += 1
       setSnapshot(snapshot)
       try {
@@ -424,7 +434,24 @@ export function WorkspaceProvider({
     async (workspace: WorkspaceData) => {
       localMutationGeneration.current += 1
       try {
-        const result = await queueWrite(() => repository.mergeWorkspace(workspace))
+        const result = await queueWrite(async () => {
+          const current = await repository.getWorkspaceSnapshot()
+          if (!current || current.workspace.id !== workspaceId) {
+            throw new LocalWorkspaceManagerError('workspace-not-ready', 'The current workspace is unavailable for merge.')
+          }
+          let merged: ReturnType<typeof buildMergedWorkspace>
+          try {
+            merged = buildMergedWorkspace(current, workspace)
+          } catch (validationError) {
+            if (validationError instanceof WorkspaceValidationError || validationError instanceof WorkspaceIdentityError) {
+              throw new LocalWorkspaceManagerError('invalid-workspace', 'The workspace merge failed strict validation.')
+            }
+            throw validationError
+          }
+          assertInteractiveBackupBudget(current, merged.snapshot)
+          await repository.replaceWorkspace(merged.snapshot, current.workspace.revision)
+          return merged.result
+        })
         await refresh()
         if (mountedRef.current) setError(null)
         publishRevision(dataRef.current?.workspace.revision ?? 0)
@@ -443,7 +470,7 @@ export function WorkspaceProvider({
         throw mergeError
       }
     },
-    [invalidateForSessionError, publishRevision, queueWrite, recoverWriteQueue, refresh, repository],
+    [invalidateForSessionError, publishRevision, queueWrite, recoverWriteQueue, refresh, repository, workspaceId],
   )
 
   const resetDemo = useCallback(async () => {

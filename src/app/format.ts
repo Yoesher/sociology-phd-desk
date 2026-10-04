@@ -1,5 +1,4 @@
-export const todayIso = () => {
-  const date = new Date()
+export const todayIso = (date = new Date()) => {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
@@ -28,8 +27,8 @@ export const daysUntil = (value?: string) => {
 export const truncate = (value: string, length = 120) =>
   value.length > length ? `${value.slice(0, length).trim()}…` : value
 
-export const isOverdue = (dueDate?: string, status?: string) =>
-  Boolean(dueDate && dueDate < todayIso() && status !== 'Done')
+export const isOverdue = (dueDate?: string, status?: string, today = todayIso()) =>
+  Boolean(dueDate && dueDate < today && status !== 'Done')
 
 export const projectLabel = (
   projects: Array<{ id: string; title: string; shortTitle?: string }>,

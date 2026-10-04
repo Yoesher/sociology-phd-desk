@@ -51,6 +51,7 @@ export function createEmptyWorkspace(options: EmptyWorkspaceOptions = {}): Works
     literature: [],
     literatureExternalReferences: [],
     fieldSites: [],
+    fieldMaps: [],
     interviews: [],
     fieldVisits: [],
     datasets: [],

@@ -57,6 +57,8 @@ export default defineConfig({
     },
   },
   test: {
+    // Bound concurrent jsdom heaps and real encryption when large legacy snapshots are exercised.
+    maxWorkers: 2,
     include: ['src/**/*.test.{ts,tsx}'],
     environment: 'jsdom',
     setupFiles: [resolve(process.cwd(), 'src/test/setup.ts')],

@@ -13,6 +13,7 @@ import { WorkspaceSessionContext } from '../../app/workspace-session-context'
 import { entityMeta, isOverdue, todayIso } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import { useModuleSearch } from '../../hooks/useModuleSearch'
+import { useLocalToday } from '../../hooks/useLocalToday'
 import { useI18n } from '../../i18n'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
@@ -77,6 +78,7 @@ function isTrulyEmptyPersonalWorkspace(data: WorkspaceData): boolean {
     data.tasks,
     data.literature,
     data.fieldSites,
+    data.fieldMaps,
     data.interviews,
     data.fieldVisits,
     data.datasets,
@@ -108,7 +110,7 @@ export function TodayPage() {
   const view = (searchParams.get('view') || 'overview') as TodayView
   const taskFilter = searchParams.get('filter') || 'all'
 
-  const today = todayIso()
+  const today = useLocalToday()
   const dateLabel = new Intl.DateTimeFormat(locale, {
     weekday: 'long',
     month: 'long',
@@ -119,14 +121,14 @@ export function TodayPage() {
   const relevantTasks = useMemo(() => {
     const filtered = (data?.tasks ?? []).filter((item) => {
       if (view === 'tasks' && taskFilter === 'today') return item.dueDate === today && item.status !== 'Done'
-      if (view === 'tasks' && taskFilter === 'overdue') return isOverdue(item.dueDate, item.status)
+      if (view === 'tasks' && taskFilter === 'overdue') return isOverdue(item.dueDate, item.status, today)
       if (view === 'tasks' && taskFilter === 'upcoming') return item.status !== 'Done' && dueWithinWeek(item.dueDate, today)
       if (view === 'tasks' && taskFilter === 'completed') {
         return item.status === 'Done' && dueWithinPastWeek(item.updatedAt.slice(0, 10), today)
       }
       if (view === 'tasks') return true
       if (view === 'week') return item.status !== 'Done' && dueWithinWeek(item.dueDate, today)
-      return item.dueDate === today || isOverdue(item.dueDate, item.status)
+      return item.dueDate === today || isOverdue(item.dueDate, item.status, today)
     })
     return filtered.sort((left, right) =>
       taskFilter === 'completed'
@@ -135,7 +137,7 @@ export function TodayPage() {
     )
   }, [data?.tasks, taskFilter, today, view])
   const completedToday = relevantTasks.filter((item) => item.status === 'Done').length
-  const overdue = relevantTasks.filter((item) => isOverdue(item.dueDate, item.status)).length
+  const overdue = relevantTasks.filter((item) => isOverdue(item.dueDate, item.status, today)).length
   const completionPercent = relevantTasks.length ? (completedToday / relevantTasks.length) * 100 : 0
   const safeCompletionPercent = Math.min(100, Math.max(0, completionPercent))
   const roundedCompletionPercent = Math.round(safeCompletionPercent)
@@ -199,7 +201,7 @@ export function TodayPage() {
     event.preventDefault()
     const record: ResearchLogEntry = {
       ...entityMeta('log'),
-      date: today,
+      date: todayIso(),
       projectId: log.projectId || data.workspace.activeProjectId || '',
       whatChanged: log.whatChanged,
       decision: log.decision,
@@ -248,7 +250,7 @@ export function TodayPage() {
   const deadlineDays = (date: string) => Math.round((Date.parse(`${date}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86_400_000)
   const dueTodayCount = data.tasks.filter((item) => item.status !== 'Done' && item.dueDate === today).length
   const dueSoonCount = data.tasks.filter((item) => item.status !== 'Done' && item.dueDate && deadlineDays(item.dueDate) > 0 && deadlineDays(item.dueDate) <= 6).length
-  const overdueCount = data.tasks.filter((item) => isOverdue(item.dueDate, item.status)).length
+  const overdueCount = data.tasks.filter((item) => isOverdue(item.dueDate, item.status, today)).length
 
   const openLogForm = () => {
     setLog({ ...emptyLog, projectId: data.workspace.activeProjectId || '' })
@@ -423,7 +425,7 @@ export function TodayPage() {
                   onChange={() => void toggleTask(item)}
                   meta={
                     <>
-                      {isOverdue(item.dueDate, item.status) && <Badge tone="danger">{t('today.tasks.overdue')}</Badge>}
+                      {isOverdue(item.dueDate, item.status, today) && <Badge tone="danger">{t('today.tasks.overdue')}</Badge>}
                       <span className="task-deadline">{item.dueDate ? t('feedback.task.deadline', { date: formatDate(item.dueDate) }) : t('feedback.task.none')}</span>
                       {item.dueDate && item.status !== 'Done' && <Badge tone={deadlineDays(item.dueDate) < 0 ? 'danger' : deadlineDays(item.dueDate) <= 2 ? 'warning' : 'neutral'}>{t(deadlineDays(item.dueDate) < 0 ? 'feedback.task.late' : deadlineDays(item.dueDate) === 0 ? 'feedback.task.today' : 'feedback.task.remaining', { days: formatNumber(Math.abs(deadlineDays(item.dueDate))) })}</Badge>}
                       <span>{localizedProjectLabel(item.projectId)}</span>

@@ -256,11 +256,11 @@ describe('LocalWorkspaceManager', () => {
     const opened = rememberSession(
       await service.unlockEncrypted(ready.id, PASSPHRASE),
     )
-    expect(opened.entry.schemaVersion).toBe(6)
+    expect(opened.entry.schemaVersion).toBe(7)
     expect(opened.entry.storageSchemaVersion).toBe(1)
-    expect(opened.snapshot.version).toBe(6)
+    expect(opened.snapshot.version).toBe(7)
     const persisted = await service.registry.getWorkspace(ready.id)
-    expect(persisted?.schemaVersion).toBe(6)
+    expect(persisted?.schemaVersion).toBe(7)
     expect(persisted?.storageSchemaVersion).toBe(1)
   })
 
@@ -471,17 +471,17 @@ describe('LocalWorkspaceManager', () => {
     await service.registry.markReady(provisioning.id, provisioning.registryRevision)
 
     const opened = rememberSession(await service.openStandard(workspace.workspace.id))
-    expect(opened.entry.schemaVersion).toBe(6)
-    expect(opened.entry.storageSchemaVersion).toBe(6)
-    expect(opened.snapshot.version).toBe(6)
+    expect(opened.entry.schemaVersion).toBe(7)
+    expect(opened.entry.storageSchemaVersion).toBe(7)
+    expect(opened.snapshot.version).toBe(7)
     const persisted = await service.registry.getWorkspace(workspace.workspace.id)
-    expect(persisted?.schemaVersion).toBe(6)
-    expect(persisted?.storageSchemaVersion).toBe(6)
+    expect(persisted?.schemaVersion).toBe(7)
+    expect(persisted?.storageSchemaVersion).toBe(7)
 
     opened.repository.close()
     const reopened = rememberSession(await service.openStandard(workspace.workspace.id))
     expect(reopened.entry.registryRevision).toBe((persisted?.registryRevision ?? 0) + 1)
-    expect(reopened.entry.storageSchemaVersion).toBe(6)
+    expect(reopened.entry.storageSchemaVersion).toBe(7)
   })
 
   it('never creates an empty database while opening or recovering a missing standard route', async () => {

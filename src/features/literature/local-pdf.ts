@@ -1,7 +1,7 @@
 import type { LiteraturePdf } from '../../models/domain'
 
-export const MAX_PDF_BYTES = 5 * 1024 * 1024
-export const MAX_WORKSPACE_PDF_BYTES = 12 * 1024 * 1024
+export const MAX_PDF_BYTES = 10 * 1024 * 1024
+export const MAX_WORKSPACE_PDF_BYTES = 20 * 1024 * 1024
 
 export function isValidLiteraturePdf(pdf: LiteraturePdf): boolean {
   if (pdf.size < 5 || pdf.size > MAX_PDF_BYTES || !pdf.fileName.toLowerCase().endsWith('.pdf')) return false
