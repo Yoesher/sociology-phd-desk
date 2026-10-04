@@ -134,11 +134,14 @@ async function addPdf(page: Page, title: string, bytes = pdf) {
 }
 
 async function closeCenter(page: Page) {
+  // A closing child is already hidden to role locators while its underlying
+  // center is still inert. Wait for unregistering before inspecting it.
+  await expect(page.locator('.modal-backdrop[data-closing="true"]')).toHaveCount(0)
   const center = page.getByRole('dialog', { name: '本地工作台', exact: true })
-  if (await center.isVisible()) {
-    await center.getByRole('button', { name: '关闭对话框', exact: true }).click()
-    await expect(center).toBeHidden()
-  }
+  await expect(center).toBeVisible()
+  await center.getByRole('button', { name: '关闭对话框', exact: true }).click()
+  await expect(center).toBeHidden()
+  await expect(page.locator('.modal-backdrop')).toHaveCount(0)
   const drawer = page.getByRole('dialog', { name: '模块导航', exact: true })
   if (await drawer.isVisible()) {
     await drawer.getByRole('button', { name: '关闭导航', exact: true }).click()
@@ -382,8 +385,7 @@ test('encrypted local map lock/unlock and authenticated restore retain the exact
 test('an open workspace refreshes deadlines and preserves an unsaved task at local midnight', async ({ page }, testInfo) => {
   testInfo.setTimeout(120_000)
   const diagnostics = captureBrowserDiagnostics(page)
-  await page.clock.install({ time: new Date('2026-10-03T15:59:30.000Z') })
-  await page.clock.pauseAt(new Date('2026-10-03T15:59:31.000Z'))
+  await page.clock.install({ time: new Date('2026-10-03T04:00:00.000Z') })
   await page.goto('/')
   await waitForApp(page)
   await createStandardWorkspace(page, 'DEMO E2E midnight workspace')
@@ -406,12 +408,16 @@ test('an open workspace refreshes deadlines and preserves an unsaved task at loc
   await page.getByRole('button', { name: '查看与编辑任务：DEMO E2E midnight pending', exact: true }).click()
   const edit = page.getByRole('dialog', { name: '查看与编辑任务', exact: true })
   await edit.getByLabel('备注', { exact: true }).fill('DEMO E2E preserved unsaved midnight notes')
+  // Pause only after fixture interaction, so native zero-delay modal cleanup
+  // is not frozen during setup. No navigation or data write crosses midnight.
+  await page.clock.pauseAt(new Date('2026-10-03T15:59:31.000Z'))
   await expect(page.locator('.page-header .eyebrow')).toContainText('10月3日')
   await page.clock.runFor(29_000)
   await expect(page.locator('.page-header .eyebrow')).toContainText('10月4日')
   await expect(page.locator('.task-deadline-summary')).toHaveText('今天到期 0 项，未来 7 天到期 0 项，已逾期 1 项。')
   await expect(edit.getByLabel('备注', { exact: true })).toHaveValue('DEMO E2E preserved unsaved midnight notes')
   await expect(edit.getByLabel('截止日期', { exact: true })).toHaveValue('2026-10-03')
+  await page.clock.resume()
   await edit.getByRole('button', { name: '取消', exact: true }).click()
   await expect(doneRow).toHaveClass(/check-row--done/)
   await expect(page.getByText('已逾期 1 天', { exact: true })).toHaveCount(1)
