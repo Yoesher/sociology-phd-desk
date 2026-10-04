@@ -8,15 +8,15 @@
 
 面向社会学博士研究者的本地优先工作站。无需账号，中文优先并提供完整英文界面；浏览器即可使用，也可安装为 PWA。
 
-**[打开工作站 →](https://yoesher.github.io/sociology-phd-desk/)** · **[发行版](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[开始使用](docs/zh-CN/getting-started.md)** · **[0.4.0 更新说明](docs/releases/v0.4.0.md)**
+**[打开工作站 →](https://yoesher.github.io/sociology-phd-desk/)** · **[发行版](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[开始使用](docs/zh-CN/getting-started.md)** · **[0.4.1 更新说明](docs/releases/v0.4.1.md)**
 
-`当前应用 0.4.0` · `数据格式 v7` · `本地优先` · `可离线使用`
+`当前应用 0.4.1` · `数据格式 v7` · `本地优先` · `可离线使用`
 
-**下一候选 0.4.1：外观与动效。** 在“工作空间与设置 → 外观与动效”选择经典研究桌、暖纸阅读、静谧蓝调或田野手记界面模板，学术混排/现代黑体/阅读宋体/系统字体，标准/较大/更大字号，以及轻柔上浮/柔和淡入/轻微平移/关闭动画。默认保留旧外观，系统“减少动态效果”优先。偏好与语言、主题一起保存在当前浏览器；切换普通或加密工作台、锁屏与刷新共用，不进入研究数据或备份。模板只改变配色与版式，不填充研究内容。**0.4.1 仍在开发及待验证，线上与正式发行仍为 0.4.0。** [候选说明](docs/releases/v0.4.1.md)
+**0.4.1 已上线：外观与动效。** 在“工作空间与设置 → 外观与动效”选择经典研究桌、暖纸阅读、静谧蓝调或田野手记界面模板，学术混排/现代黑体/阅读宋体/系统字体，标准/较大/更大字号，以及轻柔上浮/柔和淡入/轻微平移/关闭动画。默认保留旧外观，系统“减少动态效果”优先。偏好与语言、主题一起保存在当前浏览器；切换普通或加密工作台、锁屏与刷新共用，不进入研究数据或备份。模板只改变配色与版式，不填充研究内容。[更新与验收说明](docs/releases/v0.4.1.md)
 
 [本地地图与备份指南](docs/local-field-maps-and-storage-2026-10-04.md) · [更新历史](CHANGELOG.md) · [实际验收记录](PROJECT_STATE.md)
 
-![0.4.0 中文今日工作台，仅含明确标注的合成 DEMO 记录](docs/screenshots/v0.4.0/01-today-zh.jpg)
+![0.4.1 暖纸阅读与阅读宋体的实际中文今日工作台，仅含合成 DEMO](docs/screenshots/v0.4.1/02-warm-paper-zh.jpg)
 
 *实际应用截图，只展示合成 DEMO。没有真实论文、实证结果或参与者资料。*
 
@@ -33,6 +33,15 @@
 应用连接研究问题、文献、数据集或访谈、分析、证据、主张、论文与修回工作；它补充 Zotero、Word、Stata、R、Python 和 NVivo 等专业工具。Evidence↔Claim↔Manuscript 的完整显式追踪仍是独立的 [Issue #2](https://github.com/Yoesher/sociology-phd-desk/issues/2)，各模块编辑/删除能力尚未完全一致。
 
 ## 看看工作台
+
+新外观设置来自已上线的 0.4.1 实际界面。桌面与手机均可调整，在各自浏览器记住偏好；截图只使用独立合成工作台，没有读取真实研究数据。
+
+<table>
+  <tr>
+    <td width="70%" valign="top"><a href="docs/screenshots/v0.4.1/01-appearance-settings-zh.jpg"><img src="docs/screenshots/v0.4.1/01-appearance-settings-zh.jpg" width="100%" alt="0.4.1 桌面外观与动效设置，田野手记模板与本机字体选项" /></a><br /><strong>选择自己的研究桌</strong><br />四种模板、四种字体、三档字号与四种动效，即时应用并记住选择。</td>
+    <td width="30%" valign="top"><a href="docs/screenshots/v0.4.1/03-mobile-settings-zh.jpg"><img src="docs/screenshots/v0.4.1/03-mobile-settings-zh.jpg" width="100%" alt="390 × 844 触屏手机视口中的 0.4.1 外观设置" /></a><br /><strong>手机也可调整</strong><br />控件保持可读，系统减少动态效果优先。</td>
+  </tr>
+</table>
 
 点击图片查看原图。以下均为真实运行的 0.4.0 界面与合成演示记录；草图没有真实地理边界或参与者位置。拍摄版本、尺寸与隐私核查见[截图登记](docs/screenshots/README.md)。
 

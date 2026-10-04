@@ -8,15 +8,15 @@
 
 A local-first workstation for sociology doctoral researchers. No account required. Chinese by default, with a complete English interface. Use your browser or install the PWA.
 
-**[Open the desk →](https://yoesher.github.io/sociology-phd-desk/)** · **[Releases](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[Get started](docs/en/getting-started.md)** · **[0.4.0 update notes](docs/releases/v0.4.0.md)**
+**[Open the desk →](https://yoesher.github.io/sociology-phd-desk/)** · **[Releases](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[Get started](docs/en/getting-started.md)** · **[0.4.1 update notes](docs/releases/v0.4.1.md)**
 
-`Current app 0.4.0` · `Data format v7` · `Local-first` · `Offline-capable`
+`Current app 0.4.1` · `Data format v7` · `Local-first` · `Offline-capable`
 
-**Next candidate 0.4.1: Appearance & motion.** In Workspace & Settings, choose Classic research desk/Warm paper/Quiet blue/Field notebook templates; local Academic mix/Modern sans serif/Reading serif/System font; Standard/Large/Larger reading sizes; and Gentle lift/Soft fade/Light slide/No animation. Defaults retain the previous appearance, and system reduced motion takes priority. Preferences share this browser's settings with language/theme and follow standard/encrypted workspace switches, locks and reloads; they are excluded from research data and backups. Templates change colors/layout only and insert no research content. **0.4.1 is in development and awaiting verification; the public app and formal Release remain 0.4.0.** [Candidate notes](docs/releases/v0.4.1.md)
+**0.4.1 is live: Appearance & motion.** In Workspace & Settings, choose Classic research desk/Warm paper/Quiet blue/Field notebook templates; local Academic mix/Modern sans serif/Reading serif/System font; Standard/Large/Larger reading sizes; and Gentle lift/Soft fade/Light slide/No animation. Defaults retain the previous appearance, and system reduced motion takes priority. Preferences share this browser's settings with language/theme and follow standard/encrypted workspace switches, locks and reloads; they are excluded from research data and backups. Templates change colors/layout only and insert no research content. [Update and verification notes](docs/releases/v0.4.1.md)
 
 [Local maps and backup guide](docs/local-field-maps-and-storage-2026-10-04.md) · [Changelog](CHANGELOG.md) · [Actual verification record](PROJECT_STATE.md)
 
-![0.4.0 Chinese Today desk with explicitly synthetic DEMO records only](docs/screenshots/v0.4.0/01-today-zh.jpg)
+![Actual 0.4.1 Chinese Today desk using Warm paper and Reading serif, with synthetic DEMO only](docs/screenshots/v0.4.1/02-warm-paper-zh.jpg)
 
 *Captured from the running application with synthetic DEMO content only. No real papers, empirical findings or participant material.*
 
@@ -33,6 +33,15 @@ A local-first workstation for sociology doctoral researchers. No account require
 The app connects research questions, literature, datasets or interviews, analysis, evidence, claims, manuscripts and revision work; it complements specialist tools such as Zotero, Word, Stata, R, Python and NVivo. Complete explicit Evidence↔Claim↔Manuscript tracing remains separate [Issue #2](https://github.com/Yoesher/sociology-phd-desk/issues/2) work, and edit/delete support is not yet uniform across modules.
 
 ## Inside the desk
+
+These new appearance controls are captured from the deployed 0.4.1 interface. Desktop and touch phone each remember preferences in their own browser. All captures use independent synthetic workspaces, with no access to real research data.
+
+<table>
+  <tr>
+    <td width="70%" valign="top"><a href="docs/screenshots/v0.4.1/01-appearance-settings-zh.jpg"><img src="docs/screenshots/v0.4.1/01-appearance-settings-zh.jpg" width="100%" alt="Actual 0.4.1 desktop Appearance and motion settings with Field notebook and local font choices" /></a><br /><strong>Choose your research desk</strong><br />Four templates, four fonts, three reading sizes and four motion choices apply immediately and persist.</td>
+    <td width="30%" valign="top"><a href="docs/screenshots/v0.4.1/03-mobile-settings-zh.jpg"><img src="docs/screenshots/v0.4.1/03-mobile-settings-zh.jpg" width="100%" alt="Actual 0.4.1 appearance settings in a 390 by 844 touch-phone viewport" /></a><br /><strong>Adjust it on your phone</strong><br />Readable controls and system reduced-motion priority.</td>
+  </tr>
+</table>
 
 Click an image to open it at full size. These are real 0.4.0 screens with synthetic demonstration records; the sketch contains no real geographic boundaries or participant locations. Version, dimensions and privacy review are in the [screenshot register](docs/screenshots/README.md).
 
