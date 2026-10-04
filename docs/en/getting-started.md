@@ -40,3 +40,8 @@ The local reminder applies only to personal workspaces and can be Off, 7, 14, or
 Clearing site data for `yoesher.github.io`, resetting a browser profile, or removing an installed app while choosing to delete site data may remove IndexedDB, settings, and offline static caches. A PWA icon is not a backup. Generate and actually test encrypted backups regularly.
 
 The current host uses the shared `yoesher.github.io` origin. Browsers isolate IndexedDB by scheme, host, and port—not by repository path. See the [origin strategy and migration boundary](../architecture/origin-strategy.md) for the complete risk and future options.
+
+
+## Research navigator (0.5.0)
+
+Open the desktop or phone magnifier to search 17 record types in the current unlocked workspace. Literal space-separated terms must all match; explicitly broaden the project scope if needed. Select a result for original text and saved-ID relationships. Overview counts open all records of the corresponding type/project. Navigation is read-only and transient; use original modules for editing. [Usage](../releases/v0.5.0.md) · [Complete correction plan](../research-workstation-review-2026-10-04.md).

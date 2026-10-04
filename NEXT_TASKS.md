@@ -1,5 +1,26 @@
 # Next Tasks
 
+> Current 2026-10-04 objective: execute and publish the separately authorized **0.5.0 Research navigator** increment from final verified 0.4.1 main. 0.4.1 final publication completed through PR #61 at `656b99ac708760b4aae684be8c4b19a95c7608a2`: final CI `37202484967`, CodeQL `37202484990`, Pages `37202484999`, deployment `6841041534` and annotated v0.4.1 / Release `403019896` passed. Final public desktop/touch and a separate genuine S1→S2 waiting-worker cohort retained all 19 collections, PDFs, map bytes/markers, goals/ID and browser preferences. The original runner failure below remains historical. This later evidence resolves its pending-closeout wording without rewriting it.
+
+## P0 — 0.5.0 research and publication
+
+- [x] Compare 20 representative tools using official sources, with source/read-failure boundaries, concrete product gaps, staged implementation and acceptance in [the correction plan](docs/research-workstation-review-2026-10-04.md).
+- [x] Implement transient 17-type local text search, read-only details, explicit project/type filters and 40-record pagination; no query/index persisted or uploaded.
+- [x] Derive existing stable-ID bidirectional relationships and actual project counts/queues, including local-map membership; no free-text evidence inference or quality score.
+- [x] Complete the original eight local release commands: 491 unit / 8 Zotero / 40 browser (20 desktop + 20 touch, no actual retry/flaky/skip), 0 audit vulnerabilities, 2,000-module build and 25 precache. Frozen-source independent review found no P0/P1; final staged/commit tree and remote/public gates still need verification.
+- [ ] Pass final reviewed-head push/PR CI+CodeQL; merge with expected head, verify exact-main CI/CodeQL/Pages, fresh public full SHA and actual native update/data retention.
+- [ ] Close documentation and formal 0.5.0 publication with UTF-8 notes/readback and source integrity, preserving previous tags and Zotero assets. If closeout adds a commit, verify its own final gates.
+
+## Future increments from the correction plan
+
+- [ ] Independent attachment store and chunked authenticated complete backups before expanding limits.
+- [ ] Explicit Evidence↔Claim↔Manuscript model with migration/integrity/protected deletion.
+- [ ] Anonymous field sampling/coding references, local-map zoom/pan and record editing consistency.
+- [ ] Reproducible analysis comparison, reviewer response matrix and user-created saved views/templates.
+- [ ] Physical-phone, screen-reader and installed-PWA manual usability validation; no such PASS is claimed by viewport emulation.
+
+## Historical previous publication checkpoints
+
 > Updated 2026-10-04: **0.4.1 appearance settings are live and S1 is verified** through PR #60 at `a357ec093eec16e6bbd132d3216ac44611fb96e9`: its own CI `37199897950`, CodeQL `37199897957`, Pages `37199897916` / deployment `6840581232`, 453 unit / 8 Zotero / 34 desktop+touch tests and fresh public/extra encrypted-appearance combination passed. Preserve the original native runner's overall FAIL and closed-context boundary below. New genuine S1 contexts are held for separate final-build acceptance. Documentation-closeout S2 and formal v0.4.1 require their own checks; final identities belong in the closing PR/[latest formal Release](https://github.com/Yoesher/sociology-phd-desk/releases/latest). Completed formal v0.4.0 through PR #59 at `26d23b4b07fe87d9bca2ce01a37ee11743b32f5f` and earlier no-tag/latest-version states remain historical checkpoints.
 
 ## P0 — 0.4.1 final publication closeout

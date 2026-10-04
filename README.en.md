@@ -8,11 +8,13 @@
 
 A local-first workstation for sociology doctoral researchers. No account required. Chinese by default, with a complete English interface. Use your browser or install the PWA.
 
-**[Open the desk →](https://yoesher.github.io/sociology-phd-desk/)** · **[Releases](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[Get started](docs/en/getting-started.md)** · **[0.4.1 update notes](docs/releases/v0.4.1.md)**
+**[Open the desk →](https://yoesher.github.io/sociology-phd-desk/)** · **[Releases](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[Get started](docs/en/getting-started.md)** · **[0.5.0 update notes](docs/releases/v0.5.0.md)**
 
-`Current app 0.4.1` · `Data format v7` · `Local-first` · `Offline-capable`
+`App 0.5.0` · `Data format v7` · `Local-first` · `Offline-capable`
 
-**0.4.1 is live: Appearance & motion.** In Workspace & Settings, choose Classic research desk/Warm paper/Quiet blue/Field notebook templates; local Academic mix/Modern sans serif/Reading serif/System font; Standard/Large/Larger reading sizes; and Gentle lift/Soft fade/Light slide/No animation. Defaults retain the previous appearance, and system reduced motion takes priority. Preferences share this browser's settings with language/theme and follow standard/encrypted workspace switches, locks and reloads; they are excluded from research data and backups. Templates change colors/layout only and insert no research content. [Update and verification notes](docs/releases/v0.4.1.md)
+**0.5.0: Research navigator.** Use the desktop or phone magnifier to search 17 record types, filter projects/types, read details and follow saved relationships. Project overview shows actual work queues and research objects, without a quality score. Queries stay in memory in the unlocked workspace, with no history or upload. Local maps link to field sites, visits and interviews through existing IDs; free evidence prose does not create inferred claim links. **[Complete correction plan and 20-tool comparison](docs/research-workstation-review-2026-10-04.md)** · [Usage notes](docs/releases/v0.5.0.md)
+
+**0.4.1 Appearance & motion remains available.** In Workspace & Settings, choose Classic research desk/Warm paper/Quiet blue/Field notebook templates; local Academic mix/Modern sans serif/Reading serif/System font; Standard/Large/Larger reading sizes; and Gentle lift/Soft fade/Light slide/No animation. Defaults retain the previous appearance, and system reduced motion takes priority. Preferences share this browser's settings with language/theme and follow standard/encrypted workspace switches, locks and reloads; they are excluded from research data and backups. Templates change colors/layout only and insert no research content. [Update and verification notes](docs/releases/v0.4.1.md)
 
 [Local maps and backup guide](docs/local-field-maps-and-storage-2026-10-04.md) · [Changelog](CHANGELOG.md) · [Actual verification record](PROJECT_STATE.md)
 

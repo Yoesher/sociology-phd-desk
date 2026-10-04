@@ -19,6 +19,7 @@ import {
   PanelLeftClose,
   Plus,
   Settings2,
+  Search,
   Palette,
   Sun,
   X,
@@ -42,6 +43,7 @@ import { useLocalToday } from '../hooks/useLocalToday'
 import { IconButton } from '../components/ui'
 import { WorkspaceTools } from './WorkspaceTools'
 import { AppearancePanel } from './AppearancePanel'
+import { ResearchNavigator } from '../features/research-navigator/ResearchNavigator'
 import { PageTransitionBoundary } from '../components/PageTransitionBoundary'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { useI18n, type MessageKey } from '../i18n'
@@ -140,6 +142,7 @@ export function AppShell() {
   const [compactFlyout, setCompactFlyout] = useState<PrimaryModuleId | 'settings' | null>(null)
   const [settingsExpanded, setSettingsExpanded] = useState(false)
   const [appearanceOpen, setAppearanceOpen] = useState(false)
+  const [navigatorOpen, setNavigatorOpen] = useState(false)
   const [quickAddOpen, setQuickAddOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const quickAddRef = useRef<HTMLDivElement>(null)
@@ -159,6 +162,19 @@ export function AppShell() {
   const current = getNavigationItem(location.pathname)
   const activeView = getActiveView(current, location.search)
   const primaryMobile = navigationItems.slice(0, 3)
+
+  useEffect(() => {
+    const openNavigator = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey || event.key.toLowerCase() !== 'k') return
+      const target = event.target
+      if (target instanceof Element && target.closest('input, textarea, select, [contenteditable="true"], [role="textbox"]')) return
+      if (document.querySelector('[role="dialog"]')) return
+      event.preventDefault()
+      setNavigatorOpen(true)
+    }
+    document.addEventListener('keydown', openNavigator)
+    return () => document.removeEventListener('keydown', openNavigator)
+  }, [])
 
   useEffect(() => {
     if (!appearanceOpen && appearanceRestoreTargetRef.current) {
@@ -587,6 +603,7 @@ export function AppShell() {
           </div>
         </div>
         <div className="mobile-header__actions">
+          <IconButton label={t('navigator.title')} onClick={() => setNavigatorOpen(true)}><Search size={18} /></IconButton>
           {activeWorkspace?.encryptionMode === 'encrypted' && <IconButton disabled={busy} label={t('shell.lockWorkspace')} onClick={() => void lockActiveWorkspace()}>
             <LockKeyhole size={17} />
           </IconButton>}
@@ -604,6 +621,7 @@ export function AppShell() {
           <b>{t(activeView.labelKey)}</b>
         </div>
         <div className="topbar__actions">
+          <IconButton label={t('navigator.title')} onClick={() => setNavigatorOpen(true)}><Search size={17} /></IconButton>
           <div className="quick-add" ref={quickAddRef}>
             <button
               ref={quickAddTriggerRef}
@@ -704,6 +722,7 @@ export function AppShell() {
       </nav>
 
       {appearanceOpen && <AppearancePanel onClose={() => setAppearanceOpen(false)} />}
+      {navigatorOpen && <ResearchNavigator onClose={() => setNavigatorOpen(false)} />}
 
       {mobileMenuPresence.rendered && (
         <div className="mobile-menu-backdrop" data-closing={mobileMenuPresence.closing || undefined} role="presentation" onMouseDown={() => closeMobileMenu()}>

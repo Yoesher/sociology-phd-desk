@@ -13,6 +13,10 @@ The user separately authorized local imported-map/sketch annotation after the ve
 
 The next capacity priority is **independent attachment storage plus chunked authenticated backup/restore**, with consistency, integrity, quota and failure-recovery design before further PDF expansion. It is not implemented in this update. [Detailed usage and limits](docs/local-field-maps-and-storage-2026-10-04.md).
 
+## 0.5.0 Research navigator
+
+The user authorized a new primary-source comparison and executed iteration after completed v0.4.1. [The full correction plan](docs/research-workstation-review-2026-10-04.md) covers 20 tools, current gaps, this read-only local navigation increment and eight staged follow-ups. Search/overview keep v7/v1, all-project backup and no-account boundaries. Independent attachments and explicit evidence graph remain future work. Actual publication gates are recorded in PROJECT_STATE and the formal Release. The older scope-stop language below belongs to its historical release checkpoint.
+
 ## Product north star
 
 Build a local-first research orchestration layer that makes this chain increasingly traceable:

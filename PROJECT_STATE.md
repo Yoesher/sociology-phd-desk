@@ -1,6 +1,21 @@
 # Project State
 
 > Last updated: 2026-10-04
+> Current iteration: **0.5.0 Research navigator in development**, from verified final 0.4.1 main. The user authorized broad primary-source research, implementation and publication. [Complete correction plan](docs/research-workstation-review-2026-10-04.md) compares 20 representative tools and separates actual sources, product inferences and future work. New read-only local search, existing-ID relationship navigation and project overview retain v7/v1, attachment budgets and backup semantics. Original local integrated checks passed as recorded below. Exact-head/main remote and public acceptance remain pending; no deployment is inferred.
+> Baseline closeout: 0.4.1 final publication completed through PR #61 at `656b99ac708760b4aae684be8c4b19a95c7608a2`: final CI `37202484967`, CodeQL `37202484990`, Pages `37202484999`, deployment `6841041534` and annotated v0.4.1 / Release `403019896` passed. Final public desktop/touch and a separate genuine S1→S2 waiting-worker cohort retained all 19 collections, PDFs, map bytes/markers, goals/ID and browser preferences. The original runner failure below remains historical. This later evidence resolves its pending-closeout wording without rewriting it.
+
+## 0.5.0 implementation and acceptance checkpoint
+
+- 17 text-only research record types; explicit current/all-project and type filters; literal Unicode/case-insensitive AND search, title priority, exact total and reachable 40-record pagination. Queries/indexes live in component memory and never history, URLs, storage, backups or network. Dedicated URLs/paths, PDF text and attachment bytes are excluded.
+- Read-only record details and bidirectional existing same-project stable-ID relationships, including local map/site/visit/interview records. Free evidence text is not inferred as an Evidence↔Claim↔Manuscript graph. Original modules remain the edit path.
+- Project overview uses actual counts, calendar-based non-completed/non-deferred deadlines, unlinked draft/active questions and unique marked sites; no project completion/quality/saturation score. Count clicks browse the whole corresponding project/type list.
+- Chinese/English and existing appearance/motion/focus/locked-session gates apply. No new dependency, domain field, migration, external service or capacity expansion. ADR-030 records the durable decision.
+- Original local commands passed on the frozen 0.5.0 revision: npm ci; npm run audit:release (0 vulnerabilities); lint; typecheck; npm test (52 files / 491 tests); npm run test:zotero (8 original child-process tests); build (2,000 modules / 25 precache entries); npm run test:e2e (40 passed: desktop 20 + touch 20, no actual retry/flaky/skip). Existing formal Zotero updates.json bytes were restored after local packing. These are local results; reviewed-head/main remote and public/native gates remain pending.
+- First focused navigation run failed only at an incorrect original-module route expectation; it was corrected to the actual /projects route. The subsequent focused 6/6 and final complete 40/40 runs passed. First component focus/count-label failures and sandbox spawn limitations were resolved without dropping assertions. Historical failure artifacts remain separate; earlier screenshot results do not substitute for the final checkbox CSS run.
+- Publication identities will be recorded once actually observed; prior release results below do not validate this revision.
+
+## Historical 0.4.1 feature-to-closeout record
+
 > Working state: **0.4.1 appearance settings are live and S1 is verified**, through [PR #60](https://github.com/Yoesher/sociology-phd-desk/pull/60) at exact main `a357ec093eec16e6bbd132d3216ac44611fb96e9`. Its own CI/CodeQL/Pages, 453 unit / 8 Zotero / 34 desktop+touch E2E, fresh public workflows and supplemental encrypted/restore appearance checks passed. The first old-version native runner's overall FAIL and closed-context boundary are preserved below. New current-S1 contexts are held for the documentation-closeout S2; that later SHA needs its own gates, public/native acceptance and formal publication. Final identity belongs in the closing PR and [latest formal Release](https://github.com/Yoesher/sociology-phd-desk/releases/latest), not a self-referential follow-up commit. Previous formal **v0.4.0** remains a completed historical checkpoint through PR #59 at `26d23b4b07fe87d9bca2ce01a37ee11743b32f5f`; no older tag/plugin asset is moved or replaced.
 > Published state recorded on 2026-08-15: [`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0) is the latest formal Release in that record at exact release SHA `bb0d32fe99348204ba89a16d6469014ae38e0ecf`. It includes the complete authorized non-map scope: navigation collapse, Zotero/schema v5, plugin 0.1.0, guarded imports, browser E2E, security automation, and privacy-safe diagnostics/feedback metadata. The China map is formally DEFERRED and excluded; its blocked compliance evidence remains preserved.
 
@@ -9,7 +24,7 @@
 
 This file is the factual handoff record for maintainers and future Codex sessions. Update it at the end of every development session. Never infer passing checks, repository activity, users, or releases.
 
-## Current version
+## Historical 0.4.1 current-version checkpoint
 
 - Application/package/lock/citation: 0.4.1, dated 2026-10-04; local, reviewed-head and S1-main commands and public acceptance completed as recorded below.
 - Public website: verified 0.4.1 at S1 `a357ec093eec16e6bbd132d3216ac44611fb96e9`, through PR #60. Every subsequent closing head/main requires its own CI/CodeQL/Pages, full public SHA and actual update acceptance.
