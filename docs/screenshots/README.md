@@ -1,6 +1,6 @@
 # Screenshot Register
 
-These captures document the running application rather than design mockups. The `v0.2.0` set was captured from the actual release candidate; the earlier `0.1.0` set remains available as historical release evidence.
+These captures document the running application rather than design mockups. The `v0.4.0` set was captured from the actual public deployment; earlier release sets remain available as historical evidence.
 
 ## Capture rules
 
@@ -10,6 +10,29 @@ These captures document the running application rather than design mockups. The 
 - Capture the actual release candidate and record the privacy review here.
 
 ## Registered captures
+
+### `v0.4.0` public application
+
+- Application/package version: `0.4.0`; captured public build: exact SHA [`791d2ef2877cad2c890585a69d93ca469480299a`](https://github.com/Yoesher/sociology-phd-desk/commit/791d2ef2877cad2c890585a69d93ca469480299a)
+- Capture source: [the running public website](https://yoesher.github.io/sociology-phd-desk/), with the full expected SHA verified in its JavaScript entry and `0.4.0` / abbreviated SHA verified in the application's build information
+- Capture date/time: 2026-10-04, 09:23–09:25 UTC / 17:23–17:25 Asia/Shanghai
+- Browser: Chromium `151.0.7922.34`; separate fresh desktop and touch-enabled narrow contexts, with no existing user profile or research database
+- Theme and format: light theme; native viewport JPEG captures at quality 88, without bitmap editing, compositing, browser chrome or machine-local paths
+
+| File | Actual pixels | View and privacy review |
+| --- | --- | --- |
+| [`v0.4.0/01-today-zh.jpg`](v0.4.0/01-today-zh.jpg) | 1440 × 900 | Chinese Today, project scope, shared goals and progress; PASS — explicit DEMO synthetic workspace and records |
+| [`v0.4.0/02-literature-zh.jpg`](v0.4.0/02-literature-zh.jpg) | 1440 × 900 | Chinese literature/PDF records and separate attachment/complete-backup limits; PASS — native page scroll, original synthetic PDF and invented DEMO metadata, no real citation |
+| [`v0.4.0/03-field-maps-zh.jpg`](v0.4.0/03-field-maps-zh.jpg) | 1440 × 900 | Chinese local annotation board with three linked anonymous DEMO sites and visit/interview controls; PASS — original abstract schematic, no real geography or participants |
+| [`v0.4.0/04-deadlines-zh.jpg`](v0.4.0/04-deadlines-zh.jpg) | 1440 × 900 | Chinese task dates, overdue/today/upcoming labels and edit controls; PASS — explicitly synthetic tasks using the actual local date |
+| [`v0.4.0/05-interface-en.jpg`](v0.4.0/05-interface-en.jpg) | 1440 × 900 | English application chrome; PASS — authored Chinese DEMO research text is intentionally preserved by language switching |
+| [`v0.4.0/06-mobile-zh.jpg`](v0.4.0/06-mobile-zh.jpg) | 390 × 844 | Touch-enabled narrow Chinese map board and same-project site selector; PASS — three synthetic markers and original DEMO sketch, no physical-phone or installed-PWA claim |
+
+Every visible research title, goal, site, author and task is clearly marked DEMO. A synthetic portable v7 workspace was imported through the application's write-free preflight and create-new-workspace flow; it contains no real literature, institutions, participants, observations or findings. The PDF is an original synthetic reading note, and its actual downloaded bytes were checked. The map input is an original 1,000 × 560 PNG schematic drawn for these captures, explicitly labelled `DEMO / ABSTRACT RESEARCH SKETCH`; it contains no national or administrative boundaries, geographic coordinates, actual place names or participant locations. It is not a supplied China basemap and does not satisfy or bypass the deferred national-map gates.
+
+The selected source PNG has only IHDR/IDAT/IEND chunks, with no EXIF/GPS or descriptive metadata; the selected JPEG captures have no EXIF/XMP segments. These observations apply to these synthetic assets only. The application preserves supplied image bytes and may retain EXIF/GPS in other user images; normalized marker positions do not guarantee anonymity or rights/map-review approval.
+
+Both contexts completed with zero page errors, console warnings/errors and third-party requests, and `scrollWidth` equal to the viewport width (1440 or 390). Native JSON re-export confirmed the v7 image bytes, three markers and PDF attachment were actually stored. This capture check is separate from the full release E2E gate. The first capture attempt's English-menu closing locator timeout is retained in external evidence; the corrected native Escape interaction and the complete second capture pass are recorded separately. Scripts, source fixtures, auxiliary/failed images and machine-local metadata are not committed with this six-image set.
 
 ### `v0.2.2` release evidence
 
@@ -62,7 +85,7 @@ All eight files are JPEG captures taken from a 1280 × 720 release-candidate vie
 | [`evidence-dark.jpg`](evidence-dark.jpg) | Evidence ledger, provenance fields, and DEMO warnings | Dark | PASS — no real citation, result, or source material |
 | [`workspace-data-light.jpg`](workspace-data-light.jpg) | Backup/import controls and explicit demo-reset entry point | Light | PASS — no exported content, path, or notification shown |
 
-## Browser checks recorded with the captures
+## Historical `0.1.0` browser checks recorded with the captures
 
 - All nine routes opened and rendered their expected page heading.
 - Light/dark theme state persisted across a reload.

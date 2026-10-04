@@ -1,8 +1,14 @@
 # Next Tasks
 
-> Updated 2026-10-04: **0.4.0 is deployed and publicly verified at S1** through [PR #57](https://github.com/Yoesher/sociology-phd-desk/pull/57), main `1da2883c4fd7a54125e1cea3bf321cb5c7ecdb5a`. Exact-S1 CI `37188955923`, CodeQL `37188955906`, Pages `37188956000` and deployment `6838725115` succeeded; fresh desktop/phone and real 0.3.1 → 0.4.0 update retention passed. The reviewed head passed 422 unit / 8 Zotero / 28 desktop+phone E2E tests without retries/skips. Closing documents are not yet a new commit and require their own complete verification. The earlier 0.3.1 S2 acceptance remains history in PROJECT_STATE.md. Latest formal Release/tag remains v0.3.0; none is created or moved here.
+> Updated 2026-10-04: **Application 0.4.0 and website closeout are deployed and publicly verified** through PRs #57/#58, final S2 `791d2ef2877cad2c890585a69d93ca469480299a`. CI `37190664224`, CodeQL `37190664301`, Pages `37190664241` and deployment `6839000068` succeeded; 422 unit / 8 Zotero / 28 desktop+touch tests passed without actual retries/flaky/skips/failures, as did fresh public and native S1 → S2 retention. New authorization covers formal v0.4.0 publication and README presentation; each later SHA requires its own exact-main/public checks. Use the [live latest Release](https://github.com/Yoesher/sociology-phd-desk/releases/latest) and release PR/external ledger for final identities/checks. Earlier website-only no-tag rules and v0.3.0 latest state are historical checkpoints.
 
-## P0 — 0.4.0 publication closeout
+## P0 — formal v0.4.0 publication and README presentation
+
+The user explicitly authorized a new annotated v0.4.0 tag/Release and polished bilingual READMEs with synthetic screenshots. Keep runtime/package/dependencies/schema unchanged. Require exact-head gates, expected-head merge, exact-main CI/CodeQL/Pages and public version/full-SHA verification before tagging. Use explicit final-main SHA, UTF-8 notes-file upload and remote body/tag-object readback. Preserve every old tag and the v0.3.0 Zotero0.1.0 XPI/checksum/update hash; no installer or new plugin assets. GitHub automatic source archives suffice.
+
+Final SHA/Release ID/gate results belong in the release PR/external publication ledger and the [live latest Release](https://github.com/Yoesher/sociology-phd-desk/releases/latest), without another commit merely to insert its own identity. At the pre-publication API checkpoint on 2026-10-04, v0.3.0 remained latest and v0.4.0 tag/Release did not exist. This earlier website checkpoint does not establish the new formal publication's success.
+
+## Completed 0.4.0 website implementation and PR #58 closeout
 
 The user separately authorized this new iteration after the 0.3.1 release. Its earlier no-v0.4 instruction remains historical, rather than a restriction on this explicit new scope. Local imported-image annotation does not complete the deferred nationwide map.
 
@@ -17,8 +23,8 @@ The user separately authorized this new iteration after the 0.3.1 release. Its e
 - [x] Complete full real desktop/phone E2E including local maps/record links, marker placement and refresh, other-project/full JSON and encrypted restore, foreground date change and existing workspace/import/export/PWA flows. Component tests separately cover failed-save draft retention and protected operations; focused checks do not substitute for the complete browser suite.
 - [x] Complete final P0 = 0 / P1 = 0 review, version/migration, capacity, generated-file exclusion and bilingual checks. Keep the formal Zotero asset hash unchanged; no new plugin release. Closing-document links/diff receive another check before commit.
 - [x] Proceed under the user's publication authorization; reviewed-head push CI `37188093016`, PR CI `37188094791` and CodeQL `37188094799` succeeded before expected-head PR #57 merge. S1 main CI/CodeQL/Pages and deployment succeeded, followed by fresh synthetic public desktop/phone smoke and real waiting-worker 0.3.1 → 0.4.0 update with all old arrays and PDF bytes retained. These are new 0.4.0 results, independent of the earlier release.
-- [x] Record actual S1 publication state in PROJECT_STATE.md. Test only synthetic workspaces and entitled synthetic sketches; no user research database is inspected, reset or replaced. No new tag/formal Release.
-- [ ] Commit/PR the closing documentation, then verify its own exact-head push/PR CI and CodeQL, expected-head merge, final-main CI/CodeQL/Pages and fresh/native public acceptance. Keep final S2 identity/evidence in that PR and the external release ledger; do not reuse S1 results for a later SHA or create another commit merely to insert its own identity.
+- [x] Record the actual website-only S1 publication state in PROJECT_STATE.md. Only synthetic workspaces and entitled sketches were tested; no user research database was inspected/reset/replaced. That completed website iteration created no tag/formal Release; the later explicit formal-publication authorization is described above.
+- [x] Complete PR #58 as final S2 `791d2ef2877cad2c890585a69d93ca469480299a`: exact-head/main checks, CI `37190664224`, CodeQL `37190664301`, Pages `37190664241` and deployment `6839000068` succeeded. Fresh public desktop/touch and actual native S1 → S2 updates retained all 19 v7 collections, PDF/image bytes and markers. Final evidence belongs in that PR/external ledger, and does not prove a later presentation SHA passed.
 
 ## P1 — attachment architecture after this bounded update
 
