@@ -39,21 +39,31 @@
 
 以下是已上线 0.5.0 的真实界面，均在独立合成 DEMO 工作台中捕获。版本、完整构建 SHA、截图尺寸与隐私审阅见[截图登记](docs/screenshots/README.md)。
 
-<table>
-  <tr>
-    <td width="70%" valign="top"><a href="docs/screenshots/v0.5.0/02-saved-relationships-zh.jpg"><img src="docs/screenshots/v0.5.0/02-saved-relationships-zh.jpg" width="100%" alt="0.5.0 研究导航的真实合成记录详情与已登记稳定 ID 关系" /></a><br /><strong>沿记录关系回看研究</strong><br />查看原文与真实关联，连续浏览问题、主张和资料；编辑仍在原模块完成。</td>
-    <td width="30%" valign="top"><a href="docs/screenshots/v0.5.0/03-mobile-overview-zh.jpg"><img src="docs/screenshots/v0.5.0/03-mobile-overview-zh.jpg" width="100%" alt="390×844 触屏视口中的 0.5.0 项目概览与真实 DEMO 计数" /></a><br /><strong>按实际记录安排下一步</strong><br />任务队列、问题与已标注田野点计数，不生成研究质量评分。</td>
-  </tr>
-</table>
+<p align="center"><a href="docs/screenshots/v0.5.0/02-saved-relationships-zh.jpg"><img src="docs/screenshots/v0.5.0/02-saved-relationships-zh.jpg" width="960" alt="0.5.0 研究导航的真实合成记录详情与已登记稳定 ID 关系" /></a></p>
+
+**沿记录关系回看研究**
+
+查看原文与真实关联，连续浏览问题、主张和资料；编辑仍在原模块完成。
+
+<p align="center"><a href="docs/screenshots/v0.5.0/03-mobile-overview-zh.jpg"><img src="docs/screenshots/v0.5.0/03-mobile-overview-zh.jpg" width="390" alt="390×844 触屏视口中的 0.5.0 项目概览与真实 DEMO 计数" /></a></p>
+
+**按实际记录安排下一步**
+
+任务队列、问题与已标注田野点计数，不生成研究质量评分。
 
 以下保留 0.4.1 外观设置的实际界面。桌面与手机在各自浏览器记住偏好；这些截图同样只包含合成数据。
 
-<table>
-  <tr>
-    <td width="70%" valign="top"><a href="docs/screenshots/v0.4.1/01-appearance-settings-zh.jpg"><img src="docs/screenshots/v0.4.1/01-appearance-settings-zh.jpg" width="100%" alt="0.4.1 桌面外观与动效设置，田野手记模板与本机字体选项" /></a><br /><strong>选择自己的研究桌</strong><br />四种模板、四种字体、三档字号与四种动效，即时应用并记住选择。</td>
-    <td width="30%" valign="top"><a href="docs/screenshots/v0.4.1/03-mobile-settings-zh.jpg"><img src="docs/screenshots/v0.4.1/03-mobile-settings-zh.jpg" width="100%" alt="390 × 844 触屏手机视口中的 0.4.1 外观设置" /></a><br /><strong>手机也可调整</strong><br />控件保持可读，系统减少动态效果优先。</td>
-  </tr>
-</table>
+<p align="center"><a href="docs/screenshots/v0.4.1/01-appearance-settings-zh.jpg"><img src="docs/screenshots/v0.4.1/01-appearance-settings-zh.jpg" width="960" alt="0.4.1 桌面外观与动效设置，田野手记模板与本机字体选项" /></a></p>
+
+**选择自己的研究桌**
+
+四种模板、四种字体、三档字号与四种动效，即时应用并记住选择。
+
+<p align="center"><a href="docs/screenshots/v0.4.1/03-mobile-settings-zh.jpg"><img src="docs/screenshots/v0.4.1/03-mobile-settings-zh.jpg" width="390" alt="390 × 844 触屏手机视口中的 0.4.1 外观设置" /></a></p>
+
+**手机也可调整**
+
+控件保持可读，系统减少动态效果优先。
 
 点击图片查看原图。以下均为真实运行的 0.4.0 界面与合成演示记录；草图没有真实地理边界或参与者位置。拍摄版本、尺寸与隐私核查见[截图登记](docs/screenshots/README.md)。
 

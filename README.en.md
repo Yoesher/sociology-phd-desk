@@ -39,21 +39,31 @@ The app connects research questions, literature, datasets or interviews, analysi
 
 These actual deployed 0.5.0 screens were captured in independent synthetic DEMO workspaces. Full build identity, dimensions and privacy review are in the [screenshot register](docs/screenshots/README.md).
 
-<table>
-  <tr>
-    <td width="70%" valign="top"><a href="docs/screenshots/v0.5.0/02-saved-relationships-zh.jpg"><img src="docs/screenshots/v0.5.0/02-saved-relationships-zh.jpg" width="100%" alt="Actual 0.5.0 research record details and existing stable-ID relationships, synthetic DEMO only" /></a><br /><strong>Follow the records behind your research</strong><br />Read original text and saved relationships; editing stays in the original modules.</td>
-    <td width="30%" valign="top"><a href="docs/screenshots/v0.5.0/03-mobile-overview-zh.jpg"><img src="docs/screenshots/v0.5.0/03-mobile-overview-zh.jpg" width="100%" alt="Actual 0.5.0 project overview in a 390 by 844 touch viewport, with synthetic DEMO counts" /></a><br /><strong>Plan from actual records</strong><br />Work queues, questions and unique marked sites, without a research quality score.</td>
-  </tr>
-</table>
+<p align="center"><a href="docs/screenshots/v0.5.0/02-saved-relationships-zh.jpg"><img src="docs/screenshots/v0.5.0/02-saved-relationships-zh.jpg" width="960" alt="Actual 0.5.0 research record details and existing stable-ID relationships, synthetic DEMO only" /></a></p>
+
+**Follow the records behind your research**
+
+Read original text and saved relationships; editing stays in the original modules.
+
+<p align="center"><a href="docs/screenshots/v0.5.0/03-mobile-overview-zh.jpg"><img src="docs/screenshots/v0.5.0/03-mobile-overview-zh.jpg" width="390" alt="Actual 0.5.0 project overview in a 390 by 844 touch viewport, with synthetic DEMO counts" /></a></p>
+
+**Plan from actual records**
+
+Work queues, questions and unique marked sites, without a research quality score.
 
 The previous actual 0.4.1 appearance screens are retained below. Desktop and touch phone each remember preferences in their own browser; these captures also contain only synthetic data.
 
-<table>
-  <tr>
-    <td width="70%" valign="top"><a href="docs/screenshots/v0.4.1/01-appearance-settings-zh.jpg"><img src="docs/screenshots/v0.4.1/01-appearance-settings-zh.jpg" width="100%" alt="Actual 0.4.1 desktop Appearance and motion settings with Field notebook and local font choices" /></a><br /><strong>Choose your research desk</strong><br />Four templates, four fonts, three reading sizes and four motion choices apply immediately and persist.</td>
-    <td width="30%" valign="top"><a href="docs/screenshots/v0.4.1/03-mobile-settings-zh.jpg"><img src="docs/screenshots/v0.4.1/03-mobile-settings-zh.jpg" width="100%" alt="Actual 0.4.1 appearance settings in a 390 by 844 touch-phone viewport" /></a><br /><strong>Adjust it on your phone</strong><br />Readable controls and system reduced-motion priority.</td>
-  </tr>
-</table>
+<p align="center"><a href="docs/screenshots/v0.4.1/01-appearance-settings-zh.jpg"><img src="docs/screenshots/v0.4.1/01-appearance-settings-zh.jpg" width="960" alt="Actual 0.4.1 desktop Appearance and motion settings with Field notebook and local font choices" /></a></p>
+
+**Choose your research desk**
+
+Four templates, four fonts, three reading sizes and four motion choices apply immediately and persist.
+
+<p align="center"><a href="docs/screenshots/v0.4.1/03-mobile-settings-zh.jpg"><img src="docs/screenshots/v0.4.1/03-mobile-settings-zh.jpg" width="390" alt="Actual 0.4.1 appearance settings in a 390 by 844 touch-phone viewport" /></a></p>
+
+**Adjust it on your phone**
+
+Readable controls and system reduced-motion priority.
 
 Click an image to open it at full size. These are real 0.4.0 screens with synthetic demonstration records; the sketch contains no real geographic boundaries or participant locations. Version, dimensions and privacy review are in the [screenshot register](docs/screenshots/README.md).
 
