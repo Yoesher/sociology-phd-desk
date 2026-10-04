@@ -1,0 +1,186 @@
+/* Local application preferences only. These stacks use installed fonts;
+   no @font-face, remote resources or research-workspace content is involved. */
+:root[data-font='sans'] {
+  --font-sans: Arial, 'Helvetica Neue', 'Microsoft YaHei', 'PingFang SC', system-ui, sans-serif;
+  --font-serif: var(--font-sans);
+}
+
+:root[data-font='serif'] {
+  --font-sans: 'Iowan Old Style', 'Noto Serif CJK SC', 'Songti SC', SimSun, 'Palatino Linotype', Georgia, serif;
+  --font-serif: var(--font-sans);
+}
+
+:root[data-font='system'] {
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei UI', sans-serif;
+  --font-serif: var(--font-sans);
+}
+
+:root[data-text-size='standard'] { font-size: 15px; }
+:root[data-text-size='large'] { font-size: 16px; }
+:root[data-text-size='larger'] { font-size: 17px; }
+
+/* Classic inherits the original ivory/teal tokens without replacing them. */
+:root[data-template='paper'] {
+  --canvas: #ede9df;
+  --canvas-subtle: #e5dece;
+  --surface: #fffdf8;
+  --surface-raised: #ffffff;
+  --surface-inset: #f3eee4;
+  --surface-hover: #f5efdf;
+  --ink: #302b25;
+  --ink-soft: #50473a;
+  --muted: #686052;
+  --faint: #776e60;
+  --line: #d8d0bf;
+  --line-strong: #bcb19b;
+  --nav: #322f2a;
+  --nav-raised: #454036;
+  --nav-text: #f8f4e9;
+  --nav-muted: #c7bdab;
+  --nav-line: rgb(248 244 233 / 15%);
+  --accent: #705538;
+  --accent-strong: #604529;
+  --accent-soft: #eee4d7;
+  --accent-border: #cdb79a;
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 8px;
+  --shadow-sm: 0 3px 14px rgb(48 43 37 / 6%);
+  --focus: 0 0 0 3px rgb(112 85 56 / 22%);
+}
+
+:root[data-template='slate'] {
+  --canvas: #e9eef3;
+  --canvas-subtle: #dde5ee;
+  --surface: #f8fafc;
+  --surface-raised: #ffffff;
+  --surface-inset: #edf2f7;
+  --surface-hover: #e9f0f7;
+  --ink: #1b2b3b;
+  --ink-soft: #3e5267;
+  --muted: #566575;
+  --faint: #637184;
+  --line: #cad4df;
+  --line-strong: #a8bbcd;
+  --nav: #1b2e43;
+  --nav-raised: #28435d;
+  --nav-text: #edf4fb;
+  --nav-muted: #b5c7d9;
+  --nav-line: rgb(237 244 251 / 14%);
+  --accent: #355f84;
+  --accent-strong: #274c6e;
+  --accent-soft: #e0eaf3;
+  --accent-border: #b7cee2;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --shadow-sm: 0 8px 26px rgb(27 43 59 / 9%);
+  --focus: 0 0 0 3px rgb(53 95 132 / 22%);
+}
+
+:root[data-template='forest'] {
+  --canvas: #e5ede4;
+  --canvas-subtle: #d8e4d5;
+  --surface: #f7fbf4;
+  --surface-raised: #ffffff;
+  --surface-inset: #eaf2e7;
+  --surface-hover: #e5efe1;
+  --ink: #203324;
+  --ink-soft: #405443;
+  --muted: #546851;
+  --faint: #65745d;
+  --line: #c7d6c1;
+  --line-strong: #a9bea0;
+  --nav: #1a3222;
+  --nav-raised: #284b32;
+  --nav-text: #eff6ea;
+  --nav-muted: #b6cbb0;
+  --nav-line: rgb(239 246 234 / 15%);
+  --accent: #3b6a3d;
+  --accent-strong: #2d5730;
+  --accent-soft: #dcebd6;
+  --accent-border: #adcca2;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 6px 20px rgb(32 51 36 / 8%);
+  --focus: 0 0 0 3px rgb(59 106 61 / 22%);
+}
+
+:root[data-theme='dark'][data-template='paper'] {
+  --canvas: #1c1915;
+  --canvas-subtle: #15130f;
+  --surface: #26221c;
+  --surface-raised: #302a22;
+  --surface-inset: #211d17;
+  --surface-hover: #393025;
+  --ink: #f5f0e6;
+  --ink-soft: #d3c8b6;
+  --muted: #b8aa96;
+  --faint: #a49682;
+  --line: #484034;
+  --line-strong: #645642;
+  --nav: #14120f;
+  --nav-raised: #272119;
+  --nav-text: #f6f0e5;
+  --nav-muted: #bcae99;
+  --accent: #d1b18a;
+  --accent-strong: #e1c5a1;
+  --accent-soft: #423425;
+  --accent-border: #6b5338;
+  --focus: 0 0 0 3px rgb(209 177 138 / 30%);
+}
+
+:root[data-theme='dark'][data-template='slate'] {
+  --canvas: #101a26;
+  --canvas-subtle: #0b1420;
+  --surface: #192638;
+  --surface-raised: #213247;
+  --surface-inset: #142030;
+  --surface-hover: #2a3b50;
+  --ink: #edf3fb;
+  --ink-soft: #c9d7e7;
+  --muted: #abbbcd;
+  --faint: #96a8bd;
+  --line: #35485f;
+  --line-strong: #4e6580;
+  --nav: #0c1622;
+  --nav-raised: #172a3e;
+  --nav-text: #eff5fc;
+  --nav-muted: #a6bdd4;
+  --accent: #9fbbe1;
+  --accent-strong: #b5cdec;
+  --accent-soft: #263f5b;
+  --accent-border: #486a93;
+  --focus: 0 0 0 3px rgb(159 187 225 / 28%);
+}
+
+:root[data-theme='dark'][data-template='forest'] {
+  --canvas: #111c14;
+  --canvas-subtle: #0b140e;
+  --surface: #1a2b1d;
+  --surface-raised: #243827;
+  --surface-inset: #152319;
+  --surface-hover: #2c432e;
+  --ink: #edf4e9;
+  --ink-soft: #c8d8be;
+  --muted: #adbea3;
+  --faint: #98aa8d;
+  --line: #3a5037;
+  --line-strong: #536d49;
+  --nav: #0b150e;
+  --nav-raised: #172a1c;
+  --nav-text: #f0f7ea;
+  --nav-muted: #a9c19d;
+  --accent: #a7cb96;
+  --accent-strong: #bfdea9;
+  --accent-soft: #2c4728;
+  --accent-border: #53764a;
+  --focus: 0 0 0 3px rgb(167 203 150 / 28%);
+}
+
+/* Pale dark-mode primary surfaces need dark text to retain contrast. */
+:root[data-theme='dark'][data-template] .button--primary,
+:root[data-theme='dark'][data-template] .quick-add__trigger {
+  color: var(--nav);
+}

@@ -19,6 +19,7 @@ import {
   PanelLeftClose,
   Plus,
   Settings2,
+  Palette,
   Sun,
   X,
 } from 'lucide-react'
@@ -36,9 +37,11 @@ import { ProjectScopeBar } from './ProjectScope'
 import { useProjectScope } from './project-scope-context'
 import { projectDisplayData } from '../hooks/useProjectWorkspace'
 import { useTheme } from '../hooks/useTheme'
+import { useMotionPreference } from '../hooks/useAppearance'
 import { useLocalToday } from '../hooks/useLocalToday'
 import { IconButton } from '../components/ui'
 import { WorkspaceTools } from './WorkspaceTools'
+import { AppearancePanel } from './AppearancePanel'
 import { PageTransitionBoundary } from '../components/PageTransitionBoundary'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { useI18n, type MessageKey } from '../i18n'
@@ -58,6 +61,7 @@ const unavailableUpdateManager = {
 }
 
 function useExitPresence<T>(value: T | null, duration = 140) {
+  const { animationsEnabled } = useMotionPreference()
   const [rendered, setRendered] = useState<T | null>(value)
   const [closing, setClosing] = useState(false)
 
@@ -68,7 +72,7 @@ function useExitPresence<T>(value: T | null, duration = 140) {
       return
     }
     if (rendered === null) return
-    if (import.meta.env.MODE === 'test' || (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false)) {
+    if (import.meta.env.MODE === 'test' || !animationsEnabled) {
       setRendered(null)
       setClosing(false)
       return
@@ -79,7 +83,7 @@ function useExitPresence<T>(value: T | null, duration = 140) {
       setClosing(false)
     }, duration)
     return () => window.clearTimeout(timer)
-  }, [duration, rendered, value])
+  }, [animationsEnabled, duration, rendered, value])
 
   return { rendered, closing }
 }
@@ -135,12 +139,14 @@ export function AppShell() {
   const [expansionPreference, setExpansionPreference] = useState<NavigationExpansionPreference>(readExpansionPreference)
   const [compactFlyout, setCompactFlyout] = useState<PrimaryModuleId | 'settings' | null>(null)
   const [settingsExpanded, setSettingsExpanded] = useState(false)
+  const [appearanceOpen, setAppearanceOpen] = useState(false)
   const [quickAddOpen, setQuickAddOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const quickAddRef = useRef<HTMLDivElement>(null)
   const quickAddTriggerRef = useRef<HTMLButtonElement>(null)
   const moreRef = useRef<HTMLDivElement>(null)
   const moreTriggerRef = useRef<HTMLButtonElement>(null)
+  const appearanceRestoreTargetRef = useRef<HTMLElement | null>(null)
   const compactFlyoutRef = useRef<HTMLDivElement>(null)
   const compactTriggerRefs = useRef<Partial<Record<PrimaryModuleId | 'settings', HTMLButtonElement | null>>>({})
   const mobileMenuRef = useRef<HTMLElement>(null)
@@ -153,6 +159,13 @@ export function AppShell() {
   const current = getNavigationItem(location.pathname)
   const activeView = getActiveView(current, location.search)
   const primaryMobile = navigationItems.slice(0, 3)
+
+  useEffect(() => {
+    if (!appearanceOpen && appearanceRestoreTargetRef.current) {
+      appearanceRestoreTargetRef.current.focus({ preventScroll: true })
+      appearanceRestoreTargetRef.current = null
+    }
+  }, [appearanceOpen])
 
   useEffect(() => {
     setMobileMenuOpen(false)
@@ -390,6 +403,14 @@ export function AppShell() {
           </IconButton>
         </div>
       </div>
+      <button type="button" onClick={(event) => {
+        appearanceRestoreTargetRef.current = mobileMenuOpen ? mobileMenuTriggerRef.current : compact ? compactTriggerRefs.current.settings ?? null : event.currentTarget
+        setAppearanceOpen(true)
+        setCompactFlyout(null)
+        setMobileMenuOpen(false)
+      }}>
+        {t('appearance.title')}
+      </button>
       <details className="settings-nav__advanced motion-collapse">
         <summary>{t('navigation.advanced')}</summary>
         <div className="settings-nav__tools">
@@ -627,6 +648,11 @@ export function AppShell() {
             {morePresence.rendered && <div className="topbar-more__menu motion-popover" data-closing={morePresence.closing || undefined} aria-hidden={morePresence.closing || undefined} inert={morePresence.closing || undefined} role="dialog" aria-label={t('navigation.moreActions')} onKeyDown={handleFloatingPanelKeys}>
               <button type="button" onClick={() => openWorkspaceCenter('workspaces')}><FolderCog size={15} />{t('navigation.workspaceSettings')}</button>
               <button type="button" onClick={toggleTheme}>{theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}{theme === 'light' ? t('theme.useDark') : t('theme.useLight')}</button>
+              <button type="button" onClick={() => {
+                appearanceRestoreTargetRef.current = moreTriggerRef.current
+                setAppearanceOpen(true)
+                setMoreOpen(false)
+              }}><Palette size={15} />{t('appearance.title')}</button>
               <LanguageControl compact />
               <button type="button" onClick={() => openWorkspaceCenter('distribution')}>{t('distribution.install.title')}</button>
               <button type="button" disabled={!update.supported || update.checking} onClick={() => void update.checkForUpdate()}>{t(update.checking ? 'distribution.update.checking' : 'distribution.update.check')}</button>
@@ -676,6 +702,8 @@ export function AppShell() {
           <span>{t('common.more')}</span>
         </button>
       </nav>
+
+      {appearanceOpen && <AppearancePanel onClose={() => setAppearanceOpen(false)} />}
 
       {mobileMenuPresence.rendered && (
         <div className="mobile-menu-backdrop" data-closing={mobileMenuPresence.closing || undefined} role="presentation" onMouseDown={() => closeMobileMenu()}>

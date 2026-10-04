@@ -1,17 +1,17 @@
 export const releaseMetadata = Object.freeze({
-  version: '0.4.0',
+  version: '0.4.1',
   releaseDate: '2026-10-04',
-  releaseUrl: 'https://github.com/Yoesher/sociology-phd-desk/blob/main/docs/local-field-maps-and-storage-2026-10-04.md',
+  releaseUrl: 'https://github.com/Yoesher/sociology-phd-desk/blob/main/docs/releases/v0.4.1.md',
   summary: {
     en: [
-      'Import local maps or research sketches and mark existing field sites offline',
-      'PDF limits increased to 10 MiB each and 20 MiB per workspace, with capacity indicators',
-      'Local dates and deadline views refresh automatically across midnight',
+      'Choose locally saved appearance templates, fonts and reading sizes',
+      'Select gentle, fade, slide or no motion; system reduced motion takes priority',
+      'Appearance follows this browser across workspace switches and locks, outside research backups',
     ],
     'zh-CN': [
-      '导入本地地图或研究草图，离线标注并关联现有田野点',
-      'PDF 调整为单个 10 MiB、工作台合计 20 MiB，并显示容量用量',
-      '日期与任务期限视图跨过午夜自动更新',
+      '选择并在本机保存外观模板、字体与阅读字号',
+      '选择轻柔、淡入淡出、滑动或关闭动效，系统减少动态效果优先',
+      '同一浏览器的工作台切换与锁屏共用外观，研究备份不携带这些偏好',
     ],
   },
 })

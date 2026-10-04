@@ -12,6 +12,7 @@ import {
   X,
 } from 'lucide-react'
 import { useI18n } from '../i18n'
+import { useMotionPreference } from '../hooks/useAppearance'
 
 export type Tone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger' | 'violet' | 'blue'
 
@@ -298,6 +299,7 @@ export function Modal({
   const onCloseRef = useRef(onClose)
   const [present, setPresent] = useState(open)
   const [closing, setClosing] = useState(false)
+  const { animationsEnabled } = useMotionPreference()
   const rendered = present && !(import.meta.env.MODE === 'test' && !open)
   onCloseRef.current = onClose
 
@@ -323,19 +325,18 @@ export function Modal({
       return
     }
     if (!present) return
-    if (import.meta.env.MODE === 'test') {
+    if (import.meta.env.MODE === 'test' || !animationsEnabled) {
       setPresent(false)
       setClosing(false)
       return
     }
     setClosing(true)
-    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
     const timer = window.setTimeout(() => {
       setPresent(false)
       setClosing(false)
-    }, reduced ? 0 : 160)
+    }, 160)
     return () => window.clearTimeout(timer)
-  }, [open, present])
+  }, [open, present, animationsEnabled])
 
   useLayoutEffect(() => {
     const dialog = dialogRef.current
