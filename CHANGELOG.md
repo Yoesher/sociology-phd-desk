@@ -6,9 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-### 0.4.0 candidate — 2026-10-04, not published
+No further user-visible changes are queued here.
 
-The separately authorized local-material/storage/date iteration is a source candidate. Local npm test passed 46 files / 422 tests, release audit found zero vulnerabilities and the original Zotero command passed 8/8. Browser/build acceptance, the publication decision, remote gates and public acceptance remain pending. The public website remains verified 0.3.1 at final S2 main `3e4967c3cbb05cf96f3bd72edd90ae1d78027a4f`. Latest formal Release/tag remains v0.3.0; existing tags are unchanged.
+## [0.4.0] - 2026-10-04 (website application update; formal Release/tag unchanged)
+
+The separately authorized local-material/storage/date iteration was merged through [PR #57](https://github.com/Yoesher/sociology-phd-desk/pull/57) and deployed as S1 main `1da2883c4fd7a54125e1cea3bf321cb5c7ecdb5a`. The reviewed head passed the original commands, including 422 unit/integration tests, 8 Zotero tests, 28 desktop/phone E2E tests without retries/skips, audit with zero vulnerabilities, and production/PWA build. Exact-S1 CI/CodeQL/Pages succeeded; fresh public desktop/phone smoke and real 0.3.1 → 0.4.0 waiting-worker update retained old records and PDF bytes. Later documentation commits require independent verification. Latest formal Release/tag remains v0.3.0; existing tags are unchanged.
 
 ### Added
 
@@ -27,7 +29,7 @@ The separately authorized local-material/storage/date iteration is a source cand
 - Local images and their original metadata, including possible EXIF/GPS, remain in the workspace and complete ordinary/encrypted backups. Only entitled coarse research sketches or anonymous public settings are permitted; participant homes, exact participant locations and identifiers must be excluded. Image percentages and local storage are not anonymity or legal/map-review guarantees.
 - No national map assets, administrative catalog, online tiles, external map API, GPS acquisition or public map-image export. All four China Research Map gates stay BLOCKED. Larger PDF-library support requires independent attachment storage and chunked authenticated backups, which are not implemented here.
 
-See [the bilingual local-field-maps/storage guide](docs/local-field-maps-and-storage-2026-10-04.md) and [the actual candidate gate state](PROJECT_STATE.md).
+See [the bilingual local-field-maps/storage guide](docs/local-field-maps-and-storage-2026-10-04.md) and [the actual verification record](PROJECT_STATE.md).
 
 ## [0.3.1] - 2026-10-03 (website application update; formal Release/tag unchanged)
 

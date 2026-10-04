@@ -1,6 +1,6 @@
 # Data Model
 
-This document describes the `0.3.1` website update, whose portable workspace, standard storage, and authenticated encrypted payload are v6. Published [`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0) at exact release SHA [`bb0d32f`](https://github.com/Yoesher/sociology-phd-desk/commit/bb0d32fe99348204ba89a16d6469014ae38e0ecf) uses v5. Encrypted container, vault database, and registry database remain v1. Phase 3C's v3 and Phase 3E's v4 baselines remain relevant migration history. Types and migrations in the code are authoritative for a particular revision; current deployment evidence is recorded separately in `PROJECT_STATE.md`.
+This document describes website 0.4.0 S1: portable workspace, standard storage and authenticated payload v7, container/vault/registry v1. PR #57 main is `1da2883c4fd7a54125e1cea3bf321cb5c7ecdb5a`; its exact CI/CodeQL/Pages, fresh public desktop/phone smoke and native update/data-retention checks passed. The earlier verified 0.3.1 website uses v6; formal [`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0) at [`bb0d32f`](https://github.com/Yoesher/sociology-phd-desk/commit/bb0d32fe99348204ba89a16d6469014ae38e0ecf) uses v5. Phase 3C v3 and Phase 3E v4 remain migration history. Types/migrations are authoritative for a revision; deployment evidence belongs in `PROJECT_STATE.md`, and later documentation commits require independent verification. [Local-map/storage guide](../local-field-maps-and-storage-2026-10-04.md).
 
 ## Shared conventions
 
@@ -12,6 +12,7 @@ This document describes the `0.3.1` website update, whose portable workspace, st
 - Fieldwork identifiers must not encode names or other direct identifiers.
 - Local file paths are references only; the application does not ingest or secure the files they point to.
 - Optional literature PDFs are distinct from path references: v6 stores the selected file's bytes with the record and includes them in ordinary/encrypted backups.
+- v7 also persists user-supplied local-map image bytes and explicit same-project site markers; raw EXIF/GPS may remain, and normalized image positions do not anonymize detailed material.
 - A portable `WorkspaceData` snapshot belongs to exactly one logical workspace. An imported snapshot must be explicitly reidentified when it creates a new workspace; entities never link across workspace boundaries.
 
 ## Local workspace boundary (Phase 3C)
@@ -46,7 +47,7 @@ A migration ledger identifies the legacy database/workspace revision and intende
 
 ### Standard workspace representation
 
-A standard workspace uses one physical IndexedDB database named from an opaque locator. `0.3.1` uses schema v6 with the same 19 tables established in published `v0.3.0` schema v5, including workspace metadata, `theoryMemos`, and `literatureExternalReferences`; Phase 3C originally established the per-workspace boundary at schema v3 with 17 tables. Its content, including optional PDF bytes, is ordinary structured plaintext. A UI lock does not change this representation and must not be described as encryption.
+A standard workspace uses one physical IndexedDB database named from an opaque locator. The 0.4.0 source uses v7/20 plaintext tables including metadata, Theory, Zotero references and new fieldMaps. Historical 0.3.1 v6/formal v0.3.0 v5 used 19 tables; Phase 3C started at v3/17. PDF/image bytes are ordinary structured plaintext. A UI lock does not change this representation and must not be described as encryption.
 
 Every bound repository verifies the logical workspace ID before reads and writes. Once a registry route is converted, deleted, or no longer ready, a stale session rejects the operation, closes, and clears its cached snapshot rather than recreating the missing old database. Physical disappearance or a structurally invalid/mismatched bound database likewise poisons the standard session. Standard writes and destructive transitions are coordinated per storage locator; conversion, plaintext cleanup, and deletion require a cross-tab-safe coordinator.
 
@@ -54,7 +55,7 @@ Every bound repository verifies the logical workspace ID before reads and writes
 
 An encrypted workspace uses a separate schema-v1 vault database containing exactly one authenticated ciphertext record. The record has no research-domain tables or plaintext workspace name. Outside the ciphertext it contains only a fixed record ID, protected format bytes, IV, ciphertext, `storageRevision`, `lockEpoch`, `keyInvocation`, and an encryption-attempt counter used to avoid exceeding/reusing the AES-GCM invocation space.
 
-The decrypted payload is a complete portable `WorkspaceData` snapshot, including optional PDF bytes. `0.3.1` writes portable v6 and accepts authenticated v3/v4/v5 payloads only through explicit in-memory migration plus verified atomic rewrite. The derived key and plaintext snapshot exist only in an unlocked runtime session. Lock advances `lockEpoch` and clears the cooperating application's session state; reload requires a new unlock. Each asynchronous refresh/save/backup/lock path captures a runtime lifecycle generation and checks it after every awaited storage/crypto boundary. Close or lock advances the generation before clearing key/plaintext state, so a delayed decrypt cannot publish its result back into or revive the closed runtime. A missing unique vault record, authenticated tamper, stale storage generation, invalidated route, or manager close likewise poisons/closes the runtime and clears its manager-owned snapshot. This does not guarantee physical memory zeroization or protect an unlocked device/runtime.
+The decrypted payload is a complete portable WorkspaceData snapshot, including PDF/image bytes and markers. The 0.4.0 source writes v7 and accepts authenticated v3/v4/v5/v6 only through explicit migration plus verified atomic rewrite. The derived key and plaintext snapshot exist only while unlocked. Lock advances lockEpoch and clears cooperating session state; reload requires unlock. Every asynchronous storage/crypto path rechecks its lifecycle generation so close/lock cannot be undone by a delayed decrypt. Missing/tampered/stale/invalidated storage poisons the runtime and clears its manager-owned snapshot. This does not guarantee physical memory zeroization or protect an unlocked device/runtime.
 
 ### Demo separation
 
@@ -72,7 +73,7 @@ All non-bootstrap logical IDs, opaque storage locators, provisioning tokens, enc
 
 ### Research Project
 
-Fields include project ID, title, short title, topic, method, status, start date, target date, and notes. Since portable v3, research questions are separate objects rather than a `Project.researchQuestion` string; current v6 preserves that model.
+Fields include project ID, title, short title, topic, method, status, start date, target date, and notes. Since portable v3, research questions are separate objects rather than a `Project.researchQuestion` string; current v7 preserves that model.
 
 Methods: Quantitative, Qualitative, Mixed Methods, Theoretical.
 
@@ -124,7 +125,7 @@ A research task records title, date/deadline, completion state, category, priori
 
 Fields include title, authors, year, journal, DOI, URL, project link, status, priority, why-read, and notes.
 
-Portable v6 adds optional `localPdf: { fileName, size, base64 }`. `size` is the byte length; `base64` is the canonical file content. Each PDF is limited to 5 MiB, and all PDFs in the complete workspace are limited to 12 MiB. Validation checks the filename, PDF header, encoding, declared size, and aggregate limit before persistence/import. Ordinary JSON includes these bytes in plaintext; an encrypted workspace and `.sociologydesk` backup encrypt them with the rest of the snapshot. Download object URLs are temporary and are not persisted. Zotero handoff remains metadata-only.
+Portable v6 introduced optional `localPdf: { fileName, size, base64 }`. 0.4.0 raises historical 0.3.1 limits of 5/12 MiB to 10 MiB each / 20 MiB per workspace. Validation checks filename, PDF header, canonical encoding, declared byte size and aggregate limit before persistence/import. Complete ordinary JSON includes bytes in plaintext; encrypted workspace/backup encrypt the same snapshot. Downloads decode on click and use temporary, cleaned object URLs. Zotero remains metadata-only. The separate complete-readable-JSON 32 MiB budget may be reached before attachment maxima; no data is truncated.
 
 Statuses: Inbox, To Read, Reading, Read, Cited, Archived.
 
@@ -137,6 +138,12 @@ The object captures research relevance and argumentative use. It is not a comple
 ### Field site
 
 Fields include site ID, site name or alias, project link, status, and notes. Use an alias when a real place would increase disclosure risk.
+
+### Local field map (v7)
+
+`FieldMap` has metadata, projectId, title, `image: { fileName, mimeType, size, width, height, base64 }` and `markers: [{ fieldSiteId, x, y }]`. Static PNG/JPEG bytes are ≤2 MiB per image / ≤4 MiB per workspace, edge ≤8192 / area ≤16 million pixels. Markers use finite normalized x/y in [0,1], unique per site per map, and an existing same-project site. Unknown geographic-coordinate fields, missing/duplicate/cross-project endpoints and malformed image metadata fail validation.
+
+Use only entitled coarse county-or-broader sketches or anonymous public settings; participant homes, precise participant locations and identifiers are outside scope. Raw metadata may remain, and normalized positions do not guarantee anonymity or legal/map-review approval. No bundled national map/catalog, online map/tile, GPS or public image export is provided; national gates remain BLOCKED. Removing maps/markers retains research records, replacing annotated images requires explicit marker clearing, and site/project endpoint operations are protected.
 
 ### Interview
 
@@ -170,7 +177,7 @@ Support levels: Strong, Moderate, Weak, Contradictory, Unclear.
 
 A support level is a researcher's documented judgment. It is not an automated truth score. Locator and limitations are essential provenance fields.
 
-Portable v3 introduced retention of the existing `Evidence.claim` text so migration cannot discard or rewrite source context; current v6 preserves it unchanged. Phase 3B does not add an evidence `claimId` or an Evidence↔Claim relationship; that remains separate Issue #2 work. Claim–question links and Theory Memo links must never be inferred from evidence text.
+Portable v3 introduced retention of the existing Evidence.claim text; current v7 preserves it unchanged. Evidence↔Claim remains separate Issue #2 work, and neither Claim–question nor Theory links are inferred from evidence text.
 
 ### Research log entry
 
@@ -205,6 +212,7 @@ Project
  ├─ Theory Memo → Research Question / Claim / Literature
  ├─ Dataset → Analysis Run → Evidence
  ├─ Interview / Field Visit
+ ├─ Local Field Map → same-project Field Site → Interview / Field Visit
  ├─ Research Log
  ├─ Task
  └─ Manuscript → Submission → Reviewer Comment → Revision Task
@@ -220,6 +228,8 @@ Prefer archival states for research history. Before deleting an object, identify
 
 Research questions and claims use protected deletion: a record with an incoming `ClaimQuestionLink` cannot be deleted until the user explicitly removes that link. Incoming Theory Memo references likewise protect questions, claims, literature, and projects. Deleting a project is blocked while its questions, claims, claim–question links, or theory memos remain; these records are not silently cascade-deleted.
 
+Field-map project/site references also protect deletion and site project reassignment. Deleting a map/marker preserves the site, visit and interview records; it never silently cascades through them. Import collisions must not rebind a new map to a different local site identity.
+
 ## Schema evolution
 
 - Increment the database schema version for stored-structure changes.
@@ -228,22 +238,22 @@ Research questions and claims use protected deletion: a record with an incoming 
 - Update portable format versions independently when export semantics change.
 - Record durable changes in `DECISIONS.md` and current limitations in `PROJECT_STATE.md`.
 
-`0.3.1` keeps every version domain separate; published `v0.3.0` uses portable/standard/authenticated payload v5:
+Current 0.4.0 website S1 axes are below; exact deployment evidence is separately recorded in PROJECT_STATE.md. Historical 0.3.1 uses v6 and formal v0.3.0 uses v5:
 
 | Version domain | Current version | Meaning |
 | --- | ---: | --- |
-| Portable workspace | 6 | Validated research payload and v1 → v2 → v3 → v4 → v5 → v6 import/export contract, including optional PDF bytes |
-| Standard workspace IndexedDB | 6 | Same 19-table model, permitting optional PDF content within literature records |
-| Authenticated encrypted payload | 6 | Complete portable snapshot; authenticated v3/v4/v5 payloads migrate before use |
+| Portable workspace | 7 | Complete research payload, migration v1 through v7, PDF/image bytes and markers |
+| Standard workspace IndexedDB | 7 | 20 tables including the new fieldMaps store |
+| Authenticated encrypted payload | 7 | Complete snapshot; authenticated v3/v4/v5/v6 migrate before use |
 | Local workspace registry IndexedDB | 1 | Routing, lifecycle, migration, and cleanup metadata only |
 | Encrypted vault IndexedDB | 1 | One authenticated ciphertext record and CAS coordinates |
 | Encrypted container / `.sociologydesk` | 1 | Authenticated cryptographic envelope; not an application version |
 
 Changing one axis does not automatically change the others or the package version.
 
-### Portable workspace v3/v4/v5 to v6 migration
+### Portable workspace migration through v7
 
-- Compose supported upgrades deterministically as v1 → v2 → v3 → v4 → v5 → v6 rather than skipping version-specific semantics.
+- Compose supported upgrades deterministically as v1 → v2 → v3 → v4 → v5 → v6 → v7 rather than skipping version-specific semantics.
 - Migrate each non-empty legacy `Project.researchQuestion` into a first-class `ResearchQuestion` under the same project, then omit the legacy project field from v3.
 - Preserve every legacy `Evidence.claim` string as source-context text in v3.
 - Create first-class claims from non-empty legacy evidence claim text deterministically within each project. Grouping is allowed only for byte-for-byte equal values after trimming; do not perform semantic or fuzzy merging and do not rewrite the text.
@@ -252,5 +262,6 @@ Changing one axis does not automatically change the others or the package versio
 - Migrate v3 → v4 by adding only `theoryMemos: []`. Reject an ambiguous v3 input that already contains `theoryMemos`; never convert research logs, notes, tasks, claims, or other text into theory records.
 - Migrate v4 → v5 by adding only `literatureExternalReferences: []`. Reject an ambiguous v4 input that already contains the v5 collection; never infer Zotero identity from DOI, ISBN, title, authors, year, URL, or other bibliographic text.
 - Migrate v5 → v6 by changing only the envelope version and preserving existing literature and Zotero provenance. Do not infer attachments; reject a v5 envelope that already contains a `localPdf` property.
-- Authenticate legacy portable-v3/v4/v5 ciphertext before migration. Publish a v6 vault result only after complete validation and read-back; a backup restore validates in memory before creating a new vault. Any failure keeps the old authenticated ciphertext and produces no partial destination.
-- A v6 backup requires a v6-capable application; the `v0.3.0` application (schema v5) is not claimed to read it.
+- v6 → v7 adds only fieldMaps: []; preserve existing PDF/research bytes and reject ambiguous preexisting fieldMaps, without inventing images or coordinates.
+- Authenticate legacy portable-v3/v4/v5/v6 ciphertext before migration. Publish v7 only after validation/read-back; restore validates before creating a new vault. Failure retains old authenticated ciphertext and creates no partial destination.
+- A v7 backup requires a v7-capable application; earlier 0.3.1 (v6) cannot read it. Preserve tested original-version backups before moving between app versions.
