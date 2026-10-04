@@ -92,7 +92,7 @@ async function importMap(page: Page, title: string, projectId: string) {
   await dialog.getByRole('button', { name: '保存本地地图', exact: true }).click()
   await expect(dialog).toBeHidden()
   await expect(page.getByRole('group', { name: `本地地图：${title}`, exact: true })).toBeVisible()
-  const mapId = await page.getByLabel('本地地图', { exact: true }).inputValue()
+  const mapId = await page.getByRole('combobox', { name: '本地地图', exact: true }).inputValue()
   expect(mapId).toBeTruthy()
   await expectMapImage(page, title)
   return mapId
@@ -105,9 +105,9 @@ async function expectMapImage(page: Page, title: string) {
 }
 
 async function selectSite(page: Page, alias: string) {
-  const [id] = await page.getByLabel('既有田野点（同一项目）', { exact: true }).selectOption({ label: alias })
+  const [id] = await page.getByRole('combobox', { name: '既有田野点（同一项目）', exact: true }).selectOption({ label: alias })
   expect(id).toBeTruthy()
-  await expect(page.getByLabel('既有田野点（同一项目）', { exact: true })).toHaveValue(id!)
+  await expect(page.getByRole('combobox', { name: '既有田野点（同一项目）', exact: true })).toHaveValue(id!)
   return id!
 }
 
@@ -197,7 +197,7 @@ test('local sketch markers, linked records, project isolation and complete JSON/
   await addSite(page, 'DEMO E2E anonymous site A', projectA)
   await importMap(page, 'DEMO E2E abstract sketch A', projectA)
   const siteA = await selectSite(page, 'DEMO E2E anonymous site A')
-  await expect(page.getByLabel('既有田野点（同一项目）').getByRole('option', { name: 'DEMO E2E anonymous site B', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('combobox', { name: '既有田野点（同一项目）', exact: true }).getByRole('option', { name: 'DEMO E2E anonymous site B', exact: true })).toHaveCount(0)
   const board = page.getByTestId('field-map-board')
   const box = (await board.boundingBox())!
   if (testInfo.project.name === 'narrow-chromium') await board.tap({ position: { x: box.width * 0.25, y: box.height * 0.75 } })
