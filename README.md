@@ -18,7 +18,7 @@
 
 [本地地图与备份指南](docs/local-field-maps-and-storage-2026-10-04.md) · [更新历史](CHANGELOG.md) · [实际验收记录](PROJECT_STATE.md)
 
-![0.4.1 暖纸阅读与阅读宋体的实际中文今日工作台，仅含合成 DEMO](docs/screenshots/v0.4.1/02-warm-paper-zh.jpg)
+![0.5.0 研究导航：跨类型本地检索、项目与类型范围，仅含合成 DEMO](docs/screenshots/v0.5.0/01-navigator-zh.jpg)
 
 *实际应用截图，只展示合成 DEMO。没有真实论文、实证结果或参与者资料。*
 
@@ -26,6 +26,7 @@
 
 | 工作 | 现在可以做什么 |
 | --- | --- |
+| **研究导航** | 从当前或明确选定的全部项目检索17类记录；查看原文、已有稳定ID关系与实际项目队列。查询仅在内存中，所有结果与关联可翻页。 |
 | **文献与 PDF** | 手动登记文献、查看与编辑记录、附加本地 PDF；PDF 上传与 Zotero 元数据导入使用独立入口。保存后显示完整的当前范围列表，失败时保留输入。 |
 | **项目空间** | 选择项目后，研究模块显示相关记录，新记录自动归属当前项目。切换项目只改变显示；写入和备份保留整个工作台。今日目标是工作台共同目标。 |
 | **任务与日期** | 查看实际截止日期、剩余或逾期天数及未来七天任务；重新编辑期限与备注，保留完成状态。打开的页面会在本地午夜、聚焦或恢复可见时刷新日期。 |
@@ -36,14 +37,33 @@
 
 ## 看看工作台
 
-新外观设置来自已上线的 0.4.1 实际界面。桌面与手机均可调整，在各自浏览器记住偏好；截图只使用独立合成工作台，没有读取真实研究数据。
+以下是已上线 0.5.0 的真实界面，均在独立合成 DEMO 工作台中捕获。版本、完整构建 SHA、截图尺寸与隐私审阅见[截图登记](docs/screenshots/README.md)。
 
-<table>
-  <tr>
-    <td width="70%" valign="top"><a href="docs/screenshots/v0.4.1/01-appearance-settings-zh.jpg"><img src="docs/screenshots/v0.4.1/01-appearance-settings-zh.jpg" width="100%" alt="0.4.1 桌面外观与动效设置，田野手记模板与本机字体选项" /></a><br /><strong>选择自己的研究桌</strong><br />四种模板、四种字体、三档字号与四种动效，即时应用并记住选择。</td>
-    <td width="30%" valign="top"><a href="docs/screenshots/v0.4.1/03-mobile-settings-zh.jpg"><img src="docs/screenshots/v0.4.1/03-mobile-settings-zh.jpg" width="100%" alt="390 × 844 触屏手机视口中的 0.4.1 外观设置" /></a><br /><strong>手机也可调整</strong><br />控件保持可读，系统减少动态效果优先。</td>
-  </tr>
-</table>
+<p align="center"><a href="docs/screenshots/v0.5.0/02-saved-relationships-zh.jpg"><img src="docs/screenshots/v0.5.0/02-saved-relationships-zh.jpg" width="960" alt="0.5.0 研究导航的真实合成记录详情与已登记稳定 ID 关系" /></a></p>
+
+**沿记录关系回看研究**
+
+查看原文与真实关联，连续浏览问题、主张和资料；编辑仍在原模块完成。
+
+<p align="center"><a href="docs/screenshots/v0.5.0/03-mobile-overview-zh.jpg"><img src="docs/screenshots/v0.5.0/03-mobile-overview-zh.jpg" width="390" alt="390×844 触屏视口中的 0.5.0 项目概览与真实 DEMO 计数" /></a></p>
+
+**按实际记录安排下一步**
+
+任务队列、问题与已标注田野点计数，不生成研究质量评分。
+
+以下保留 0.4.1 外观设置的实际界面。桌面与手机在各自浏览器记住偏好；这些截图同样只包含合成数据。
+
+<p align="center"><a href="docs/screenshots/v0.4.1/01-appearance-settings-zh.jpg"><img src="docs/screenshots/v0.4.1/01-appearance-settings-zh.jpg" width="960" alt="0.4.1 桌面外观与动效设置，田野手记模板与本机字体选项" /></a></p>
+
+**选择自己的研究桌**
+
+四种模板、四种字体、三档字号与四种动效，即时应用并记住选择。
+
+<p align="center"><a href="docs/screenshots/v0.4.1/03-mobile-settings-zh.jpg"><img src="docs/screenshots/v0.4.1/03-mobile-settings-zh.jpg" width="390" alt="390 × 844 触屏手机视口中的 0.4.1 外观设置" /></a></p>
+
+**手机也可调整**
+
+控件保持可读，系统减少动态效果优先。
 
 点击图片查看原图。以下均为真实运行的 0.4.0 界面与合成演示记录；草图没有真实地理边界或参与者位置。拍摄版本、尺寸与隐私核查见[截图登记](docs/screenshots/README.md)。
 
