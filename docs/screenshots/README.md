@@ -1,6 +1,6 @@
 # Screenshot Register
 
-These captures document the running application rather than design mockups. The `v0.4.1` and `v0.4.0` sets were captured from actual public deployments; earlier release sets remain available as historical evidence.
+These captures document the running application rather than design mockups. The `v0.5.0`, `v0.4.1` and `v0.4.0` sets were captured from actual public deployments; earlier release sets remain available as historical evidence.
 
 ## Capture rules
 
@@ -10,6 +10,25 @@ These captures document the running application rather than design mockups. The 
 - Capture the actual release candidate and record the privacy review here.
 
 ## Registered captures
+
+### `v0.5.0` public Research navigator
+
+- Application/package version `0.5.0`; actual captured public S1 build [`96014dd1437f5535633ec8c5e96937da9e939139`](https://github.com/Yoesher/sociology-phd-desk/commit/96014dd1437f5535633ec8c5e96937da9e939139), verified by build UI and complete JavaScript entry SHA.
+- Capture source: [the running public website](https://yoesher.github.io/sociology-phd-desk/), 2026-10-04; exact UTC times below, Asia/Shanghai = UTC +8 hours.
+- Browser: Chromium `151.0.7922.34`; new independent desktop 1280 × 720 and touch 390 × 844 contexts, synthetic DEMO only, without any user profile/database.
+- Native viewport JPEG quality 88, Chinese/light, actual system font/appearance choices as rendered; no cropping, bitmap editing, compositing or browser chrome. Mobile uses the real Larger text setting.
+
+| File | Actual pixels | Capture time UTC | View and privacy review |
+| --- | --- | --- | --- |
+| [`01-navigator-zh.jpg`](v0.5.0/01-navigator-zh.jpg) | 1280 × 720 | 2026-10-04T14:35:17.038Z | PASS — Actual desktop search, project/type scope and original DEMO records; no real literature, findings, names or participant data |
+| [`02-saved-relationships-zh.jpg`](v0.5.0/02-saved-relationships-zh.jpg) | 1280 × 720 | 2026-10-04T14:35:18.031Z | PASS — Actual read-only DEMO detail and existing saved-ID relationships; no inferred evidence links or invented empirical findings |
+| [`03-mobile-overview-zh.jpg`](v0.5.0/03-mobile-overview-zh.jpg) | 390 × 844 | 2026-10-04T14:36:24.673Z | PASS — Actual touch viewport with Larger text and DEMO project counts; no physical-phone or installed-PWA claim |
+
+All three selected bytes/dimensions/checksums and visible contents were independently reviewed. These JPEGs have no EXIF/XMP segments; their ICC color profiles are retained. The original synthetic PNG has no real geography or participant coordinates. This does not claim application-wide image metadata stripping: user-supplied images retain original bytes and may contain EXIF/GPS. No external fonts, tiles or research data were requested.
+
+Fresh ordinary public acceptance retained all 19 collections, workspace ID/goals, PDF/image bytes and markers through read-only navigation, project changes, refresh and actual service-worker offline reload. Separate encrypted public contexts verified open-navigator destruction on a real second-tab lock and complete data/preferences after reload/unlock. Only project/task/literature-PDF/site/map arrays are nonempty in that encrypted fixture; the remaining collections were checked empty and retained. Both viewports had zero page errors, console warnings/errors, third-party requests and horizontal overflow. A distinct genuine old 0.4.1 → S1 worker cohort passed Later, an old-build final write, Update now and complete data/preferences retention. These S1 screenshots do not prove the later closing-build SHA, physical-phone, screen-reader, idle-lock timing or installed-PWA manual acceptance.
+
+External runners, metadata JSON, fixtures, failed images and backups are excluded from Git. All previous screenshot sets remain historical evidence.
 
 ### `v0.4.1` public appearance settings
 
