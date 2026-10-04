@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-04
+
+- Add bilingual Research navigator with 17 record types, local AND text search, project/type filters, read-only detail and exact paginated totals. Queries/indexes stay transient in the current unlocked workspace; PDF/image bytes/text and dedicated URL/path fields are excluded.
+- Browse existing same-project stable-ID relationships across questions/claims/memos, local maps/sites/visits/interviews, datasets/runs and manuscripts/submissions/reviews; never infer evidence links from matching prose.
+- Review actual project work queues, unlinked open questions and unique mapped-site coverage; counts are not a scientific quality score or project completion percentage.
+- Publish [the complete 20-tool primary-source comparison and staged correction plan](docs/research-workstation-review-2026-10-04.md). Keep v7/v1 schemas, existing attachment limits, complete backups, offline/encrypted workflows and all previous appearance options. [Usage and release identity](docs/releases/v0.5.0.md).
+
+### Previous 0.4.1 final closeout correction
+
+0.4.1 final publication completed through PR #61 at `656b99ac708760b4aae684be8c4b19a95c7608a2`: final CI `37202484967`, CodeQL `37202484990`, Pages `37202484999`, deployment `6841041534` and annotated v0.4.1 / Release `403019896` passed. Final public desktop/touch and a separate genuine S1→S2 waiting-worker cohort retained all 19 collections, PDFs, map bytes/markers, goals/ID and browser preferences. The original runner failure below remains historical. This later evidence resolves its pending-closeout wording without rewriting it.
+
+
 ## [0.4.1] - 2026-10-04 (application S1 published)
 
 - Add browser-local Classic/Paper/Slate/Forest appearance templates; academic/sans/serif/system font stacks; Standard/Large/Larger reading sizes; and Gentle/Fade/Slide/None motion in a bilingual Appearance & motion setting.

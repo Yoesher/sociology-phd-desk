@@ -1,5 +1,8 @@
 import { commonMessages } from './common'
 import { appearanceMessages } from './appearance'
+import { researchNavigatorMessages } from './researchNavigator'
+import { researchFieldMessages } from './researchFields'
+import { researchOverviewMessages } from './researchOverview'
 import { feedbackMessages } from './feedback'
 import { distributionMessages } from './distribution'
 import { evidenceMessages } from './evidence'
@@ -19,6 +22,9 @@ import { theoryMessages } from './theory'
 import { workspaceMessages } from './workspace'
 
 const en = {
+  ...researchNavigatorMessages.en,
+  ...researchFieldMessages.en,
+  ...researchOverviewMessages.en,
   ...appearanceMessages.en,
   ...commonMessages.en,
   ...feedbackMessages.en,
@@ -43,6 +49,9 @@ const en = {
 export type MessageKey = keyof typeof en
 
 const zhCN: Record<MessageKey, string> = {
+  ...researchNavigatorMessages['zh-CN'],
+  ...researchFieldMessages['zh-CN'],
+  ...researchOverviewMessages['zh-CN'],
   ...appearanceMessages['zh-CN'],
   ...commonMessages['zh-CN'],
   ...feedbackMessages['zh-CN'],
