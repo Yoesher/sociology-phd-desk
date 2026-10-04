@@ -1,6 +1,6 @@
 # Screenshot Register
 
-These captures document the running application rather than design mockups. The `v0.4.0` set was captured from the actual public deployment; earlier release sets remain available as historical evidence.
+These captures document the running application rather than design mockups. The `v0.4.1` and `v0.4.0` sets were captured from actual public deployments; earlier release sets remain available as historical evidence.
 
 ## Capture rules
 
@@ -10,6 +10,25 @@ These captures document the running application rather than design mockups. The 
 - Capture the actual release candidate and record the privacy review here.
 
 ## Registered captures
+
+### `v0.4.1` public appearance settings
+
+- Application/package version: `0.4.1`; captured public S1 build: exact SHA [`a357ec093eec16e6bbd132d3216ac44611fb96e9`](https://github.com/Yoesher/sociology-phd-desk/commit/a357ec093eec16e6bbd132d3216ac44611fb96e9), independently checked in the actual build-information UI and full JavaScript entry.
+- Capture source/date: [the running public website](https://yoesher.github.io/sociology-phd-desk/), 2026-10-04 at 12:03–12:04 UTC / 20:03–20:04 Asia/Shanghai.
+- Browser: Chromium `151.0.7922.34`; new independent desktop/touch contexts started on actual S1, without a user profile or real research database. These are distinct from the earlier old-version runner that exited after an external fixture-label failure.
+- Format: actual viewport JPEG, quality 88, light theme / Chinese, no bitmap editing, compositing or browser chrome. System reduced motion was enabled during capture; this does not negate the separately observed real motion frames under no-preference.
+
+| File | Actual pixels | View and privacy review |
+| --- | --- | --- |
+| [`v0.4.1/01-appearance-settings-zh.jpg`](v0.4.1/01-appearance-settings-zh.jpg) | 1280 × 720 | Actual two-column settings with Field notebook / Modern sans serif / Large / Soft fade; PASS — UI-only preview and independent DEMO workspace, no real research text or credentials |
+| [`v0.4.1/02-warm-paper-zh.jpg`](v0.4.1/02-warm-paper-zh.jpg) | 1440 × 900 | Actual Today with Warm paper / Reading serif / Standard / Gentle lift; PASS — DEMO project, honest unfilled shared goals and future tasks, no invented research results |
+| [`v0.4.1/03-mobile-settings-zh.jpg`](v0.4.1/03-mobile-settings-zh.jpg) | 390 × 844 | Actual touch-phone settings, single-column choices and accessible Complete button; PASS — same synthetic-only boundary, no physical-phone or installed-PWA claim |
+
+All three were visually reviewed and their byte checksums/dimensions checked. These selected JPEGs have no EXIF/XMP segments; their ICC color profile is retained. The synthetic map input has only IHDR/IDAT/IEND chunks, no real geography, participant locations or EXIF/GPS. These observations apply only to the selected synthetic assets: user-supplied image metadata is not automatically stripped by the application. No fonts or research content were fetched from third parties.
+
+Both contexts completed all four template/font/motion choices, three sizes, reload/focus persistence, real route-animation frames and system reduced-motion precedence. Ordinary full restore retained all 19 research collections, goals and PDF/map bytes; standard/encrypted switch, lock/reload/unlock and authenticated restore retained current appearance. The new encrypted fixture itself contains a project/task, not PDF/maps. Page errors, console warnings/errors, external requests and horizontal overflow were zero (1280 / 1440 / 390 pixels as captured). This capture/combination evidence is distinct from the complete 34-case E2E release gate.
+
+The first old-version native runner's overall FAIL and closed contexts are retained outside Git, despite both viewports completing native update/data/appearance assertions before its extra fixture-label mismatch. The selected captures come from the separately successful new current-S1 contexts. Their later final-build waiting-worker acceptance needs its own real result. External scripts, source fixtures, raw/failed images, machine-local metadata and encrypted test backups are not committed; the earlier six-image `v0.4.0` set is preserved.
 
 ### `v0.4.0` public application
 

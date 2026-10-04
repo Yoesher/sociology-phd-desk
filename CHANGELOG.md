@@ -6,11 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-### 0.4.1 appearance candidate — development, not deployed
+## [0.4.1] - 2026-10-04 (application S1 published)
 
 - Add browser-local Classic/Paper/Slate/Forest appearance templates; academic/sans/serif/system font stacks; Standard/Large/Larger reading sizes; and Gentle/Fade/Slide/None motion in a bilingual Appearance & motion setting.
 - Preserve the previous default appearance, existing language/theme settings and system reduced-motion priority. Preferences follow workspace switches, lock and reload, without entering research data or ordinary/encrypted backups; no remote fonts or research-content templates are introduced.
-- Application/package/lock/citation/update metadata are prepared as 0.4.1. Schema stays v7 for portable/standard/authenticated payload and v1 for container/vault/registry. Original local release commands passed (453 unit / 8 Zotero / 34 real desktop+touch E2E, no actual retries/skips/flaky/failures). Exact-head/main remote gates, publication and actual public/native-update acceptance remain pending. [Candidate notes](docs/releases/v0.4.1.md).
+- Application/package/lock/citation/update metadata are 0.4.1. Schema stays v7 for portable/standard/authenticated payload and v1 for container/vault/registry. [PR #60](https://github.com/Yoesher/sociology-phd-desk/pull/60) shipped S1 `a357ec093eec16e6bbd132d3216ac44611fb96e9`; exact-head/main CI/CodeQL/Pages and independent public desktop/touch workflows passed. Original local and remote CI passed 453 unit / 8 Zotero / 34 real E2E (17 + 17, no actual retries/skips/flaky/failures). Ordinary/encrypted switching, lock/reload/unlock and restore preference retention were additionally verified on public S1.
+- Preserve the first native runner's overall FAIL: both original 0.4.0 contexts completed the update/SHA/19-collection/PDF/map/appearance assertions before an extra encrypted fixture's full-title/36-character-short-title locator mismatch closed that runner. A strictly corrected external fixture passed the additional combination in new current-S1 contexts, now held for actual final-build acceptance. Earlier environment/fixture/concurrent-timeout and initial publication-network failures remain history. Final closeout S2 and formal Release require their own checks; exact publication identity is recorded in its PR and [latest Release](https://github.com/Yoesher/sociology-phd-desk/releases/latest). See [actual update notes](docs/releases/v0.4.1.md).
 
 ## [0.4.0] - 2026-10-04
 
