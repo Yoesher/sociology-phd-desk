@@ -8,11 +8,19 @@ Manage the full research lifecycle—from literature and fieldwork to quantitati
 
 ## Start now
 
+### `0.4.0` website update — 2026-10-04
+
+[PR #57](https://github.com/Yoesher/sociology-phd-desk/pull/57) merged the separately authorized local-material/storage/date iteration as S1 main `1da2883c4fd7a54125e1cea3bf321cb5c7ecdb5a`. The public website is deployed as 0.4.0; exact-S1 CI/CodeQL/Pages, independent desktop/phone smoke and real 0.3.1 → 0.4.0 update/data-retention checks passed. Documentation closeout still requires independent verification; see the [exact verification record](PROJECT_STATE.md). Later commits require their own CI, Pages and public checks.
+
+Import an entitled static PNG/JPEG research map or sketch and link existing same-project field sites, visits and interviews using image-relative positions. Images are limited to 2 MiB each / 4 MiB per workspace, 8,192 pixels per edge / 16 million pixels. Use coarse research context without participant homes, precise participant locations or identifiers; raw EXIF/GPS may remain, and normalized positions do not guarantee anonymity or legal/map-review compliance. No national map, administrative catalog, remote tiles/API, GPS acquisition or public image export is added; all four national map gates remain BLOCKED.
+
+PDF limits become 10 MiB each / 20 MiB per workspace, with decoding on download. Full readable ordinary JSON remains capped at 32 MiB without truncation; valid over-budget legacy workspaces retain reads/migration, non-growing writes and the existing bounded encrypted-backup path. Open-page dates refresh at midnight/focus/visibility without closed-page notifications. Independent attachment storage and chunked authenticated backups remain future work. See the [bilingual local-map/storage guide](docs/local-field-maps-and-storage-2026-10-04.md) and [actual gate record](PROJECT_STATE.md).
+
 ### `0.3.1` website update — 2026-10-03
 
 This update adds local PDF attachments and literature viewing/editing, project spaces, and task deadlines that can be revisited and edited. PDFs are limited to 5 MiB each and 12 MiB per workspace and are included in portable/encrypted backups. Project spaces scope project-linked records; deadline reminders are displayed while the app is open.
 
-The existing GitHub Pages site now runs application `0.3.1`. The previous session's remote write was blocked by its environment approval policy; the completed checks, PR, merge, deployment, and public-verification evidence are recorded in [PROJECT_STATE.md](PROJECT_STATE.md). The existing formal GitHub Release/tag is `v0.3.0`; this website update did not create or move tags. See the [feedback guide in Chinese](docs/feedback-improvements-2026-10-03.md).
+The verified `0.3.1` public baseline completed its checks, PRs, merge, deployment and public acceptance; the earlier environment-policy write rejection remains history in [PROJECT_STATE.md](PROJECT_STATE.md). The existing formal GitHub Release/tag is `v0.3.0`; that website update did not create or move tags. See the [feedback guide in Chinese](docs/feedback-improvements-2026-10-03.md).
 
 **Use the web app now:** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
 
@@ -182,11 +190,13 @@ Ordinary JSON export is an inspectable, portable, **plaintext** workspace. Treat
 
 `0.3.1` exports portable v6 and migrates supported older JSON through v1 → v2 → v3 → v4 → v5 → v6. The v5 → v6 step preserves literature and Zotero provenance without inferring PDF attachments. Project spaces change the displayed scope; writes and backups retain the complete workspace and other projects. Ordinary JSON containing PDFs remains plaintext. A v6 backup requires a v6-capable app and cannot be read by the `v0.3.0` app (schema v5).
 
+The `0.4.0` website update adds portable/standard/authenticated payload v7; v6 → v7 adds only an empty field-map collection. Its complete backups include local image bytes and markers. A v7 backup needs a v7-capable app; the earlier 0.3.1 app cannot read it. Container/vault/registry remain v1. Ordinary import/export stays bounded at 32 MiB; encrypted backup retains its 64 MiB ciphertext ceiling and independent attachment limits. Each revision's deployment acceptance is recorded separately in PROJECT_STATE.md and its closeout PR.
+
 Phase 3C adds `.sociologydesk` encrypted backup for encrypted workspaces. It is a separate container-v1 format, not ordinary JSON with a different extension. Restore authenticates and validates the entire backup before creating an independent workspace with a new logical workspace ID. A wrong passphrase or damaged ciphertext writes no destination workspace. See [data portability](docs/data-portability.md) and the [privacy and encryption model](docs/en/privacy-model.md) for the format and failure boundaries.
 
 ## Architecture
 
-The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith. Merged research-graph and Theory work adds explicit stable-ID relationships and `TheoryMemo`; local workspaces use a metadata-only registry, per-workspace database adapters, a session gate, and Web Crypto vault. Formal `v0.3.0` uses portable/standard v5 for separate Zotero external references. `0.3.1` uses portable/standard and authenticated encrypted payload v6; container, vault, and registry remain independently at v1.
+The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith. Merged research-graph and Theory work adds explicit stable-ID relationships and `TheoryMemo`; local workspaces use a metadata-only registry, per-workspace database adapters, a session gate, and Web Crypto vault. Formal `v0.3.0` uses portable/standard v5 for separate Zotero external references. `0.3.1` uses portable/standard and authenticated encrypted payload v6; current `0.4.0` uses v7 for local images/markers. Container, vault, and registry remain independently at v1.
 
 See [architecture overview](docs/architecture/overview.md), [data model](docs/architecture/data-model.md), and [decisions](DECISIONS.md).
 

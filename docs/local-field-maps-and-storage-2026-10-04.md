@@ -1,6 +1,10 @@
 # 本地地图标注与附件容量 / Local field maps and storage
 
-2026-10-04 · **应用 `0.4.0` 源码候选，尚未发布。** 公开网站当前已验收版本仍为 `0.3.1`，最终 S2 提交 `3e4967c3cbb05cf96f3bd72edd90ae1d78027a4f`。本地单元/集成测试 46 文件、422 项通过，审计 0 漏洞，Zotero 原命令 8/8 通过；实际浏览器与构建完整验收、发布决定、远端部署和线上验收待完成。下列流程描述新候选，实际状态见 [PROJECT_STATE.md](../PROJECT_STATE.md)。既有正式 GitHub Release/tag 为 `v0.3.0`，本轮不创建或移动标签。
+2026-10-04 · **应用 `0.4.0` 已部署并完成 S1 公开验收。** [PR #57](https://github.com/Yoesher/sociology-phd-desk/pull/57) 合并后的 S1 提交为 `1da2883c4fd7a54125e1cea3bf321cb5c7ecdb5a`。最终审查版本通过原始检查命令：46 文件、422 项单元/集成测试，审计 0 漏洞、Zotero 8/8、生产/PWA 构建及 28 项真实桌面/手机 E2E（无重试或跳过）；S1 的 CI、CodeQL、Pages、独立公开烟测和真实旧版更新保留检查也通过。收尾文档产生的新提交必须另行验收，实际状态见 [PROJECT_STATE.md](../PROJECT_STATE.md)。既有正式 GitHub Release/tag 为 `v0.3.0`，本轮不创建或移动标签。
+
+## 加载新版本
+
+打开[现有网站](https://yoesher.github.io/sociology-phd-desk/)或已安装的应用，返回前台以检查更新。出现更新提示时，“稍后”会继续使用当前版本；先保存编辑内容并生成、验证备份，再选择“立即更新”。更新后在帮助中心核对应用版本 `0.4.0` 和构建身份。不要通过清除站点数据、重置工作台或覆盖原数据库来更新。
 
 ## 选择适合的素材
 
@@ -31,7 +35,7 @@
 
 ## 容量与备份
 
-| 对象 | `0.4.0` 候选上限与行为 |
+| 对象 | `0.4.0` 上限与行为 |
 | --- | --- |
 | 本地 PDF | 每个 10 MiB；整个工作台 PDF 合计 20 MiB。原 `0.3.1` 为 5/12 MiB；Zotero 仍只交接书目元数据。点击 PDF 下载时才解码，不对每个列表行预先解码。 |
 | 地图 / 草图图像 | 每个 2 MiB；整个工作台图像合计 4 MiB；单边最多 8,192 像素，总面积最多 1,600 万像素。真实格式、尺寸与解码必须符合要求；SVG、动画及远程图像不支持。 |
@@ -47,9 +51,9 @@
 
 ## 版本与日期
 
-`0.4.0` 候选的 portable workspace、标准数据库和 authenticated encrypted payload 为 v7；v6 → v7 保留旧记录并增加空的本地地图集合，不推断图片或位置。加密 container、vault database、registry database 继续为 v1。备份包含所有项目，无论当前界面只显示哪个项目。
+`0.4.0` 的 portable workspace、标准数据库和 authenticated encrypted payload 为 v7；v6 → v7 保留旧记录并增加空的本地地图集合，不推断图片或位置。加密 container、vault database、registry database 继续为 v1。备份包含所有项目，无论当前界面只显示哪个项目。
 
-v7 备份需要支持 v7 的应用；当前公开 `0.3.1` 使用 v6，不能读取未来版本。测试候选前先保留可由原版本读取的备份；不要以重置工作台或覆盖原数据库作为回退方式。
+v7 备份需要支持 v7 的应用；较早的 `0.3.1` 使用 v6，不能读取 v7。跨版本迁移前先保留可由原版本读取的备份；不要以重置工作台或覆盖原数据库作为回退方式。
 
 页面打开时，“今天”和任务期限会在本地午夜、重新聚焦或从隐藏恢复可见时刷新。浏览器挂起后会在返回时校正；没有网页关闭后的系统通知、邮件提醒或后台推送。
 
@@ -63,7 +67,9 @@ v7 备份需要支持 v7 的应用；当前公开 `0.3.1` 使用 v6，不能读�
 
 ## English brief
 
-**0.4.0 is an unreleased source candidate dated 2026-10-04.** The verified public website is still 0.3.1 at final S2 commit `3e4967c3cbb05cf96f3bd72edd90ae1d78027a4f`. Local unit/integration tests passed 46 files / 422 tests, audit found zero vulnerabilities and the original Zotero command passed 8/8. Complete browser/build acceptance, the publication decision, exact-SHA remote gates and public acceptance remain pending. No new formal Release or tag is created or moved.
+**0.4.0 is deployed and publicly verified at S1, dated 2026-10-04.** PR #57 merged as `1da2883c4fd7a54125e1cea3bf321cb5c7ecdb5a`. The final reviewed head passed the original commands, including 46 files / 422 tests, zero audit vulnerabilities, 8 Zotero tests, production/PWA build and 28 real desktop/phone E2E tests without retries/skips. Exact-S1 CI, CodeQL and Pages succeeded; fresh public smoke and real 0.3.1 → 0.4.0 waiting-worker update/data retention passed. Later documentation commits require their own verification. No new formal Release or tag is created or moved.
+
+Open the existing website or installed app and return it to the foreground to check for an update. **Later** retains the current version. Save edits and create/test a backup before choosing **Update now**, then check version 0.4.0 and the build identity in Help. Do not clear site data or reset/replace a workspace to update.
 
 In Fieldwork → Local map annotations, first register a field site, then import a PNG/JPEG map or sketch you are entitled to use. Enter a title/project, confirm the rights and coarse-location boundary, and save. Select an existing same-project site, click the image, enter horizontal/vertical percentages, or focus the image and use arrow keys; then choose **Save / move annotation**. Clicking a marker selects its site without moving it. Linked visits/interviews and site editing reuse the existing forms. Re-marking replaces that site's point; replacing an annotated image requires explicit clearing. Removing a map or marker keeps the original site/visit/interview records. Referenced site deletion or project reassignment is protected; failed saves keep drafts and committed data.
 
@@ -71,4 +77,4 @@ Use county-level-or-coarser research sketches or anonymous public settings only.
 
 Limits are **2 MiB per image / 4 MiB per full workspace**, at most **8,192 pixels per edge / 16 million pixels**; static PNG/JPEG only, with bounded format/dimension validation and real decoding. PDF limits are **10 MiB per file / 20 MiB per workspace**, decoded when downloading. Complete readable ordinary JSON is capped at **32 MiB**, including every project and base64 attachment. Export and further interactive growth fail explicitly without truncation. Existing valid over-budget workspaces remain readable/migratable and allow non-growing writes; ordinary file-import preflight is still 32 MiB. Complete authenticated encrypted backup retains its existing **64 MiB ciphertext** ceiling and independent attachment limits. These bounds do not make the app a large PDF library; independent attachment storage and chunked authenticated backups are future work.
 
-Portable/standard/authenticated payload advance to **v7**, adding an empty map collection to v6 without inventing data; container/vault/registry remain v1. Both ordinary and encrypted backups include images, markers and all projects. Ordinary JSON is plaintext. A v7 backup requires a v7-capable application; keep a tested original-version backup before candidate use. Do not reset/replace a workspace to troubleshoot or roll back. If records appear absent, check workspace/project/map/filter context first; no recovery of unseen user data is claimed. Open-page local dates refresh at midnight/focus/visibility; there are no closed-webpage notifications.
+Portable/standard/authenticated payload advance to **v7**, adding an empty map collection to v6 without inventing data; container/vault/registry remain v1. Both ordinary and encrypted backups include images, markers and all projects. Ordinary JSON is plaintext. A v7 backup requires a v7-capable application; keep a tested original-version backup before moving between application versions. Do not reset/replace a workspace to troubleshoot or roll back. If records appear absent, check workspace/project/map/filter context first; no recovery of unseen user data is claimed. Open-page local dates refresh at midnight/focus/visibility; there are no closed-webpage notifications.
