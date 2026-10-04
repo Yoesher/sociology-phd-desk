@@ -10,6 +10,7 @@ import {
 } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import { useModuleSearch } from '../../hooks/useModuleSearch'
+import { useLocalToday } from '../../hooks/useLocalToday'
 import { useI18n } from '../../i18n'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
@@ -49,12 +50,13 @@ function weekStart(date: string): string {
   const current = new Date(`${date}T12:00:00`)
   const mondayOffset = (current.getDay() + 6) % 7
   current.setDate(current.getDate() - mondayOffset)
-  return current.toISOString().slice(0, 10)
+  return todayIso(current)
 }
 
 export function ResearchLogPage() {
   const { data, updateData } = useWorkspace()
   const { t, formatDate, formatNumber } = useI18n()
+  const today = useLocalToday()
   const [search, setSearch] = useState('')
   const [projectFilter, setProjectFilter] = useState('')
   const [formOpen, setFormOpen] = useState(false)
@@ -92,8 +94,8 @@ export function ResearchLogPage() {
           .join(' ')
           .toLowerCase()
         return (
-          (period !== 'today' || entry.date === todayIso()) &&
-          (period !== 'week' || entry.date >= weekStart(todayIso()) && entry.date <= todayIso()) &&
+          (period !== 'today' || entry.date === today) &&
+          (period !== 'week' || entry.date >= weekStart(today) && entry.date <= today) &&
           (view !== 'decisions' || Boolean(entry.decision.trim())) &&
           (view !== 'next-steps' || Boolean(entry.nextStep.trim())) &&
           (!issuesOnly || Boolean(entry.problem.trim())) &&
@@ -104,7 +106,7 @@ export function ResearchLogPage() {
       .sort((left, right) =>
         right.date.localeCompare(left.date) || right.updatedAt.localeCompare(left.updatedAt),
       )
-  }, [data?.projects, data?.researchLogs, issuesOnly, period, projectFilter, search, view])
+  }, [data?.projects, data?.researchLogs, issuesOnly, period, projectFilter, search, today, view])
 
   useEffect(() => {
     const handleQuickAdd = (event: Event) => {
@@ -164,7 +166,7 @@ export function ResearchLogPage() {
     setFormOpen(false)
   }
 
-  const monthPrefix = todayIso().slice(0, 7)
+  const monthPrefix = today.slice(0, 7)
   const thisMonth = data.researchLogs.filter((entry) => entry.date.startsWith(monthPrefix)).length
   const decisions = data.researchLogs.filter((entry) => entry.decision.trim()).length
   const problems = data.researchLogs.filter((entry) => entry.problem.trim()).length

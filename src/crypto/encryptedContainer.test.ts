@@ -2,6 +2,8 @@
 import { webcrypto } from 'node:crypto'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { createDemoWorkspace } from '../models/demo'
+import { MAX_SERIALIZED_WORKSPACE_BYTES, workspaceSerializedBytes } from '../utils/workspace-capacity'
+import { exportWorkspaceJson } from '../utils/workspace-transfer'
 import {
   MAX_CIPHERTEXT_BYTES,
   PBKDF2_SALT_BYTES,
@@ -28,6 +30,7 @@ import {
 } from './errors'
 import {
   createSyntheticLegacyV3Backup,
+  createSyntheticLegacyV6Backup,
   createSyntheticLegacyV3LocalContainer,
 } from './legacyV3TestFixture.test-helper'
 
@@ -129,6 +132,21 @@ describe('encrypted container contract', () => {
     )
   })
 
+  it('authenticates and preserves a valid old v6 workspace larger than ordinary JSON capacity through encrypted backup', async () => {
+    const workspace = createDemoWorkspace(ANCHOR)
+    workspace.researchLogs = Array.from({ length: 136 }, (_, index) => ({ ...workspace.researchLogs[0]!, id: `synthetic-large-v6-log-${index}`, problem: 'x'.repeat(250_000) }))
+    expect(workspaceSerializedBytes(workspace)).toBeGreaterThan(MAX_SERIALIZED_WORKSPACE_BYTES)
+    const legacy = await createSyntheticLegacyV6Backup(workspace, PASSPHRASE)
+    expect(inspectBackupProtectedHeader(legacy).payloadVersion).toBe(6)
+    const opened = await openEncryptedBackup(legacy, PASSPHRASE)
+    expect(opened).toEqual(workspace)
+    expect(opened.fieldMaps).toEqual([])
+    expect(() => exportWorkspaceJson(opened)).toThrow(/encrypted backup/)
+    const preserved = await createEncryptedBackup(opened, PASSPHRASE)
+    expect(inspectBackupProtectedHeader(preserved).payloadVersion).toBe(7)
+    expect(await openEncryptedBackup(preserved, PASSPHRASE)).toEqual(workspace)
+  }, 60_000)
+
   it('round-trips a local workspace with fixed protected metadata', async () => {
     const workspace = createDemoWorkspace(ANCHOR)
     const expected = localExpectations()
@@ -138,7 +156,7 @@ describe('encrypted container contract', () => {
     expect(header.bindingId).toBe(expected.bindingId)
     expect(header.storageRevision).toBe(0)
     expect(header.keyInvocation).toBe(1)
-    expect(header.payloadVersion).toBe(6)
+    expect(header.payloadVersion).toBe(7)
     expect(header.kdf.iterations).toBe(600_000)
     expect(header.cipher.keyLength).toBe(256)
     expect(created.container.iv).toHaveLength(12)
@@ -149,7 +167,7 @@ describe('encrypted container contract', () => {
       expected,
     )
     expect(opened.workspace).toEqual(workspace)
-    expect(opened.payloadVersion).toBe(6)
+    expect(opened.payloadVersion).toBe(7)
     expect(opened.session.disposed).toBe(false)
     opened.session.dispose()
     created.session.dispose()
@@ -274,7 +292,7 @@ describe('encrypted container contract', () => {
   it('round-trips encrypted backups and rejects noncanonical wrappers and illegal base64url', async () => {
     const workspace = createDemoWorkspace(ANCHOR)
     const backup = await createEncryptedBackup(workspace, PASSPHRASE)
-    expect(inspectBackupProtectedHeader(backup).payloadVersion).toBe(6)
+    expect(inspectBackupProtectedHeader(backup).payloadVersion).toBe(7)
     expect(await openEncryptedBackup(backup, PASSPHRASE)).toEqual(workspace)
     await expectGenericAuthenticationFailure(openEncryptedBackup(backup, OTHER_PASSPHRASE))
     expect(() => parseEncryptedBackupContainer(` ${backup}`)).toThrow(

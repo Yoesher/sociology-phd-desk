@@ -1,5 +1,6 @@
 import { MAX_CIPHERTEXT_BYTES, inspectBackupProtectedHeader, openEncryptedBackup } from '../crypto'
 import { WORKSPACE_SCHEMA_VERSION, type WorkspaceData } from '../models/domain'
+import { MAX_SERIALIZED_WORKSPACE_BYTES } from './workspace-capacity'
 import {
   WORKSPACE_COLLECTIONS,
   buildMergedWorkspace,
@@ -11,7 +12,7 @@ import {
   type WorkspaceValidationIssue,
 } from './workspace-transfer'
 
-export const MAX_PORTABLE_WORKSPACE_FILE_BYTES = 32 * 1_024 * 1_024
+export const MAX_PORTABLE_WORKSPACE_FILE_BYTES = MAX_SERIALIZED_WORKSPACE_BYTES
 export const MAX_ENCRYPTED_BACKUP_FILE_BYTES =
   Math.ceil((MAX_CIPHERTEXT_BYTES * 4) / 3) + 32_768
 export const MAX_WORKSPACE_RECORDS_PER_COLLECTION = 25_000

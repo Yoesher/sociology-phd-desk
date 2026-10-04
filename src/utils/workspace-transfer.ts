@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { isValidFieldMapImage, MAX_FIELD_MAP_IMAGE_BYTES, MAX_WORKSPACE_FIELD_MAP_IMAGE_BYTES } from '../features/fieldwork/local-field-map'
+import { MAX_SERIALIZED_WORKSPACE_BYTES, workspaceSerializedBytes } from './workspace-capacity'
 import { isValidLiteraturePdf, MAX_PDF_BYTES, MAX_WORKSPACE_PDF_BYTES } from '../features/literature/local-pdf'
 import {
   ANALYSIS_RUN_STATUSES,
@@ -219,6 +221,26 @@ const fieldSiteSchema = entityMetadataSchema
   })
   .strict()
 
+const fieldMapImageSchema = z.object({
+  fileName: z.string().min(1).max(255),
+  mimeType: z.enum(['image/png', 'image/jpeg']),
+  size: z.number().int().positive().max(MAX_FIELD_MAP_IMAGE_BYTES),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+  base64: z.string().min(4).max(Math.ceil(MAX_FIELD_MAP_IMAGE_BYTES / 3) * 4),
+}).strict().refine(isValidFieldMapImage, 'Invalid local research-map image.')
+
+const fieldMapSchema = entityMetadataSchema.extend({
+  projectId: idSchema,
+  title: titleSchema,
+  image: fieldMapImageSchema,
+  markers: z.array(z.object({
+    fieldSiteId: idSchema,
+    x: z.number().finite().min(0).max(1),
+    y: z.number().finite().min(0).max(1),
+  }).strict()),
+}).strict()
+
 const interviewSchema = entityMetadataSchema
   .extend({
     participantAlias: titleSchema,
@@ -353,6 +375,7 @@ const workspaceDataSchema = z
     literature: z.array(literatureSchema),
     literatureExternalReferences: z.array(literatureExternalReferenceSchema),
     fieldSites: z.array(fieldSiteSchema),
+    fieldMaps: z.array(fieldMapSchema),
     interviews: z.array(interviewSchema),
     fieldVisits: z.array(fieldVisitSchema),
     datasets: z.array(datasetSchema),
@@ -441,6 +464,23 @@ function relationshipIssues(data: WorkspaceData): WorkspaceValidationIssue[] {
     externalLiteratureKeys.add(externalKey)
   })
   data.fieldSites.forEach((record, index) => requireProject('fieldSites', index, record.projectId))
+  data.fieldMaps.forEach((record, index) => {
+    requireProject('fieldMaps', index, record.projectId)
+    const markedSiteIds = new Set<string>()
+    record.markers.forEach((marker, markerIndex) => {
+      const path = ['fieldMaps', index, 'markers', markerIndex, 'fieldSiteId']
+      if (markedSiteIds.has(marker.fieldSiteId)) {
+        issues.push({ path, message: 'A field site can have only one marker on this research map.' })
+      }
+      markedSiteIds.add(marker.fieldSiteId)
+      const site = fieldSiteById.get(marker.fieldSiteId)
+      if (!site) {
+        issues.push({ path, message: `Unknown field-site ID "${marker.fieldSiteId}".` })
+      } else if (site.projectId !== record.projectId) {
+        issues.push({ path, message: 'The research map and its field site belong to different projects.' })
+      }
+    })
+  })
   data.datasets.forEach((record, index) => requireProject('datasets', index, record.projectId))
   data.evidence.forEach((record, index) => requireProject('evidence', index, record.projectId))
   data.researchLogs.forEach((record, index) => requireProject('researchLogs', index, record.projectId))
@@ -943,15 +983,22 @@ export function migrateWorkspaceV4ToV5(input: unknown): unknown {
 export function migrateWorkspaceV5ToV6(input: unknown): unknown {
   if (!isRecord(input) || input['version'] !== 5) return input
   if (Array.isArray(input['literature']) && input['literature'].some((item: unknown) => isRecord(item) && Object.prototype.hasOwnProperty.call(item, 'localPdf'))) return input
-  return { ...input, version: WORKSPACE_SCHEMA_VERSION }
+  return { ...input, version: 6 }
+}
+
+/** v7 adds an empty local research-map collection without inferring locations. */
+export function migrateWorkspaceV6ToV7(input: unknown): unknown {
+  if (!isRecord(input) || input['version'] !== 6) return input
+  if (Object.prototype.hasOwnProperty.call(input, 'fieldMaps')) return input
+  return { ...input, version: WORKSPACE_SCHEMA_VERSION, fieldMaps: [] }
 }
 
 function migrateLegacyWorkspace(input: unknown): unknown {
-  return migrateWorkspaceV5ToV6(migrateWorkspaceV4ToV5(
+  return migrateWorkspaceV6ToV7(migrateWorkspaceV5ToV6(migrateWorkspaceV4ToV5(
     migrateWorkspaceV3ToV4(
       migrateWorkspaceV2ToV3(migrateWorkspaceV1ToV2(input)),
     ),
-  ))
+  )))
 }
 
 /**
@@ -977,6 +1024,9 @@ export function validateWorkspace(input: unknown): WorkspaceValidationResult {
   if (data.literature.reduce((total, item) => total + (item.localPdf?.size || 0), 0) > MAX_WORKSPACE_PDF_BYTES) {
     return { success: false, issues: [{ path: ['literature'], message: 'PDF attachments exceed the workspace limit.' }] }
   }
+  if (data.fieldMaps.reduce((total, map) => total + map.image.size, 0) > MAX_WORKSPACE_FIELD_MAP_IMAGE_BYTES) {
+    return { success: false, issues: [{ path: ['fieldMaps'], message: 'Research-map images exceed the workspace limit.' }] }
+  }
   const duplicateIssues = [
     ...duplicateIdIssues('projects', data.projects),
     ...duplicateIdIssues('researchQuestions', data.researchQuestions),
@@ -987,6 +1037,7 @@ export function validateWorkspace(input: unknown): WorkspaceValidationResult {
     ...duplicateIdIssues('literature', data.literature),
     ...duplicateIdIssues('literatureExternalReferences', data.literatureExternalReferences),
     ...duplicateIdIssues('fieldSites', data.fieldSites),
+    ...duplicateIdIssues('fieldMaps', data.fieldMaps),
     ...duplicateIdIssues('interviews', data.interviews),
     ...duplicateIdIssues('fieldVisits', data.fieldVisits),
     ...duplicateIdIssues('datasets', data.datasets),
@@ -1034,6 +1085,12 @@ export function exportWorkspaceJson(workspace: WorkspaceData, pretty = true): st
   const result = validateWorkspace(exportSnapshot)
   if (!result.success) {
     throw new WorkspaceValidationError('The current workspace failed export validation.', result.issues)
+  }
+
+  if (workspaceSerializedBytes(result.data) > MAX_SERIALIZED_WORKSPACE_BYTES) {
+    throw new WorkspaceValidationError('The workspace exceeds the ordinary JSON backup limit. Use an encrypted backup to preserve this workspace.', [
+      { path: [], message: 'The complete readable JSON backup exceeds 32 MiB. No data was removed or truncated.' },
+    ])
   }
 
   return JSON.stringify(result.data, null, pretty ? 2 : 0)

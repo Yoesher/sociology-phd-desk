@@ -13,9 +13,11 @@ import {
   createSyntheticLegacyV3Backup,
   createSyntheticLegacyV3LocalContainer,
   createSyntheticLegacyV5LocalContainer,
+  createSyntheticLegacyV6LocalContainer,
 } from '../crypto/legacyV3TestFixture.test-helper'
 import { createDemoWorkspace } from '../models/demo'
 import type { WorkspaceData } from '../models/domain'
+import { syntheticFieldMap } from '../utils/field-map.test-helper'
 import {
   ENCRYPTED_VAULT_RECORD_ID,
   EncryptedVaultDatabase,
@@ -93,9 +95,9 @@ function recordBytes(record: EncryptedVaultRecord): string {
 async function installLegacyV3Vault(
   id: string,
   workspace: WorkspaceData,
-  payloadVersion: 3 | 5 = 3,
+  payloadVersion: 3 | 5 | 6 = 3,
 ): Promise<EncryptedVaultRecord> {
-  const createContainer = payloadVersion === 5 ? createSyntheticLegacyV5LocalContainer : createSyntheticLegacyV3LocalContainer
+  const createContainer = payloadVersion === 6 ? createSyntheticLegacyV6LocalContainer : payloadVersion === 5 ? createSyntheticLegacyV5LocalContainer : createSyntheticLegacyV3LocalContainer
   const container = await createContainer(
     workspace,
     PASSPHRASE,
@@ -120,16 +122,20 @@ async function installLegacyV3Vault(
 }
 
 describe('encrypted workspace repository', () => {
-  it('opens a published v5 vault and upgrades it once without changing research content', async () => {
+  it.each([5, 6] as const)('opens a published v%s vault and upgrades it once without changing research content or existing PDFs', async (version) => {
     const id = bindingId()
     const workspace = createDemoWorkspace(ANCHOR)
-    const legacy = await installLegacyV3Vault(id, workspace, 5)
+    if (version === 6) {
+      const bytes = new TextEncoder().encode('%PDF-1.4\nSYNTHETIC historical vault PDF\n%%EOF')
+      workspace.literature[0]!.localPdf = { fileName: 'synthetic-v6.pdf', size: bytes.length, base64: btoa(String.fromCharCode(...bytes)) }
+    }
+    const legacy = await installLegacyV3Vault(id, workspace, version)
     await expect(unlockEncryptedWorkspace(id, WRONG_PASSPHRASE)).rejects.toThrow()
     expect(recordBytes((await inspectEncryptedWorkspaceRecord(id))!)).toBe(recordBytes(legacy))
     const first = track(await unlockEncryptedWorkspace(id, PASSPHRASE))
     expect(first.workspace).toEqual(workspace)
     const upgraded = (await inspectEncryptedWorkspaceRecord(id))!
-    expect(inspectLocalProtectedHeader(upgraded).payloadVersion).toBe(6)
+    expect(inspectLocalProtectedHeader(upgraded).payloadVersion).toBe(7)
     expect(upgraded.storageRevision).toBe(legacy.storageRevision)
     expect(upgraded.keyInvocation).toBe(2)
     first.close()
@@ -137,7 +143,7 @@ describe('encrypted workspace repository', () => {
     expect(reopened.workspace).toEqual(workspace)
     expect(reopened.coordinates.keyInvocation).toBe(2)
   })
-  it('atomically upgrades an authenticated v3 vault once and reads back v5', async () => {
+  it('atomically upgrades an authenticated v3 vault once and reads back v7', async () => {
     const id = bindingId()
     const workspace = createDemoWorkspace(ANCHOR)
     const legacy = await installLegacyV3Vault(id, workspace)
@@ -150,7 +156,7 @@ describe('encrypted workspace repository', () => {
     })
     const upgraded = await inspectEncryptedWorkspaceRecord(id)
     expect(upgraded).not.toBeNull()
-    expect(upgraded && inspectLocalProtectedHeader(upgraded).payloadVersion).toBe(6)
+    expect(upgraded && inspectLocalProtectedHeader(upgraded).payloadVersion).toBe(7)
     expect(upgraded?.storageRevision).toBe(legacy.storageRevision)
     expect(upgraded?.keyInvocation).toBe(2)
     first.close()
@@ -256,7 +262,7 @@ describe('encrypted workspace repository', () => {
     expect(persisted && inspectLocalProtectedHeader(persisted).payloadVersion).toBe(3)
   })
 
-  it('authenticates a v3 backup in memory and restores only a new v5 vault', async () => {
+  it('authenticates a v3 backup in memory and restores only a new v7 vault', async () => {
     const workspace = createDemoWorkspace(ANCHOR)
     const backup = await createSyntheticLegacyV3Backup(workspace, BACKUP_PASSPHRASE)
     const restored = track(
@@ -271,8 +277,8 @@ describe('encrypted workspace repository', () => {
       ),
     )
     const record = await inspectEncryptedWorkspaceRecord(restored.bindingId)
-    expect(record && inspectLocalProtectedHeader(record).payloadVersion).toBe(6)
-    expect(restored.workspace.version).toBe(6)
+    expect(record && inspectLocalProtectedHeader(record).payloadVersion).toBe(7)
+    expect(restored.workspace.version).toBe(7)
     expect(restored.workspace.theoryMemos).toEqual([])
     expect(restored.workspace.literatureExternalReferences).toEqual([])
   })
@@ -288,6 +294,37 @@ describe('encrypted workspace repository', () => {
       name: 'EncryptedWorkspaceNotFoundError',
     })
     expect(await Dexie.exists(databaseName)).toBe(false)
+  })
+
+  it('persists local research-map images and markers through encrypted writes, merge, lock and backup', async () => {
+    const workspace = createDemoWorkspace(ANCHOR)
+    workspace.fieldMaps = [syntheticFieldMap(workspace)]
+    const id = bindingId()
+    const session = track(await createEncryptedWorkspace(workspace, PASSPHRASE, { bindingId: id }))
+    const changed = nextSnapshot(session, 'SYNTHETIC edited workspace')
+    changed.tasks[0]!.notes = 'SYNTHETIC unrelated task edit'
+    await session.save(changed)
+    const incoming = structuredClone(session.workspace)
+    incoming.fieldMaps.push(syntheticFieldMap(incoming, 'synthetic-second-map'))
+    const merged = await session.merge(incoming)
+    expect(merged.added.fieldMaps).toBe(1)
+    expect(merged.skipped.fieldMaps).toBe(1)
+    const expected = structuredClone(session.workspace)
+    const invalid = structuredClone(expected)
+    invalid.workspace.revision++
+    invalid.fieldMaps[0]!.markers[0]!.fieldSiteId = 'missing-site'
+    const before = (await inspectEncryptedWorkspaceRecord(id))!
+    await expect(session.save(invalid)).rejects.toThrow(/save validation/)
+    const after = (await inspectEncryptedWorkspaceRecord(id))!
+    expect(recordBytes(after)).toBe(recordBytes(before))
+    expect(after.encryptionAttempts).toBe(before.encryptionAttempts)
+    const backup = await session.createBackup(BACKUP_PASSPHRASE)
+    expect((await openEncryptedBackup(backup, BACKUP_PASSPHRASE)).fieldMaps).toEqual(expected.fieldMaps)
+    expect(recordBytes(after)).not.toContain(expected.fieldMaps[0]!.image.base64)
+    session.close()
+    const reopened = track(await unlockEncryptedWorkspace(id, PASSPHRASE))
+    expect(reopened.workspace.fieldMaps).toEqual(expected.fieldMaps)
+    expect(reopened.workspace.tasks[0]!.notes).toBe(changed.tasks[0]!.notes)
   })
 
   it('persists one ciphertext-only record and verifies a decrypted read-back', async () => {

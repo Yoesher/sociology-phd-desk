@@ -182,6 +182,7 @@ export function ProjectsPage() {
       data.tasks.filter((item) => item.projectId === id).length +
       data.literature.filter((item) => item.projectId === id).length +
       data.fieldSites.filter((item) => item.projectId === id).length +
+      data.fieldMaps.filter((item) => item.projectId === id).length +
       data.interviews.filter((item) => item.projectId === id).length +
       data.fieldVisits.filter((item) => item.projectId === id).length +
       data.datasets.filter((item) => item.projectId === id).length +
@@ -218,6 +219,7 @@ export function ProjectsPage() {
     ? data.tasks.filter((item) => item.projectId === deleting.id).length +
       data.literature.filter((item) => item.projectId === deleting.id).length +
       data.fieldSites.filter((item) => item.projectId === deleting.id).length +
+      data.fieldMaps.filter((item) => item.projectId === deleting.id).length +
       data.interviews.filter((item) => item.projectId === deleting.id).length +
       data.fieldVisits.filter((item) => item.projectId === deleting.id).length +
       data.datasets.filter((item) => item.projectId === deleting.id).length +
@@ -238,6 +240,7 @@ export function ProjectsPage() {
         literature: data.literature.filter((item) => item.projectId === detail.id),
         fieldwork:
           data.fieldSites.filter((item) => item.projectId === detail.id).length +
+          data.fieldMaps.filter((item) => item.projectId === detail.id).length +
           data.interviews.filter((item) => item.projectId === detail.id).length +
           data.fieldVisits.filter((item) => item.projectId === detail.id).length,
         quantitative:

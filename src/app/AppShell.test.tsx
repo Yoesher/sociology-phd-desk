@@ -1,5 +1,5 @@
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { I18nProvider } from '../i18n'
@@ -79,6 +79,7 @@ describe('hierarchical research navigation shell', () => {
 
   afterEach(() => {
     cleanup()
+    vi.useRealTimers()
     vi.unstubAllGlobals()
   })
 
@@ -92,7 +93,7 @@ describe('hierarchical research navigation shell', () => {
       ['all', 'active', 'theoretical', 'completed'],
       ['inbox', 'reading', 'cited', 'all'],
       ['overview', 'questions', 'memos', 'manuscripts'],
-      ['overview', 'field', 'interviews', 'processing'],
+      ['overview', 'field', 'maps', 'interviews', 'processing'],
       ['overview', 'datasets', 'runs'],
       ['all', 'by-type', 'contradictory'],
       ['timeline', 'decisions', 'next-steps'],
@@ -274,5 +275,30 @@ describe('hierarchical research navigation shell', () => {
     const nav = screen.getByRole('navigation', { name: messages['zh-CN']['navigation.aria'] })
     const runs = within(nav).getByRole('link', { name: /分析运行/ })
     expect(within(runs).getByLabelText(`${data.analysisRuns.length} 项需要处理`)).toHaveTextContent(String(data.analysisRuns.length))
+  })
+
+  it('refreshes overdue navigation badges at midnight without workspace changes', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 9, 3, 23, 59, 58))
+    const data = createDemoWorkspace()
+    data.tasks = [
+      { ...data.tasks[0]!, id: 'pending', dueDate: '2026-10-03', status: 'To Do' },
+      { ...data.tasks[0]!, id: 'done', dueDate: '2026-10-03', status: 'Done' },
+      { ...data.tasks[0]!, id: 'undated', dueDate: undefined, status: 'To Do' },
+    ]
+    const original = structuredClone(data)
+    renderShell('/?view=tasks', data)
+    const nav = screen.getByRole('navigation', { name: messages['zh-CN']['navigation.aria'] })
+    const tasks = within(nav).getByRole('link', { name: '今日任务' })
+    expect(tasks).not.toHaveAttribute('aria-describedby')
+    act(() => vi.advanceTimersByTime(2_000))
+    expect(tasks).toHaveAttribute('aria-describedby', 'nav-today-tasks-badge')
+    expect(within(tasks).getByLabelText('1 项需要处理')).toHaveTextContent('1')
+    expect(data).toEqual(original)
+
+    vi.setSystemTime(new Date(2026, 9, 2, 12))
+    act(() => window.dispatchEvent(new Event('focus')))
+    expect(tasks).not.toHaveAttribute('aria-describedby')
+    expect(data).toEqual(original)
   })
 })

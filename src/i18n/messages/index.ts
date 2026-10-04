@@ -3,6 +3,7 @@ import { feedbackMessages } from './feedback'
 import { distributionMessages } from './distribution'
 import { evidenceMessages } from './evidence'
 import { fieldworkMessages } from './fieldwork'
+import { fieldMapsMessages } from './fieldMaps'
 import { literatureMessages } from './literature'
 import { localWorkspacesMessages } from './localWorkspaces'
 import { manuscriptsMessages } from './manuscripts'
@@ -29,6 +30,7 @@ const en = {
   ...publishingMessages.en,
   ...literatureMessages.en,
   ...fieldworkMessages.en,
+  ...fieldMapsMessages.en,
   ...quantitativeMessages.en,
   ...evidenceMessages.en,
   ...researchLogMessages.en,
@@ -51,6 +53,7 @@ const zhCN: Record<MessageKey, string> = {
   ...publishingMessages['zh-CN'],
   ...literatureMessages['zh-CN'],
   ...fieldworkMessages['zh-CN'],
+  ...fieldMapsMessages['zh-CN'],
   ...quantitativeMessages['zh-CN'],
   ...evidenceMessages['zh-CN'],
   ...researchLogMessages['zh-CN'],

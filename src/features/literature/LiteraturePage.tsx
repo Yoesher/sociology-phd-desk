@@ -15,6 +15,7 @@ import { useModuleSearch } from '../../hooks/useModuleSearch'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import { readLocalPdf, MAX_WORKSPACE_PDF_BYTES } from './local-pdf'
 import { PdfDownload } from './PdfDownload'
+import { MAX_SERIALIZED_WORKSPACE_BYTES, WorkspaceCapacityError, assertInteractiveBackupBudget, workspacePdfBytes, workspaceSerializedBytes } from '../../utils/workspace-capacity'
 import {
   applyZoteroImport,
   buildZoteroImportPreview,
@@ -107,6 +108,10 @@ export function LiteraturePage() {
   const { searchParams, updateSearch } = useModuleSearch('literature')
   const view = (searchParams.get('view') || 'inbox') as LiteratureView
   const urlStatus = searchParams.get('status') || ''
+  const capacity = useMemo(() => {
+    const full = fullData || data
+    return full ? { pdf: workspacePdfBytes(full), backup: workspaceSerializedBytes(full) } : { pdf: 0, backup: 0 }
+  }, [fullData, data])
 
   const openZoteroPreview = (preview: ZoteroImportPreview) => {
     setSaveError('')
@@ -247,13 +252,15 @@ export function LiteraturePage() {
       await updateData((current) => {
         const otherPdfBytes = current.literature.filter((item) => item.id !== record.id).reduce((total, item) => total + (item.localPdf?.size || 0), 0)
         if (otherPdfBytes + (record.localPdf?.size || 0) > MAX_WORKSPACE_PDF_BYTES) throw new Error('pdf-total-limit')
-        return { ...current, literature: editing ? current.literature.map((item) => item.id === record.id ? { ...record, createdAt: item.createdAt } : item) : [record, ...current.literature] }
+        const next = { ...current, literature: editing ? current.literature.map((item) => item.id === record.id ? { ...record, createdAt: item.createdAt } : item) : [record, ...current.literature] }
+        assertInteractiveBackupBudget(current, next)
+        return next
       })
       showAllLiterature()
       setSaveMessage(t('feedback.literature.saved', { title: record.title }))
       setFormOpen(false)
     } catch (error) {
-      setSaveError(t(error instanceof Error && error.message === 'pdf-total-limit' ? 'feedback.pdf.limit' : 'feedback.literature.failed'))
+      setSaveError(t(error instanceof Error && error.message === 'pdf-total-limit' ? 'feedback.pdf.limit' : error instanceof WorkspaceCapacityError ? 'feedback.backup.tooLarge' : 'feedback.literature.failed'))
     } finally {
       saveInFlight.current = false
     }
@@ -326,6 +333,19 @@ export function LiteraturePage() {
       <section className="boundary-note">
         <LibraryBig size={18} />
         <div><strong>{t('feedback.literature.title')}</strong><p>{t('feedback.literature.manual')}</p></div>
+      </section>
+
+      <section className="attachment-capacity" aria-label={t('feedback.pdf.capacityTitle')}>
+        <div>
+          <strong>{t('feedback.pdf.capacity', { used: formatNumber(Math.ceil(capacity.pdf / 104857.6) / 10), limit: formatNumber(MAX_WORKSPACE_PDF_BYTES / 1048576) })}</strong>
+          <meter min={0} max={MAX_WORKSPACE_PDF_BYTES} value={capacity.pdf} aria-label={t('feedback.pdf.capacityTitle')} />
+          <p>{t('feedback.pdf.capacityHint')}</p>
+        </div>
+        <div>
+          <strong>{t('feedback.backup.capacity', { used: formatNumber(Math.ceil(capacity.backup / 104857.6) / 10), limit: formatNumber(MAX_SERIALIZED_WORKSPACE_BYTES / 1048576) })}</strong>
+          <meter min={0} max={MAX_SERIALIZED_WORKSPACE_BYTES} value={capacity.backup} aria-label={t('feedback.backup.capacityTitle')} />
+          <p>{t('feedback.backup.capacityHint')}</p>
+        </div>
       </section>
 
       <div className="stats-grid stats-grid--four">

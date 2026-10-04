@@ -6,7 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-The 0.3.1 website update is deployed; exact verification evidence is in PROJECT_STATE.md. Latest formal GitHub Release/tag remains v0.3.0, and existing tags are unchanged.
+### 0.4.0 candidate — 2026-10-04, not published
+
+The separately authorized local-material/storage/date iteration is a source candidate. Local npm test passed 46 files / 422 tests, release audit found zero vulnerabilities and the original Zotero command passed 8/8. Browser/build acceptance, the publication decision, remote gates and public acceptance remain pending. The public website remains verified 0.3.1 at final S2 main `3e4967c3cbb05cf96f3bd72edd90ae1d78027a4f`. Latest formal Release/tag remains v0.3.0; existing tags are unchanged.
+
+### Added
+
+- User-imported local static PNG/JPEG map/sketch annotation, linked to existing same-project field sites, visits and interviews. Image-click, keyboard and percentage entry place normalized image positions; selecting a marker does not move it.
+- Image limits of 2 MiB each / 4 MiB per full workspace, ≤8,192 pixels per edge and ≤16 million pixels; bounded format/dimension checks and real image decoding. Explicit image replacement clears old markers only after confirmation, and map/marker removal preserves the original research records.
+- Portable/standard/authenticated payload v7 with explicit v6 migration to an empty field-map collection and retained legacy compatibility. Container, vault and registry remain v1; v7 backups require a v7-capable application.
+
+### Changed
+
+- PDF bounds increase from 5/12 MiB to 10 MiB per file / 20 MiB per workspace; bytes are decoded when downloading, rather than for every visible row.
+- Full readable ordinary JSON export and new interactive growth use a 32 MiB complete-workspace budget, including all projects and attachments. Export rejects over-budget data explicitly without truncation. Existing over-budget workspaces retain reads/migration and non-growing writes; bounded authenticated encrypted backup remains available within its existing 64 MiB ciphertext ceiling and the independent attachment bounds. Ordinary file import still has a 32 MiB preflight limit.
+
+### Fixed and boundaries
+
+- Open-page local “today” and deadline displays refresh at local midnight, focus and return to visibility. No closed-webpage notification is added.
+- Local images and their original metadata, including possible EXIF/GPS, remain in the workspace and complete ordinary/encrypted backups. Only entitled coarse research sketches or anonymous public settings are permitted; participant homes, exact participant locations and identifiers must be excluded. Image percentages and local storage are not anonymity or legal/map-review guarantees.
+- No national map assets, administrative catalog, online tiles, external map API, GPS acquisition or public map-image export. All four China Research Map gates stay BLOCKED. Larger PDF-library support requires independent attachment storage and chunked authenticated backups, which are not implemented here.
+
+See [the bilingual local-field-maps/storage guide](docs/local-field-maps-and-storage-2026-10-04.md) and [the actual candidate gate state](PROJECT_STATE.md).
 
 ## [0.3.1] - 2026-10-03 (website application update; formal Release/tag unchanged)
 
@@ -27,7 +48,7 @@ The 0.3.1 website update is deployed; exact verification evidence is in PROJECT_
 - Portable workspace, standard IndexedDB, and authenticated encrypted payload advance to v6 with explicit v5 → v6 migration and authenticated v3/v4/v5 compatibility. Encrypted container, vault database, and registry database remain v1.
 - Local PDF contents persist with the normal workspace snapshot. Zotero handoff remains metadata-only; citation details still require manual confirmation, and no PDF-text extraction or automatic folder access is added.
 - Task reminders are visible while the application is open; no closed-webpage notification, account, cloud sync, or telemetry is introduced. Reported missing literature is not a verified data-loss diagnosis or a claim of restored user records.
-- The map remains deferred. Package/application version `0.3.1` identifies this website candidate and does not imply a formal GitHub Release or annotated tag.
+- The national map remains deferred. Package/application version `0.3.1` identifies the deployed website update and does not imply a formal GitHub Release or annotated tag.
 
 See [the feedback-improvement guide](docs/feedback-improvements-2026-10-03.md) and [the current verification/deployment record](PROJECT_STATE.md).
 

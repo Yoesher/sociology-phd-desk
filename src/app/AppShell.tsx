@@ -36,6 +36,7 @@ import { ProjectScopeBar } from './ProjectScope'
 import { useProjectScope } from './project-scope-context'
 import { projectDisplayData } from '../hooks/useProjectWorkspace'
 import { useTheme } from '../hooks/useTheme'
+import { useLocalToday } from '../hooks/useLocalToday'
 import { IconButton } from '../components/ui'
 import { WorkspaceTools } from './WorkspaceTools'
 import { PageTransitionBoundary } from '../components/PageTransitionBoundary'
@@ -116,15 +117,11 @@ function readExpansionPreference(): NavigationExpansionPreference {
   }
 }
 
-function todayIso() {
-  const now = new Date()
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-}
-
 export function AppShell() {
   const { projectId: scopeId } = useProjectScope()
   const { theme, toggleTheme } = useTheme()
   const { t } = useI18n()
+  const today = useLocalToday()
   const update = useContext(UpdateManagerContext) ?? unavailableUpdateManager
   const { data, saving, error, clearError } = useWorkspace()
   const {
@@ -218,7 +215,6 @@ export function AppShell() {
   const badgeCounts = useMemo<Record<NavigationBadgeId, number>>(() => {
     const visibleData = projectDisplayData(data, scopeId)
     if (!visibleData) return { overdue: 0, processing: 0, failed: 0, revision: 0 }
-    const today = todayIso()
     return {
       overdue: visibleData.tasks.filter((task) => task.dueDate && task.dueDate < today && task.status !== 'Done').length,
       processing: visibleData.interviews.filter((item) => item.status !== 'Cancelled' && [item.transcriptStatus, item.codingStatus, item.memoStatus].some((status) => !['Complete', 'Not Applicable'].includes(status))).length,
@@ -227,7 +223,7 @@ export function AppShell() {
         visibleData.manuscripts.filter((manuscript) => manuscript.status === 'Revision').length +
         visibleData.submissions.filter((submission) => submission.status === 'Revision').length,
     }
-  }, [data, scopeId])
+  }, [data, scopeId, today])
 
   const modeLabelKey: MessageKey = activeWorkspace?.encryptionMode === 'encrypted'
     ? hasRetainedPlaintextSource(activeWorkspace)
@@ -244,6 +240,7 @@ export function AppShell() {
     data.literature,
     data.literatureExternalReferences,
     data.fieldSites,
+    data.fieldMaps,
     data.interviews,
     data.fieldVisits,
     data.datasets,

@@ -29,6 +29,7 @@ const legacyCollections = [
   'literature',
   'literatureExternalReferences',
   'fieldSites',
+  'fieldMaps',
   'interviews',
   'fieldVisits',
   'datasets',
@@ -93,7 +94,7 @@ export async function readLegacySingleton(
   try {
     await database.open()
     const databaseVersion = database.verno
-    if (![1, 2, 3, 4, 5, 6].includes(databaseVersion)) {
+    if (![1, 2, 3, 4, 5, 6, 7].includes(databaseVersion)) {
       throw new LegacyWorkspaceMigrationError(
         'unsupported-version',
         `Legacy database version ${databaseVersion} is not supported.`,
@@ -172,6 +173,7 @@ export async function readLegacySingleton(
         ...legacyGraphCollections,
         ...legacyTheoryCollections,
         ...legacyV5Collections,
+        ...(databaseVersion >= 7 ? { fieldMaps: collections.fieldMaps } : {}),
       }
       const validation = validateWorkspace(input)
       if (!validation.success) {

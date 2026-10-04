@@ -98,6 +98,19 @@ describe('workspace registry', () => {
     ).rejects.toBeInstanceOf(WorkspaceRegistryValidationError)
   })
 
+  it('retains published v6 routing metadata until the v7 storage has been verified', async () => {
+    const legacy = entry({ schemaVersion: 6, storageSchemaVersion: 6 })
+    await registry.beginProvisioning(legacy)
+    const ready = await registry.markReady(legacy.id, legacy.registryRevision)
+    expect((await registry.getWorkspace(ready.id))!.schemaVersion).toBe(6)
+    const reconciled = await registry.reconcileVerifiedWorkspaceStorageVersions(
+      ready.id, ready.registryRevision, ready.storageId, ready.encryptionMode, WORKSPACE_SCHEMA_VERSION, 7,
+    )
+    expect(reconciled).toMatchObject({ schemaVersion: 7, storageSchemaVersion: 7, displayName: ready.displayName, storageId: ready.storageId })
+    expect(reconciled.registryRevision).toBe(ready.registryRevision + 1)
+    expect(database.verno).toBe(1)
+  })
+
   it('accepts v3 routing metadata and reconciles it monotonically after verification', async () => {
     const legacy = entry({ schemaVersion: 3 })
     await registry.beginProvisioning(legacy)
@@ -132,7 +145,7 @@ describe('workspace registry', () => {
       WORKSPACE_SCHEMA_VERSION,
       4,
     )
-    expect(reconciled.schemaVersion).toBe(6)
+    expect(reconciled.schemaVersion).toBe(7)
     expect(reconciled.storageSchemaVersion).toBe(4)
     expect(reconciled.registryRevision).toBe(ready.registryRevision + 1)
     const idempotent = await registry.reconcileVerifiedWorkspaceStorageVersions(

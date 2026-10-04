@@ -30,6 +30,7 @@ function createLegacyV2Envelope(): Record<string, unknown> {
   delete legacy['claimQuestionLinks']
   delete legacy['theoryMemos']
   delete legacy['literatureExternalReferences']
+  delete legacy['fieldMaps']
   return legacy
 }
 
@@ -51,7 +52,7 @@ describe('workspace JSON transfer', () => {
     expect(new Date(imported.exportedAt).toString()).not.toBe('Invalid Date')
   })
 
-  it('imports v1 through the explicit v1-to-v2-to-v3-to-v4-to-v5 migration chain', () => {
+  it('imports v1 through the explicit v1-to-v2-to-v3-to-v4-to-v5-to-v6-to-v7 migration chain', () => {
     const legacy = createLegacyV2Envelope()
     const legacyProjects = legacy['projects'] as Array<Record<string, unknown>>
     const expectedQuestionCount = legacyProjects.filter(
@@ -66,7 +67,7 @@ describe('workspace JSON transfer', () => {
 
     const imported = importWorkspaceJson(JSON.stringify(legacy))
 
-    expect(imported.version).toBe(6)
+    expect(imported.version).toBe(7)
     expect(imported.application).toBe('sociology-phd-desk')
     expect(imported.workspace.revision).toBe(0)
     expect(imported.projects).toHaveLength(legacyProjects.length)
@@ -100,6 +101,7 @@ describe('workspace JSON transfer', () => {
     legacy['version'] = 3
     delete legacy['theoryMemos']
     delete legacy['literatureExternalReferences']
+    delete legacy['fieldMaps']
     ;(legacy['researchLogs'] as Array<Record<string, unknown>>)[0]!['whatChanged'] =
       'A concept, mechanism, and counterargument appear here but must not become memos.'
 
@@ -119,13 +121,14 @@ describe('workspace JSON transfer', () => {
     >
     legacy['version'] = 4
     delete legacy['literatureExternalReferences']
+    delete legacy['fieldMaps']
 
     const migrated = migrateWorkspaceV4ToV5(legacy) as Record<string, unknown>
     const imported = importWorkspaceJson(JSON.stringify(legacy))
 
     expect(migrated['version']).toBe(5)
     expect(migrated['literatureExternalReferences']).toEqual([])
-    expect(imported.version).toBe(6)
+    expect(imported.version).toBe(7)
     expect(imported.literatureExternalReferences).toEqual([])
   })
 

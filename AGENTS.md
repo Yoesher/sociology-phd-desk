@@ -59,6 +59,7 @@ These rules apply to every Codex agent or automated contributor working in this 
 - Use anonymous fieldwork identifiers and keep the warning against directly identifying participant information visible.
 - If the deferred China Research Map is revisited, treat it as a first-class sociology research capability rather than a decorative dashboard map. Its administrative hierarchy must stop at county level; never collect, infer, display, or export exact participant locations.
 - Do not ship public China map boundaries or geographic datasets until their authoritative source, permitted use, attribution, version, and update path have been verified and documented. Never substitute an arbitrary or merely convenient map dataset.
+- The separately authorized local PNG/JPEG annotation tool (ADR-026) may accept user-supplied entitled coarse maps/sketches without bundling national map content, administrative catalogs, online tiles, GPS or public image export. It does not complete or bypass the four BLOCKED China Research Map gates, certify rights/review, or anonymize normalized positions or retained EXIF. Preserve the participant-location boundary and complete-workspace backup/write semantics.
 - Treat import/export schemas as durable public interfaces. Validate before writes and make replacement explicit.
 - Keep source evidence visibly distinct from AI-generated suggestions.
 - Demo content must be obviously synthetic. Never invent realistic DOI values, quotations, empirical results, interview material, users, or institutions.
