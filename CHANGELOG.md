@@ -6,11 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-No further user-visible changes are queued here.
+### 0.4.1 appearance candidate — development, not deployed
 
-## [0.4.0] - 2026-10-04 (website application update; formal Release/tag unchanged)
+- Add browser-local Classic/Paper/Slate/Forest appearance templates; academic/sans/serif/system font stacks; Standard/Large/Larger reading sizes; and Gentle/Fade/Slide/None motion in a bilingual Appearance & motion setting.
+- Preserve the previous default appearance, existing language/theme settings and system reduced-motion priority. Preferences follow workspace switches, lock and reload, without entering research data or ordinary/encrypted backups; no remote fonts or research-content templates are introduced.
+- Application/package/lock/citation/update metadata are prepared as 0.4.1. Schema stays v7 for portable/standard/authenticated payload and v1 for container/vault/registry. Original local release commands passed (453 unit / 8 Zotero / 34 real desktop+touch E2E, no actual retries/skips/flaky/failures). Exact-head/main remote gates, publication and actual public/native-update acceptance remain pending. [Candidate notes](docs/releases/v0.4.1.md).
 
-The separately authorized local-material/storage/date iteration was merged through [PR #57](https://github.com/Yoesher/sociology-phd-desk/pull/57) and deployed as S1 main `1da2883c4fd7a54125e1cea3bf321cb5c7ecdb5a`. The reviewed head passed the original commands, including 422 unit/integration tests, 8 Zotero tests, 28 desktop/phone E2E tests without retries/skips, audit with zero vulnerabilities, and production/PWA build. Exact-S1 CI/CodeQL/Pages succeeded; fresh public desktop/phone smoke and real 0.3.1 → 0.4.0 waiting-worker update retained old records and PDF bytes. Later documentation commits require independent verification. Latest formal Release/tag remains v0.3.0; existing tags are unchanged.
+## [0.4.0] - 2026-10-04
+
+The separately authorized local-material/storage/date iteration shipped through [PR #57](https://github.com/Yoesher/sociology-phd-desk/pull/57), followed by PR #58 documentation closeout and [PR #59](https://github.com/Yoesher/sociology-phd-desk/pull/59) presentation/formal publication. Final main `26d23b4b07fe87d9bca2ce01a37ee11743b32f5f` passed its own CI/CodeQL/Pages, 422 unit tests, 8 Zotero tests and 28 real desktop/touch E2E tests with no actual retries/flaky/skips/failures, plus fresh public and native build-update acceptance. Annotated [`v0.4.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.4.0) and latest non-draft/non-prerelease Release `402953759` point to that main; UTF-8 notes and both public source archives were verified. Older tags and the official v0.3.0 Zotero plugin assets are unchanged. The earlier website-only checkpoint retained formal v0.3.0; this later explicit formal-publication authorization superseded that checkpoint without rewriting it.
 
 ### Added
 

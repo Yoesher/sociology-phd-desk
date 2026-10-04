@@ -1,0 +1,22 @@
+.appearance-settings { display: grid; gap: 20px; min-width: 0; }
+.appearance-settings__local { color: var(--ink-soft); font-size: .82rem; line-height: 1.7; }
+.appearance-settings__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 24px; }
+.appearance-settings__grid .field { min-width: 0; }
+.appearance-settings__grid select { font-size: 1rem; min-height: 44px; }
+.appearance-settings__hint { display: block; color: var(--muted); font-size: .76rem; line-height: 1.7; margin-top: 6px; }
+.appearance-preview { display: grid; grid-template-columns: 48px minmax(0, 1fr); overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface-raised); }
+.appearance-preview__spine { display: flex; flex-direction: column; align-items: center; gap: 14px; background: var(--nav); padding: 24px 10px; }
+.appearance-preview__spine i { width: 16px; height: 4px; border-radius: 4px; background: var(--nav-muted); }
+.appearance-preview__spine i:first-child { height: 16px; border-radius: 50%; background: var(--nav-text); }
+.appearance-preview__reading { padding: 22px 24px; min-width: 0; }
+.appearance-preview__reading h3 { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 500; margin: 8px 0 12px; }
+.appearance-preview__reading > p:not(.appearance-preview__eyebrow) { color: var(--ink-soft); line-height: 1.8; }
+.appearance-preview__eyebrow { color: var(--accent); font-size: .65rem; letter-spacing: .08em; font-weight: 700; }
+.appearance-preview__reading > span { display: inline-block; padding: 4px 9px; margin-top: 16px; border: 1px solid var(--accent-border); border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--accent-strong); font-size: .7rem; }
+.appearance-settings__status { color: var(--accent-strong); font-size: .76rem; line-height: 1.65; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--accent-soft); }
+.appearance-settings__status--warning { color: var(--warning); background: var(--warning-soft); }
+@media (max-width: 700px) {
+  .appearance-settings__grid { grid-template-columns: minmax(0, 1fr); }
+  .appearance-preview { grid-template-columns: 32px minmax(0, 1fr); }
+  .appearance-preview__reading { padding: 18px 16px; }
+}

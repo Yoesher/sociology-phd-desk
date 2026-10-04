@@ -135,6 +135,57 @@
   to { opacity: 0; transform: translateY(-3px) scale(0.99); }
 }
 
+:root[data-motion='fade'] :is(.motion-popover, .quick-add__menu, .compact-flyout,
+  .modal, .mobile-menu, .workspace-access-card, .workspace-center,
+  .motion-collapse[open] > .form-disclosure__content) {
+  animation-name: motion-fade-in;
+}
+
+:root[data-motion='fade'] :is(.motion-popover, .quick-add__menu, .compact-flyout,
+  .modal, .mobile-menu)[data-closing] {
+  animation-name: motion-fade-out;
+}
+
+:root[data-motion='slide'] :is(.motion-popover, .quick-add__menu, .compact-flyout,
+  .modal, .mobile-menu, .workspace-access-card, .workspace-center,
+  .motion-collapse[open] > .form-disclosure__content) {
+  animation-name: motion-slide-in;
+}
+
+:root[data-motion='slide'] :is(.motion-popover, .quick-add__menu, .compact-flyout,
+  .modal, .mobile-menu)[data-closing] {
+  animation-name: motion-slide-out;
+}
+
+@keyframes motion-slide-in {
+  from { opacity: 0; transform: translateX(8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes motion-slide-out {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(6px); }
+}
+
+:root[data-motion='none'],
+:root[data-motion-enabled='false'] {
+  --motion-instant: 0ms;
+  --motion-fast: 0ms;
+  --motion-base: 0ms;
+  --motion-slow: 0ms;
+}
+
+:root[data-motion='none'] *,
+:root[data-motion='none'] *::before,
+:root[data-motion='none'] *::after,
+:root[data-motion-enabled='false'] *,
+:root[data-motion-enabled='false'] *::before,
+:root[data-motion-enabled='false'] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+
 @media (max-width: 700px) {
   .form-disclosure__content { grid-template-columns: 1fr; }
 }
@@ -144,8 +195,7 @@
   *::before,
   *::after {
     scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation: none !important;
+    transition: none !important;
   }
 }

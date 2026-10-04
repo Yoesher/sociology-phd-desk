@@ -12,6 +12,8 @@ A local-first workstation for sociology doctoral researchers. No account require
 
 `Current app 0.4.0` · `Data format v7` · `Local-first` · `Offline-capable`
 
+**Next candidate 0.4.1: Appearance & motion.** In Workspace & Settings, choose Classic research desk/Warm paper/Quiet blue/Field notebook templates; local Academic mix/Modern sans serif/Reading serif/System font; Standard/Large/Larger reading sizes; and Gentle lift/Soft fade/Light slide/No animation. Defaults retain the previous appearance, and system reduced motion takes priority. Preferences share this browser's settings with language/theme and follow standard/encrypted workspace switches, locks and reloads; they are excluded from research data and backups. Templates change colors/layout only and insert no research content. **0.4.1 is in development and awaiting verification; the public app and formal Release remain 0.4.0.** [Candidate notes](docs/releases/v0.4.1.md)
+
 [Local maps and backup guide](docs/local-field-maps-and-storage-2026-10-04.md) · [Changelog](CHANGELOG.md) · [Actual verification record](PROJECT_STATE.md)
 
 ![0.4.0 Chinese Today desk with explicitly synthetic DEMO records only](docs/screenshots/v0.4.0/01-today-zh.jpg)
