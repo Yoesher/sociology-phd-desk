@@ -1,6 +1,6 @@
 # Maintainer release checklist
 
-This checklist is the reusable release gate for Sociology PhD Desk. A release is blocked while any applicable P0/P1 remains open, any mandatory test is unverified, or the China map gates are not all PASS for a release that includes the map.
+This checklist is the reusable release gate for Sociology PhD Desk. A release is blocked while any applicable P0/P1 remains open, any mandatory test is unverified, or the China map gates are not all PASS for a release that includes public national-map content. The separate ADR-026 user-supplied local-image tool does not satisfy or bypass those national gates.
 
 ## 1. Scope and repository truth
 
@@ -31,11 +31,12 @@ npm run test:zotero
 ## 3. Data and migration gate
 
 - [ ] Fresh current-schema standard and encrypted workspaces open, write, lock/unlock, export, and restore.
-- [ ] Portable migrations v1 → v2 → v3 → v4 → v5 → v6 and direct v5 → v6 pass.
-- [ ] Standard IndexedDB migrations through v6 and direct v5 → v6 preserve existing records and Zotero provenance.
-- [ ] Existing authenticated encrypted local payloads and encrypted backups v3/v4/v5 → v6 pass without writing on wrong passphrase, tamper, or failed migration.
+- [ ] Portable migrations v1 → v2 → v3 → v4 → v5 → v6 → v7 and direct v5 → v6 / v6 → v7 pass; v6 → v7 initializes empty field-map collections for legacy inputs, without inferred positions.
+- [ ] Standard IndexedDB migrations through v7 and direct v5 → v6 / v6 → v7 preserve existing records, PDFs and Zotero provenance.
+- [ ] Existing authenticated encrypted local payloads and encrypted backups v3/v4/v5/v6 → v7 pass without writing on wrong passphrase, tamper, or failed migration; container/vault/registry remain v1.
 - [ ] Optional local PDFs survive standard/encrypted persistence and portable/encrypted backups; size/content guards reject invalid or oversized attachments before writes.
-- [ ] Project-scoped edits preserve the full workspace, including all other projects and their records.
+- [ ] Local images/same-project markers survive standard/encrypted storage and complete backups; invalid/dangling/cross-project maps and protected endpoint changes produce no writes.
+- [ ] Project-scoped edits preserve the full workspace, including all other projects, records, PDFs, images and markers.
 - [ ] Current-schema portable/encrypted round trips preserve stable IDs and user-authored content.
 - [ ] Import preflight remains write-free and all size/count/string guards pass.
 
@@ -51,15 +52,16 @@ npm run test:zotero
 
 - [ ] `npm run build:zotero` produces the documented plugin version from committed source.
 - [ ] `npm run test:zotero` passes handoff allowlist, notes/annotations/attachments exclusion, URL-size fallback, and reproducible-build checks.
-- [ ] Generate `sociology-phd-desk-zotero-0.1.0.xpi` and matching `.sha256`; independently recompute and compare SHA-256.
+- [ ] For an explicitly authorized plugin release, generate its versioned XPI/checksum and recompute SHA-256. For retained plugin0.1.0, verify original v0.3.0 download/checksum/update hash; never commit a generated hash for an unchanged published file or republish its asset.
 - [ ] Install and test in isolated synthetic Zotero profiles only—never the maintainer's real library/account/sync profile.
 - [ ] Manual smoke covers Zotero 8 and the locally installed Zotero 9 where available: install, restart if required, one article, one book, Chinese/English titles, multiple creators, DOI/no DOI, multi-select, duplicate resend, large-batch fallback, disable, uninstall, and restart.
 - [ ] Release claims name only the Zotero versions actually verified.
 
 ## 6. China map inclusion or deferral gate
 
-- [ ] If a release includes the map, require `MAP_SOURCE_VERIFIED`, `MAP_LICENSE_VERIFIED`, `MAP_APPROVAL_METADATA`, and `NATIONAL_MAP_COMPLETENESS` to be PASS for the exact deployed output.
-- [ ] If a release defers the map, preserve the bilingual source/compliance evidence and explicitly exclude map code, geometry, administrative catalogs, external map calls, region persistence, and completion claims.
+- [ ] If a release includes public national-map content, require `MAP_SOURCE_VERIFIED`, `MAP_LICENSE_VERIFIED`, `MAP_APPROVAL_METADATA`, and `NATIONAL_MAP_COMPLETENESS` to be PASS for the exact deployed output.
+- [ ] If a release defers the national map, preserve bilingual source/compliance evidence and exclude bundled national geometry/catalogs, external map calls, unverified geographic-region persistence and national-completion claims.
+- [ ] The ADR-026 local-image tool requires entitled static PNG/JPEG and coarse/anonymous settings, no participant homes/exact locations/identifiers, and no bundled national content/GPS/online service/public image export. State raw EXIF/GPS retention and that normalized positions do not guarantee anonymity; keep all national gates BLOCKED unless separately verified.
 - [ ] Confirm participant GPS and precise-location fields are absent in either path.
 - [ ] For `v0.3.0`, record the map as DEFERRED and excluded; its BLOCKED gates do not become PASS and do not block the verified non-map release.
 

@@ -1,231 +1,165 @@
-[简体中文](README.md) | **English** · [Roadmap](ROADMAP.md) · [Contributing](CONTRIBUTING.en.md) · [Project state](PROJECT_STATE.md)
+[简体中文](README.md) · **English**
+
+![Sociology PhD Desk academic research workstation](docs/assets/readme-header.svg)
 
 # Sociology PhD Desk
 
-**A local-first ResearchOps workstation for sociology doctoral researchers.**
+**A research desk for literature, fieldwork, analysis and writing.**
 
-Manage the full research lifecycle—from literature and fieldwork to quantitative analysis, evidence, manuscripts, and peer-review revisions.
+A local-first workstation for sociology doctoral researchers. No account required. Chinese by default, with a complete English interface. Use your browser or install the PWA.
 
-## Start now
+**[Open the desk →](https://yoesher.github.io/sociology-phd-desk/)** · **[Releases](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[Get started](docs/en/getting-started.md)** · **[0.4.0 update notes](docs/releases/v0.4.0.md)**
 
-### `0.4.0` website update — 2026-10-04
+`Current app 0.4.0` · `Data format v7` · `Local-first` · `Offline-capable`
 
-[PR #57](https://github.com/Yoesher/sociology-phd-desk/pull/57) merged the separately authorized local-material/storage/date iteration as S1 main `1da2883c4fd7a54125e1cea3bf321cb5c7ecdb5a`. The public website is deployed as 0.4.0; exact-S1 CI/CodeQL/Pages, independent desktop/phone smoke and real 0.3.1 → 0.4.0 update/data-retention checks passed. Documentation closeout still requires independent verification; see the [exact verification record](PROJECT_STATE.md). Later commits require their own CI, Pages and public checks.
+[Local maps and backup guide](docs/local-field-maps-and-storage-2026-10-04.md) · [Changelog](CHANGELOG.md) · [Actual verification record](PROJECT_STATE.md)
 
-Import an entitled static PNG/JPEG research map or sketch and link existing same-project field sites, visits and interviews using image-relative positions. Images are limited to 2 MiB each / 4 MiB per workspace, 8,192 pixels per edge / 16 million pixels. Use coarse research context without participant homes, precise participant locations or identifiers; raw EXIF/GPS may remain, and normalized positions do not guarantee anonymity or legal/map-review compliance. No national map, administrative catalog, remote tiles/API, GPS acquisition or public image export is added; all four national map gates remain BLOCKED.
+![0.4.0 Chinese Today desk with explicitly synthetic DEMO records only](docs/screenshots/v0.4.0/01-today-zh.jpg)
 
-PDF limits become 10 MiB each / 20 MiB per workspace, with decoding on download. Full readable ordinary JSON remains capped at 32 MiB without truncation; valid over-budget legacy workspaces retain reads/migration, non-growing writes and the existing bounded encrypted-backup path. Open-page dates refresh at midnight/focus/visibility without closed-page notifications. Independent attachment storage and chunked authenticated backups remain future work. See the [bilingual local-map/storage guide](docs/local-field-maps-and-storage-2026-10-04.md) and [actual gate record](PROJECT_STATE.md).
+*Captured from the running application with synthetic DEMO content only. No real papers, empirical findings or participant material.*
 
-### `0.3.1` website update — 2026-10-03
+## Connect the work from reading to revision
 
-This update adds local PDF attachments and literature viewing/editing, project spaces, and task deadlines that can be revisited and edited. PDFs are limited to 5 MiB each and 12 MiB per workspace and are included in portable/encrypted backups. Project spaces scope project-linked records; deadline reminders are displayed while the app is open.
+| Work | What you can do now |
+| --- | --- |
+| **Literature and PDFs** | Register citations manually, view/edit records and attach local PDFs. PDF upload and Zotero metadata import have separate entry points. Successful saves show the full scoped list; failed saves retain input. |
+| **Project spaces** | Select a project to display its records across research modules and assign new records automatically. Switching projects changes the display; writes and backups retain the full workspace. Daily goals remain workspace-wide. |
+| **Tasks and dates** | See actual deadlines, remaining/overdue days and the next seven days; revisit dates and notes while keeping completion state. Open pages refresh local dates at midnight, focus and return to visibility. |
+| **Local field annotations** | Import an entitled PNG/JPEG map or sketch and link same-project field sites by image percentages, with related visits/interviews. Use clicks, keyboard or percentage entry; removing a marker keeps original records. |
+| **Private workspaces and backups** | Isolate multiple local workspaces, optionally use encrypted storage, lock and `.sociologydesk` encrypted backups. Both ordinary and encrypted backups include all projects, PDFs, images and markers. |
 
-The verified `0.3.1` public baseline completed its checks, PRs, merge, deployment and public acceptance; the earlier environment-policy write rejection remains history in [PROJECT_STATE.md](PROJECT_STATE.md). The existing formal GitHub Release/tag is `v0.3.0`; that website update did not create or move tags. See the [feedback guide in Chinese](docs/feedback-improvements-2026-10-03.md).
+The app connects research questions, literature, datasets or interviews, analysis, evidence, claims, manuscripts and revision work; it complements specialist tools such as Zotero, Word, Stata, R, Python and NVivo. Complete explicit Evidence↔Claim↔Manuscript tracing remains separate [Issue #2](https://github.com/Yoesher/sociology-phd-desk/issues/2) work, and edit/delete support is not yet uniform across modules.
 
-**Use the web app now:** [https://yoesher.github.io/sociology-phd-desk/](https://yoesher.github.io/sociology-phd-desk/)
+## Inside the desk
 
-- **No registration or GitHub knowledge:** open the link to create a local workspace; no account, cloud database, or default sync is required.
-- **Data stays local by default:** research records are stored in IndexedDB for the current device and browser profile. Generate and test encrypted backups regularly.
-- **Install when you want:** compatible browsers offer PWA installation; ordinary browser access remains first class.
-- **Cross-platform browser use:** a current browser with IndexedDB support on Windows, macOS, or Linux can open it directly.
-- **Move devices with an encrypted backup:** restore a `.sociologydesk` file into a new isolated workspace without GitHub.
+Click an image to open it at full size. These are real 0.4.0 screens with synthetic demonstration records; the sketch contains no real geographic boundaries or participant locations. Version, dimensions and privacy review are in the [screenshot register](docs/screenshots/README.md).
 
-See the complete [English getting-started guide](docs/en/getting-started.md).
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <a href="docs/screenshots/v0.4.0/03-field-maps-zh.jpg"><img src="docs/screenshots/v0.4.0/03-field-maps-zh.jpg" width="100%" alt="Synthetic local sketch, image-relative markers and linked field records" /></a><br />
+      <strong>Local map annotations</strong><br />Link field sites and records on your own coarse material.
+    </td>
+    <td width="50%" valign="top">
+      <a href="docs/screenshots/v0.4.0/02-literature-zh.jpg"><img src="docs/screenshots/v0.4.0/02-literature-zh.jpg" width="100%" alt="Synthetic literature records and separate local PDF entry point" /></a><br />
+      <strong>Literature and PDFs</strong><br />Register, view and edit; attachments enter complete backups.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <a href="docs/screenshots/v0.4.0/04-deadlines-zh.jpg"><img src="docs/screenshots/v0.4.0/04-deadlines-zh.jpg" width="100%" alt="Actual deadlines and due-date overview for synthetic tasks" /></a><br />
+      <strong>Task deadlines</strong><br />Plan by actual dates and revisit task details.
+    </td>
+    <td width="50%" valign="top">
+      <a href="docs/screenshots/v0.4.0/05-interface-en.jpg"><img src="docs/screenshots/v0.4.0/05-interface-en.jpg" width="100%" alt="Complete 0.4.0 English interface with synthetic DEMO content" /></a><br />
+      <strong>Complete English interface</strong><br />Language switching preserves research text and relationships.
+    </td>
+  </tr>
+</table>
 
-### `v0.3.0` — Zotero integration and safer imports
+<details>
+<summary>See the phone view · 390 × 844</summary>
 
-[`v0.3.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.3.0) is formally released with selected-reference Zotero handoff, an explicit import preview, reproducible Zotero plugin `0.1.0`, schema-v5 migration, import-size guards, browser E2E, and privacy-safe diagnostics. The release PR, exact-main CI, CodeQL, Pages, UTF-8 Release Notes, and public-asset verification all passed.
+<p>The phone capture also uses synthetic DEMO content only; click for the original.</p>
+<a href="docs/screenshots/v0.4.0/06-mobile-zh.jpg"><img src="docs/screenshots/v0.4.0/06-mobile-zh.jpg" width="320" alt="0.4.0 Chinese synthetic demonstration on a 390 × 844 phone viewport" /></a>
 
-## Zotero integration
+</details>
 
-Zotero remains the system of record for bibliography, PDFs, notes, annotations, and citations. After installing the plugin, select one or more references in Zotero 8 or Zotero 9, right-click Send to Sociology PhD Desk, then choose the project, reading status, and priority in the Desk preview before confirming any write.
+## Start in three steps
 
-The plugin transfers allowlisted bibliographic metadata only. It does not read or import PDFs, attachments, private notes, annotations, full text, account data, or synchronization state. Ordinary users can [download the Zotero plugin](https://github.com/Yoesher/sociology-phd-desk/releases/download/v0.3.0/sociology-phd-desk-zotero-0.1.0.xpi) and compare the [public SHA-256 checksum](https://github.com/Yoesher/sociology-phd-desk/releases/download/v0.3.0/sociology-phd-desk-zotero-0.1.0.sha256); see the [English Zotero integration guide](docs/en/zotero-integration.md) for installation and tested boundaries.
+1. **Open the website and create a workspace.** No registration. Explore the synthetic demo, then create a standard or encrypted workspace. Ordinary browser access always supports the complete workflow.
+2. **Select a project and register research records.** Start with literature, tasks or a field site. Local sketches are optional; visits/interviews still work without a map.
+3. **Create and test a backup.** Restore a `.sociologydesk` backup into a new isolated workspace to move devices. PWA installation and local saving do not create a second copy automatically.
 
-### `v0.2.2` — Simplicity & restrained motion
+After a successful first load and caching, the app's static resources can start offline. When an update appears, **Later** retains the current version. Save edits and create/test a backup before choosing **Update now**, then check the application version and build identity in Help. Do not clear site data or reset a workspace to update. There are no closed-page system notifications or background deadline pushes.
 
-[`v0.2.2`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.2) reduces secondary-navigation complexity, consolidates status views into in-page filters, simplifies the top bar and workspace settings, and adds coherent, restrained motion for routes, dialogs, drawers, and state changes without changing research data or schema versions. It fully respects `prefers-reduced-motion` and adds no animation dependency.
+## Attachment limits and migration
 
-> **[`v0.2.1`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.1) Distribution & PWA is formally released:** use the web app directly or install it from a compatible PWA browser; emitted static assets support offline startup, and updates activate only after user confirmation and safe workspace preparation. Release PR [#25](https://github.com/Yoesher/sociology-phd-desk/pull/25) merged after exact-head CI and P0 = 0 / P1 = 0 self-review. The annotated tag and latest non-draft, non-prerelease GitHub Release point to exact release SHA [`8db828f`](https://github.com/Yoesher/sociology-phd-desk/commit/8db828faaa94f7591dbd806abe90916335862187).
+| Content | Current boundary |
+| --- | --- |
+| Local PDFs | **10 MiB** each / **20 MiB** per full workspace; decoded when downloading. |
+| PNG/JPEG images | **2 MiB** each / **4 MiB** per full workspace; at most **8,192 pixels per edge / 16 million pixels**. |
+| Complete ordinary JSON | **32 MiB**, including every project, record and base64 attachment; ordinary file import checks this limit before reading. |
+| Encrypted backup | Existing **64 MiB ciphertext** ceiling and independent attachment limits; authentication tags/wrappers have additional bounds. Capacity is not unlimited. |
 
-> **[`v0.2.0`](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.2.0) is formally released:** two-level navigation across nine research domains, Theory Research, the Research Question–Claim graph, private/encrypted local workspaces, and integrated Manuscripts & Publishing are published. Release PR [#21](https://github.com/Yoesher/sociology-phd-desk/pull/21) passed exact-head CI and P0 = 0 / P1 = 0 review before merge; CI and Pages passed on exact release SHA [`eb399f7`](https://github.com/Yoesher/sociology-phd-desk/commit/eb399f7da0a1f3142f7c8361492fa86b08db77db), and both the annotated tag and the latest non-draft, non-prerelease GitHub Release identify that version. The China Research Map is deferred because its source, redistribution, approval-metadata, and national-completeness gates remain blocked, and is **not part of `v0.2.0`**. See [PROJECT_STATE.md](PROJECT_STATE.md) for exact evidence and limitations.
+1 MiB = 1,048,576 bytes. Base64 and readable JSON add overhead, so complete ordinary JSON may exceed its limit before separate attachment maxima. Export and new over-budget growth fail explicitly, retaining input and committed data; attachments are never truncated and backups are never limited to the current project.
 
-The project has not yet been tested by external researchers. Do not keep the only copy of irreplaceable research material here; public availability, a Star, or maintainer self-testing does not establish adoption.
+Existing valid over-budget workspaces remain readable/migratable and permit writes that do not increase serialized size. Complete encrypted preservation remains available within the original encryption and attachment bounds. More substantial PDF support requires independent attachment storage and chunked authenticated backup, neither implemented yet; keep your original files.
 
-## Why Sociology PhD Desk?
+Current portable workspace, standard database and authenticated encrypted payload are **v7**; container, vault database and registry database remain **v1**. v6 → v7 keeps records and adds only an empty local-map collection, without inventing images or coordinates. The older 0.3.1 app cannot read v7 backups; keep/test an original-version backup before moving versions. Review import previews; replacement requires explicit confirmation. Encrypted restore authenticates and validates before creating a new isolated workspace; wrong passwords or damaged ciphertext write no destination.
 
-Sociological research is not just task management.
+See the [local-map/storage guide with English brief](docs/local-field-maps-and-storage-2026-10-04.md) and [data portability](docs/data-portability.md).
 
-A single project may simultaneously involve literature, interviews, fieldnotes, datasets, models, analytical memos, manuscripts, and reviewer responses. General-purpose tools usually manage files, notes, or tasks separately. Sociology PhD Desk connects research objects and decisions into one traceable workflow:
+## Local-first, with research privacy in view
 
-```text
-Research question
-  → Literature
-  → Dataset / Interview
-  → Analysis
-  → Evidence
-  → Claim
-  → Manuscript
-  → Submission
-  → Reviewer comment
-  → Revision
-```
+**Do not store directly identifying participant information.** Use aliases and anonymous IDs; exclude names, phone numbers, identity-document numbers, precise addresses, signatures and complete consent forms.
 
-It is an orchestration layer, not a replacement for Zotero, Word, Stata, R, Python, NVivo, MAXQDA, or a journal submission system.
+- Research data stays in IndexedDB for the current browser profile by default, without accounts, default cloud sync, analytics, third-party trackers or a required AI API. Separate workspaces have separate databases but share one Web-origin trust boundary.
+- Standard workspaces and ordinary JSON are plaintext. Only explicitly encrypted workspaces or `.sociologydesk` backups use application-layer encryption; an interface lock is not encryption. Registry names/times/modes and approximate storage size remain visible.
+- Dataset, script and output paths are references, not file ingestion; selected PDFs/images store actual bytes. This is not a secure vault for source datasets, full transcripts or irreplaceable material.
+- Local images must be entitled county-level-or-coarser research sketches or anonymous public settings, without participant homes, exact locations or identifiers. Original bytes and possible **EXIF/GPS are not automatically stripped**; percentages and aliases do not guarantee anonymity, rights or map-review compliance.
+- No national basemap, province/city/county browsing, administrative catalog, online tiles, external map API, GPS acquisition or public image export. All four national-map gates remain **BLOCKED**; local materials do not complete or bypass them. The app does not automatically upload materials, markers or research records.
 
-## `v0.2.0` release scope
+Browser storage can be cleared and devices can fail. Encryption cannot protect an unlocked session or compromised device; forgotten passwords and lost backups can make data unrecoverable. IndexedDB deletion is not secure erasure. Maintain/test independent backups and follow institutional ethics, consent, retention and data-protection requirements. No real-user database has been inspected, so recovery of previously unseen literature is not claimed.
 
-The workspace is organized around nine stable sociology research domains:
+[Security](SECURITY.md) · [Privacy and encryption model](docs/en/privacy-model.md) · [Research ethics](docs/research-workflows/research-ethics.md)
 
-- **Today** — research goals, project-linked tasks, overdue work, and a concise daily research log.
-- **Projects** — research questions, methods, stages, dates, and linked research activity.
-- **Literature** — a reading workflow that records why a source matters and how it enters an argument; Zotero remains the reference library.
-- **Theory Research** — concepts, mechanisms, theoretical dialogue, counterarguments, boundary conditions, and synthesis memos with explicit same-project links to questions, claims, and literature.
-- **Fieldwork** — field sites, visits, and interviews identified by aliases and anonymous IDs.
-- **Quantitative** — registries for datasets and analysis runs across Stata, R, Python, and other tools.
-- **Evidence ledger** — claims, source locators, findings, limitations, support levels, and manuscript destinations.
-- **Research log** — an audit trail of changes, decisions, problems, and next steps.
-- **Manuscripts and publishing** — writing stages, journal submissions, reviewer comments, responses, and revision actions in one presentation while preserving each entity and its history.
-- **Portable workspace data** — validated JSON export and import, with no silent replacement of existing data.
-- **Demo workspace** — explicitly synthetic records that explain the product without imitating real papers, results, or interview material.
+## Zotero keeps its bibliographic role
 
-The product is desktop-first, responsive, theme-aware, offline-friendly, and designed to keep its core workflow usable without an account or application server. `v0.2.0` also adds:
+Zotero remains authoritative for bibliography, PDFs, notes, annotations and citations. Select items in Zotero 8/9 and send them to the desk, then review the import preview, project, reading status and priority before confirming writes.
 
-- a Chinese-first interface with a complete English alternative; language switching never rewrites user research text or portable data;
-- first-class `ResearchQuestion`, `Claim`, explicit same-project links, and a visual Research Graph;
-- complete bilingual `TheoryMemo` CRUD, same-project relationship protection, and structured prompts that remain UI guidance only;
-- standard and encrypted local workspaces, locking, and `.sociologydesk` encrypted backup; ordinary IndexedDB and JSON export remain plaintext;
-- at most two URL-addressable Smart View levels across desktop and mobile without mutating data when views open;
-- portable workspace and standard IndexedDB v4; v3 → v4 adds only an empty `theoryMemos` collection and does not infer or rewrite research content.
+Plugin **0.1.0 transfers allowlisted bibliographic metadata only**, without reading/importing PDFs, attachments, private notes, annotations, full text, accounts or sync information. Local PDFs are selected independently in the desk; there is no automatic PDF metadata extraction.
 
-See [PROJECT_STATE.md](PROJECT_STATE.md), [data portability](docs/data-portability.md), and the [privacy and encryption model](docs/en/privacy-model.md) for the full feature, migration, security, and exact-gate record. Explicit Evidence↔Claim↔Manuscript traceability under Issue [#2](https://github.com/Yoesher/sociology-phd-desk/issues/2) remains unimplemented, and complete edit/delete parity across all objects is not claimed.
+**[Download plugin 0.1.0](https://github.com/Yoesher/sociology-phd-desk/releases/download/v0.3.0/sociology-phd-desk-zotero-0.1.0.xpi)** · [SHA-256 checksum](https://github.com/Yoesher/sociology-phd-desk/releases/download/v0.3.0/sociology-phd-desk-zotero-0.1.0.sha256) · [Installation and use](docs/en/zotero-integration.md)
 
-## Why sociology-specific?
+The plugin keeps its existing formal v0.3.0 assets; this application update is not a new plugin release.
 
-The product is for sociology doctoral researchers first: quantitative, qualitative, mixed-methods, and theoretical work, including population, labour, family, organizational, and youth research. Adjacent empirical researchers may find it useful, but the product will not trade away its sociology identity for generic productivity features.
+## Nine research domains, one lifecycle
 
-A proposed feature should answer a simple question: **does it solve a distinctive problem in the sociological research workflow?** Social networking, chat, a general note editor, a reference database, and an all-purpose AI assistant are deliberately outside the current scope.
+| Domain | Purpose |
+| --- | --- |
+| Today / Research projects | Shared goals, tasks, research questions, methods and project progress. |
+| Literature / Theory research | Reading relevance, PDFs, concepts, mechanisms and theory memos linked to same-project questions, claims and literature. |
+| Fieldwork / Quantitative analysis | Aliased sites, visits, interviews and optional sketches; datasets and Stata/R/Python analysis runs. |
+| Evidence / Research log | Source locators, findings, limitations and support judgments; research decisions and next steps. |
+| Manuscripts and publishing | Writing stages, submissions, reviewer comments, responses and revision actions, retaining entities and history. |
 
-## Language and data boundaries
+React, TypeScript and Vite render the interface; Dexie manages IndexedDB, Zod validates portable data and Web Crypto supplies optional authenticated encryption. Language preferences are separate from research workspaces; switching Chinese/English never rewrites titles, notes or other user text. No accounts, cloud sync, general AI assistant or map service.
 
-- [README.md](README.md) is the default Chinese entry point; this file is the complete English version.
-- The product direction is Simplified Chinese first with a complete English interface. Every substantial interface feature must maintain both languages; consult [PROJECT_STATE.md](PROJECT_STATE.md) for verified delivery status.
-- Interface language preference is stored separately from the research workspace. Domain enums, identifiers, and portable JSON remain locale-neutral.
-- Switching language changes application chrome, system messages, and date and number presentation. It never silently translates or rewrites user-authored titles, notes, quotations, fieldwork material, or other research content.
+[Architecture](docs/architecture/overview.md) · [Data model](docs/architecture/data-model.md) · [Decisions](DECISIONS.md) · [Roadmap](ROADMAP.md)
 
-## Local-first and privacy
+## Development and contribution
 
-- Core research records are stored in the browser with IndexedDB. Separate workspaces use separate physical databases, but remain inside one Web-origin trust boundary.
-- No account, default cloud synchronization, analytics, or third-party tracker is required.
-- Local paths for datasets, analysis scripts, and outputs are references and do not ingest those files. Optional literature PDFs in `0.3.1` store actual bytes and are included in ordinary/encrypted backups; the application is not a secure vault for source datasets or transcripts.
-- Standard workspaces and ordinary JSON exports are plaintext. Only an explicitly encrypted workspace or `.sociologydesk` backup uses application-layer encryption.
-- Workspace names, timestamps, mode, auto-lock state, and opaque storage-locator metadata remain visible in the plaintext registry. Encryption does not hide approximate database or backup size.
-- AI is not a core dependency. Any future AI suggestion must remain visibly separate from source evidence.
-
-Local-first does **not** mean risk-free. Browser storage can be cleared, devices can fail, an unlocked workspace can be read by malicious same-origin code or a compromised device, and ordinary JSON may contain sensitive notes. An interface lock is not encryption, and deleting IndexedDB is not verifiable secure erasure. Maintain and test appropriate backups and follow your institution's research-ethics, consent, retention, and data-protection requirements.
-
-Read [Security](SECURITY.md), the [privacy and encryption model](docs/en/privacy-model.md), and the [research ethics guidance](docs/research-workflows/research-ethics.md) before entering fieldwork or interview metadata.
-
-## Screenshots
-
-These `v0.2.0` release screenshots were captured from the real application at a 1280-pixel viewport during the candidate stage and show only the explicitly synthetic Demo workspace. See the [screenshot register](docs/screenshots/README.md) for capture and privacy details.
-
-![Chinese Today research desk](docs/screenshots/v0.2.0/01-today-zh.jpg)
-
-![Expanded Chinese two-level navigation](docs/screenshots/v0.2.0/02-navigation-expanded-zh.jpg)
-
-![Theory Research overview](docs/screenshots/v0.2.0/03-theory-overview-zh.jpg)
-
-![Theory core-concepts view](docs/screenshots/v0.2.0/04-theory-concepts-zh.jpg)
-
-![Research Question–Claim graph](docs/screenshots/v0.2.0/05-research-graph-zh.jpg)
-
-![Publishing revision view](docs/screenshots/v0.2.0/06-publishing-revision-zh.jpg)
-
-![Standard-workspace privacy boundary in Privacy Center](docs/screenshots/v0.2.0/07-privacy-lock-zh.jpg)
-
-![Complete English interface](docs/screenshots/v0.2.0/08-interface-en.jpg)
-
-## Developer setup and contribution
-
-### Prerequisites
-
-- Node.js 24 and npm 11 are the verified development environment.
-- A current Chromium-, Firefox-, or Safari-based desktop browser with IndexedDB enabled.
-
-### Run locally
-
-From an existing checkout:
-
-```bash
-npm ci
-npm run dev
-```
-
-The public repository is [Yoesher/sociology-phd-desk](https://github.com/Yoesher/sociology-phd-desk). A new checkout can use:
+**Node.js 24 / npm 11** are the verified development environment. Use a modern browser with IndexedDB; actual browser coverage and version acceptance belong in [PROJECT_STATE.md](PROJECT_STATE.md).
 
 ```bash
 git clone https://github.com/Yoesher/sociology-phd-desk.git
 cd sociology-phd-desk
+npm ci
+npm run dev
 ```
 
-Open the local URL printed by Vite. Data created in one browser profile is not automatically available in another profile or device.
-
-### Validate a contribution
+Open Vite's local URL. Browser profiles/devices do not automatically share records. The full release gate uses these original commands; Playwright requires the corresponding Chromium browser runtime.
 
 ```bash
+npm ci
+npm run audit:release
 npm run lint
 npm run typecheck
 npm test
+npm run test:zotero
 npm run build
+npm run test:e2e
 ```
 
-These commands are also the required CI sequence. A command is not considered passing unless it has actually run successfully in the current revision.
+Report only checks that actually passed on the current revision. Zotero builds may generate a hash file; review generated changes rather than treating a locally repackaged hash as the checksum of an existing formal download asset.
 
-### Back up or move a workspace
+[Contributing](CONTRIBUTING.en.md) · [Code of conduct](CODE_OF_CONDUCT.md) · [Researcher feedback form](https://github.com/Yoesher/sociology-phd-desk/issues/new?template=researcher_testing_feedback.yml)
 
-Ordinary JSON export is an inspectable, portable, **plaintext** workspace. Treat it according to its most sensitive record, and inspect the destination before sharing the file. On import, validate the preview and choose the intended merge behavior. Replacement must be an explicit action; it must never happen silently.
+Attach synthetic or fully redacted material only, without participant information, private fieldnotes, transcripts, credentials or proprietary data. Project activity/adoption is reported only when verified; maintainer tests, public availability or Stars do not establish external researcher adoption. See the [integrity register](docs/codex-for-oss.md) and [maintainer record](MAINTAINERS.md).
 
-`v0.2.0` exports portable v4 and continues to accept supported v1, v2, and v3 files by applying explicit v1 → v2 → v3 → v4 transformations before the same strict validation; v3 → v4 creates only an empty `theoryMemos` collection. See [data portability](docs/data-portability.md) for migration details and the research-graph boundary.
+## Citation and license
 
-`0.3.1` exports portable v6 and migrates supported older JSON through v1 → v2 → v3 → v4 → v5 → v6. The v5 → v6 step preserves literature and Zotero provenance without inferring PDF attachments. Project spaces change the displayed scope; writes and backups retain the complete workspace and other projects. Ordinary JSON containing PDFs remains plaintext. A v6 backup requires a v6-capable app and cannot be read by the `v0.3.0` app (schema v5).
-
-The `0.4.0` website update adds portable/standard/authenticated payload v7; v6 → v7 adds only an empty field-map collection. Its complete backups include local image bytes and markers. A v7 backup needs a v7-capable app; the earlier 0.3.1 app cannot read it. Container/vault/registry remain v1. Ordinary import/export stays bounded at 32 MiB; encrypted backup retains its 64 MiB ciphertext ceiling and independent attachment limits. Each revision's deployment acceptance is recorded separately in PROJECT_STATE.md and its closeout PR.
-
-Phase 3C adds `.sociologydesk` encrypted backup for encrypted workspaces. It is a separate container-v1 format, not ordinary JSON with a different extension. Restore authenticates and validates the entire backup before creating an independent workspace with a new logical workspace ID. A wrong passphrase or damaged ciphertext writes no destination workspace. See [data portability](docs/data-portability.md) and the [privacy and encryption model](docs/en/privacy-model.md) for the format and failure boundaries.
-
-## Architecture
-
-The current foundation uses React, TypeScript, and Vite. Dexie provides the IndexedDB data layer, Zod validates portable data, and Vitest covers testable application logic. The design keeps persistence and domain logic separate from page components so research objects can evolve without turning the application shell into a monolith. Merged research-graph and Theory work adds explicit stable-ID relationships and `TheoryMemo`; local workspaces use a metadata-only registry, per-workspace database adapters, a session gate, and Web Crypto vault. Formal `v0.3.0` uses portable/standard v5 for separate Zotero external references. `0.3.1` uses portable/standard and authenticated encrypted payload v6; current `0.4.0` uses v7 for local images/markers. Container, vault, and registry remain independently at v1.
-
-See [architecture overview](docs/architecture/overview.md), [data model](docs/architecture/data-model.md), and [decisions](DECISIONS.md).
-
-## Roadmap
-
-The `0.1` line established the core research lifecycle, safe import/export, quality gates, and public maintenance infrastructure; `v0.2.x` released the bilingual workstation, encrypted workspaces, Theory, simplified navigation, and PWA. Released `v0.3.0` focuses on active-navigation collapse, Zotero Handoff/plugin, import guards, browser E2E, security automation, and privacy-safe diagnostics. The province-level China fieldwork map is deferred because public-source, redistribution, project-review, and completeness requirements are not yet verifiable for this deployment. It is excluded from v0.3.0 and may be reconsidered only if those conditions materially change.
-
-See [ROADMAP.md](ROADMAP.md). Roadmap entries are intentions, not delivery promises.
-
-## Contributing
-
-Researchers, research software engineers, designers, and documentation contributors are welcome. The most useful reports describe a concrete research object or transition the current model cannot represent.
-
-- Read [CONTRIBUTING.en.md](CONTRIBUTING.en.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
-- Use the bug, feature, or research-workflow issue form that best fits the report.
-- Researcher testing can use the [bilingual feedback form](https://github.com/Yoesher/sociology-phd-desk/issues/new?template=researcher_testing_feedback.yml) with synthetic or fully redacted material only.
-- Never attach identifiable participant information, private fieldnotes, transcripts, credentials, or proprietary research data.
-- Run lint, type checking, tests, and the production build before opening a pull request.
-
-## Research ethics
-
-**Do not store directly identifying participant information here.** Use aliases and anonymous identifiers such as `participant_id`, `case_id`, and `interview_id`. Do not enter names, phone numbers, government identifiers, precise home addresses, signatures, or complete consent forms.
-
-Sociology PhD Desk is a workflow tool, not an ethics review, consent-management, de-identification, or institutional repository system. Optional application-layer encryption does not establish institutional approval, legal compliance, or absolute protection on a compromised device. Researchers remain responsible for lawful and ethical use.
-
-## Project integrity
-
-Project activity, users, stars, forks, downloads, issues, pull requests, releases, and external adoption are reported only when they can be verified. The evidence register is maintained in [docs/codex-for-oss.md](docs/codex-for-oss.md); public maintainer and citation metadata are in [MAINTAINERS.md](MAINTAINERS.md) and [CITATION.cff](CITATION.cff). The project has not automatically applied to any external program.
-
-## License
+If you use this software in research, cite **Sociology PhD Desk and the exact application version used**; machine-readable details are in [CITATION.cff](CITATION.cff). Release records and historical changes are in [Releases](https://github.com/Yoesher/sociology-phd-desk/releases) and [CHANGELOG.md](CHANGELOG.md).
 
 Sociology PhD Desk is available under the [MIT License](LICENSE).

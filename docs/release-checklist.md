@@ -55,8 +55,9 @@ This checkpoint preserves completed candidate evidence and the verified publicat
 - [ ] Theory Memo create/read/update/delete, project/type/date filters, all bilingual views, same-project question/claim/literature links, deletion protection, UI-only prompts, and theoretical-manuscript reuse work on the exact release revision.
 - [ ] `Theory / Conceptual Work` remains a locale-neutral raw task category while its display label and filters follow the selected language.
 - [ ] Fresh personal data remains empty; the demo's Theory records are minimal, explicitly synthetic, and make no real citation, finding, or theoretical-conclusion claim.
-- [ ] Portable and standard v6 round-trip; v1 → v2 → v3 → v4 → v5 → v6 migration preserves supported records and infers no theory, Zotero provenance, or attachments; ambiguous, duplicate, dangling, and cross-project Theory relationships produce zero writes.
-- [ ] Container v1, encrypted-vault database v1, and registry database v1 remain distinct from portable/standard v6; authenticated legacy portable-v3/v4/v5 vaults/backups migrate safely and every failure retains old ciphertext or creates no target.
+- [ ] Portable and standard v7 round-trip; v1 → v2 → v3 → v4 → v5 → v6 → v7 migration preserves supported records/PDFs and infers no theory, Zotero provenance, attachments or map positions. Legacy field maps initialize empty; ambiguous, duplicate, dangling and cross-project relationships produce zero writes.
+- [ ] Container/vault/registry v1 remain distinct from portable/standard/authenticated payload v7; authenticated legacy v3/v4/v5/v6 vaults/backups migrate safely and every failure retains old ciphertext or creates no target.
+- [ ] ADR-026 user-supplied local PNG/JPEG maps preserve same-project markers, linked fieldwork and complete backups. Entitled/coarse-location boundaries and raw metadata retention are explicit; no bundled national map/catalog, GPS, online service or public image export is supplied, and national gates remain BLOCKED until independently verified.
 
 ## Quality gates
 

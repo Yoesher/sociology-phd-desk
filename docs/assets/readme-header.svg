@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="280" viewBox="0 0 1400 280" role="img" aria-labelledby="title description">
+  <title id="title">Sociology PhD Desk — a place for your research</title>
+  <desc id="description">An ivory and teal academic desk illustration for the local-first, bilingual research workstation, application version 0.4.0. Books, field notes, analysis and writing are connected in a simple diagram, not an application screenshot.</desc>
+  <rect width="1400" height="280" rx="20" fill="#f4efe4"/>
+  <path d="M28 28H1372V252H28Z" fill="none" stroke="#dfd6c6"/>
+  <rect x="64" y="62" width="46" height="4" rx="2" fill="#ac704f"/>
+  <text x="64" y="111" fill="#173b41" font-family="Georgia, 'Times New Roman', serif" font-size="49">Sociology PhD Desk</text>
+  <text x="66" y="153" fill="#57665f" font-family="system-ui, sans-serif" font-size="21">A place for your literature, fieldwork, analysis and writing.</text>
+  <g font-family="system-ui, sans-serif" font-size="16" fill="#173b41">
+    <rect x="64" y="188" width="82" height="33" rx="16" fill="#173b41"/>
+    <text x="105" y="210" fill="#fffaf0" text-anchor="middle">v0.4.0</text>
+    <text x="165" y="210">Local-first</text>
+    <circle cx="271" cy="204" r="2" fill="#ac704f"/>
+    <text x="288" y="210">中文 / English</text>
+    <circle cx="429" cy="204" r="2" fill="#ac704f"/>
+    <text x="446" y="210">Offline-ready</text>
+  </g>
+  <g stroke="#173b41" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M857 116H953M1018 116H1110M1175 116H1280" stroke="#b9c8c0"/>
+    <rect x="800" y="79" width="68" height="74" rx="4" fill="#e5ece6"/>
+    <path d="M813 80V153M822 102H853M822 112H846M822 124H850"/>
+    <rect x="951" y="79" width="68" height="74" rx="4" fill="#ece0d4"/>
+    <path d="M966 96H1005M966 106H996M966 117H1003M966 135L975 127L984 135L995 124"/>
+    <rect x="1105" y="79" width="68" height="74" rx="4" fill="#e5ece6"/>
+    <path d="M1119 136H1159M1119 96V136M1128 126V118M1139 126V108M1150 126V100"/>
+    <path d="M1248 84H1297V153H1248Z" fill="#fffaf0"/>
+    <path d="M1260 100H1284M1260 112H1286M1260 124H1280M1285 79L1292 86L1276 102L1269 105L1271 97Z" fill="#ece0d4"/>
+    <path d="M797 184H1300" stroke="#dfd6c6"/>
+  </g>
+  <g fill="#57665f" font-family="system-ui, sans-serif" font-size="14" text-anchor="middle">
+    <text x="834" y="210">READ</text>
+    <text x="985" y="210">OBSERVE</text>
+    <text x="1139" y="210">ANALYZE</text>
+    <text x="1272" y="210">WRITE</text>
+  </g>
+</svg>
