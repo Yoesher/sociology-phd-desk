@@ -1,3 +1,17 @@
+# 0.6.0-rc.1 release execution — 2026-10-08
+
+Candidate ZIP SHA-256 `e1fdaa974895d92d0373d9fe026541997a6edccb7262f4d1f79420101ee718d8` and all 132 manifest members/CRC verified. All 87 changed source files match the package after `git apply --check` and patch application to a real upstream worktree. Current remote main is still `68f504bef1865c7a04ec93d7cfd59260a526fd94`; no existing same-name branch/PR was found. The original repository is clean and preserved. This branch has real upstream ancestry; the reconstructed local candidate chain is not pushed.
+
+GitHub login and admin/push access were verified under the current environment approval mechanism. The earlier connector rejection below is historical. Original release commands, exact-head CI/CodeQL, synthetic desktop/touch backups/migrations and real v0.5.0 waiting-worker retention are pending here. Do not infer deployment from this source checkpoint. Final main/workflow/deployment identities and prerelease acceptance are recorded in the independently verified publishing PR and [v0.6.0-rc.1 prerelease](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.6.0-rc.1) only after those operations succeed. Issues #2/#4 remain open.
+
+# 0.6.0-rc.1 local candidate checkpoint — 2026-10-08
+
+This is an unpublished qualitative provenance implementation based on upstream main 68f504bef1865c7a04ec93d7cfd59260a526fd94 (verified tree f651f70e70d879237a1cad0b8c9e1b27d0c9ef38). GitHub connector rejected branch creation because the operation requires approval while this session policy is never. No remote branch/PR/merge/tag/Release/Pages update is claimed. Issues #2/#4 are not closed.
+
+Shared 8 + qualitative 17 collections extend the retained 19 to 44; schema 9 and versioned source/code/memo/claim/evidence/manuscript relationships are implemented. Validation, case snapshots, negative evidence, normal/encrypted migration and rollback use completely synthetic tests. No real interviews or current user databases were read, and no identity or research materials were uploaded.
+
+Latest actual checks and outstanding gates: [candidate verification](docs/qualitative-provenance-validation-2026-10-08.md). The historical 0.5.0 publication record below remains evidence for that version only.
+
 # Project State
 
 > Last updated: 2026-10-04

@@ -1,3 +1,9 @@
+# Unreleased —0.6.0-rc.1 candidate
+
+- Add versioned qualitative source locators, reusable researcher codes, analytical TheoryMemo facets, frozen case comparisons and negative cases.
+- Add the shared Evidence–Claim–Manuscript explicit provenance interface and actual paragraph usage, reusing canonical research objects.
+- Preserve schema7 data through guarded7→8→9 migrations and complete44-collection ordinary/authenticated backups. Published0.5.0 remains unchanged.
+
 # Changelog
 
 All notable user-visible changes to Sociology PhD Desk will be documented here.

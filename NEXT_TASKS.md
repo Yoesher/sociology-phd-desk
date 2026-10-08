@@ -1,3 +1,26 @@
+# Current 0.6.0-rc.1 publication gates — 2026-10-08
+
+- [x] Verify package digest/132 members, real upstream state, safe isolated branch, and exact 87-file patch application.
+- [ ] Original eight local commands and exact pushed-head push/PR CI plus CodeQL.
+- [ ] Synthetic desktop/touch qualitative provenance, complete 44-collection ordinary/encrypted restoration, wrong-passphrase zero-write and original v7 backups/attachments/IDs/goals/project isolation.
+- [ ] Genuine v0.5.0 waiting-worker update; never claim an old app reads v9. Preserve complete verified v7 backup files.
+- [ ] Expected-head merge, exact-main CI/CodeQL/Pages, full public build SHA and fresh/held independent synthetic browser acceptance.
+- [ ] Authorized new v0.6.0-rc.1 annotated tag/prerelease, UTF-8 notes/readback/source archives and unchanged old Zotero 0.1.0 assets/update hash. Final evidence belongs in the publishing PR/prerelease and external ledger; pending checkboxes do not predeclare a future result.
+
+## Historical candidate handoff
+
+# Candidate release closeout — 2026-10-08
+
+The 0.6.0-rc.1/schema 9 implementation is local and reviewable; GitHub writing is blocked by the connector's approval requirement under a never-approval session. Do not treat this branch as published or close #2/#4 on the strength of local tests.
+
+1. Apply the reviewed candidate patch to upstream main 68f504bef1865c7a04ec93d7cfd59260a526fd94 in an environment with authorized GitHub write access.
+2. Run the original CI commands and CodeQL against the exact pushed head; review P0/P1 issues before merge.
+3. Verify fresh desktop/touch ordinary/encrypted workspaces and a genuine 0.5.0→candidate waiting-worker cohort, including all 44 collections, existing attachments, IDs/goals/preferences and independent backup restoration.
+4. Verify main CI/CodeQL/Pages identity and version before any formal release/tag. Preserve existing formal Zotero 0.1.0 release asset hash.
+5. Review the deliberately deferred identity-purge workflow and any later native-QDA import separately; no existing transcript editor/automatic transcription/AI coding is claimed.
+
+The previous project backlog follows; its historical completed publication evidence is not candidate acceptance.
+
 # Next Tasks
 
 > Current 2026-10-04 objective: close publication of the separately authorized **0.5.0 Research navigator**, whose S1 is live and verified through PR #62 at `96014dd1437f5535633ec8c5e96937da9e939139`. 0.4.1 final publication completed through PR #61 at `656b99ac708760b4aae684be8c4b19a95c7608a2`: final CI `37202484967`, CodeQL `37202484990`, Pages `37202484999`, deployment `6841041534` and annotated v0.4.1 / Release `403019896` passed. Final public desktop/touch and a separate genuine S1→S2 waiting-worker cohort retained all 19 collections, PDFs, map bytes/markers, goals/ID and browser preferences. The original runner failure below remains historical. This later evidence resolves its pending-closeout wording without rewriting it.

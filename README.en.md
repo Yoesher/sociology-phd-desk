@@ -1,3 +1,5 @@
+> This branch is the **0.6.0-rc.1 qualitative provenance candidate**, not a published release. The public site retains its deployed version. See [candidate notes](docs/releases/v0.6.0-rc.1.md).
+
 [简体中文](README.md) · **English**
 
 ![Sociology PhD Desk academic research workstation](docs/assets/readme-header.svg)
@@ -8,9 +10,9 @@
 
 A local-first workstation for sociology doctoral researchers. No account required. Chinese by default, with a complete English interface. Use your browser or install the PWA.
 
-**[Open the desk →](https://yoesher.github.io/sociology-phd-desk/)** · **[Releases](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[Get started](docs/en/getting-started.md)** · **[0.5.0 update notes](docs/releases/v0.5.0.md)**
+**[Open the desk →](https://yoesher.github.io/sociology-phd-desk/)** · **[Releases](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[Get started](docs/en/getting-started.md)** · **[0.6.0-rc.1 candidate notes](docs/releases/v0.6.0-rc.1.md)**
 
-`App 0.5.0` · `Data format v7` · `Local-first` · `Offline-capable`
+`App candidate 0.6.0-rc.1` · `Data format v9` · `Local-first` · `Offline-capable`
 
 **0.5.0: Research navigator.** Use the desktop or phone magnifier to search 17 record types, filter projects/types, read details and follow saved relationships. Project overview shows actual work queues and research objects, without a quality score. Queries stay in memory in the unlocked workspace, with no history or upload. Local maps link to field sites, visits and interviews through existing IDs; free evidence prose does not create inferred claim links. **[Complete correction plan and 20-tool comparison](docs/research-workstation-review-2026-10-04.md)** · [Usage notes](docs/releases/v0.5.0.md)
 

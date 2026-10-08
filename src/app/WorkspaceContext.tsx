@@ -16,6 +16,7 @@ import { nowIso } from './format'
 import { assertInteractiveBackupBudget } from '../utils/workspace-capacity'
 import { buildMergedWorkspace, WorkspaceIdentityError } from '../db/workspaceRepository'
 import { WorkspaceValidationError } from '../utils/workspace-transfer'
+import { reconcileProvenanceRootEdits } from '../utils/provenance-commands'
 import {
   WorkspaceContext,
   type WorkspaceContextValue,
@@ -60,11 +61,17 @@ function invalidatesOpenSession(error: unknown): boolean {
   ].includes(error.code)
 }
 
+function comparableRecord(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(comparableRecord).join(',')}]`
+  if (value && typeof value === 'object') return `{${Object.entries(value).filter(([, item]) => item !== undefined).sort(([a], [b]) => a.localeCompare(b)).map(([key, item]) => `${JSON.stringify(key)}:${comparableRecord(item)}`).join(',')}}`
+  return JSON.stringify(value)
+}
+
 function markEditedRecords<T extends EntityMetadata>(before: T[], after: T[]): T[] {
   const previousById = new Map(before.map((record) => [record.id, record]))
   return after.map((record) => {
     const previous = previousById.get(record.id)
-    return previous?.isDemo && previous !== record ? { ...record, isDemo: false } : record
+    return previous?.isDemo && comparableRecord(previous) !== comparableRecord(record) ? { ...record, isDemo: false } : record
   })
 }
 
@@ -349,7 +356,18 @@ export function WorkspaceProvider({
     async (updater: (current: WorkspaceData) => WorkspaceData) => {
       const current = dataRef.current
       if (!current) return
-      const next = markUserChanges(current, updater(current))
+      let next: WorkspaceData
+      try {
+        // Isolate the committed comparison baseline even when an updater mutates its argument.
+        next = reconcileProvenanceRootEdits(current, markUserChanges(current, updater(structuredClone(current))), {
+          now: nowIso(),
+          expectedRevision: current.workspace.revision,
+          reason: 'Research record edited',
+        })
+      } catch (validationError) {
+        if (mountedRef.current) setError(safePersistenceError(validationError))
+        throw validationError
+      }
       const expectedRevision = current.workspace.revision
       const snapshot = {
         ...next,

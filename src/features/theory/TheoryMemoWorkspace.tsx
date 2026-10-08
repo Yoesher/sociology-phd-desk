@@ -22,6 +22,7 @@ import {
   type TheoryMemoType,
 } from '../../models/domain'
 import { prioritizeTheoryProjects } from './theoryViews'
+import { previewProvenanceDeletion } from '../../utils/provenance-graph'
 
 const MEMO_TITLE_MAX_LENGTH = 1_000
 const MEMO_CONTENT_MAX_LENGTH = 250_000
@@ -94,13 +95,16 @@ export function TheoryMemoWorkspace({
   createRequest?: number
   onCreateRequestHandled?: () => void
 }) {
-  const { data, updateData } = useWorkspace()
+  const { data, fullData, updateData } = useWorkspace()
   const { t, formatDate, formatNumber, labelEnum } = useI18n()
   const [updatedFilter, setUpdatedFilter] = useState('')
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<TheoryMemo | null>(null)
   const [viewing, setViewing] = useState<TheoryMemo | null>(null)
   const [deleting, setDeleting] = useState<TheoryMemo | null>(null)
+  const [saveError, setSaveError] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [provenanceBlocked, setProvenanceBlocked] = useState<ReturnType<typeof previewProvenanceDeletion> | null>(null)
   const selectedTypes = useMemo(() => typeFilter.split(',').filter(
     (type): type is TheoryMemoType => THEORY_MEMO_TYPES.includes(type as TheoryMemoType),
   ), [typeFilter])
@@ -110,6 +114,7 @@ export function TheoryMemoWorkspace({
   const defaultProjectId = projectFilter || data?.workspace.activeProjectId || projects[0]?.id || ''
 
   const openCreate = () => {
+    setSaveError(false)
     setEditing(null)
     setDraft(emptyDraft(defaultProjectId, selectedTypes[0] || 'concept'))
     setFormOpen(true)
@@ -139,6 +144,13 @@ export function TheoryMemoWorkspace({
   }, [data?.theoryMemos, projectFilter, selectedTypes, updatedFilter])
 
   if (!data) return null
+  const persistSafely = async (updater: Parameters<typeof updateData>[0]) => {
+    if (busy) return false
+    setSaveError(false); setBusy(true)
+    try { await updateData(updater); return true }
+    catch { setSaveError(true); return false }
+    finally { setBusy(false) }
+  }
 
   const projectLabel = (projectId: string) => {
     const project = data.projects.find((item) => item.id === projectId)
@@ -146,6 +158,7 @@ export function TheoryMemoWorkspace({
   }
 
   const openEdit = (memo: TheoryMemo) => {
+    setSaveError(false)
     setViewing(null)
     setEditing(memo)
     setDraft({
@@ -176,8 +189,9 @@ export function TheoryMemoWorkspace({
     const content = draft.content
     if (!title || !draft.projectId) return
 
-    await updateData((current) => {
-      if (!current.projects.some((project) => project.id === draft.projectId)) return current
+    if (!await persistSafely((current) => {
+      if (!current.projects.some((project) => project.id === draft.projectId)) throw new Error('Memo project changed before saving')
+      if (editing && !current.theoryMemos.some((memo) => memo.id === editing.id)) throw new Error('Memo changed before saving')
       const allowedQuestionIds = new Set(current.researchQuestions
         .filter((item) => item.projectId === draft.projectId).map((item) => item.id))
       const allowedClaimIds = new Set(current.claims
@@ -185,10 +199,11 @@ export function TheoryMemoWorkspace({
       const allowedLiteratureIds = new Set(current.literature
         .filter((item) => item.projectId === draft.projectId).map((item) => item.id))
       const relationships = {
-        relatedQuestionIds: [...new Set(draft.relatedQuestionIds)].filter((id) => allowedQuestionIds.has(id)),
-        relatedClaimIds: [...new Set(draft.relatedClaimIds)].filter((id) => allowedClaimIds.has(id)),
-        relatedLiteratureIds: [...new Set(draft.relatedLiteratureIds)].filter((id) => allowedLiteratureIds.has(id)),
+        relatedQuestionIds: [...new Set(draft.relatedQuestionIds)],
+        relatedClaimIds: [...new Set(draft.relatedClaimIds)],
+        relatedLiteratureIds: [...new Set(draft.relatedLiteratureIds)],
       }
+      if (relationships.relatedQuestionIds.some((id) => !allowedQuestionIds.has(id)) || relationships.relatedClaimIds.some((id) => !allowedClaimIds.has(id)) || relationships.relatedLiteratureIds.some((id) => !allowedLiteratureIds.has(id))) throw new Error('Selected memo relationship changed before saving')
 
       if (editing) {
         return {
@@ -216,7 +231,7 @@ export function TheoryMemoWorkspace({
         ...relationships,
       }
       return { ...current, theoryMemos: [record, ...current.theoryMemos] }
-    })
+    })) return
 
     setFormOpen(false)
     setEditing(null)
@@ -226,12 +241,29 @@ export function TheoryMemoWorkspace({
   const deleteMemo = async () => {
     if (!deleting) return
     const id = deleting.id
-    await updateData((current) => ({
-      ...current,
-      theoryMemos: current.theoryMemos.filter((memo) => memo.id !== id),
-    }))
+    let blocked: ReturnType<typeof previewProvenanceDeletion> | null = null
+    const saved = await persistSafely((current) => {
+      const preview = previewProvenanceDeletion(current, 'theoryMemos', id)
+      if (preview.protected) { blocked = preview; throw new Error('Protected analytical memo') }
+      const ownedRevisions = new Set(preview.owned.filter((item) => item.collection === 'theoryMemoRevisions').map((item) => item.id))
+      const ownedFacets = new Set(preview.owned.filter((item) => item.collection === 'analyticalMemoFacets').map((item) => item.id))
+      return {
+        ...current,
+        theoryMemos: current.theoryMemos.filter((memo) => memo.id !== id),
+        theoryMemoRevisions: current.theoryMemoRevisions.filter((revision) => !ownedRevisions.has(revision.id)),
+        analyticalMemoFacets: current.analyticalMemoFacets.filter((facet) => !ownedFacets.has(facet.id)),
+      }
+    })
+    if (!saved) { if (blocked) { setDeleting(null); setProvenanceBlocked(blocked) }; return }
     setDeleting(null)
     setViewing(null)
+  }
+  const requestDelete = (memo: TheoryMemo) => {
+    setSaveError(false)
+    if (!fullData) return
+    const preview = previewProvenanceDeletion(fullData, 'theoryMemos', memo.id)
+    if (preview.protected) { setProvenanceBlocked(preview); return }
+    setDeleting(memo)
   }
 
   const questions = data.researchQuestions.filter((item) => item.projectId === draft.projectId)
@@ -246,6 +278,7 @@ export function TheoryMemoWorkspace({
 
   return (
     <section className="panel theory-memo-workspace" aria-labelledby="theory-memo-view-title">
+      {saveError && !formOpen && <div className="app-error" role="alert">{t('evidence.provenance.status.failed')}</div>}
       <SectionHeader
         title={t('theory.memo.allTitle')}
         description={t('theory.memo.allDescription')}
@@ -311,7 +344,7 @@ export function TheoryMemoWorkspace({
                   <div>
                     <Button size="sm" variant="ghost" aria-label={t('theory.memo.view', { title: memo.title })} onClick={() => setViewing(memo)}>{t('common.view')}</Button>
                     <Button size="sm" variant="ghost" aria-label={t('theory.memo.edit', { title: memo.title })} onClick={() => openEdit(memo)}>{t('common.edit')}</Button>
-                    <Button size="sm" variant="ghost" className="text-danger" aria-label={t('theory.memo.delete', { title: memo.title })} onClick={() => setDeleting(memo)}>{t('common.delete')}</Button>
+                    <Button size="sm" variant="ghost" className="text-danger" aria-label={t('theory.memo.delete', { title: memo.title })} onClick={() => requestDelete(memo)}>{t('common.delete')}</Button>
                   </div>
                 </footer>
               </article>
@@ -335,13 +368,14 @@ export function TheoryMemoWorkspace({
         footer={
           <>
             <Button onClick={() => { setFormOpen(false); setEditing(null) }}>{t('common.cancel')}</Button>
-            <Button type="submit" form="theory-memo-form" variant="primary">
+            <Button type="submit" form="theory-memo-form" variant="primary" disabled={busy}>
               {t(editing ? 'theory.memo.save' : 'theory.memo.create')}
             </Button>
           </>
         }
       >
         <form id="theory-memo-form" className="form-grid theory-memo-form" onSubmit={(event) => void saveMemo(event)}>
+          {saveError && <div className="app-error form-span-2" role="alert">{t('evidence.provenance.status.failed')}</div>}
           <Field label={t('theory.memo.project')} required>
             <ProjectSelect required projects={projects} value={draft.projectId} onChange={changeProject} />
           </Field>
@@ -426,15 +460,20 @@ export function TheoryMemoWorkspace({
       <ConfirmDialog
         open={Boolean(deleting)}
         title={t('theory.memo.deleteTitle', { title: deleting?.title ?? '' })}
-        description={t('theory.memo.deleteDescription', {
+        description={saveError ? t('evidence.provenance.status.failed') : t('theory.memo.deleteDescription', {
           questions: formatNumber(deleting?.relatedQuestionIds.length ?? 0),
           claims: formatNumber(deleting?.relatedClaimIds.length ?? 0),
           literature: formatNumber(deleting?.relatedLiteratureIds.length ?? 0),
         })}
         confirmLabel={t('theory.memo.deleteConfirm')}
+        busy={busy}
         onCancel={() => setDeleting(null)}
         onConfirm={deleteMemo}
       />
+      <Modal open={Boolean(provenanceBlocked)} title={t('evidence.provenance.delete.title')} description={t('evidence.provenance.delete.description')} onClose={() => setProvenanceBlocked(null)} size="md" footer={<Button onClick={() => setProvenanceBlocked(null)}>{t('common.cancel')}</Button>}>
+        <p>{t('evidence.provenance.delete.count', { count: formatNumber(provenanceBlocked?.blockers.length ?? 0) })}</p>
+        <ul>{provenanceBlocked?.blockers.slice(0, 40).map((item) => <li key={`${item.collection}/${item.id}`}><code>{item.collection}/{item.id}</code> <span>{item.state}</span></li>)}</ul>
+      </Modal>
     </section>
   )
 }

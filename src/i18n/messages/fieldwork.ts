@@ -2,6 +2,12 @@ import { defineMessages } from '../defineMessages'
 
 export const fieldworkMessages = defineMessages(
   {
+    'nav.fieldwork.qualitative': 'Qualitative analysis',
+    'nav.evidence.provenance': 'Evidence provenance',
+    'fieldwork.actions.qualitative': 'Analyze sources',
+    'fieldwork.delete.provenanceTitle': 'Saved relationships protect this record',
+    'fieldwork.delete.provenanceDescription': 'Current or historical records use this source. Retain it or explicitly withdraw the source; deletion never cascades through research history.',
+    'fieldwork.delete.provenanceCount': '{count} saved relationships block deletion. The first 40 are listed below.',
     'fieldwork.header.eyebrow': 'Qualitative traceability',
     'fieldwork.header.title': 'Fieldwork & interviews',
     'fieldwork.header.description': 'Keep sites, anonymized interviews, visits, and analytical work products linked without collecting direct identifiers.',
@@ -111,6 +117,12 @@ export const fieldworkMessages = defineMessages(
     'fieldwork.delete.blockedMany': '{count} linked field visits are protecting this site from deletion.',
   },
   {
+    'nav.fieldwork.qualitative': '定性分析',
+    'nav.evidence.provenance': '证据追溯',
+    'fieldwork.actions.qualitative': '分析资料',
+    'fieldwork.delete.provenanceTitle': '已登记关系保护这条记录',
+    'fieldwork.delete.provenanceDescription': '当前或历史记录引用此来源。请保留记录或明确撤回资料；删除不会级联清除研究历史。',
+    'fieldwork.delete.provenanceCount': '共有 {count} 条已登记关系阻止删除，下方显示前 40 条。',
     'fieldwork.header.eyebrow': '质性研究溯源',
     'fieldwork.header.title': '田野与访谈',
     'fieldwork.header.description': '在不收集直接身份信息的前提下，关联田野点、匿名访谈、访问记录和分析工作成果。',

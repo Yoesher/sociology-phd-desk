@@ -9,6 +9,7 @@ import {
   WorkspaceStorageInvariantError,
 } from './workspaceRepository'
 import { createDemoWorkspace } from '../models/demo'
+import { emptyProvenanceCollections } from '../models/provenance'
 import { validateWorkspace, WorkspaceValidationError } from '../utils/workspace-transfer'
 import {
   createStandardWorkspaceDatabase,
@@ -153,6 +154,7 @@ describe('workspace repository', () => {
     replacement.workspace.name = 'Replacement workspace'
     replacement.tasks = replacement.tasks.slice(0, 1)
     replacement.evidence = []
+    replacement.evidenceRevisions = []
 
     await replaceWorkspace(replacement)
     const persisted = await getWorkspaceSnapshot()
@@ -244,7 +246,7 @@ describe('workspace repository', () => {
       title: 'Local title must win',
       updatedAt: laterTimestamp,
     })
-    const incoming = createDemoWorkspace(new Date(laterTimestamp))
+    const incoming = structuredClone(current)
     incoming.projects[0] = { ...originalProject, title: 'Imported collision' }
     incoming.projects.push({
       ...originalProject,
@@ -310,6 +312,7 @@ describe('workspace repository', () => {
       throw new Error('Expected a demo claim.')
     }
     claim.text = 'A semantically different incoming claim with the same ID.'
+    incoming.claimRevisions.find((revision) => revision.claimId === claim.id)!.snapshot.text = claim.text
     incoming.researchQuestions.push({
       ...incoming.researchQuestions[0]!,
       id: 'incoming-question-that-must-not-commit',
@@ -418,6 +421,7 @@ describe('workspace repository', () => {
     incoming.manuscripts = []
     incoming.submissions = []
     incoming.reviewerComments = []
+    Object.assign(incoming, emptyProvenanceCollections())
 
     expect(validateWorkspace(incoming).success).toBe(true)
     await expect(mergeWorkspace(incoming)).rejects.toBeInstanceOf(WorkspaceValidationError)

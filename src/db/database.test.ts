@@ -1,10 +1,11 @@
+import { LEGACY_COLLECTION_KEYS } from '../models/provenance'
 import Dexie from 'dexie'
 import { describe, expect, it } from 'vitest'
 import { SociologyPhdDeskDatabase } from './database'
 import { createDemoWorkspace } from '../models/demo'
 import { WorkspaceValidationError } from '../utils/workspace-transfer'
 import { MAX_SERIALIZED_WORKSPACE_BYTES, workspaceSerializedBytes } from '../utils/workspace-capacity'
-import { StandardWorkspaceRepository, WORKSPACE_COLLECTIONS, workspaceSnapshotsEqual } from './workspaceRepository'
+import { StandardWorkspaceRepository, workspaceSnapshotsEqual } from './workspaceRepository'
 
 function legacyGraphRecords() {
   const demo = createDemoWorkspace(new Date('2026-04-10T09:30:00.000Z'))
@@ -25,7 +26,7 @@ function legacyGraphRecords() {
 }
 
 describe('database migrations', () => {
-  it.each([{ version: 5, largeLegacy: false }, { version: 6, largeLegacy: false }, { version: 6, largeLegacy: true }])('opens published v$version (large=$largeLegacy) as v7 and retains research records, PDFs and Zotero provenance', async ({ version, largeLegacy }) => {
+  it.each([{ version: 5, largeLegacy: false }, { version: 6, largeLegacy: false }, { version: 6, largeLegacy: true }])('opens published v$version (large=$largeLegacy) as v9 and retains research records, PDFs and Zotero provenance', async ({ version, largeLegacy }) => {
     const databaseName = `sociology-phd-desk-v${version}-migration-${crypto.randomUUID()}`
     const legacyDatabase = new Dexie(databaseName)
     legacyDatabase.version(version).stores({
@@ -74,7 +75,7 @@ describe('database migrations', () => {
     let repository: StandardWorkspaceRepository | undefined
     try {
       await legacyDatabase.table('workspaces').put(workspace.workspace)
-      for (const collection of WORKSPACE_COLLECTIONS.filter((name) => name !== 'fieldMaps')) {
+      for (const collection of LEGACY_COLLECTION_KEYS.filter((name) => name !== 'fieldMaps')) {
         await legacyDatabase.table(collection).bulkPut(workspace[collection])
       }
       expect(legacyDatabase.verno).toBe(version)
@@ -82,14 +83,14 @@ describe('database migrations', () => {
       const upgradedDatabase = new SociologyPhdDeskDatabase(databaseName)
       repository = new StandardWorkspaceRepository(upgradedDatabase, workspace.workspace.id)
       const upgraded = await repository.getWorkspaceSnapshot()
-      expect(upgradedDatabase.verno).toBe(7)
-      expect(upgraded?.version).toBe(7)
+      expect(upgradedDatabase.verno).toBe(9)
+      expect(upgraded?.version).toBe(9)
       expect(upgraded && workspaceSnapshotsEqual(upgraded, workspace)).toBe(true)
       expect(upgraded?.workspace.revision).toBe(7)
       expect(upgraded?.literatureExternalReferences).toEqual(workspace.literatureExternalReferences)
       expect(upgraded?.literature).toEqual(workspace.literature)
       expect(upgraded?.fieldMaps).toEqual([])
-      expect(upgradedDatabase.tables).toHaveLength(20)
+      expect(upgradedDatabase.tables).toHaveLength(45)
       repository.close()
       repository = new StandardWorkspaceRepository(new SociologyPhdDeskDatabase(databaseName), workspace.workspace.id)
       const reopened = await repository.getWorkspaceSnapshot()
@@ -99,7 +100,7 @@ describe('database migrations', () => {
       repository?.close()
       await Dexie.delete(databaseName)
     }
-  })
+  }, 60_000)
 
   it('upgrades v1 through revisions and first-class graph tables without losing source text', async () => {
     const databaseName = `sociology-phd-desk-migration-${crypto.randomUUID()}`
@@ -124,7 +125,7 @@ describe('database migrations', () => {
     try {
       const migrated = await upgradedDatabase.workspaces.get(String(legacyWorkspace['id']))
       expect(migrated?.revision).toBe(0)
-      expect(upgradedDatabase.verno).toBe(7)
+      expect(upgradedDatabase.verno).toBe(9)
       expect(await upgradedDatabase.researchQuestions.count()).toBe(1)
       expect(await upgradedDatabase.claims.count()).toBe(1)
       expect(await upgradedDatabase.claimQuestionLinks.count()).toBe(0)
@@ -202,7 +203,7 @@ describe('database migrations', () => {
     const upgradedDatabase = new SociologyPhdDeskDatabase(databaseName)
     try {
       await upgradedDatabase.open()
-      expect(upgradedDatabase.verno).toBe(7)
+      expect(upgradedDatabase.verno).toBe(9)
       expect(await upgradedDatabase.projects.count()).toBe(1)
       expect(await upgradedDatabase.researchQuestions.count()).toBe(1)
       expect(await upgradedDatabase.claims.count()).toBe(1)

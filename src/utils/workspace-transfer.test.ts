@@ -1,3 +1,4 @@
+import { PROVENANCE_COLLECTION_KEYS } from '../models/provenance'
 import { describe, expect, it } from 'vitest'
 import { createDemoWorkspace } from '../models/demo'
 import { THEORY_MEMO_TYPES } from '../models/domain'
@@ -20,6 +21,7 @@ function createLegacyV2Envelope(): Record<string, unknown> {
     current.researchQuestions.map((question) => [question.projectId, question.text]),
   )
   const legacy = structuredClone(current) as unknown as Record<string, unknown>
+  for (const key of PROVENANCE_COLLECTION_KEYS) delete legacy[key]
   legacy['version'] = 2
   legacy['projects'] = current.projects.map((project) => ({
     ...project,
@@ -52,7 +54,7 @@ describe('workspace JSON transfer', () => {
     expect(new Date(imported.exportedAt).toString()).not.toBe('Invalid Date')
   })
 
-  it('imports v1 through the explicit v1-to-v2-to-v3-to-v4-to-v5-to-v6-to-v7 migration chain', () => {
+  it('imports v1 through the explicit v1-to-v2-to-v3-to-v4-to-v5-to-v6-to-v7-to-v8-to-v9 migration chain', () => {
     const legacy = createLegacyV2Envelope()
     const legacyProjects = legacy['projects'] as Array<Record<string, unknown>>
     const expectedQuestionCount = legacyProjects.filter(
@@ -67,7 +69,7 @@ describe('workspace JSON transfer', () => {
 
     const imported = importWorkspaceJson(JSON.stringify(legacy))
 
-    expect(imported.version).toBe(7)
+    expect(imported.version).toBe(9)
     expect(imported.application).toBe('sociology-phd-desk')
     expect(imported.workspace.revision).toBe(0)
     expect(imported.projects).toHaveLength(legacyProjects.length)
@@ -98,6 +100,7 @@ describe('workspace JSON transfer', () => {
       string,
       unknown
     >
+    for (const key of PROVENANCE_COLLECTION_KEYS) delete legacy[key]
     legacy['version'] = 3
     delete legacy['theoryMemos']
     delete legacy['literatureExternalReferences']
@@ -119,6 +122,7 @@ describe('workspace JSON transfer', () => {
       string,
       unknown
     >
+    for (const key of PROVENANCE_COLLECTION_KEYS) delete legacy[key]
     legacy['version'] = 4
     delete legacy['literatureExternalReferences']
     delete legacy['fieldMaps']
@@ -128,7 +132,7 @@ describe('workspace JSON transfer', () => {
 
     expect(migrated['version']).toBe(5)
     expect(migrated['literatureExternalReferences']).toEqual([])
-    expect(imported.version).toBe(7)
+    expect(imported.version).toBe(9)
     expect(imported.literatureExternalReferences).toEqual([])
   })
 
@@ -137,6 +141,7 @@ describe('workspace JSON transfer', () => {
       string,
       unknown
     >
+    for (const key of PROVENANCE_COLLECTION_KEYS) delete legacy[key]
     legacy['version'] = 4
 
     expect(validateWorkspace(legacy).success).toBe(false)
@@ -147,6 +152,7 @@ describe('workspace JSON transfer', () => {
       string,
       unknown
     >
+    for (const key of PROVENANCE_COLLECTION_KEYS) delete legacy[key]
     legacy['version'] = 3
 
     expect(validateWorkspace(legacy).success).toBe(false)

@@ -4,11 +4,8 @@ import {
   EncryptedContainerAuthenticationError,
   EncryptedContainerFormatError,
   ENCRYPTED_PAYLOAD_VERSION,
+  SUPPORTED_ENCRYPTED_PAYLOAD_VERSIONS,
   EncryptedPayloadValidationError,
-  LEGACY_ENCRYPTED_PAYLOAD_VERSION,
-  PREVIOUS_ENCRYPTED_PAYLOAD_VERSION,
-  ZOTERO_ENCRYPTED_PAYLOAD_VERSION,
-  PDF_ENCRYPTED_PAYLOAD_VERSION,
   LocalWorkspaceCryptoSession,
   MAX_KEY_INVOCATIONS,
   WebCryptoUnavailableError,
@@ -271,10 +268,8 @@ async function upgradeLegacyEncryptedWorkspace(
   workspace: WorkspaceData
 }> {
   if (
-    opened.payloadVersion !== LEGACY_ENCRYPTED_PAYLOAD_VERSION &&
-    opened.payloadVersion !== PREVIOUS_ENCRYPTED_PAYLOAD_VERSION &&
-    opened.payloadVersion !== ZOTERO_ENCRYPTED_PAYLOAD_VERSION &&
-    opened.payloadVersion !== PDF_ENCRYPTED_PAYLOAD_VERSION
+    opened.payloadVersion === ENCRYPTED_PAYLOAD_VERSION ||
+    !SUPPORTED_ENCRYPTED_PAYLOAD_VERSIONS.includes(opened.payloadVersion)
   ) {
     throw new EncryptedContainerAuthenticationError()
   }

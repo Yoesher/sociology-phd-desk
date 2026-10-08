@@ -55,6 +55,15 @@ function sourceVersionOf(input: unknown): number {
   return typeof version === 'number' && Number.isInteger(version) ? version : 0
 }
 
+function assertRawRecordLimits(input: unknown): void {
+  if (typeof input !== 'object' || input === null || Array.isArray(input)) return
+  const data = input as Record<string, unknown>
+  const counts = Object.fromEntries(WORKSPACE_COLLECTIONS.map((collection) => [
+    collection, Array.isArray(data[collection]) ? data[collection].length : 0,
+  ])) as Record<WorkspaceCollectionName, number>
+  assertRecordLimits(counts)
+}
+
 function migrationSteps(sourceVersion: number): string[] {
   if (sourceVersion < 1 || sourceVersion > WORKSPACE_SCHEMA_VERSION) return []
   return Array.from(
@@ -173,6 +182,7 @@ export function preflightPortableWorkspaceText(
   current?: WorkspaceData,
 ): WorkspaceImportPreflight {
   const input = parseJson(text)
+  assertRawRecordLimits(input)
   const sourceVersion = sourceVersionOf(input)
   const result = validateWorkspace(input)
   if (!result.success) {

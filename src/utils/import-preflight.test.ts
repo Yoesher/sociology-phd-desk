@@ -1,3 +1,4 @@
+import { PROVENANCE_COLLECTION_KEYS } from '../models/provenance'
 import { webcrypto } from 'node:crypto'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import { createEncryptedBackup } from '../crypto'
@@ -31,8 +32,8 @@ describe('unified import preflight', () => {
 
     expect(preflight).toMatchObject({
       sourceFormat: 'portable-workspace-json',
-      sourceVersion: 7,
-      targetVersion: 7,
+      sourceVersion: 9,
+      targetVersion: 9,
       migrationSteps: [],
       conflictCount: 0,
     })
@@ -41,8 +42,9 @@ describe('unified import preflight', () => {
     expect(file.text).toHaveBeenCalledOnce()
   })
 
-  it('reports the full legacy v1 to v7 migration chain without inferring new records', () => {
+  it('reports the full legacy v1 to v9 migration chain without inferring new records', () => {
     const legacy = createDemoWorkspace(new Date('2026-08-14T00:00:00.000Z')) as unknown as Record<string, unknown>
+    for (const key of PROVENANCE_COLLECTION_KEYS) delete legacy[key]
     legacy.version = 1
     delete legacy.researchQuestions
     delete legacy.claims
@@ -54,14 +56,14 @@ describe('unified import preflight', () => {
     projects.forEach((project) => { project.researchQuestion = 'Synthetic legacy question' })
 
     const preflight = preflightPortableWorkspaceText(JSON.stringify(legacy))
-    expect(preflight.migrationSteps).toEqual(['v1 → v2', 'v2 → v3', 'v3 → v4', 'v4 → v5', 'v5 → v6', 'v6 → v7'])
+    expect(preflight.migrationSteps).toEqual(['v1 → v2', 'v2 → v3', 'v3 → v4', 'v4 → v5', 'v5 → v6', 'v6 → v7', 'v7 → v8', 'v8 → v9'])
     expect(preflight.collectionCounts.theoryMemos).toBe(0)
     expect(preflight.collectionCounts.literatureExternalReferences).toBe(0)
   })
 
   it('rejects future schemas, per-collection abuse, and oversized files before reading', async () => {
     const future = createDemoWorkspace() as unknown as Record<string, unknown>
-    future.version = 8
+    future.version = 10
     expect(() => preflightPortableWorkspaceText(JSON.stringify(future))).toThrow()
 
     const excessive = createDemoWorkspace()
@@ -105,8 +107,8 @@ describe('unified import preflight', () => {
     )
     expect(preflight).toMatchObject({
       sourceFormat: 'encrypted-workspace-backup',
-      sourceVersion: 7,
-      targetVersion: 7,
+      sourceVersion: 9,
+      targetVersion: 9,
       migrationSteps: [],
       duplicateCount: 0,
       conflictCount: 0,

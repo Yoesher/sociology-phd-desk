@@ -1,3 +1,5 @@
+> 本分支为 **0.6.0-rc.1 定性分析追溯候选**，尚未发布；公开网站仍以实际部署版本为准。新增界面、44集合及 v7→v8→v9 兼容说明见[候选说明](docs/releases/v0.6.0-rc.1.md)。
+
 **简体中文** · [English](README.en.md)
 
 ![Sociology PhD Desk 学术研究工作站](docs/assets/readme-header.svg)
@@ -8,9 +10,9 @@
 
 面向社会学博士研究者的本地优先工作站。无需账号，中文优先并提供完整英文界面；浏览器即可使用，也可安装为 PWA。
 
-**[打开工作站 →](https://yoesher.github.io/sociology-phd-desk/)** · **[发行版](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[开始使用](docs/zh-CN/getting-started.md)** · **[0.5.0 更新说明](docs/releases/v0.5.0.md)**
+**[打开工作站 →](https://yoesher.github.io/sociology-phd-desk/)** · **[发行版](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[开始使用](docs/zh-CN/getting-started.md)** · **[0.6.0-rc.1 候选说明](docs/releases/v0.6.0-rc.1.md)**
 
-`应用 0.5.0` · `数据格式 v7` · `本地优先` · `可离线使用`
+`应用候选 0.6.0-rc.1` · `数据格式 v9` · `本地优先` · `可离线使用`
 
 **0.5.0：研究导航。** 桌面与手机的放大镜可检索17类研究记录，按项目与类型筛选，查看笔记详情和已登记关系；项目概览显示真实任务队列、问题与资料积累。查询只在当前已解锁工作台内存中运行，不保存历史、不上传。地图、田野点、访问与访谈可沿稳定ID互相回看；证据文字不会被猜成主张链接。**[完整修正方案与20工具比较](docs/research-workstation-review-2026-10-04.md)** · [使用说明](docs/releases/v0.5.0.md)
 

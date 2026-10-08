@@ -8,6 +8,7 @@ import type { WorkspaceRegistryEntry } from '../models/workspace-registry'
 import { WorkspaceCenter, type WorkspaceCenterProps } from './WorkspaceCenter'
 import { createDemoWorkspace } from '../models/demo'
 import type { WorkspaceImportPreflight } from '../utils/import-preflight'
+import { WORKSPACE_COLLECTIONS } from '../db/workspaceRepository'
 
 function registryEntry(
   overrides: Partial<WorkspaceRegistryEntry> = {},
@@ -52,14 +53,9 @@ function renderCenter(overrides: Partial<WorkspaceCenterProps> = {}) {
   const preflight: WorkspaceImportPreflight = {
     sourceFormat: 'portable-workspace-json',
     sourceVersion: 7,
-    targetVersion: 7,
+    targetVersion: WORKSPACE_SCHEMA_VERSION,
     migrationSteps: [],
-    collectionCounts: {
-      projects: 0, researchQuestions: 0, claims: 0, claimQuestionLinks: 0,
-      theoryMemos: 0, tasks: 0, literature: 0, literatureExternalReferences: 0,
-      fieldSites: 0, fieldMaps: 0, interviews: 0, fieldVisits: 0, datasets: 0, analysisRuns: 0,
-      evidence: 0, researchLogs: 0, manuscripts: 0, submissions: 0, reviewerComments: 0,
-    },
+    collectionCounts: Object.fromEntries(WORKSPACE_COLLECTIONS.map((key) => [key, 0])) as WorkspaceImportPreflight['collectionCounts'],
     totalRecords: 0,
     duplicateCount: 0,
     duplicateIds: {},

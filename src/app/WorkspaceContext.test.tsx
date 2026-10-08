@@ -10,6 +10,7 @@ import { MAX_SERIALIZED_WORKSPACE_BYTES, workspaceSerializedBytes } from '../uti
 import type { WorkspaceData } from '../models/domain'
 import { WorkspaceContext, type WorkspaceContextValue } from './workspace-context'
 import { WorkspaceProvider } from './WorkspaceContext'
+import { applyProvenanceCommand } from '../utils/provenance-commands'
 import type { WorkspaceResearchRuntimeControl } from './workspace-session-context'
 import type { WorkspaceSessionChannel, WorkspaceSessionMessage } from './workspace-session-channel'
 
@@ -45,6 +46,59 @@ describe('WorkspaceProvider optimistic write queue', () => {
   afterEach(() => {
     cleanup()
     vi.unstubAllGlobals()
+  })
+
+  it('preserves untouched DEMO records when a metadata command clones the whole workspace', async () => {
+    const initial = createDemoWorkspace(new Date('2026-10-08T00:00:00.000Z'))
+    const port = repository({ replaceWorkspace: vi.fn(async (snapshot: WorkspaceData) => snapshot) })
+    render(<WorkspaceProvider repository={port} initialSnapshot={initial} workspaceId="demo-provenance" storageId="demo-storage" onExternalLock={vi.fn()}><ContextProbe /></WorkspaceProvider>)
+    await act(async () => getContext().updateData((current) => applyProvenanceCommand(current, {
+      type: 'createCode', projectId: current.projects[0]!.id, label: 'SYNTHETIC researcher code',
+      stage: 'initial', definition: 'SYNTHETIC metadata definition', inclusion: '', exclusion: '',
+    })))
+    expect(getContext().data!.projects).toEqual(initial.projects)
+    expect(getContext().data!.interviews).toEqual(initial.interviews)
+    expect(getContext().data!.claims).toEqual(initial.claims)
+    expect(getContext().data!.claimRevisions).toEqual(initial.claimRevisions)
+    expect(getContext().data!.qualitativeCodes).toHaveLength(1)
+    expect(getContext().data!.qualitativeCodes[0]!.isDemo).toBe(false)
+  })
+
+  it('keeps a DEMO claim first revision intact and records an ordinary form edit as a user revision', async () => {
+    const initial = createDemoWorkspace(new Date('2026-10-08T00:00:00.000Z'))
+    const claim = initial.claims[0]!
+    const oldRevision = initial.claimRevisions.find((item) => item.claimId === claim.id)!
+    const port = repository({ replaceWorkspace: vi.fn(async (snapshot: WorkspaceData) => snapshot) })
+    render(<WorkspaceProvider repository={port} initialSnapshot={initial} workspaceId="demo-claim" storageId="demo-storage" onExternalLock={vi.fn()}><ContextProbe /></WorkspaceProvider>)
+    await act(async () => getContext().updateData((current) => ({ ...current, claims: current.claims.map((item) => item.id === claim.id ? { ...item, text: 'SYNTHETIC revised mechanism' } : item) })))
+    const result = getContext().data!
+    expect(result.claims.find((item) => item.id === claim.id)!.isDemo).toBe(false)
+    expect(result.claimRevisions.find((item) => item.id === oldRevision.id)).toEqual(oldRevision)
+    expect(result.claimRevisions.filter((item) => item.claimId === claim.id).map((item) => item.revisionNo)).toEqual([1, 2])
+    expect(result.claimRevisions.find((item) => item.claimId === claim.id && item.revisionNo === 2)!.snapshot.text).toBe('SYNTHETIC revised mechanism')
+  })
+
+  it('isolates mutating updaters so immutable history cannot overwrite the committed baseline', async () => {
+    const initial = createDemoWorkspace(new Date('2026-10-08T00:00:00.000Z'))
+    const preserved = structuredClone(initial)
+    const port = repository({ replaceWorkspace: vi.fn(async (snapshot: WorkspaceData) => snapshot) })
+    render(<WorkspaceProvider repository={port} initialSnapshot={initial} workspaceId="synthetic-mutation-guard" storageId="synthetic-storage" onExternalLock={vi.fn()}><ContextProbe /></WorkspaceProvider>)
+    await act(async () => {
+      await expect(getContext().updateData((current) => {
+        current.claimRevisions[0]!.snapshot.text = 'SYNTHETIC forbidden history overwrite'
+        return current
+      })).rejects.toThrow('Immutable provenance history')
+    })
+    expect(port.replaceWorkspace).not.toHaveBeenCalled()
+    expect(getContext().data).toEqual(preserved)
+    expect(initial).toEqual(preserved)
+    await act(async () => getContext().updateData((current) => {
+      current.claims[0]!.text = 'SYNTHETIC allowed new claim version'
+      return current
+    }))
+    expect(getContext().data!.claimRevisions.find((row) => row.id === preserved.claimRevisions[0]!.id)).toEqual(preserved.claimRevisions[0])
+    expect(getContext().data!.claims[0]!.text).toBe('SYNTHETIC allowed new claim version')
+    expect(port.replaceWorkspace).toHaveBeenCalledOnce()
   })
 
   it('cancels dependent B2 after B1 conflicts and exposes only a stable safe error code', async () => {

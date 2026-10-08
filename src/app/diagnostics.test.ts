@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createDemoWorkspace } from '../models/demo'
+import { WORKSPACE_SCHEMA_VERSION } from '../models/domain'
 import type { WorkspaceRegistryEntry } from '../models/workspace-registry'
 import { WORKSPACE_COLLECTIONS } from '../db/workspaceRepository'
 import {
@@ -17,7 +18,7 @@ const entry: WorkspaceRegistryEntry = {
   encryptionMode: 'encrypted',
   createdAt: '2026-08-15T00:00:00.000Z',
   updatedAt: '2026-08-15T00:00:00.000Z',
-  schemaVersion: 7,
+  schemaVersion: WORKSPACE_SCHEMA_VERSION,
   storageSchemaVersion: 1,
   registryRevision: 7,
   autoLock: 15,

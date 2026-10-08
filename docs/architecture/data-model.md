@@ -265,3 +265,7 @@ Changing one axis does not automatically change the others or the package versio
 - v6 → v7 adds only fieldMaps: []; preserve existing PDF/research bytes and reject ambiguous preexisting fieldMaps, without inventing images or coordinates.
 - Authenticate legacy portable-v3/v4/v5/v6 ciphertext before migration. Publish v7 only after validation/read-back; restore validates before creating a new vault. Failure retains old authenticated ciphertext and creates no partial destination.
 - A v7 backup requires a v7-capable application; earlier 0.3.1 (v6) cannot read it. Preserve tested original-version backups before moving between app versions.
+
+## Schema9 candidate extension
+
+The unpublished0.6.0-rc.1 candidate preserves the existing19 collections and adds shared8 plus qualitative17. See [qualitative provenance](qualitative-provenance.md) for the exact collection registry and ownership/version rules. Executable interfaces, strict row schemas, graph constraints and full-snapshot commands live in src/models/provenance.ts and src/utils/provenance-*.ts. TheoryMemo/Claim/EvidenceItem/Manuscript remain canonical roots; there is no parallel analytical memo or manuscript evidence object.

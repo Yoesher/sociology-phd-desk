@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { legacyViewAliases, navigationItems, normalizeModuleSearch } from './navigation'
 
 describe('simplified navigation contract', () => {
-  it('keeps nine research domains and 33 workflow views including local map annotations', () => {
+  it('keeps nine research domains and 35 workflow views including qualitative and evidence provenance', () => {
     expect(navigationItems).toHaveLength(9)
-    expect(navigationItems.map((item) => item.views.length)).toEqual([3, 4, 4, 4, 5, 3, 3, 3, 4])
-    expect(navigationItems.reduce((count, item) => count + item.views.length, 0)).toBe(33)
+    expect(navigationItems.map((item) => item.views.length)).toEqual([3, 4, 4, 4, 6, 3, 4, 3, 4])
+    expect(navigationItems.reduce((count, item) => count + item.views.length, 0)).toBe(35)
     expect(normalizeModuleSearch('fieldwork', 'view=maps').get('view')).toBe('maps')
   })
 

@@ -1,3 +1,4 @@
+import { previewProvenanceDeletion } from '../../utils/provenance-graph'
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { FolderKanban, Network } from 'lucide-react'
 import {
@@ -178,32 +179,18 @@ export function ProjectsPage() {
   const deleteProject = async () => {
     if (!deleting) return
     const id = deleting.id
-    const dependencyCount =
-      data.tasks.filter((item) => item.projectId === id).length +
-      data.literature.filter((item) => item.projectId === id).length +
-      data.fieldSites.filter((item) => item.projectId === id).length +
-      data.fieldMaps.filter((item) => item.projectId === id).length +
-      data.interviews.filter((item) => item.projectId === id).length +
-      data.fieldVisits.filter((item) => item.projectId === id).length +
-      data.datasets.filter((item) => item.projectId === id).length +
-      data.analysisRuns.filter((item) => item.projectId === id).length +
-      data.evidence.filter((item) => item.projectId === id).length +
-      data.researchLogs.filter((item) => item.projectId === id).length +
-      data.manuscripts.filter((item) => item.projectId === id).length +
-      data.submissions.filter((item) => item.projectId === id).length +
-      data.researchQuestions.filter((item) => item.projectId === id).length +
-      data.claims.filter((item) => item.projectId === id).length +
-      data.claimQuestionLinks.filter((item) => item.projectId === id).length +
-      data.theoryMemos.filter((item) => item.projectId === id).length
+    const dependencyCount = previewProvenanceDeletion(data, 'projects', id).blockers.length
     if (dependencyCount > 0) return
-    await updateData((current) => ({
+    await updateData((current) => {
+      if (previewProvenanceDeletion(current, 'projects', id).protected) throw new Error('Project deletion protected by research relationships')
+      return {
       ...current,
       workspace: {
         ...current.workspace,
         activeProjectId: current.workspace.activeProjectId === id ? undefined : current.workspace.activeProjectId,
       },
       projects: current.projects.filter((project) => project.id !== id),
-    }))
+    }})
     setDeleting(null)
     setDetail(null)
   }
@@ -215,24 +202,8 @@ export function ProjectsPage() {
     return days !== null && days >= 0 && days <= 45
   }).length
 
-  const deletingDependencies = deleting
-    ? data.tasks.filter((item) => item.projectId === deleting.id).length +
-      data.literature.filter((item) => item.projectId === deleting.id).length +
-      data.fieldSites.filter((item) => item.projectId === deleting.id).length +
-      data.fieldMaps.filter((item) => item.projectId === deleting.id).length +
-      data.interviews.filter((item) => item.projectId === deleting.id).length +
-      data.fieldVisits.filter((item) => item.projectId === deleting.id).length +
-      data.datasets.filter((item) => item.projectId === deleting.id).length +
-      data.analysisRuns.filter((item) => item.projectId === deleting.id).length +
-      data.evidence.filter((item) => item.projectId === deleting.id).length +
-      data.researchLogs.filter((item) => item.projectId === deleting.id).length +
-      data.manuscripts.filter((item) => item.projectId === deleting.id).length +
-      data.submissions.filter((item) => item.projectId === deleting.id).length +
-      data.researchQuestions.filter((item) => item.projectId === deleting.id).length +
-      data.claims.filter((item) => item.projectId === deleting.id).length +
-      data.claimQuestionLinks.filter((item) => item.projectId === deleting.id).length +
-      data.theoryMemos.filter((item) => item.projectId === deleting.id).length
-    : 0
+  const deletePreview = deleting ? previewProvenanceDeletion(data, 'projects', deleting.id) : null
+  const deletingDependencies = deletePreview?.blockers.length ?? 0
 
   const linked = detail
     ? {
@@ -470,7 +441,7 @@ export function ProjectsPage() {
         description={t('projects.delete.description')}
         confirmLabel={t('projects.delete.confirm')}
         onCancel={() => setDeleting(null)}
-        onConfirm={deleteProject}
+        onConfirm={async () => { try { await deleteProject() } catch { /* Preserve record and the open confirmation; WorkspaceContext reports safe errors. */ } }}
       />
       <Modal
         open={Boolean(deleting) && deletingDependencies > 0}

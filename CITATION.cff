@@ -7,6 +7,6 @@ authors:
     website: "https://github.com/Yoesher"
 repository-code: "https://github.com/Yoesher/sociology-phd-desk"
 url: "https://yoesher.github.io/sociology-phd-desk/"
-version: 0.5.0
-date-released: 2026-10-04
+version: 0.6.0-rc.1
+date-released: 2026-10-08
 license: MIT

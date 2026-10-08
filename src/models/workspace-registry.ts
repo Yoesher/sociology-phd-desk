@@ -20,6 +20,8 @@ export const SUPPORTED_WORKSPACE_SCHEMA_VERSIONS = [
   PREVIOUS_WORKSPACE_SCHEMA_VERSION,
   5,
   6,
+  7,
+  8,
   WORKSPACE_SCHEMA_VERSION,
 ] as const
 export type SupportedWorkspaceSchemaVersion =

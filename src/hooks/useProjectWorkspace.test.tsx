@@ -8,11 +8,28 @@ import { createDemoWorkspace } from '../models/demo'
 import { I18nProvider } from '../i18n'
 import { projectDisplayData, useProjectWorkspace } from './useProjectWorkspace'
 import { syntheticFieldMap } from '../utils/field-map.test-helper'
+import { applyProvenanceCommand } from '../utils/provenance-commands'
+import { PROVENANCE_COLLECTION_KEYS } from '../models/provenance'
 
 beforeEach(() => { sessionStorage.clear(); localStorage.clear() })
 afterEach(cleanup)
 
 describe('project working space', () => {
+  it('filters every provenance collection while preserving other project code histories in the full snapshot', () => {
+    let full = createDemoWorkspace()
+    const first = full.projects[0]!.id, second = full.projects[1]!.id
+    for (const projectId of [first, second]) full = applyProvenanceCommand(full, {
+      type: 'createCode', projectId, label: 'SYNTHETIC scoped code', stage: 'initial', definition: '', inclusion: '', exclusion: '',
+    })
+    const original = structuredClone(full)
+    const visible = projectDisplayData(full, first)!
+    expect(visible.qualitativeCodes).toHaveLength(1)
+    expect(visible.qualitativeCodeRevisions).toHaveLength(1)
+    for (const key of PROVENANCE_COLLECTION_KEYS) expect(visible[key].every((record) => record.projectId === first)).toBe(true)
+    expect(full).toEqual(original)
+    expect(full.qualitativeCodes.find((record) => record.projectId === second)).toBeDefined()
+    expect(full.qualitativeCodeRevisions.find((record) => record.projectId === second)).toBeDefined()
+  })
   it('filters related records without mutating the source snapshot', () => {
     const full = createDemoWorkspace()
     full.fieldMaps = full.projects.slice(0, 2).map((project, i) => ({ ...syntheticFieldMap(full), id: `SYNTHETIC-map-${i}`, projectId: project.id, markers: [] }))

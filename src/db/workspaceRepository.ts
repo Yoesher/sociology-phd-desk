@@ -1,3 +1,5 @@
+import { PROVENANCE_COLLECTION_KEYS, WORKSPACE_COLLECTION_KEYS } from '../models/provenance'
+import { assertProvenanceMergeCompatibility, getProvenanceReferences } from '../utils/provenance-graph'
 import Dexie from 'dexie'
 import { createDemoWorkspace } from '../models/demo'
 import { WORKSPACE_APPLICATION, WORKSPACE_SCHEMA_VERSION } from '../models/domain'
@@ -22,27 +24,7 @@ import {
   createWorkspaceDatabase,
 } from './database'
 
-export const WORKSPACE_COLLECTIONS = [
-  'projects',
-  'researchQuestions',
-  'claims',
-  'claimQuestionLinks',
-  'theoryMemos',
-  'tasks',
-  'literature',
-  'literatureExternalReferences',
-  'fieldSites',
-  'fieldMaps',
-  'interviews',
-  'fieldVisits',
-  'datasets',
-  'analysisRuns',
-  'evidence',
-  'researchLogs',
-  'manuscripts',
-  'submissions',
-  'reviewerComments',
-] as const
+export const WORKSPACE_COLLECTIONS = WORKSPACE_COLLECTION_KEYS
 
 export type WorkspaceCollectionName = (typeof WORKSPACE_COLLECTIONS)[number]
 export type WorkspaceMergeCounts = Record<WorkspaceCollectionName, number>
@@ -105,51 +87,11 @@ export class WorkspaceStorageMissingError extends WorkspaceStorageInvariantError
 }
 
 function emptyMergeCounts(): WorkspaceMergeCounts {
-  return {
-    projects: 0,
-    researchQuestions: 0,
-    claims: 0,
-    claimQuestionLinks: 0,
-    theoryMemos: 0,
-    tasks: 0,
-    literature: 0,
-    literatureExternalReferences: 0,
-    fieldSites: 0,
-    fieldMaps: 0,
-    interviews: 0,
-    fieldVisits: 0,
-    datasets: 0,
-    analysisRuns: 0,
-    evidence: 0,
-    researchLogs: 0,
-    manuscripts: 0,
-    submissions: 0,
-    reviewerComments: 0,
-  }
+  return Object.fromEntries(WORKSPACE_COLLECTIONS.map((collection) => [collection, 0])) as WorkspaceMergeCounts
 }
 
 function snapshotCollectionCounts(snapshot: WorkspaceData): WorkspaceMergeCounts {
-  return {
-    projects: snapshot.projects.length,
-    researchQuestions: snapshot.researchQuestions.length,
-    claims: snapshot.claims.length,
-    claimQuestionLinks: snapshot.claimQuestionLinks.length,
-    theoryMemos: snapshot.theoryMemos.length,
-    tasks: snapshot.tasks.length,
-    literature: snapshot.literature.length,
-    literatureExternalReferences: snapshot.literatureExternalReferences.length,
-    fieldSites: snapshot.fieldSites.length,
-    fieldMaps: snapshot.fieldMaps.length,
-    interviews: snapshot.interviews.length,
-    fieldVisits: snapshot.fieldVisits.length,
-    datasets: snapshot.datasets.length,
-    analysisRuns: snapshot.analysisRuns.length,
-    evidence: snapshot.evidence.length,
-    researchLogs: snapshot.researchLogs.length,
-    manuscripts: snapshot.manuscripts.length,
-    submissions: snapshot.submissions.length,
-    reviewerComments: snapshot.reviewerComments.length,
-  }
+  return Object.fromEntries(WORKSPACE_COLLECTIONS.map((collection) => [collection, snapshot[collection].length])) as WorkspaceMergeCounts
 }
 
 function assertValidWorkspace(snapshot: unknown, operation: string): WorkspaceData {
@@ -174,15 +116,7 @@ function mergeRecords<T extends EntityMetadata>(
 }
 
 function graphIdentityIssues<T extends EntityMetadata>(
-  collection:
-    | 'researchQuestions'
-    | 'claims'
-    | 'claimQuestionLinks'
-    | 'literature'
-    | 'literatureExternalReferences'
-    | 'theoryMemos'
-    | 'fieldMaps'
-    | 'fieldSites',
+  collection: WorkspaceCollectionName,
   localRecords: T[],
   incomingRecords: T[],
   identity: (record: T) => string,
@@ -221,6 +155,39 @@ function assertGraphMergeCollisionsSafe(
   const incomingMemoLiteratureIds = new Set(
     incoming.theoryMemos.flatMap((memo) => memo.relatedLiteratureIds),
   )
+  const newProvenanceTargets = new Set<string>()
+  const newProvenanceProjectIds = new Set<string>()
+  for (const collection of PROVENANCE_COLLECTION_KEYS) {
+    const localIds = new Set(current[collection].map((record) => record.id))
+    for (const record of incoming[collection]) {
+      if (!localIds.has(record.id)) {
+        newProvenanceProjectIds.add(record.projectId)
+        for (const reference of getProvenanceReferences(collection, record)) newProvenanceTargets.add(`${reference.collection}/${reference.id}`)
+      }
+    }
+  }
+  // Follow saved ownership endpoints as well: a new source link to an analysis
+  // run must not inherit a different colliding dataset, or an interview a
+  // different colliding field site after local parent rows are retained.
+  const incomingByCollection = Object.fromEntries(WORKSPACE_COLLECTIONS.map((collection) => [
+    collection, new Map<string, EntityMetadata>(incoming[collection].map((record) => [record.id, record])),
+  ])) as Record<WorkspaceCollectionName, Map<string, EntityMetadata>>
+  const pending = [...newProvenanceTargets]
+  for (let index = 0; index < pending.length; index += 1) {
+    const target = pending[index]!
+    const separator = target.indexOf('/')
+    const collection = target.slice(0, separator) as WorkspaceCollectionName
+    const record = incomingByCollection[collection].get(target.slice(separator + 1))
+    if (!record) continue
+    for (const reference of getProvenanceReferences(collection, record)) {
+      const key = `${reference.collection}/${reference.id}`
+      if (!newProvenanceTargets.has(key)) { newProvenanceTargets.add(key); pending.push(key) }
+    }
+  }
+  const isNewProvenanceTarget = (collection: WorkspaceCollectionName, id: string) => newProvenanceTargets.has(`${collection}/${id}`)
+  const semanticIdentity = (record: EntityMetadata) => JSON.stringify(canonicalizeWorkspaceValue(
+    Object.fromEntries(Object.entries(record).filter(([key]) => !['id', 'createdAt', 'updatedAt', 'isDemo'].includes(key))),
+  ))
   const projectIdentity = (project: ResearchProject) =>
     JSON.stringify([
       project.title,
@@ -253,7 +220,8 @@ function assertGraphMergeCollisionsSafe(
       ) ||
       incoming.fieldMaps.some(
         (map) => map.projectId === project.id && !localFieldMapIds.has(map.id),
-      )
+      ) ||
+      newProvenanceProjectIds.has(project.id)
     if (hasNewGraphChild) {
       projectIssues.push({
         path: ['projects', index, 'id'],
@@ -275,7 +243,7 @@ function assertGraphMergeCollisionsSafe(
       current.fieldSites,
       incoming.fieldSites,
       (site) => JSON.stringify([site.projectId, site.nameOrAlias]),
-      (site) => incomingMarkedSiteIds.has(site.id),
+      (site) => incomingMarkedSiteIds.has(site.id) || isNewProvenanceTarget('fieldSites', site.id),
     ),
     ...graphIdentityIssues<ResearchQuestion>(
       'researchQuestions',
@@ -299,8 +267,9 @@ function assertGraphMergeCollisionsSafe(
       'literature',
       current.literature,
       incoming.literature,
-      (item) =>
-        JSON.stringify([
+      (item) => isNewProvenanceTarget('literature', item.id)
+        ? semanticIdentity(item)
+        : JSON.stringify([
           item.projectId,
           item.title,
           item.authors,
@@ -309,7 +278,7 @@ function assertGraphMergeCollisionsSafe(
           item.doi,
           item.url,
         ]),
-      (item) => incomingMemoLiteratureIds.has(item.id),
+      (item) => incomingMemoLiteratureIds.has(item.id) || isNewProvenanceTarget('literature', item.id),
     ),
     ...graphIdentityIssues<TheoryMemo>(
       'theoryMemos',
@@ -338,6 +307,11 @@ function assertGraphMergeCollisionsSafe(
         reference.externalVersion,
       ]),
     ),
+    ...graphIdentityIssues('interviews', current.interviews, incoming.interviews, semanticIdentity, (record) => isNewProvenanceTarget('interviews', record.id)),
+    ...graphIdentityIssues('fieldVisits', current.fieldVisits, incoming.fieldVisits, semanticIdentity, (record) => isNewProvenanceTarget('fieldVisits', record.id)),
+    ...graphIdentityIssues('analysisRuns', current.analysisRuns, incoming.analysisRuns, semanticIdentity, (record) => isNewProvenanceTarget('analysisRuns', record.id)),
+    ...graphIdentityIssues('datasets', current.datasets, incoming.datasets, semanticIdentity, (record) => isNewProvenanceTarget('datasets', record.id)),
+    ...graphIdentityIssues('manuscripts', current.manuscripts, incoming.manuscripts, semanticIdentity, (record) => isNewProvenanceTarget('manuscripts', record.id)),
   ]
   if (issues.length > 0) {
     throw new WorkspaceValidationError(
@@ -407,115 +381,30 @@ export function buildMergedWorkspace(
     throw new WorkspaceIdentityError(current.workspace.id, incoming.workspace.id)
   }
   assertGraphMergeCollisionsSafe(current, incoming)
+  try {
+    assertProvenanceMergeCompatibility(current, incoming)
+  } catch (error) {
+    throw new WorkspaceValidationError('The workspace merge contains conflicting provenance IDs.', [
+      { path: ['provenance'], message: error instanceof Error ? error.message : 'Conflicting immutable provenance records.' },
+    ])
+  }
 
-  const projects = mergeRecords(current.projects, incoming.projects)
-  const researchQuestions = mergeRecords(current.researchQuestions, incoming.researchQuestions)
-  const claims = mergeRecords(current.claims, incoming.claims)
-  const claimQuestionLinks = mergeRecords(
-    current.claimQuestionLinks,
-    incoming.claimQuestionLinks,
-  )
-  const theoryMemos = mergeRecords(current.theoryMemos, incoming.theoryMemos)
-  const tasks = mergeRecords(current.tasks, incoming.tasks)
-  const literature = mergeRecords(current.literature, incoming.literature)
-  const literatureExternalReferences = mergeRecords(
-    current.literatureExternalReferences,
-    incoming.literatureExternalReferences,
-  )
-  const fieldSites = mergeRecords(current.fieldSites, incoming.fieldSites)
-  const fieldMaps = mergeRecords(current.fieldMaps, incoming.fieldMaps)
-  const interviews = mergeRecords(current.interviews, incoming.interviews)
-  const fieldVisits = mergeRecords(current.fieldVisits, incoming.fieldVisits)
-  const datasets = mergeRecords(current.datasets, incoming.datasets)
-  const analysisRuns = mergeRecords(current.analysisRuns, incoming.analysisRuns)
-  const evidence = mergeRecords(current.evidence, incoming.evidence)
-  const researchLogs = mergeRecords(current.researchLogs, incoming.researchLogs)
-  const manuscripts = mergeRecords(current.manuscripts, incoming.manuscripts)
-  const submissions = mergeRecords(current.submissions, incoming.submissions)
-  const reviewerComments = mergeRecords(
-    current.reviewerComments,
-    incoming.reviewerComments,
-  )
+  const mergedCollections = Object.fromEntries(WORKSPACE_COLLECTIONS.map((collection) => [
+    collection, mergeRecords<EntityMetadata>(current[collection], incoming[collection]),
+  ])) as Record<WorkspaceCollectionName, { records: EntityMetadata[]; added: number; skipped: number }>
   const timestamp = now.toISOString()
-
-  const snapshot = assertValidWorkspace(
-    {
-      application: WORKSPACE_APPLICATION,
-      version: WORKSPACE_SCHEMA_VERSION,
-      exportedAt: timestamp,
-      workspace: {
-        ...current.workspace,
-        revision: current.workspace.revision + 1,
-        updatedAt: timestamp,
-      },
-      projects: projects.records,
-      researchQuestions: researchQuestions.records,
-      claims: claims.records,
-      claimQuestionLinks: claimQuestionLinks.records,
-      theoryMemos: theoryMemos.records,
-      tasks: tasks.records,
-      literature: literature.records,
-      literatureExternalReferences: literatureExternalReferences.records,
-      fieldSites: fieldSites.records,
-      fieldMaps: fieldMaps.records,
-      interviews: interviews.records,
-      fieldVisits: fieldVisits.records,
-      datasets: datasets.records,
-      analysisRuns: analysisRuns.records,
-      evidence: evidence.records,
-      researchLogs: researchLogs.records,
-      manuscripts: manuscripts.records,
-      submissions: submissions.records,
-      reviewerComments: reviewerComments.records,
-    },
-    'merged result',
-  )
-
+  const snapshot = assertValidWorkspace({
+    application: WORKSPACE_APPLICATION,
+    version: WORKSPACE_SCHEMA_VERSION,
+    exportedAt: timestamp,
+    workspace: { ...current.workspace, revision: current.workspace.revision + 1, updatedAt: timestamp },
+    ...Object.fromEntries(WORKSPACE_COLLECTIONS.map((collection) => [collection, mergedCollections[collection].records])),
+  }, 'merged result')
   return {
     snapshot,
     result: {
-      added: {
-        projects: projects.added,
-        researchQuestions: researchQuestions.added,
-        claims: claims.added,
-        claimQuestionLinks: claimQuestionLinks.added,
-        theoryMemos: theoryMemos.added,
-        tasks: tasks.added,
-        literature: literature.added,
-        literatureExternalReferences: literatureExternalReferences.added,
-        fieldSites: fieldSites.added,
-        fieldMaps: fieldMaps.added,
-        interviews: interviews.added,
-        fieldVisits: fieldVisits.added,
-        datasets: datasets.added,
-        analysisRuns: analysisRuns.added,
-        evidence: evidence.added,
-        researchLogs: researchLogs.added,
-        manuscripts: manuscripts.added,
-        submissions: submissions.added,
-        reviewerComments: reviewerComments.added,
-      },
-      skipped: {
-        projects: projects.skipped,
-        researchQuestions: researchQuestions.skipped,
-        claims: claims.skipped,
-        claimQuestionLinks: claimQuestionLinks.skipped,
-        theoryMemos: theoryMemos.skipped,
-        tasks: tasks.skipped,
-        literature: literature.skipped,
-        literatureExternalReferences: literatureExternalReferences.skipped,
-        fieldSites: fieldSites.skipped,
-        fieldMaps: fieldMaps.skipped,
-        interviews: interviews.skipped,
-        fieldVisits: fieldVisits.skipped,
-        datasets: datasets.skipped,
-        analysisRuns: analysisRuns.skipped,
-        evidence: evidence.skipped,
-        researchLogs: researchLogs.skipped,
-        manuscripts: manuscripts.skipped,
-        submissions: submissions.skipped,
-        reviewerComments: reviewerComments.skipped,
-      },
+      added: Object.fromEntries(WORKSPACE_COLLECTIONS.map((collection) => [collection, mergedCollections[collection].added])) as WorkspaceMergeCounts,
+      skipped: Object.fromEntries(WORKSPACE_COLLECTIONS.map((collection) => [collection, mergedCollections[collection].skipped])) as WorkspaceMergeCounts,
       preservedWorkspace: true,
     },
   }
@@ -579,27 +468,9 @@ export class StandardWorkspaceRepository {
 
   private async writeSnapshot(snapshot: WorkspaceData): Promise<void> {
     await this.database.workspaces.put(snapshot.workspace)
-    await Promise.all([
-      this.database.projects.bulkPut(snapshot.projects),
-      this.database.researchQuestions.bulkPut(snapshot.researchQuestions),
-      this.database.claims.bulkPut(snapshot.claims),
-      this.database.claimQuestionLinks.bulkPut(snapshot.claimQuestionLinks),
-      this.database.theoryMemos.bulkPut(snapshot.theoryMemos),
-      this.database.tasks.bulkPut(snapshot.tasks),
-      this.database.literature.bulkPut(snapshot.literature),
-      this.database.literatureExternalReferences.bulkPut(snapshot.literatureExternalReferences),
-      this.database.fieldSites.bulkPut(snapshot.fieldSites),
-      this.database.fieldMaps.bulkPut(snapshot.fieldMaps),
-      this.database.interviews.bulkPut(snapshot.interviews),
-      this.database.fieldVisits.bulkPut(snapshot.fieldVisits),
-      this.database.datasets.bulkPut(snapshot.datasets),
-      this.database.analysisRuns.bulkPut(snapshot.analysisRuns),
-      this.database.evidence.bulkPut(snapshot.evidence),
-      this.database.researchLogs.bulkPut(snapshot.researchLogs),
-      this.database.manuscripts.bulkPut(snapshot.manuscripts),
-      this.database.submissions.bulkPut(snapshot.submissions),
-      this.database.reviewerComments.bulkPut(snapshot.reviewerComments),
-    ])
+    await Promise.all(WORKSPACE_COLLECTIONS.map((collection) =>
+      this.database.table<EntityMetadata, string>(collection).bulkPut(snapshot[collection]),
+    ))
   }
 
   private async readWorkspaceSnapshot(): Promise<WorkspaceData | null> {
@@ -613,76 +484,16 @@ export class StandardWorkspaceRepository {
     const workspace = workspaces[0] as WorkspaceMeta
     this.assertIdentity(workspace.id)
 
-    const [
-      projects,
-      researchQuestions,
-      claims,
-      claimQuestionLinks,
-      theoryMemos,
-      tasks,
-      literature,
-      literatureExternalReferences,
-      fieldSites,
-      fieldMaps,
-      interviews,
-      fieldVisits,
-      datasets,
-      analysisRuns,
-      evidence,
-      researchLogs,
-      manuscripts,
-      submissions,
-      reviewerComments,
-    ] = await Promise.all([
-      this.database.projects.toArray(),
-      this.database.researchQuestions.toArray(),
-      this.database.claims.toArray(),
-      this.database.claimQuestionLinks.toArray(),
-      this.database.theoryMemos.toArray(),
-      this.database.tasks.toArray(),
-      this.database.literature.toArray(),
-      this.database.literatureExternalReferences.toArray(),
-      this.database.fieldSites.toArray(),
-      this.database.fieldMaps.toArray(),
-      this.database.interviews.toArray(),
-      this.database.fieldVisits.toArray(),
-      this.database.datasets.toArray(),
-      this.database.analysisRuns.toArray(),
-      this.database.evidence.toArray(),
-      this.database.researchLogs.toArray(),
-      this.database.manuscripts.toArray(),
-      this.database.submissions.toArray(),
-      this.database.reviewerComments.toArray(),
-    ])
-
-    return assertValidWorkspace(
-      {
-        application: WORKSPACE_APPLICATION,
-        version: WORKSPACE_SCHEMA_VERSION,
-        exportedAt: new Date().toISOString(),
-        workspace,
-        projects,
-        researchQuestions,
-        claims,
-        claimQuestionLinks,
-        theoryMemos,
-        tasks,
-        literature,
-        literatureExternalReferences,
-        fieldSites,
-        fieldMaps,
-        interviews,
-        fieldVisits,
-        datasets,
-        analysisRuns,
-        evidence,
-        researchLogs,
-        manuscripts,
-        submissions,
-        reviewerComments,
-      },
-      'stored snapshot',
-    )
+    const collections = await Promise.all(WORKSPACE_COLLECTIONS.map(async (collection) => [
+      collection, await this.database.table<EntityMetadata, string>(collection).toArray(),
+    ] as const))
+    return assertValidWorkspace({
+      application: WORKSPACE_APPLICATION,
+      version: WORKSPACE_SCHEMA_VERSION,
+      exportedAt: new Date().toISOString(),
+      workspace,
+      ...Object.fromEntries(collections),
+    }, 'stored snapshot')
   }
 
   /** Seeds only a truly empty physical database; suspicious orphan rows stop initialization. */

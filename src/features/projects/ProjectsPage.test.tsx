@@ -6,6 +6,9 @@ import { MemoryRouter } from 'react-router-dom'
 import { WorkspaceContext, type WorkspaceContextValue } from '../../app/workspace-context'
 import { I18nProvider, useI18n } from '../../i18n'
 import { createDemoWorkspace } from '../../models/demo'
+import { createEmptyWorkspace } from '../../models/empty-workspace'
+import { emptyProvenanceCollections } from '../../models/provenance'
+import { applyProvenanceCommand } from '../../utils/provenance-commands'
 import type { ResearchQuestion, WorkspaceData } from '../../models/domain'
 import { ProjectsPage } from './ProjectsPage'
 
@@ -306,6 +309,7 @@ describe('ProjectsPage localization and research graph boundary', () => {
     const initial = createDemoWorkspace(new Date('2026-08-11T00:00:00.000Z'))
     const graphOnly: WorkspaceData = {
       ...initial,
+      ...emptyProvenanceCollections(),
       tasks: [],
       literature: [],
       fieldSites: [],
@@ -327,6 +331,27 @@ describe('ProjectsPage localization and research graph boundary', () => {
     await user.click(within(projectRow).getByRole('button', { name: '删除' }))
     const blockedDialog = screen.getByRole('dialog', { name: '项目仍有关联研究记录' })
     expect(blockedDialog).toHaveTextContent('必须先移动或删除 1 条关联记录')
+  })
+
+  it('protects a project whose only dependent records are qualitative metadata', async () => {
+    const user = userEvent.setup()
+    const timestamp = '2026-10-08T09:00:00.000Z'
+    const initial = createEmptyWorkspace({ id: 'synthetic-project-guard', now: new Date(timestamp) })
+    const project = createDemoWorkspace(new Date(timestamp)).projects[0]
+    initial.projects = [{ ...project, isDemo: false }]
+    const coded = applyProvenanceCommand(initial, {
+      type: 'createCode', projectId: project.id, id: 'synthetic-guard-code', label: 'Synthetic care coordination',
+      stage: 'initial', definition: 'Synthetic researcher definition', inclusion: '', exclusion: '',
+    }, { now: timestamp, reason: 'Synthetic deletion regression' })
+    const { getSnapshot } = renderProjects(coded)
+    await user.click(screen.getByRole('button', { name: 'Test English' }))
+    const row = screen.getByRole('row', { name: new RegExp(project.title.replace('[DEMO]', '\\[DEMO\\]')) })
+    await user.click(within(row).getByRole('button', { name: 'Delete' }))
+    const dialog = screen.getByRole('dialog')
+    expect(within(dialog).queryByRole('button', { name: 'Delete project' })).not.toBeInTheDocument()
+    expect(getSnapshot().projects).toHaveLength(1)
+    expect(getSnapshot().qualitativeCodes[0].id).toBe('synthetic-guard-code')
+    expect(getSnapshot().qualitativeCodeRevisions).toHaveLength(1)
   })
 
   it('protects Research Question and Claim endpoints referenced by a theory memo', async () => {

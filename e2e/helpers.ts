@@ -15,7 +15,7 @@ export function captureBrowserDiagnostics(page: Page) {
 }
 
 export async function dismissReleaseSummary(page: Page) {
-  const summary = page.getByRole('dialog', { name: /v\d+\.\d+\.\d+ 更新摘要/ })
+  const summary = page.getByRole('dialog', { name: /v\d+\.\d+\.\d+(?:-rc\.\d+)? 更新摘要/ })
   const opened = await summary.waitFor({ state: 'visible', timeout: 2_000 })
     .then(() => true, () => false)
   if (!opened) return

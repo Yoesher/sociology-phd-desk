@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useWorkspace } from './useWorkspace'
 import { useProjectScope } from '../app/project-scope-context'
 import type { WorkspaceData } from '../models/domain'
+import { PROVENANCE_COLLECTION_KEYS } from '../models/provenance'
 
 /** Display projection only. Every mutation still receives the full workspace snapshot. */
 export function projectDisplayData(data: WorkspaceData | null, projectId: string): WorkspaceData | null {
@@ -10,6 +11,7 @@ export function projectDisplayData(data: WorkspaceData | null, projectId: string
   const submissionIds = new Set(data.submissions.filter((item) => item.projectId === projectId).map((item) => item.id))
   return {
     ...data,
+    ...Object.fromEntries(PROVENANCE_COLLECTION_KEYS.map((key) => [key, data[key].filter((item) => item.projectId === projectId)])),
     workspace: { ...data.workspace, activeProjectId: projectId },
     projects: data.projects.filter((item) => item.id === projectId),
     researchQuestions: data.researchQuestions.filter((item) => item.projectId === projectId),

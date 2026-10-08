@@ -12,6 +12,7 @@ import {
 import { entityMeta, truncate } from '../../app/format'
 import { useProjectWorkspace as useWorkspace } from '../../hooks/useProjectWorkspace'
 import { useI18n } from '../../i18n'
+import { previewProvenanceDeletion } from '../../utils/provenance-graph'
 import {
   AddButton,
   Badge,
@@ -70,7 +71,7 @@ function claimTone(status: ClaimStatus): Tone {
 }
 
 export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
-  const { data, updateData } = useWorkspace()
+  const { data, fullData, updateData } = useWorkspace()
   const { t, formatDate, formatNumber } = useI18n()
   const [questionFormOpen, setQuestionFormOpen] = useState(false)
   const [claimFormOpen, setClaimFormOpen] = useState(false)
@@ -87,6 +88,9 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
   } | null>(null)
   const [questionDraft, setQuestionDraft] = useState<QuestionDraft>(emptyQuestionDraft)
   const [claimDraft, setClaimDraft] = useState<ClaimDraft>(emptyClaimDraft)
+  const [saveError, setSaveError] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [provenanceBlocked, setProvenanceBlocked] = useState<ReturnType<typeof previewProvenanceDeletion> | null>(null)
 
   const projectQuestions = useMemo(
     () => data?.researchQuestions.filter((question) => question.projectId === projectId) ?? [],
@@ -105,14 +109,23 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
 
   const questionStatusLabel = (status: ResearchQuestionStatus) => t(questionStatusLabelKeys[status])
   const claimStatusLabel = (status: ClaimStatus) => t(claimStatusLabelKeys[status])
+  const persistSafely = async (updater: Parameters<typeof updateData>[0]) => {
+    if (busy) return false
+    setSaveError(false); setBusy(true)
+    try { await updateData(updater); return true }
+    catch { setSaveError(true); return false }
+    finally { setBusy(false) }
+  }
 
   const openQuestionCreate = () => {
+    setSaveError(false)
     setEditingQuestion(null)
     setQuestionDraft(emptyQuestionDraft())
     setQuestionFormOpen(true)
   }
 
   const openQuestionEdit = (question: ResearchQuestion) => {
+    setSaveError(false)
     setViewingQuestion(null)
     setEditingQuestion(question)
     setQuestionDraft({ text: question.text, status: question.status, notes: question.notes })
@@ -120,12 +133,14 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
   }
 
   const openClaimCreate = () => {
+    setSaveError(false)
     setEditingClaim(null)
     setClaimDraft(emptyClaimDraft())
     setClaimFormOpen(true)
   }
 
   const openClaimEdit = (claim: Claim) => {
+    setSaveError(false)
     setViewingClaim(null)
     setEditingClaim(claim)
     setClaimDraft({
@@ -146,14 +161,17 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
     if (!text) return
 
     if (editingQuestion) {
-      await updateData((current) => ({
+      if (!await persistSafely((current) => {
+        if (!current.researchQuestions.some((question) => question.id === editingQuestion.id && question.projectId === projectId)) throw new Error('Research question changed before saving')
+        return ({
         ...current,
         researchQuestions: current.researchQuestions.map((question) =>
           question.id === editingQuestion.id && question.projectId === projectId
             ? { ...question, text, notes, status: questionDraft.status, updatedAt: new Date().toISOString() }
             : question,
         ),
-      }))
+      })
+      })) return
     } else {
       const record: ResearchQuestion = {
         ...entityMeta('research-question'),
@@ -162,10 +180,10 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
         status: questionDraft.status,
         notes,
       }
-      await updateData((current) => ({
+      if (!await persistSafely((current) => ({
         ...current,
         researchQuestions: [record, ...current.researchQuestions],
-      }))
+      }))) return
     }
 
     setQuestionFormOpen(false)
@@ -178,14 +196,15 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
     const notes = claimDraft.notes.trim()
     if (!text) return
 
-    await updateData((current) => {
+    if (!await persistSafely((current) => {
+      if (editingClaim && !current.claims.some((claim) => claim.id === editingClaim.id && claim.projectId === projectId)) throw new Error('Research claim changed before saving')
       const allowedQuestionIds = new Set(
         current.researchQuestions
           .filter((question) => question.projectId === projectId)
           .map((question) => question.id),
       )
       const selectedQuestionIds = [...new Set(claimDraft.researchQuestionIds)]
-        .filter((questionId) => allowedQuestionIds.has(questionId))
+      if (selectedQuestionIds.some((questionId) => !allowedQuestionIds.has(questionId))) throw new Error('Selected research question changed before saving')
       const newClaimMeta = editingClaim ? null : entityMeta('claim')
       const claimId = editingClaim?.id ?? newClaimMeta!.id
       const existingLinks = new Map(
@@ -231,48 +250,55 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
         claims: [record, ...current.claims],
         claimQuestionLinks: [...current.claimQuestionLinks, ...nextLinks],
       }
-    })
+    })) return
 
     setClaimFormOpen(false)
     setEditingClaim(null)
   }
 
   const requestQuestionDelete = (question: ResearchQuestion) => {
-    const count = projectLinks.filter((link) => link.researchQuestionId === question.id).length
+    setSaveError(false)
+    if (!fullData) return
+    const count = fullData.claimQuestionLinks.filter((link) => link.researchQuestionId === question.id).length
     if (count) {
       setBlockedDelete({ kind: 'question', source: 'graph', count })
       return
     }
-    const memoCount = data.theoryMemos.filter((memo) => memo.relatedQuestionIds.includes(question.id)).length
+    const memoCount = fullData.theoryMemos.filter((memo) => memo.relatedQuestionIds.includes(question.id)).length
     if (memoCount) {
       setBlockedDelete({ kind: 'question', source: 'memo', count: memoCount })
       return
     }
+    const preview = previewProvenanceDeletion(fullData, 'researchQuestions', question.id)
+    if (preview.protected) { setProvenanceBlocked(preview); return }
     setDeletingQuestion(question)
   }
 
   const requestClaimDelete = (claim: Claim) => {
-    const count = projectLinks.filter((link) => link.claimId === claim.id).length
+    setSaveError(false)
+    if (!fullData) return
+    const count = fullData.claimQuestionLinks.filter((link) => link.claimId === claim.id).length
     if (count) {
       setBlockedDelete({ kind: 'claim', source: 'graph', count })
       return
     }
-    const memoCount = data.theoryMemos.filter((memo) => memo.relatedClaimIds.includes(claim.id)).length
+    const memoCount = fullData.theoryMemos.filter((memo) => memo.relatedClaimIds.includes(claim.id)).length
     if (memoCount) {
       setBlockedDelete({ kind: 'claim', source: 'memo', count: memoCount })
       return
     }
+    const preview = previewProvenanceDeletion(fullData, 'claims', claim.id)
+    if (preview.protected) { setProvenanceBlocked(preview); return }
     setDeletingClaim(claim)
   }
 
   const deleteQuestion = async () => {
     if (!deletingQuestion) return
     const questionId = deletingQuestion.id
-    await updateData((current) => {
-      if (
-        current.claimQuestionLinks.some((link) => link.researchQuestionId === questionId) ||
-        current.theoryMemos.some((memo) => memo.relatedQuestionIds.includes(questionId))
-      ) return current
+    let blocked: ReturnType<typeof previewProvenanceDeletion> | null = null
+    const saved = await persistSafely((current) => {
+      const preview = previewProvenanceDeletion(current, 'researchQuestions', questionId)
+      if (preview.protected) { blocked = preview; throw new Error('Protected research question') }
       return {
         ...current,
         researchQuestions: current.researchQuestions.filter(
@@ -280,6 +306,7 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
         ),
       }
     })
+    if (!saved) { if (blocked) { setDeletingQuestion(null); setProvenanceBlocked(blocked) }; return }
     setDeletingQuestion(null)
     setViewingQuestion(null)
   }
@@ -287,16 +314,18 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
   const deleteClaim = async () => {
     if (!deletingClaim) return
     const claimId = deletingClaim.id
-    await updateData((current) => {
-      if (
-        current.claimQuestionLinks.some((link) => link.claimId === claimId) ||
-        current.theoryMemos.some((memo) => memo.relatedClaimIds.includes(claimId))
-      ) return current
+    let blocked: ReturnType<typeof previewProvenanceDeletion> | null = null
+    const saved = await persistSafely((current) => {
+      const preview = previewProvenanceDeletion(current, 'claims', claimId)
+      if (preview.protected) { blocked = preview; throw new Error('Protected research claim') }
+      const ownedRevisionIds = new Set(preview.owned.filter((item) => item.collection === 'claimRevisions').map((item) => item.id))
       return {
         ...current,
         claims: current.claims.filter((claim) => !(claim.id === claimId && claim.projectId === projectId)),
+        claimRevisions: current.claimRevisions.filter((revision) => !ownedRevisionIds.has(revision.id)),
       }
     })
+    if (!saved) { if (blocked) { setDeletingClaim(null); setProvenanceBlocked(blocked) }; return }
     setDeletingClaim(null)
     setViewingClaim(null)
   }
@@ -334,6 +363,7 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
 
   return (
     <div className="research-graph-workspace">
+      {saveError && !questionFormOpen && !claimFormOpen && <div className="app-error" role="alert">{t('evidence.provenance.status.failed')}</div>}
       <section aria-labelledby="research-questions-title">
         <SectionHeader
           title={t('projects.graph.questions.title')}
@@ -459,13 +489,14 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
         footer={
           <>
             <Button onClick={() => { setQuestionFormOpen(false); setEditingQuestion(null) }}>{t('common.cancel')}</Button>
-            <Button type="submit" form="research-question-form" variant="primary">
+            <Button type="submit" form="research-question-form" variant="primary" disabled={busy}>
               {t(editingQuestion ? 'projects.graph.form.saveQuestion' : 'projects.graph.form.createQuestion')}
             </Button>
           </>
         }
       >
         <form id="research-question-form" className="form-grid" onSubmit={(event) => void saveQuestion(event)}>
+          {saveError && <div className="app-error form-span-2" role="alert">{t('evidence.provenance.status.failed')}</div>}
           <Field label={t('projects.graph.form.questionText')} required className="form-span-2">
             <textarea autoFocus required rows={4} maxLength={RESEARCH_TEXT_MAX_LENGTH} value={questionDraft.text} onChange={(event) => setQuestionDraft({ ...questionDraft, text: event.target.value })} placeholder={t('projects.graph.form.questionPlaceholder')} />
           </Field>
@@ -489,13 +520,14 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
         footer={
           <>
             <Button onClick={() => { setClaimFormOpen(false); setEditingClaim(null) }}>{t('common.cancel')}</Button>
-            <Button type="submit" form="research-claim-form" variant="primary">
+            <Button type="submit" form="research-claim-form" variant="primary" disabled={busy}>
               {t(editingClaim ? 'projects.graph.form.saveClaim' : 'projects.graph.form.createClaim')}
             </Button>
           </>
         }
       >
         <form id="research-claim-form" className="form-grid" onSubmit={(event) => void saveClaim(event)}>
+          {saveError && <div className="app-error form-span-2" role="alert">{t('evidence.provenance.status.failed')}</div>}
           <Field label={t('projects.graph.form.claimText')} required className="form-span-2">
             <textarea autoFocus required rows={4} maxLength={RESEARCH_TEXT_MAX_LENGTH} value={claimDraft.text} onChange={(event) => setClaimDraft({ ...claimDraft, text: event.target.value })} placeholder={t('projects.graph.form.claimPlaceholder')} />
           </Field>
@@ -573,7 +605,8 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
       <ConfirmDialog
         open={Boolean(deletingQuestion)}
         title={t('projects.graph.delete.questionTitle')}
-        description={t('projects.graph.delete.questionDescription')}
+        description={saveError ? t('evidence.provenance.status.failed') : t('projects.graph.delete.questionDescription')}
+        busy={busy}
         confirmLabel={t('projects.graph.delete.questionConfirm')}
         onCancel={() => setDeletingQuestion(null)}
         onConfirm={deleteQuestion}
@@ -581,7 +614,8 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
       <ConfirmDialog
         open={Boolean(deletingClaim)}
         title={t('projects.graph.delete.claimTitle')}
-        description={t('projects.graph.delete.claimDescription')}
+        description={saveError ? t('evidence.provenance.status.failed') : t('projects.graph.delete.claimDescription')}
+        busy={busy}
         confirmLabel={t('projects.graph.delete.claimConfirm')}
         onCancel={() => setDeletingClaim(null)}
         onConfirm={deleteClaim}
@@ -609,6 +643,10 @@ export function ResearchGraphWorkspace({ projectId }: { projectId: string }) {
           <Link2 size={20} aria-hidden="true" />
           <p>{t('projects.graph.delete.blockedBody')}</p>
         </div>
+      </Modal>
+      <Modal open={Boolean(provenanceBlocked)} title={t('evidence.provenance.delete.title')} description={t('evidence.provenance.delete.description')} onClose={() => setProvenanceBlocked(null)} size="md" footer={<Button onClick={() => setProvenanceBlocked(null)}>{t('common.cancel')}</Button>}>
+        <p>{t('evidence.provenance.delete.count', { count: formatNumber(provenanceBlocked?.blockers.length ?? 0) })}</p>
+        <ul>{provenanceBlocked?.blockers.slice(0, 40).map((item) => <li key={`${item.collection}/${item.id}`}><code>{item.collection}/{item.id}</code> <span>{item.state}</span></li>)}</ul>
       </Modal>
     </div>
   )

@@ -215,3 +215,9 @@ Published v0.3.0 keeps import parsing local and bounded. Selecting a file does n
 | Zotero Handoff v1 bundle | 8 MiB; URL-fragment handoff 12 Ki encoded characters | 1,000 items; 1,000-character title; 250,000-character abstract; 1,000 creators; 2,000 tags |
 
 Encrypted preflight authenticates the backup passphrase and validates/migrates the decrypted payload only in memory. Final restore authenticates again before creating a registry route or physical workspace. The application never silently truncates imported research or bibliographic content to satisfy these limits. Unsupported future versions and malformed, oversized, ambiguous, or relationship-invalid inputs fail closed.
+
+## Unpublished schema 9 candidate compatibility
+
+The 0.6.0-rc.1 candidate validates v1–v9 inputs and retains the historical staged migrations. v7→v8 seeds only existing Claim/Evidence r1 snapshots; v8→v9 adds empty qualitative collections, giving 44 total. Existing entity fields, IDs, PDFs, map bytes and goals are preserved. Source aliases and free-form text are never matched into relationships. Current normal/encrypted backups include every project and every revision; old 0.5.0 cannot read v9. Keep a verified v7 backup before upgrading.
+
+Migration plans must fit a recoverable complete backup: if source pretty JSON is within 32 MiB, the new complete candidate must also fit 32 MiB; an already legitimate larger source may migrate only while the compact authenticated payload fits the existing 64 MiB-minus-tag plaintext budget. Count limits remain 25,000/collection and 100,000 total. Failure preserves the original database/vault and does not truncate, delete or partially write. The migration itself does not create a separate backup file.

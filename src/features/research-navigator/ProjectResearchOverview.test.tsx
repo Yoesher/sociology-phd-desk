@@ -5,6 +5,7 @@ import { I18nProvider, useI18n } from '../../i18n'
 import { createEmptyWorkspace } from '../../models/empty-workspace'
 import type { EntityMetadata, ResearchTask, WorkspaceData } from '../../models/domain'
 import { exportWorkspaceJson, validateWorkspace } from '../../utils/workspace-transfer'
+import { reconcileProvenanceRootEdits } from '../../utils/provenance-commands'
 import { ProjectResearchOverview } from './ProjectResearchOverview'
 import type { RecordKind } from './research-index'
 
@@ -55,7 +56,10 @@ function fixture(): WorkspaceData {
     { ...meta('review-open'), submissionId: 'submission-a', reviewer: 'SYNTHETIC reviewer', commentId: 'R1', comment: 'Open comment', severity: 'Minor', response: '', revisionAction: '', status: 'Open' },
     { ...meta('review-resolved'), submissionId: 'submission-a', reviewer: 'SYNTHETIC reviewer', commentId: 'R2', comment: 'Resolved comment', severity: 'Minor', response: 'Done', revisionAction: 'Done', status: 'Resolved' },
   ]
-  return data
+  let revisionId = 0
+  return reconcileProvenanceRootEdits(createEmptyWorkspace({ id: 'overview-workspace', name: 'SYNTHETIC overview', now: new Date(timestamp) }), data, {
+    now: timestamp, researcherAlias: 'SYNTHETIC', reason: 'SYNTHETIC fixture preparation', idFactory: prefix => `${prefix}-overview-${++revisionId}`,
+  })
 }
 
 function freezeDeep(value: object) {

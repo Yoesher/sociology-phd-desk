@@ -9,13 +9,15 @@ import { useProjectWorkspace as useWorkspace } from '../../hooks/useProjectWorks
 import { entityMeta, truncate } from '../../app/format'
 import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import { useModuleSearch } from '../../hooks/useModuleSearch'
-import { useI18n } from '../../i18n'
+import { useI18n, type MessageKey } from '../../i18n'
+import { previewProvenanceDeletion } from '../../utils/provenance-graph'
+import { Link } from 'react-router-dom'
 import { ProjectSelect } from '../../components/ProjectSelect'
+import { ProvenanceWorkspace } from './ProvenanceWorkspace'
 import {
   AddButton,
   Badge,
   Button,
-  ConfirmDialog,
   EmptyState,
   Field,
   FilterChips,
@@ -59,7 +61,7 @@ const supportTone = (level: EvidenceItem['supportLevel']): Tone => {
   return 'danger'
 }
 
-type EvidenceView = 'all' | 'by-type' | 'contradictory'
+type EvidenceView = 'all' | 'by-type' | 'contradictory' | 'provenance'
 
 function matchesEvidenceView(item: EvidenceItem, view: EvidenceView): boolean {
   if (view === 'contradictory') return item.supportLevel === 'Contradictory' || item.supportLevel === 'Unclear'
@@ -67,7 +69,7 @@ function matchesEvidenceView(item: EvidenceItem, view: EvidenceView): boolean {
 }
 
 export function EvidencePage() {
-  const { data, updateData } = useWorkspace()
+  const { data, fullData, updateData } = useWorkspace()
   const { t, formatNumber, labelEnum } = useI18n()
   const [search, setSearch] = useState('')
   const [projectFilter, setProjectFilter] = useState('')
@@ -77,6 +79,10 @@ export function EvidencePage() {
   const [editing, setEditing] = useState<EvidenceItem | null>(null)
   const [deleting, setDeleting] = useState<EvidenceItem | null>(null)
   const [draft, setDraft] = useState<EvidenceDraft>(emptyDraft)
+  const [formError, setFormError] = useState(false)
+  const [deleteError, setDeleteError] = useState(false)
+  const [saveBusy, setSaveBusy] = useState(false)
+  const [deleteBusy, setDeleteBusy] = useState(false)
   const { searchParams, updateSearch } = useModuleSearch('evidence')
   const view = (searchParams.get('view') || 'all') as EvidenceView
   const urlTypes = (searchParams.get('type') || '').split(',').filter(Boolean)
@@ -115,23 +121,28 @@ export function EvidencePage() {
     const handleQuickAdd = (event: Event) => {
       const detail = (event as QuickAddEvent).detail
       if (detail?.module !== 'evidence' || detail.action !== 'evidence') return
+      if (view === 'provenance') updateSearch({ view: 'all' })
+      setFormError(false)
       setEditing(null)
       setDraft({ ...emptyDraft(), projectId: data?.workspace.activeProjectId || data?.projects[0]?.id || '' })
       setFormOpen(true)
     }
     window.addEventListener(QUICK_ADD_EVENT, handleQuickAdd)
     return () => window.removeEventListener(QUICK_ADD_EVENT, handleQuickAdd)
-  }, [data?.projects, data?.workspace.activeProjectId])
+  }, [data?.projects, data?.workspace.activeProjectId, updateSearch, view])
 
+  if (view === 'provenance') return <ProvenanceWorkspace />
   if (!data) return null
 
   const openCreate = () => {
+    setFormError(false)
     setEditing(null)
     setDraft({ ...emptyDraft(), projectId: data.workspace.activeProjectId || data.projects[0]?.id || '' })
     setFormOpen(true)
   }
 
   const openEdit = (item: EvidenceItem) => {
+    setFormError(false)
     setEditing(item)
     setDraft({
       projectId: item.projectId,
@@ -149,29 +160,53 @@ export function EvidencePage() {
 
   const saveEvidence = async (event: FormEvent) => {
     event.preventDefault()
-    if (editing) {
-      await updateData((current) => ({
-        ...current,
-        evidence: current.evidence.map((item) =>
-          item.id === editing.id ? { ...item, ...draft, updatedAt: new Date().toISOString() } : item,
-        ),
-      }))
-    } else {
-      const record: EvidenceItem = { ...entityMeta('evidence'), ...draft }
-      await updateData((current) => ({ ...current, evidence: [record, ...current.evidence] }))
+    if (saveBusy) return
+    setSaveBusy(true)
+    setFormError(false)
+    try {
+      if (editing) {
+        await updateData((current) => {
+          if (!current.evidence.some((item) => item.id === editing.id)) throw new Error('Evidence is no longer available')
+          return {
+            ...current,
+            evidence: current.evidence.map((item) =>
+              item.id === editing.id ? { ...item, ...draft, updatedAt: new Date().toISOString() } : item,
+            ),
+          }
+        })
+      } else {
+        const record: EvidenceItem = { ...entityMeta('evidence'), ...draft }
+        await updateData((current) => ({ ...current, evidence: [record, ...current.evidence] }))
+      }
+      setFormOpen(false)
+      setEditing(null)
+    } catch {
+      setFormError(true)
+    } finally {
+      setSaveBusy(false)
     }
-    setFormOpen(false)
-    setEditing(null)
   }
 
   const deleteEvidence = async () => {
-    if (!deleting) return
-    await updateData((current) => ({
-      ...current,
-      evidence: current.evidence.filter((item) => item.id !== deleting.id),
-    }))
-    setDeleting(null)
+    if (!deleting || deleteBusy) return
+    setDeleteBusy(true)
+    setDeleteError(false)
+    try {
+      await updateData((current) => {
+        if (previewProvenanceDeletion(current, 'evidence', deleting.id).protected) throw new Error('Evidence is protected by provenance')
+        return { ...current, evidence: current.evidence.filter((item) => item.id !== deleting.id) }
+      })
+      setDeleting(null)
+    } catch {
+      setDeleteError(true)
+    } finally {
+      setDeleteBusy(false)
+    }
   }
+
+  const deletionPreview = deleting && fullData ? previewProvenanceDeletion(fullData, 'evidence', deleting.id) : null
+  const protectedEvidence = Boolean(deletionPreview?.protected)
+  const traceRevisionId = deleting && fullData ? fullData.evidenceRevisions.filter((row) => row.evidenceId === deleting.id).sort((a, b) => b.revisionNo - a.revisionNo)[0]?.id : undefined
 
   const strong = data.evidence.filter((item) => item.supportLevel === 'Strong').length
   const contradictory = data.evidence.filter((item) => item.supportLevel === 'Contradictory').length
@@ -240,7 +275,7 @@ export function EvidencePage() {
                       </div>
                       <h3>{item.claim}</h3>
                     </div>
-                    <TableActions onEdit={() => openEdit(item)} onDelete={() => setDeleting(item)} />
+                    <TableActions onEdit={() => openEdit(item)} onDelete={() => { setDeleteError(false); setDeleting(item) }} />
                   </header>
                   <div className="evidence-card__finding">
                     <BookOpenCheck size={16} />
@@ -271,10 +306,11 @@ export function EvidencePage() {
         open={formOpen}
         title={t(editing ? 'evidence.dialog.editTitle' : 'evidence.dialog.addTitle')}
         description={t('evidence.dialog.description')}
-        onClose={() => setFormOpen(false)}
+        onClose={saveBusy ? () => undefined : () => setFormOpen(false)}
         size="lg"
-        footer={<><Button onClick={() => setFormOpen(false)}>{t('common.cancel')}</Button><Button variant="primary" type="submit" form="evidence-form">{t(editing ? 'evidence.action.saveChanges' : 'evidence.action.add')}</Button></>}
+        footer={<><Button disabled={saveBusy} onClick={() => setFormOpen(false)}>{t('common.cancel')}</Button><Button disabled={saveBusy} aria-busy={saveBusy} variant="primary" type="submit" form="evidence-form">{t(editing ? 'evidence.action.saveChanges' : 'evidence.action.add')}</Button></>}
       >
+        {formError && <p role="alert">{t('evidence.validation.saveFailed')}</p>}
         <form id="evidence-form" className="form-grid" onSubmit={(event) => void saveEvidence(event)}>
           <Field label={t('evidence.form.project')} required><ProjectSelect required projects={data.projects} value={draft.projectId} onChange={(projectId) => setDraft({ ...draft, projectId })} /></Field>
           <Field label={t('evidence.form.type')} required><select value={draft.evidenceType} onChange={(event) => setDraft({ ...draft, evidenceType: event.target.value as EvidenceItem['evidenceType'] })}>{EVIDENCE_TYPES.map((type) => <option key={type} value={type}>{labelEnum(type)}</option>)}</select></Field>
@@ -290,14 +326,21 @@ export function EvidencePage() {
         </form>
       </Modal>
 
-      <ConfirmDialog
+      <Modal
         open={Boolean(deleting)}
-        title={t('evidence.delete.title')}
-        description={t('evidence.delete.description')}
-        confirmLabel={t('evidence.delete.confirm')}
-        onCancel={() => setDeleting(null)}
-        onConfirm={deleteEvidence}
-      />
+        title={t(protectedEvidence ? 'evidence.delete.blockedTitle' : 'evidence.delete.title')}
+        description={t(protectedEvidence ? 'evidence.delete.blockedDescription' : 'evidence.delete.description')}
+        onClose={deleteBusy ? () => undefined : () => setDeleting(null)}
+        size="sm"
+        footer={<><Button disabled={deleteBusy} onClick={() => setDeleting(null)}>{t(protectedEvidence ? 'evidence.delete.keep' : 'common.cancel')}</Button>{!protectedEvidence && <Button variant="danger" disabled={deleteBusy} aria-busy={deleteBusy} onClick={() => void deleteEvidence()}>{t('evidence.delete.confirm')}</Button>}</>}
+      >
+        {deleteError && <p role="alert">{t('evidence.validation.deleteFailed')}</p>}
+        {protectedEvidence ? <>
+          <p>{t('evidence.delete.blockedCount', { count: formatNumber(deletionPreview?.blockers.length || 0) })}</p>
+          <ul>{deletionPreview?.blockers.slice(0, 40).map((blocker) => <li key={`${blocker.collection}/${blocker.id}`} style={{ overflowWrap: 'anywhere' }}>{t(`workspace.collection.${blocker.collection}` as MessageKey)} · {blocker.id} · {t(blocker.state === 'active' ? 'evidence.provenance.enum.active' : blocker.state === 'retired' ? 'evidence.provenance.enum.retired' : 'evidence.provenance.historical')}</li>)}</ul>
+          {traceRevisionId && <Link to={`/evidence?view=provenance&evidenceRevision=${encodeURIComponent(traceRevisionId)}`} onClick={() => setDeleting(null)}>{t('evidence.delete.trace')}</Link>}
+        </> : <p>{t('evidence.delete.unusedNotice')}</p>}
+      </Modal>
     </div>
   )
 }

@@ -11,7 +11,7 @@ describe('createDemoWorkspace', () => {
 
     expect(validation.success).toBe(true)
     expect(demo.application).toBe('sociology-phd-desk')
-    expect(demo.version).toBe(7)
+    expect(demo.version).toBe(9)
     expect(demo.workspace.revision).toBe(0)
     expect(demo.workspace.todayGoals).toHaveLength(3)
     expect(demo.projects[0]?.method).toBe('Mixed Methods')
@@ -169,6 +169,7 @@ describe('createDemoWorkspace', () => {
       (task) => !theoryProjectIds.has(task.projectId),
     )
     historical.theoryMemos = []
+    historical.claimRevisions = historical.claimRevisions.filter((revision) => !theoryClaimIds.has(revision.claimId))
 
     expect(validateWorkspace(historical).success).toBe(true)
     expect(isPristineDemoWorkspace(historical)).toBe(true)
