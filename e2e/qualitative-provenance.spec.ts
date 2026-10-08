@@ -242,7 +242,20 @@ test('authenticated backup restores all 44 collections into a vault and wrong pa
   const backupPassphrase = 'SYNTHETIC QDA backup passphrase 2026', vaultPassphrase = 'SYNTHETIC QDA vault passphrase 2026'
   await page.goto('/'); await waitForApp(page); await importJson(page, fixture)
   const center = await openWorkspaceCenter(page)
+  // JSON imports create standard workspaces. Use the real verified conversion
+  // before exercising encrypted export, which is deliberately vault-only.
+  await center.getByRole('tab', { name: '隐私与锁定', exact: true }).click()
+  await center.getByRole('button', { name: '创建加密副本', exact: true }).click()
+  const conversion = page.getByRole('dialog', { name: '创建并验证加密副本', exact: true })
+  await conversion.getByLabel('加密副本口令', { exact: true }).fill(vaultPassphrase)
+  await conversion.getByLabel('再次输入口令', { exact: true }).fill(vaultPassphrase)
+  await conversion.getByRole('checkbox', { name: /旧明文来源仍会保留/ }).check()
+  await conversion.getByRole('button', { name: '创建并验证副本', exact: true }).click()
+  await expect(conversion).toBeHidden()
+  await expectCollectionsEqual(await exportJson(page), fixture)
+  await openWorkspaceCenter(page)
   await center.getByRole('tab', { name: '备份与恢复', exact: true }).click()
+  await expect(center.getByRole('button', { name: '导出加密备份', exact: true })).toBeEnabled()
   await center.getByRole('button', { name: '导出加密备份', exact: true }).click()
   const exporter = page.getByRole('dialog', { name: '创建加密备份', exact: true })
   await exporter.getByLabel('备份口令', { exact: true }).fill(backupPassphrase)
