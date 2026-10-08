@@ -40,3 +40,7 @@
 在具有合法写权限的环境中应用候选补丁后，还需对确切 pushed head 运行原 CI、CodeQL，完成真实桌面/触屏普通及加密工作区、独立备份恢复、错误口令零写入，以及真实 v0.5.0→候选 PWA waiting-worker 队列验收。合并后须核对 main CI/CodeQL/Pages 部署、tag/Release 和公开版本身份。以上未完成前，候选不应宣称正式发布，也不应关闭 Issue #2/#4。
 
 候选 schema9 保留旧实体字段、ID、附件和 v7 导入，现有 v7 文件不会被重写。旧 v0.5.0 应用无法读取 v9 文件/数据库；升级前需保留并独立验证 v7 完整备份。迁移容量检查不等于已经替用户创建独立备份。
+
+## Current release execution: actual first failure — 2026-10-08
+
+The current approved environment successfully ran the original npm ci (442 packages). The original audit:release and exact-head push/PR CI on `85ac09340b50e0a6df787cedb62c32606aab6ec9` failed on GHSA-68fv-2mgg-jv7q in locked source-map-js 1.2.1. This history is preserved; it is not a browser PASS. The release-only fix advances that single transitive lock entry to official npm source-map-js 1.2.2 without adding a dependency or changing test/security gates. The original complete commands and remote checks must pass again on the resulting final head before merge.

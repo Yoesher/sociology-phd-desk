@@ -121,7 +121,7 @@
 
 已有合法超限工作台仍可完整读取、迁移和进行不增加序列化大小的写入；在原加密容量与附件约束内可用完整加密备份保全。更大量 PDF 需要后续独立附件存储与分块认证备份，目前未实现，请保留自己的原文件。
 
-当前 portable workspace、标准数据库与 authenticated encrypted payload 为 **v7**；container、vault database、registry database 仍为 **v1**。v6 → v7 保留旧记录，只增加空的本地地图集合，不推断图片或坐标。旧版 0.3.1 不能读取 v7 备份；跨版本前保留并验证原版本备份。导入先验证预览，替换必须明确确认；加密恢复先认证、验证，再创建新的隔离工作台，口令错误或密文损坏不会写入目标。
+当前 portable workspace、标准数据库与 authenticated encrypted payload 为 **v9**；container、vault database、registry database 仍为 **v1**。v7 → v8 → v9 保留全部旧记录、稳定 ID、PDF、地图与研究目标；迁移只建立机械版本快照和空定性集合，不推断研究关系。旧版 0.5.0 不能读取 v9 备份或数据库；升级前保留并验证完整 v7 备份，已导出的旧文件不会被改写。导入先验证预览，替换必须明确确认；加密恢复先认证、验证，再创建新的隔离工作台，口令错误或密文损坏不会写入目标。
 
 完整流程见[本地地图与存储指南](docs/local-field-maps-and-storage-2026-10-04.md)和[数据迁移说明](docs/data-portability.md)。
 
