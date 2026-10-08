@@ -69,7 +69,8 @@ test.describe('critical research workflows at both viewports', () => {
     projectRow = page.getByRole('row').filter({ hasText: renamedProject })
     await projectRow.getByRole('button', { name: '删除' }).click()
     dialog = page.getByRole('dialog', { name: '项目仍有关联研究记录' })
-    await expect(dialog).toContainText('1 条关联记录')
+    // The edited evidence retains its root plus both immutable revisions.
+    await expect(dialog).toContainText('3 条关联记录')
     await dialog.getByRole('button', { name: '保留项目' }).click()
     await expect(projectRow).toBeVisible()
 

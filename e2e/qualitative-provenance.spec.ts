@@ -76,7 +76,7 @@ async function importJson(page: Page, data: WorkspaceData) {
   await center.getByRole('tab', { name: '备份与恢复', exact: true }).click()
   await center.getByRole('button', { name: '导入 JSON', exact: true }).click()
   const dialog = page.getByRole('dialog', { name: '把明文 JSON 导入新工作台', exact: true })
-  await dialog.getByLabel('JSON 文件', { exact: true }).setInputFiles({ name: 'SYNTHETIC-metadata-v9.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(data), 'utf8') })
+  await dialog.getByLabel('明文工作区 JSON 文件', { exact: true }).setInputFiles({ name: 'SYNTHETIC-metadata-v9.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(data), 'utf8') })
   await dialog.getByRole('button', { name: '检查导入预检', exact: true }).click()
   await expect(dialog.getByText('未写入', { exact: true })).toBeVisible()
   await dialog.getByRole('button', { name: '从 JSON 创建工作台', exact: true }).click()
