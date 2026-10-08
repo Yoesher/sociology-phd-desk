@@ -56,7 +56,7 @@ async function exportCompleteWorkspace(page: Page): Promise<WorkspaceData> {
   await warning.getByRole('button', { name: '导出明文 JSON', exact: true }).click()
   const download = await downloaded
   const snapshot = JSON.parse(await readFile((await download.path())!, 'utf8')) as WorkspaceData
-  expect(snapshot.version).toBe(7)
+  expect(snapshot.version).toBe(9)
   await expect(warning).toBeHidden()
   await closeCenter(page, center)
   return snapshot
