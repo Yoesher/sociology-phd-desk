@@ -1,3 +1,31 @@
+# 0.6.0-rc.1 publication checkpoint — 2026-10-09
+
+The candidate has been applied to real upstream ancestry and pushed through [PR #64](https://github.com/Yoesher/sociology-phd-desk/pull/64). Current execution approvals have permitted the authorized GitHub operations; the older never-approval connector rejection below remains historical. No user's research database or browser profile was read. The candidate package, original patch and old v7 synthetic backup files remain intact.
+
+Exact-head independent review of `128f00c10cb35ab4c66f3e2a3f47c8b31a2e00ab` / tree `ea37fe95c5d3f43da38174fc84b5a9a0583fd2b6` found P0=0/P1=0. The original local scripts passed 58/589 unit tests on e76e685; subsequent original/serialized Windows runs had real timeout failures and are not PASS. Original Zotero 8/8 and native production build/PWA static contract passed on 128f00c. Its complete original browser run was 39 passed, 1 flaky and 4 failed: the new scenarios incorrectly relied on insertion ordering where the repository reads stable-ID order. Preserve these failures and correct only the tests' record identification/full-record comparison. The original exact final Linux scripts and all desktop/touch instances remain mandatory.
+
+The 0.6.0-rc.1 release date/citation/update metadata is 2026-10-09. Schema axes are 9/9/9 and 1/1/1, with all 44 collections. Keep and independently verify full v7 backups before upgrading; v0.5.0 cannot read v9. Native old-public desktop/touch cohorts actually reached a verified old-v7 baseline, including both backup formats and wrong-password zero writes, but were interrupted before their update signals. Their retained files are evidence for the old baseline only; new genuine cohorts must complete the transition.
+
+This source records the pre-merge checkpoint. Exact final head/main CI, CodeQL, Pages deployment, full public SHA, fresh synthetic 44-collection ordinary/encrypted acceptance, genuine v0.5.0 waiting-worker updates, annotated tag, prerelease UTF-8 readback and automatic source archive checks are recorded only after they succeed in PR #64, the [v0.6.0-rc.1 prerelease](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.6.0-rc.1), and the external publication ledger. A future source commit requires its own checks; historical results never prove a later SHA. Existing official releases/tags and Zotero 0.1.0 assets/update bytes must remain unchanged. Issues #2/#4 stay open for RC feedback.
+
+Remaining RC limitations: metadata/locator workflows do not provide a full-text coding editor, transcription or AI coding; code lineage uses forms rather than a dedicated one-click merge/split editor. Large-comparison UI performance, physical phones, screen readers and OS-installed PWA checks remain unverified. The earlier national-map and identity-purge boundaries continue to apply.
+
+Continued exact-head `1c67b1c348a01995227c9b165bd79d4965d58ddf` checks passed the original npm ci, audit:release (0 vulnerabilities), typecheck, lint, npm test (58/589, 152.51s), test:zotero (8/8), build and PWA static contract. CodeQL upload/processing and reviewed-tree binding passed. Complete local browser execution was 43 passed/1 failed, with a real horizontal-overflow failure in the authenticated historical-source detail; both Linux push/PR CI runs were 42 passed/2 failed at that same final layout assertion, including desktop. The full 44-collection restore and wrong-password checks reached the final layout assertion. This head is not mergeable. Fix the underlying long-ID/grid wrapping, retain complete readable identifiers and the original overflow assertion, then verify the resulting exact head. Do not clip the page or weaken either viewport's acceptance.
+
+## Historical 2026-10-08 execution checkpoint
+
+Candidate ZIP SHA-256 `e1fdaa974895d92d0373d9fe026541997a6edccb7262f4d1f79420101ee718d8` and all 132 manifest members/CRC verified. All 87 changed source files match the package after `git apply --check` and patch application to a real upstream worktree. Current remote main is still `68f504bef1865c7a04ec93d7cfd59260a526fd94`; no existing same-name branch/PR was found. The original repository is clean and preserved. This branch has real upstream ancestry; the reconstructed local candidate chain is not pushed.
+
+GitHub login and admin/push access were verified under the current environment approval mechanism. The earlier connector rejection below is historical. Original release commands, exact-head CI/CodeQL, synthetic desktop/touch backups/migrations and real v0.5.0 waiting-worker retention are pending here. Do not infer deployment from this source checkpoint. Final main/workflow/deployment identities and prerelease acceptance are recorded in the independently verified publishing PR and [v0.6.0-rc.1 prerelease](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.6.0-rc.1) only after those operations succeed. Issues #2/#4 remain open.
+
+## Historical 0.6.0-rc.1 local candidate checkpoint — 2026-10-08
+
+This is an unpublished qualitative provenance implementation based on upstream main 68f504bef1865c7a04ec93d7cfd59260a526fd94 (verified tree f651f70e70d879237a1cad0b8c9e1b27d0c9ef38). GitHub connector rejected branch creation because the operation requires approval while this session policy is never. No remote branch/PR/merge/tag/Release/Pages update is claimed. Issues #2/#4 are not closed.
+
+Shared 8 + qualitative 17 collections extend the retained 19 to 44; schema 9 and versioned source/code/memo/claim/evidence/manuscript relationships are implemented. Validation, case snapshots, negative evidence, normal/encrypted migration and rollback use completely synthetic tests. No real interviews or current user databases were read, and no identity or research materials were uploaded.
+
+Latest actual checks and outstanding gates: [candidate verification](docs/qualitative-provenance-validation-2026-10-08.md). The historical 0.5.0 publication record below remains evidence for that version only.
+
 # Project State
 
 > Last updated: 2026-10-04

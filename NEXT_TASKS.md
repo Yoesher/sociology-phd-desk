@@ -1,3 +1,36 @@
+# 0.6.0-rc.1 handoff — 2026-10-09
+
+The real upstream branch and [PR #64](https://github.com/Yoesher/sociology-phd-desk/pull/64) exist. Candidate integrity and independent exact-head P0/P1 review passed. The dependency audit failure was repaired by updating only the transitive source-map-js lock entry to 1.2.2. Browser fixtures now target actual labels and stable IDs; full-record comparisons must preserve every field and collection even when durable reads order rows by ID. Actual prior failures and local resource timeouts remain in the [verification history](docs/qualitative-provenance-validation-2026-10-08.md).
+
+At this source checkpoint the final gates are still being executed. Finish the original eight commands and exact-head push/PR CI/CodeQL; complete genuine synthetic v0.5.0→candidate waiting updates with retained verified v7 files; merge only the reviewed passing head; then independently verify final main CI/CodeQL/Pages, public SHA, 44-collection ordinary/encrypted restore and zero-write failures. Create only the authorized new annotated RC tag/prerelease after acceptance, verify notes/source archives, and preserve all official Zotero 0.1.0 assets and old releases. Final completed identities belong in PR #64, the [prerelease](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.6.0-rc.1) and the external ledger, avoiding a self-referential extra commit solely to insert its own SHA. Never use an earlier successful run for a new final main.
+
+After the release is verified, the next work is RC feedback on Issues #2/#4, physical-phone/screen-reader/installed-PWA usability checks, large-comparison UI performance and a separately reviewed identity-purge workflow. Do not start automatic transcription, AI coding, cloud sync or native QDA project parsing as release repairs.
+
+Latest 1c67 checkpoint: all original seven non-browser local commands and CodeQL passed, but complete local E2E was 43/44 and both Linux workflows were 42/44 because historical-source details overflowed their desktop/touch viewports. Repair long-identifier/grid wrapping, preserve the full readable identifiers and original layout assertions, and rerun exact-head gates before merge. These failures remain historical even after a later passing fix.
+
+## Historical publication gates — 2026-10-08
+
+- [x] Verify package digest/132 members, real upstream state, safe isolated branch, and exact 87-file patch application.
+- [ ] Original eight local commands and exact pushed-head push/PR CI plus CodeQL.
+- [ ] Synthetic desktop/touch qualitative provenance, complete 44-collection ordinary/encrypted restoration, wrong-passphrase zero-write and original v7 backups/attachments/IDs/goals/project isolation.
+- [ ] Genuine v0.5.0 waiting-worker update; never claim an old app reads v9. Preserve complete verified v7 backup files.
+- [ ] Expected-head merge, exact-main CI/CodeQL/Pages, full public build SHA and fresh/held independent synthetic browser acceptance.
+- [ ] Authorized new v0.6.0-rc.1 annotated tag/prerelease, UTF-8 notes/readback/source archives and unchanged old Zotero 0.1.0 assets/update hash. Final evidence belongs in the publishing PR/prerelease and external ledger; pending checkboxes do not predeclare a future result.
+
+## Historical candidate handoff
+
+# Candidate release closeout — 2026-10-08
+
+The 0.6.0-rc.1/schema 9 implementation is local and reviewable; GitHub writing is blocked by the connector's approval requirement under a never-approval session. Do not treat this branch as published or close #2/#4 on the strength of local tests.
+
+1. Apply the reviewed candidate patch to upstream main 68f504bef1865c7a04ec93d7cfd59260a526fd94 in an environment with authorized GitHub write access.
+2. Run the original CI commands and CodeQL against the exact pushed head; review P0/P1 issues before merge.
+3. Verify fresh desktop/touch ordinary/encrypted workspaces and a genuine 0.5.0→candidate waiting-worker cohort, including all 44 collections, existing attachments, IDs/goals/preferences and independent backup restoration.
+4. Verify main CI/CodeQL/Pages identity and version before any formal release/tag. Preserve existing formal Zotero 0.1.0 release asset hash.
+5. Review the deliberately deferred identity-purge workflow and any later native-QDA import separately; no existing transcript editor/automatic transcription/AI coding is claimed.
+
+The previous project backlog follows; its historical completed publication evidence is not candidate acceptance.
+
 # Next Tasks
 
 > Current 2026-10-04 objective: close publication of the separately authorized **0.5.0 Research navigator**, whose S1 is live and verified through PR #62 at `96014dd1437f5535633ec8c5e96937da9e939139`. 0.4.1 final publication completed through PR #61 at `656b99ac708760b4aae684be8c4b19a95c7608a2`: final CI `37202484967`, CodeQL `37202484990`, Pages `37202484999`, deployment `6841041534` and annotated v0.4.1 / Release `403019896` passed. Final public desktop/touch and a separate genuine S1→S2 waiting-worker cohort retained all 19 collections, PDFs, map bytes/markers, goals/ID and browser preferences. The original runner failure below remains historical. This later evidence resolves its pending-closeout wording without rewriting it.

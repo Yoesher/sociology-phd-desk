@@ -1,3 +1,4 @@
+import { emptyProvenanceCollections } from './provenance'
 import {
   WORKSPACE_APPLICATION,
   WORKSPACE_SCHEMA_VERSION,
@@ -61,5 +62,6 @@ export function createEmptyWorkspace(options: EmptyWorkspaceOptions = {}): Works
     manuscripts: [],
     submissions: [],
     reviewerComments: [],
+    ...emptyProvenanceCollections(),
   }
 }

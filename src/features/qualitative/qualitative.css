@@ -1,0 +1,42 @@
+.qualitative-workspace { display: grid; gap: 1.1rem; min-width: 0; }
+.qualitative-intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(12rem, 19rem); gap: 1.5rem; align-items: end; }
+.qualitative-intro h2 { font-size: 1.15rem; line-height: 1.5; }
+.qualitative-intro p, .qualitative-record p { overflow-wrap: anywhere; }
+.qualitative-tabs .filter-chips { flex-wrap: wrap; }
+.qualitative-records { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: 1rem; }
+.qualitative-record { background: var(--surface); border: 1px solid var(--line); border-radius: .65rem; padding: 1.1rem; min-width: 0; }
+.qualitative-record > header { display: flex; justify-content: space-between; align-items: start; gap: .8rem; }
+.qualitative-record h3, .qualitative-record h4 { margin: 0 0 .55rem; overflow-wrap: anywhere; }
+.qualitative-record p { margin: .55rem 0; }
+.qualitative-id { font-size: .75rem; }
+.qualitative-link { border: 0; padding: 0; font: inherit; color: inherit; background: transparent; text-decoration: underline; text-underline-offset: .18rem; text-align: left; cursor: pointer; overflow-wrap: anywhere; }
+.qualitative-link:focus-visible { outline: 2px solid currentColor; outline-offset: .25rem; }
+.qualitative-actions { display: flex; gap: .55rem; flex-wrap: wrap; align-items: center; }
+.qualitative-version { padding: .75rem 0; border-top: 1px solid var(--line); }
+.qualitative-segments { margin-top: 1rem; }
+.qualitative-prose { white-space: pre-wrap; }
+.qualitative-record dl { display: grid; gap: .35rem; }
+.qualitative-record dd { margin: 0 0 .45rem; overflow-wrap: anywhere; }
+.qualitative-record dt { font-weight: 600; }
+.qualitative-reference { font-family: ui-monospace, monospace; font-size: .8rem; user-select: all; }
+.qualitative-checkboxes { display: grid; gap: .6rem; max-height: 18rem; overflow: auto; padding: .65rem 0; }
+.qualitative-checkboxes label { display: flex; gap: .6rem; align-items: start; overflow-wrap: anywhere; }
+.qualitative-checkboxes input { width: auto; flex: 0 0 auto; margin-top: .3rem; }
+.qualitative-multi-field { border: 1px solid var(--line); padding: .8rem; border-radius: .5rem; min-width: 0; }
+.qualitative-review { display: grid; gap: .7rem; border-top: 1px solid var(--line); padding: 1rem 0; }
+.qualitative-review fieldset { border: 0; min-width: 0; }
+.qualitative-comparison-table td, .qualitative-comparison-table th { min-width: 9rem; vertical-align: top; overflow-wrap: anywhere; }
+.qualitative-trace { display: grid; gap: 1rem; min-width: 0; }
+.qualitative-trace-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.qualitative-trace-columns > section { min-width: 0; }
+.qualitative-trace-list { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: .6rem; padding-left: 1.2rem; }
+.qualitative-trace-list .button { display: block; max-width: 100%; white-space: normal; overflow-wrap: anywhere; text-align: left; }
+.qualitative-trace-content { display: grid; gap: .6rem; }
+.qualitative-trace-content dt { font-weight: 600; }
+.qualitative-trace-content dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.qualitative-notice { margin: 0; padding: .75rem 1rem; border-left: 3px solid currentColor; }
+@media (max-width: 720px) {
+  .qualitative-intro, .qualitative-trace-columns { grid-template-columns: minmax(0, 1fr); }
+  .qualitative-actions .button { max-width: 100%; }
+  .qualitative-record { padding: .9rem; }
+}

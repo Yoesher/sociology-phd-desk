@@ -1,3 +1,5 @@
+> **0.6.0-rc.1 定性分析与证据追溯候选**：新增界面、44 集合及 v7→v8→v9 兼容说明见[候选说明](docs/releases/v0.6.0-rc.1.md)。发布验收记录见 [PR #64](https://github.com/Yoesher/sociology-phd-desk/pull/64) 与[候选发行版](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.6.0-rc.1)；网站版本以实际构建身份为准。
+
 **简体中文** · [English](README.en.md)
 
 ![Sociology PhD Desk 学术研究工作站](docs/assets/readme-header.svg)
@@ -8,9 +10,9 @@
 
 面向社会学博士研究者的本地优先工作站。无需账号，中文优先并提供完整英文界面；浏览器即可使用，也可安装为 PWA。
 
-**[打开工作站 →](https://yoesher.github.io/sociology-phd-desk/)** · **[发行版](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[开始使用](docs/zh-CN/getting-started.md)** · **[0.5.0 更新说明](docs/releases/v0.5.0.md)**
+**[打开工作站 →](https://yoesher.github.io/sociology-phd-desk/)** · **[发行版](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[开始使用](docs/zh-CN/getting-started.md)** · **[0.6.0-rc.1 候选说明](docs/releases/v0.6.0-rc.1.md)**
 
-`应用 0.5.0` · `数据格式 v7` · `本地优先` · `可离线使用`
+`应用候选 0.6.0-rc.1` · `数据格式 v9` · `本地优先` · `可离线使用`
 
 **0.5.0：研究导航。** 桌面与手机的放大镜可检索17类研究记录，按项目与类型筛选，查看笔记详情和已登记关系；项目概览显示真实任务队列、问题与资料积累。查询只在当前已解锁工作台内存中运行，不保存历史、不上传。地图、田野点、访问与访谈可沿稳定ID互相回看；证据文字不会被猜成主张链接。**[完整修正方案与20工具比较](docs/research-workstation-review-2026-10-04.md)** · [使用说明](docs/releases/v0.5.0.md)
 
@@ -33,7 +35,7 @@
 | **本地田野标注** | 导入自己有权使用的 PNG/JPEG 地图或草图，以图内百分比关联同项目田野点，查看关联访问与访谈。支持点击、键盘及百分比输入；移除标注不删除原记录。 |
 | **私密工作台与备份** | 隔离多个本地工作台，可选择加密存储、锁定与 `.sociologydesk` 加密备份。普通和加密备份均包含所有项目、PDF、图像与标注。 |
 
-应用连接研究问题、文献、数据集或访谈、分析、证据、主张、论文与修回工作；它补充 Zotero、Word、Stata、R、Python 和 NVivo 等专业工具。Evidence↔Claim↔Manuscript 的完整显式追踪仍是独立的 [Issue #2](https://github.com/Yoesher/sociology-phd-desk/issues/2)，各模块编辑/删除能力尚未完全一致。
+应用连接研究问题、文献、数据集或访谈、分析、证据、主张、论文与修回工作；它补充 Zotero、Word、Stata、R、Python 和 NVivo 等专业工具。0.6.0-rc.1 增加显式、带版本的 Evidence↔Claim↔Manuscript 追溯与实际论文使用登记。[Issue #2](https://github.com/Yoesher/sociology-phd-desk/issues/2) 与 [Issue #4](https://github.com/Yoesher/sociology-phd-desk/issues/4) 保持开放，等待候选反馈；各模块编辑/删除能力尚未完全一致。
 
 ## 看看工作台
 
@@ -119,7 +121,7 @@
 
 已有合法超限工作台仍可完整读取、迁移和进行不增加序列化大小的写入；在原加密容量与附件约束内可用完整加密备份保全。更大量 PDF 需要后续独立附件存储与分块认证备份，目前未实现，请保留自己的原文件。
 
-当前 portable workspace、标准数据库与 authenticated encrypted payload 为 **v7**；container、vault database、registry database 仍为 **v1**。v6 → v7 保留旧记录，只增加空的本地地图集合，不推断图片或坐标。旧版 0.3.1 不能读取 v7 备份；跨版本前保留并验证原版本备份。导入先验证预览，替换必须明确确认；加密恢复先认证、验证，再创建新的隔离工作台，口令错误或密文损坏不会写入目标。
+当前 portable workspace、标准数据库与 authenticated encrypted payload 为 **v9**；container、vault database、registry database 仍为 **v1**。v7 → v8 → v9 保留全部旧记录、稳定 ID、PDF、地图与研究目标；迁移只建立机械版本快照和空定性集合，不推断研究关系。旧版 0.5.0 不能读取 v9 备份或数据库；升级前保留并验证完整 v7 备份，已导出的旧文件不会被改写。导入先验证预览，替换必须明确确认；加密恢复先认证、验证，再创建新的隔离工作台，口令错误或密文损坏不会写入目标。
 
 完整流程见[本地地图与存储指南](docs/local-field-maps-and-storage-2026-10-04.md)和[数据迁移说明](docs/data-portability.md)。
 

@@ -93,9 +93,9 @@ describe('hierarchical research navigation shell', () => {
       ['all', 'active', 'theoretical', 'completed'],
       ['inbox', 'reading', 'cited', 'all'],
       ['overview', 'questions', 'memos', 'manuscripts'],
-      ['overview', 'field', 'maps', 'interviews', 'processing'],
+      ['overview', 'field', 'maps', 'interviews', 'processing', 'qualitative'],
       ['overview', 'datasets', 'runs'],
-      ['all', 'by-type', 'contradictory'],
+      ['all', 'by-type', 'contradictory', 'provenance'],
       ['timeline', 'decisions', 'next-steps'],
       ['writing', 'submission', 'revision', 'history'],
     ])

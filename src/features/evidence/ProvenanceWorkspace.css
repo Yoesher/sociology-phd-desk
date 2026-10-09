@@ -1,0 +1,22 @@
+.provenance-workspace { min-width: 0; }
+.provenance-workspace .provenance-notice { padding: 1rem; border-left: 3px solid var(--accent, #776244); background: var(--surface, #fff); }
+.provenance-workspace .provenance-notice p { margin: .45rem 0 0; }
+.provenance-selectors, .provenance-form-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.provenance-workspace .panel { min-width: 0; padding: 1.1rem; }
+.provenance-workspace h2 { font-size: 1.1rem; margin: 0 0 .7rem; }
+.provenance-workspace h3 { font-size: 1rem; margin: .7rem 0; }
+.provenance-workspace .field select { width: 100%; min-width: 0; }
+.provenance-workspace .provenance-id { display: block; font-size: .75rem; overflow-wrap: anywhere; color: var(--muted); }
+.provenance-workspace .provenance-record { padding: .9rem 0; border-bottom: 1px solid var(--line); min-width: 0; }
+.provenance-workspace .provenance-record p { margin: .4rem 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.provenance-workspace .provenance-record dl { margin: .65rem 0; }
+.provenance-workspace .provenance-record dt { font-size: .8rem; color: var(--muted); }
+.provenance-workspace .provenance-record dd { margin: .3rem 0 .7rem; overflow-wrap: anywhere; white-space: pre-wrap; }
+.provenance-workspace .provenance-row-actions { display: flex; gap: .4rem; flex-wrap: wrap; align-items: center; }
+.provenance-workspace .provenance-status { padding: .65rem .9rem; border: 1px solid var(--line); overflow-wrap: anywhere; }
+.provenance-workspace .provenance-status--error { border-color: var(--danger, #a53b3b); }
+.provenance-workspace .provenance-empty { color: var(--muted); font-size: .9rem; }
+.provenance-workspace .provenance-columns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.provenance-workspace .provenance-record a { overflow-wrap: anywhere; }
+@media (max-width: 1050px) { .provenance-workspace .provenance-columns { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 680px) { .provenance-selectors, .provenance-form-columns { grid-template-columns: minmax(0, 1fr); } }

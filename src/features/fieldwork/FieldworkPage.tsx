@@ -15,6 +15,8 @@ import { QUICK_ADD_EVENT, type QuickAddEvent } from '../../app/navigationEvents'
 import { useModuleSearch } from '../../hooks/useModuleSearch'
 import { matchesFieldworkInterviewView } from './fieldworkViews'
 import { LocalFieldMaps } from './LocalFieldMaps'
+import { QualitativeWorkspace } from '../qualitative/QualitativeWorkspace'
+import { previewProvenanceDeletion } from '../../utils/provenance-graph'
 import { WorkspaceCapacityError } from '../../utils/workspace-capacity'
 import { ProjectSelect } from '../../components/ProjectSelect'
 import {
@@ -37,7 +39,7 @@ import {
 type RegistryTab = 'sites' | 'interviews' | 'visits'
 type RecordKind = 'site' | 'interview' | 'visit'
 
-type FieldworkView = 'overview' | 'field' | 'interviews' | 'processing' | 'maps'
+type FieldworkView = 'overview' | 'field' | 'interviews' | 'processing' | 'maps' | 'qualitative'
 
 const siteDraft = () => ({ nameOrAlias: '', projectId: '', status: 'Planned' as FieldSite['status'], notes: '' })
 const interviewDraft = () => ({
@@ -68,7 +70,7 @@ const workTone = (status: Interview['transcriptStatus']) => {
 }
 
 export function FieldworkPage() {
-  const { data, updateData } = useWorkspace()
+  const { data, fullData, updateData } = useWorkspace()
   const { t, formatDate, formatNumber, labelEnum } = useI18n()
   const [tab, setTab] = useState<RegistryTab>('sites')
   const [search, setSearch] = useState('')
@@ -290,6 +292,8 @@ export function FieldworkPage() {
         data.fieldMaps.some((map) => map.markers.some((marker) => marker.fieldSiteId === deleteTarget.id)))
     ) return
     await updateData((current) => {
+      const collection = deleteTarget.kind === 'site' ? 'fieldSites' : deleteTarget.kind === 'interview' ? 'interviews' : 'fieldVisits'
+      if (previewProvenanceDeletion(current, collection, deleteTarget.id).protected) throw new Error('record-protected')
       if (deleteTarget.kind === 'site') {
         if (current.fieldMaps.some((map) => map.markers.some((marker) => marker.fieldSiteId === deleteTarget.id)) || current.fieldVisits.some((item) => item.fieldSiteId === deleteTarget.id)) throw new Error('field-site-protected')
         return {
@@ -328,6 +332,8 @@ export function FieldworkPage() {
       data.fieldVisits.filter((item) => item.fieldSiteId === editingId).length +
       data.fieldMaps.filter((map) => map.markers.some((marker) => marker.fieldSiteId === editingId)).length
     : 0
+  const deletionPreview = deleteTarget ? previewProvenanceDeletion(fullData || data, deleteTarget.kind === 'site' ? 'fieldSites' : deleteTarget.kind === 'interview' ? 'interviews' : 'fieldVisits', deleteTarget.id) : null
+  const provenanceProtected = Boolean(deletionPreview?.protected)
 
   return (
     <div className="page">
@@ -336,12 +342,12 @@ export function FieldworkPage() {
         eyebrow={t('fieldwork.header.eyebrow')}
         title={t('fieldwork.header.title')}
         description={t('fieldwork.header.description')}
-        actions={<AddButton onClick={() => openCreate(view === 'maps' || effectiveTab === 'sites' ? 'site' : effectiveTab === 'interviews' ? 'interview' : 'visit')}>{t(view === 'maps' || effectiveTab === 'sites' ? 'fieldwork.actions.addSite' : effectiveTab === 'interviews' ? 'fieldwork.actions.addInterview' : 'fieldwork.actions.addVisit')}</AddButton>}
+        actions={view === 'qualitative' ? undefined : <AddButton onClick={() => openCreate(view === 'maps' || effectiveTab === 'sites' ? 'site' : effectiveTab === 'interviews' ? 'interview' : 'visit')}>{t(view === 'maps' || effectiveTab === 'sites' ? 'fieldwork.actions.addSite' : effectiveTab === 'interviews' ? 'fieldwork.actions.addInterview' : 'fieldwork.actions.addVisit')}</AddButton>}
       />
 
       <PrivacyNotice />
 
-      {view === 'maps' ? <LocalFieldMaps data={data} updateData={updateData} onEditSite={editSite} onCreateVisit={(selected) => createForSite('visit', selected)} onCreateInterview={(selected) => createForSite('interview', selected)} /> : <>
+      {view === 'maps' ? <LocalFieldMaps data={data} updateData={updateData} onEditSite={editSite} onCreateVisit={(selected) => createForSite('visit', selected)} onCreateInterview={(selected) => createForSite('interview', selected)} /> : view === 'qualitative' ? <QualitativeWorkspace key={`${data.workspace.id}|${data.workspace.activeProjectId || 'all'}|${searchParams.get('interview') || ''}|${searchParams.get('segmentRevision') || searchParams.get('memoRevision') || ''}`} data={data} fullData={fullData || data} updateData={updateData} initialInterviewId={searchParams.get('interview') || ''} initialTarget={searchParams.get('segmentRevision') ? { collection: 'sourceSegmentRevisions', id: searchParams.get('segmentRevision')! } : searchParams.get('memoRevision') ? { collection: 'theoryMemoRevisions', id: searchParams.get('memoRevision')! } : null} /> : <>
 
       <div className="stats-grid stats-grid--four">
         <StatCard label={t('fieldwork.stats.activeSites')} value={formatNumber(activeSites)} detail={t('fieldwork.stats.registeredSites', { count: formatNumber(data.fieldSites.length) })} tone="blue" />
@@ -416,7 +422,7 @@ export function FieldworkPage() {
                         <Badge tone={workTone(item.memoStatus)}>{t('fieldwork.workProduct.memo', { status: labelEnum(item.memoStatus) })}</Badge>
                       </div>
                     </td>
-                    <td><TableActions onEdit={() => editInterview(item)} onDelete={() => setDeleteTarget({ kind: 'interview', id: item.id, label: item.participantAlias })} /></td>
+                    <td><TableActions onEdit={() => editInterview(item)} onDelete={() => setDeleteTarget({ kind: 'interview', id: item.id, label: item.participantAlias })} /><Button size="sm" variant="ghost" onClick={() => updateSearch({ view: 'qualitative', interview: item.id })}>{t('fieldwork.actions.qualitative')}</Button></td>
                   </tr>
                 ))}
               </tbody>
@@ -521,7 +527,7 @@ export function FieldworkPage() {
       </Modal>
 
       <ConfirmDialog
-        open={Boolean(deleteTarget) && blockingSiteVisits === 0 && blockingSiteMarkers === 0}
+        open={Boolean(deleteTarget) && blockingSiteVisits === 0 && blockingSiteMarkers === 0 && !provenanceProtected}
         title={t('fieldwork.delete.title', { name: deleteTarget?.label || t('fieldwork.delete.fallbackName') })}
         description={validationMessageKey === 'fieldMaps.error.saveFailed' || validationMessageKey === 'feedback.backup.tooLarge' ? t(validationMessageKey) : deleteTarget?.kind === 'site' ? t('fieldwork.delete.siteDescription') : t('fieldwork.delete.recordDescription')}
         confirmLabel={t('fieldwork.delete.confirm')}
@@ -529,17 +535,18 @@ export function FieldworkPage() {
         onConfirm={() => saveSafely(deleteRecord)}
       />
       <Modal
-        open={Boolean(deleteTarget) && (blockingSiteVisits > 0 || blockingSiteMarkers > 0)}
-        title={t(blockingSiteMarkers ? 'fieldMaps.siteDeleteTitle' : 'fieldwork.delete.blockedTitle')}
-        description={t(blockingSiteMarkers ? 'fieldMaps.siteDeleteProtected' : 'fieldwork.delete.blockedDescription')}
+        open={Boolean(deleteTarget) && (blockingSiteVisits > 0 || blockingSiteMarkers > 0 || provenanceProtected)}
+        title={t(blockingSiteMarkers ? 'fieldMaps.siteDeleteTitle' : blockingSiteVisits ? 'fieldwork.delete.blockedTitle' : 'fieldwork.delete.provenanceTitle')}
+        description={t(blockingSiteMarkers ? 'fieldMaps.siteDeleteProtected' : blockingSiteVisits ? 'fieldwork.delete.blockedDescription' : 'fieldwork.delete.provenanceDescription')}
         onClose={() => setDeleteTarget(null)}
         size="sm"
         footer={<Button variant="primary" onClick={() => setDeleteTarget(null)}>{t('fieldwork.delete.keep')}</Button>}
       >
         <div className="confirm-panel confirm-panel--primary">
           <MapPinned size={20} />
-          <p>{blockingSiteMarkers ? t('fieldMaps.siteDeleteProtected') : t(blockingSiteVisits === 1 ? 'fieldwork.delete.blockedOne' : 'fieldwork.delete.blockedMany', { count: formatNumber(blockingSiteVisits) })}</p>
+          <p>{blockingSiteMarkers ? t('fieldMaps.siteDeleteProtected') : blockingSiteVisits ? t(blockingSiteVisits === 1 ? 'fieldwork.delete.blockedOne' : 'fieldwork.delete.blockedMany', { count: formatNumber(blockingSiteVisits) }) : t('fieldwork.delete.provenanceDescription')}</p>
         </div>
+        {provenanceProtected && <><p>{t('fieldwork.delete.provenanceCount', { count: formatNumber(deletionPreview?.blockers.length || 0) })}</p><ul>{deletionPreview?.blockers.slice(0, 40).map(item => <li key={`${item.collection}|${item.id}`}>{item.collection} · <span className="mono-id">{item.id}</span></li>)}</ul></>}
       </Modal>
     </div>
   )

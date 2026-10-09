@@ -1,7 +1,11 @@
+/// <reference types="node" />
+import { readFileSync } from 'node:fs'
 import Dexie from 'dexie'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { createDemoWorkspace, DEMO_WORKSPACE_ID } from '../models/demo'
 import { WORKSPACE_APPLICATION } from '../models/domain'
+import { LEGACY_COLLECTION_KEYS, SHARED_PROVENANCE_COLLECTION_KEYS, WORKSPACE_COLLECTION_KEYS } from '../models/provenance'
+import { importWorkspaceJson } from '../utils/workspace-transfer'
 import { syntheticFieldMap } from '../utils/field-map.test-helper'
 import { SociologyPhdDeskDatabase } from './database'
 import {
@@ -221,8 +225,12 @@ describe('legacy singleton migration', () => {
     legacyNames.push(legacyName)
     const snapshot = createDemoWorkspace(new Date('2026-10-04T00:00:00.000Z'))
     snapshot.fieldMaps = [syntheticFieldMap(snapshot)]
-    const source = new StandardWorkspaceRepository(new SociologyPhdDeskDatabase(legacyName))
-    await source.initializeWorkspace(snapshot)
+    // This is the published v7 singleton shape, rather than a new v9 database
+    // with its provenance tables removed by the test setup.
+    const source = new Dexie(legacyName)
+    source.version(7).stores({ workspaces: '&id, revision', ...Object.fromEntries(LEGACY_COLLECTION_KEYS.map((name) => [name, '&id'])) })
+    await source.table('workspaces').put(snapshot.workspace)
+    await Promise.all(LEGACY_COLLECTION_KEYS.map((name) => source.table(name).bulkPut(snapshot[name])))
     source.close()
     const before = await readLegacySingleton(legacyName)
     expect(before.status).toBe('workspace')
@@ -237,6 +245,37 @@ describe('legacy singleton migration', () => {
     const after = await readLegacySingleton(legacyName)
     if (before.status !== 'workspace' || after.status !== 'workspace') throw new Error('Expected preserved singleton snapshots.')
     expect(after.databaseVersion).toBe(7)
+    expect(workspaceSnapshotsEqual(before.snapshot, after.snapshot)).toBe(true)
+  })
+
+  it.each([8, 9] as const)('copies singleton v%s with every saved provenance record and keeps the source version', async (version) => {
+    const legacyName = `synthetic-provenance-singleton-v${version}-${crypto.randomUUID()}`
+    legacyNames.push(legacyName)
+    const snapshot = version === 9
+      ? importWorkspaceJson(readFileSync('src/test-fixtures/qualitative-workspace.json', 'utf8'))
+      : createDemoWorkspace(new Date('2026-10-08T00:00:00.000Z'))
+    const sourceCollections = version === 9 ? WORKSPACE_COLLECTION_KEYS : [...LEGACY_COLLECTION_KEYS, ...SHARED_PROVENANCE_COLLECTION_KEYS]
+    const source = new Dexie(legacyName)
+    source.version(version).stores({ workspaces: '&id, revision', ...Object.fromEntries(sourceCollections.map((name) => [name, '&id'])) })
+    await source.table('workspaces').put(snapshot.workspace)
+    await Promise.all(sourceCollections.map((name) => source.table(name).bulkPut(snapshot[name])))
+    source.close()
+    const before = await readLegacySingleton(legacyName)
+    if (before.status !== 'workspace') throw new Error('Expected synthetic singleton.')
+    expect(before.databaseVersion).toBe(version)
+    for (const collection of WORKSPACE_COLLECTION_KEYS) {
+      expect(before.snapshot[collection]).toHaveLength(snapshot[collection].length)
+      expect(before.snapshot[collection] as unknown[]).toEqual(expect.arrayContaining(snapshot[collection] as unknown[]))
+    }
+    const migrated = await migrateLegacySingleton(registryDatabase, { legacyDatabaseName: legacyName })
+    if (!migrated.entry) throw new Error('Expected verified target.')
+    const factory = new WorkspaceRepositoryFactory(registryDatabase)
+    const target = await factory.openStandardWorkspace(migrated.entry.id)
+    try { expect(workspaceSnapshotsEqual(target.snapshot, snapshot)).toBe(true) }
+    finally { target.close() }
+    const after = await readLegacySingleton(legacyName)
+    if (after.status !== 'workspace') throw new Error('Expected retained singleton.')
+    expect(after.databaseVersion).toBe(version)
     expect(workspaceSnapshotsEqual(before.snapshot, after.snapshot)).toBe(true)
   })
 

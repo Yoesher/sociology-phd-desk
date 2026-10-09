@@ -95,6 +95,7 @@ export const navigationItems: readonly NavigationItem[] = [
       { id: 'maps', labelKey: 'fieldMaps.title' },
       { id: 'interviews', labelKey: 'nav.fieldwork.interviews' },
       { id: 'processing', labelKey: 'nav.fieldwork.processing', badgeId: 'processing' },
+      { id: 'qualitative', labelKey: 'nav.fieldwork.qualitative' },
     ],
     quickAdd: [
       { action: 'interview', labelKey: 'quickAdd.interview' },
@@ -116,6 +117,7 @@ export const navigationItems: readonly NavigationItem[] = [
       { id: 'all', labelKey: 'nav.evidence.all' },
       { id: 'by-type', labelKey: 'nav.evidence.byType' },
       { id: 'contradictory', labelKey: 'nav.evidence.contradictory' },
+      { id: 'provenance', labelKey: 'nav.evidence.provenance' },
     ],
     quickAdd: [{ action: 'evidence', labelKey: 'quickAdd.evidence' }],
   },

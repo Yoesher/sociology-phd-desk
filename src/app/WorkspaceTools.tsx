@@ -10,6 +10,7 @@ import {
   type WorkspaceImportPreflight,
 } from '../utils/import-preflight'
 import { todayIso } from './format'
+import { PROVENANCE_COLLECTION_KEYS } from '../models/provenance'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { useWorkspaceSession } from '../hooks/useWorkspaceSession'
 import { Badge, Button, ConfirmDialog, LocalDataNotice, Modal } from '../components/ui'
@@ -36,7 +37,8 @@ const collectionCounts = (workspace: WorkspaceData): Array<[MessageKey, number]>
   ['workspace.collection.researchLogs', workspace.researchLogs.length],
   ['workspace.collection.manuscripts', workspace.manuscripts.length],
   ['workspace.collection.submissionsReviews', workspace.submissions.length + workspace.reviewerComments.length],
-] as const
+...PROVENANCE_COLLECTION_KEYS.map((key) => [collectionLabelKeys[key], workspace[key].length] as [MessageKey, number]),
+]
 
 const collectionLabelKeys: Record<WorkspaceCollectionName, MessageKey> = {
   projects: 'workspace.collection.projects',
@@ -58,6 +60,32 @@ const collectionLabelKeys: Record<WorkspaceCollectionName, MessageKey> = {
   manuscripts: 'workspace.collection.manuscripts',
   submissions: 'workspace.collection.submissions',
   reviewerComments: 'workspace.collection.reviewerComments',
+  claimRevisions: 'workspace.collection.claimRevisions',
+  evidenceRevisions: 'workspace.collection.evidenceRevisions',
+  evidenceClaimLinks: 'workspace.collection.evidenceClaimLinks',
+  evidenceSourceLinks: 'workspace.collection.evidenceSourceLinks',
+  manuscriptAnchors: 'workspace.collection.manuscriptAnchors',
+  manuscriptAnchorRevisions: 'workspace.collection.manuscriptAnchorRevisions',
+  claimManuscriptLinks: 'workspace.collection.claimManuscriptLinks',
+  evidenceUsages: 'workspace.collection.evidenceUsages',
+  samplingDimensions: 'workspace.collection.samplingDimensions',
+  researchCases: 'workspace.collection.researchCases',
+  interviewCaseLinks: 'workspace.collection.interviewCaseLinks',
+  sourceReferences: 'workspace.collection.sourceReferences',
+  sourceRevisions: 'workspace.collection.sourceRevisions',
+  sourceSegments: 'workspace.collection.sourceSegments',
+  sourceSegmentRevisions: 'workspace.collection.sourceSegmentRevisions',
+  qualitativeCodes: 'workspace.collection.qualitativeCodes',
+  qualitativeCodeRevisions: 'workspace.collection.qualitativeCodeRevisions',
+  codeRelations: 'workspace.collection.codeRelations',
+  codingAssignments: 'workspace.collection.codingAssignments',
+  analyticalMemoFacets: 'workspace.collection.analyticalMemoFacets',
+  theoryMemoRevisions: 'workspace.collection.theoryMemoRevisions',
+  memoMaterialLinks: 'workspace.collection.memoMaterialLinks',
+  claimDerivationLinks: 'workspace.collection.claimDerivationLinks',
+  comparisonRuns: 'workspace.collection.comparisonRuns',
+  qualitativeChangeEvents: 'workspace.collection.qualitativeChangeEvents',
+
 }
 
 const collectionNames = Object.keys(collectionLabelKeys) as WorkspaceCollectionName[]

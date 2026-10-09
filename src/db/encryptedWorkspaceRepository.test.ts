@@ -135,7 +135,7 @@ describe('encrypted workspace repository', () => {
     const first = track(await unlockEncryptedWorkspace(id, PASSPHRASE))
     expect(first.workspace).toEqual(workspace)
     const upgraded = (await inspectEncryptedWorkspaceRecord(id))!
-    expect(inspectLocalProtectedHeader(upgraded).payloadVersion).toBe(7)
+    expect(inspectLocalProtectedHeader(upgraded).payloadVersion).toBe(9)
     expect(upgraded.storageRevision).toBe(legacy.storageRevision)
     expect(upgraded.keyInvocation).toBe(2)
     first.close()
@@ -156,7 +156,7 @@ describe('encrypted workspace repository', () => {
     })
     const upgraded = await inspectEncryptedWorkspaceRecord(id)
     expect(upgraded).not.toBeNull()
-    expect(upgraded && inspectLocalProtectedHeader(upgraded).payloadVersion).toBe(7)
+    expect(upgraded && inspectLocalProtectedHeader(upgraded).payloadVersion).toBe(9)
     expect(upgraded?.storageRevision).toBe(legacy.storageRevision)
     expect(upgraded?.keyInvocation).toBe(2)
     first.close()
@@ -277,8 +277,8 @@ describe('encrypted workspace repository', () => {
       ),
     )
     const record = await inspectEncryptedWorkspaceRecord(restored.bindingId)
-    expect(record && inspectLocalProtectedHeader(record).payloadVersion).toBe(7)
-    expect(restored.workspace.version).toBe(7)
+    expect(record && inspectLocalProtectedHeader(record).payloadVersion).toBe(9)
+    expect(restored.workspace.version).toBe(9)
     expect(restored.workspace.theoryMemos).toEqual([])
     expect(restored.workspace.literatureExternalReferences).toEqual([])
   })

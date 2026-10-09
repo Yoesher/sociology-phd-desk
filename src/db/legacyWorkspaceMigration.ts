@@ -2,6 +2,7 @@ import Dexie from 'dexie'
 import { isPristineDemoWorkspace } from '../models/demo'
 import { createOpaqueStorageId, type WorkspaceRegistryEntry } from '../models/workspace-registry'
 import { WORKSPACE_APPLICATION, type WorkspaceData } from '../models/domain'
+import { LEGACY_COLLECTION_KEYS, SHARED_PROVENANCE_COLLECTION_KEYS, WORKSPACE_COLLECTION_KEYS, QUALITATIVE_COLLECTION_KEYS } from '../models/provenance'
 import { validateWorkspace, WorkspaceValidationError } from '../utils/workspace-transfer'
 import { LEGACY_DATABASE_NAME } from './database'
 import {
@@ -19,27 +20,7 @@ import {
 } from './workspaceRepository'
 import { WorkspaceRepositoryFactory } from './workspaceRepositoryFactory'
 
-const legacyCollections = [
-  'projects',
-  'researchQuestions',
-  'claims',
-  'claimQuestionLinks',
-  'theoryMemos',
-  'tasks',
-  'literature',
-  'literatureExternalReferences',
-  'fieldSites',
-  'fieldMaps',
-  'interviews',
-  'fieldVisits',
-  'datasets',
-  'analysisRuns',
-  'evidence',
-  'researchLogs',
-  'manuscripts',
-  'submissions',
-  'reviewerComments',
-] as const
+const legacyCollections = LEGACY_COLLECTION_KEYS
 
 export type LegacyWorkspaceProbe =
   | { status: 'absent' }
@@ -94,7 +75,7 @@ export async function readLegacySingleton(
   try {
     await database.open()
     const databaseVersion = database.verno
-    if (![1, 2, 3, 4, 5, 6, 7].includes(databaseVersion)) {
+    if (![1, 2, 3, 4, 5, 6, 7, 8, 9].includes(databaseVersion)) {
       throw new LegacyWorkspaceMigrationError(
         'unsupported-version',
         `Legacy database version ${databaseVersion} is not supported.`,
@@ -127,14 +108,33 @@ export async function readLegacySingleton(
         )
       }
 
+      const historicalCollections = legacyCollections.filter((name) => {
+        if (['researchQuestions', 'claims', 'claimQuestionLinks'].includes(name)) return databaseVersion >= 3
+        if (name === 'theoryMemos') return databaseVersion >= 4
+        if (name === 'literatureExternalReferences') return databaseVersion >= 5
+        if (name === 'fieldMaps') return databaseVersion >= 7
+        return true
+      })
+      const sourceCollections = databaseVersion >= 9
+        ? WORKSPACE_COLLECTION_KEYS
+        : databaseVersion >= 8
+          ? [...legacyCollections, ...SHARED_PROVENANCE_COLLECTION_KEYS]
+          : historicalCollections
+      const knownTables = new Set<string>(sourceCollections)
+      const unexpectedTables = database.tables.filter((table) => table.name !== 'workspaces' && !knownTables.has(table.name))
+      for (const table of unexpectedTables) {
+        if (await table.count()) {
+          throw new LegacyWorkspaceMigrationError('unsupported-collections', 'Legacy database contains unsupported research collections; no records were copied or discarded.')
+        }
+      }
       const collections = Object.fromEntries(
         await Promise.all(
-          legacyCollections.map(async (name) => [
+          sourceCollections.map(async (name) => [
             name,
             (await tableOrUndefined(database, name)?.toArray()) ?? [],
           ]),
         ),
-      ) as Record<(typeof legacyCollections)[number], unknown[]>
+      ) as Record<(typeof WORKSPACE_COLLECTION_KEYS)[number], unknown[]>
 
       const legacyGraphCollections =
         databaseVersion >= 3
@@ -174,6 +174,8 @@ export async function readLegacySingleton(
         ...legacyTheoryCollections,
         ...legacyV5Collections,
         ...(databaseVersion >= 7 ? { fieldMaps: collections.fieldMaps } : {}),
+        ...(databaseVersion >= 8 ? Object.fromEntries(SHARED_PROVENANCE_COLLECTION_KEYS.map((name) => [name, collections[name]])) : {}),
+        ...(databaseVersion >= 9 ? Object.fromEntries(QUALITATIVE_COLLECTION_KEYS.map((name) => [name, collections[name]])) : {}),
       }
       const validation = validateWorkspace(input)
       if (!validation.success) {

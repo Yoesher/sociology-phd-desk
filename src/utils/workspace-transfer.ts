@@ -1,4 +1,8 @@
 import { z } from 'zod'
+import { PROVENANCE_COLLECTION_KEYS } from '../models/provenance'
+import { provenanceCollectionSchemas, sharedProvenanceCollectionSchemas, migrateWorkspaceV7ToV8, migrateWorkspaceV8ToV9 } from './provenance-schema'
+import { validateProvenanceGraph } from './provenance-graph'
+import { workspaceMigrationCapacityIssue } from './workspace-migration-capacity'
 import { isValidFieldMapImage, MAX_FIELD_MAP_IMAGE_BYTES, MAX_WORKSPACE_FIELD_MAP_IMAGE_BYTES } from '../features/fieldwork/local-field-map'
 import { MAX_SERIALIZED_WORKSPACE_BYTES, workspaceSerializedBytes } from './workspace-capacity'
 import { isValidLiteraturePdf, MAX_PDF_BYTES, MAX_WORKSPACE_PDF_BYTES } from '../features/literature/local-pdf'
@@ -360,7 +364,7 @@ const reviewerCommentSchema = entityMetadataSchema
   })
   .strict()
 
-const workspaceDataSchema = z
+const workspaceBaseSchema = z
   .object({
     application: z.literal(WORKSPACE_APPLICATION),
     version: z.literal(WORKSPACE_SCHEMA_VERSION),
@@ -387,6 +391,10 @@ const workspaceDataSchema = z
     reviewerComments: z.array(reviewerCommentSchema),
   })
   .strict()
+
+const workspaceDataSchemaV7 = workspaceBaseSchema.extend({ version: z.literal(7) }).strict()
+const workspaceDataSchemaV8 = workspaceBaseSchema.extend({ version: z.literal(8), ...sharedProvenanceCollectionSchemas }).strict()
+const workspaceDataSchema = workspaceBaseSchema.extend(provenanceCollectionSchemas).strict()
 
 function duplicateIdIssues(
   collectionName: string,
@@ -990,7 +998,7 @@ export function migrateWorkspaceV5ToV6(input: unknown): unknown {
 export function migrateWorkspaceV6ToV7(input: unknown): unknown {
   if (!isRecord(input) || input['version'] !== 6) return input
   if (Object.prototype.hasOwnProperty.call(input, 'fieldMaps')) return input
-  return { ...input, version: WORKSPACE_SCHEMA_VERSION, fieldMaps: [] }
+  return { ...input, version: 7, fieldMaps: [] }
 }
 
 function migrateLegacyWorkspace(input: unknown): unknown {
@@ -1007,7 +1015,26 @@ function migrateLegacyWorkspace(input: unknown): unknown {
  * validation; unknown properties remain rejected.
  */
 export function validateWorkspace(input: unknown): WorkspaceValidationResult {
-  const parsed = workspaceDataSchema.safeParse(migrateLegacyWorkspace(input))
+  const requiresMigration = isRecord(input) && typeof input['version'] === 'number' && input['version'] >= 1 && input['version'] < WORKSPACE_SCHEMA_VERSION
+  let migrated = migrateLegacyWorkspace(input)
+  // Validate each historical envelope before adding new collections. Unknown
+  // data must never be discarded by an upgrade that manufactures empty arrays.
+  for (const [version, schema, migrate] of [
+    [7, workspaceDataSchemaV7, migrateWorkspaceV7ToV8],
+    [8, workspaceDataSchemaV8, migrateWorkspaceV8ToV9],
+  ] as const) {
+    if (isRecord(migrated) && migrated['version'] === version) {
+      const historical = schema.safeParse(migrated)
+      if (!historical.success) {
+        return { success: false, issues: historical.error.issues.map((issue) => ({
+          path: issue.path.map((segment) => typeof segment === 'number' ? segment : String(segment)),
+          message: issue.message,
+        })) }
+      }
+      migrated = migrate(historical.data)
+    }
+  }
+  const parsed = workspaceDataSchema.safeParse(migrated)
   if (!parsed.success) {
     return {
       success: false,
@@ -1047,11 +1074,21 @@ export function validateWorkspace(input: unknown): WorkspaceValidationResult {
     ...duplicateIdIssues('manuscripts', data.manuscripts),
     ...duplicateIdIssues('submissions', data.submissions),
     ...duplicateIdIssues('reviewerComments', data.reviewerComments),
+    ...PROVENANCE_COLLECTION_KEYS.flatMap((collection) => duplicateIdIssues(collection, data[collection])),
   ]
-  const issues = [...duplicateIssues, ...relationshipIssues(data)]
+  const issues = [
+    ...duplicateIssues,
+    ...relationshipIssues(data),
+    ...validateProvenanceGraph(data).map((message) => ({ path: ['provenance'], message })),
+  ]
 
   if (issues.length > 0) {
     return { success: false, issues }
+  }
+
+  if (requiresMigration) {
+    const capacityIssue = workspaceMigrationCapacityIssue(input, data)
+    if (capacityIssue) return { success: false, issues: [{ path: ['migrationCapacity'], message: capacityIssue }] }
   }
 
   return { success: true, data, issues: [] }

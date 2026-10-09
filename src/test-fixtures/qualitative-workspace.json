@@ -1,0 +1,1528 @@
+{
+  "application": "sociology-phd-desk",
+  "version": 9,
+  "exportedAt": "2000-01-01T00:00:00.000Z",
+  "workspace": {
+    "id": "demo-workspace-family",
+    "createdAt": "2000-01-01T00:00:00.000Z",
+    "updatedAt": "2000-01-01T00:00:00.000Z",
+    "isDemo": true,
+    "name": "完全合成的家庭研究演示",
+    "revision": 0,
+    "todayGoals": []
+  },
+  "projects": [
+    {
+      "id": "demo-project-family",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "title": "合成家庭计划与劳动安排",
+      "shortTitle": "合成家庭计划",
+      "topic": "仅用于关系验收",
+      "method": "Qualitative",
+      "status": "Analysis",
+      "startDate": "2000-01-01",
+      "notes": "所有数据为合成元数据，无转录全文或真实受访者。"
+    }
+  ],
+  "researchQuestions": [
+    {
+      "id": "demo-question-family",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "text": "劳动安排与照料承诺如何进入家庭计划的可执行性判断",
+      "status": "active",
+      "notes": "合成问题"
+    }
+  ],
+  "claims": [
+    {
+      "id": "demo-claim-family",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "text": "在合成比较中，时间安排与照料承诺的联系具有条件性；预算边界构成需要保留的竞争解释。",
+      "status": "active",
+      "notes": "构造情境中的分析判断，不是现实经验结论"
+    }
+  ],
+  "claimQuestionLinks": [
+    {
+      "id": "demo-claim-question-link",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "claimId": "demo-claim-family",
+      "researchQuestionId": "demo-question-family"
+    }
+  ],
+  "theoryMemos": [
+    {
+      "id": "demo-memo-family",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "memoType": "mechanism",
+      "title": "计划可执行性的合成比较",
+      "content": "合成案例F03保留计划未推进的反例，并记录预算边界作为竞争解释。劳动安排与照料承诺的联系需要条件化表述。",
+      "relatedQuestionIds": [
+        "demo-question-family"
+      ],
+      "relatedClaimIds": [
+        "demo-claim-family"
+      ],
+      "relatedLiteratureIds": []
+    }
+  ],
+  "tasks": [],
+  "literature": [],
+  "literatureExternalReferences": [],
+  "fieldSites": [
+    {
+      "id": "demo-site",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "nameOrAlias": "合成田野点",
+      "status": "Active",
+      "notes": ""
+    }
+  ],
+  "fieldMaps": [],
+  "interviews": [
+    {
+      "id": "demo-interview-F01-R1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "participantAlias": "F01-A",
+      "fieldSiteId": "demo-site",
+      "interviewDate": "2000-01-01",
+      "status": "Completed",
+      "transcriptStatus": "Complete",
+      "codingStatus": "In Progress",
+      "memoStatus": "In Progress",
+      "notes": "合成工作流记录，不是转录资料"
+    },
+    {
+      "id": "demo-interview-F01-R2",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "participantAlias": "F01-A",
+      "fieldSiteId": "demo-site",
+      "interviewDate": "2000-01-01",
+      "status": "Completed",
+      "transcriptStatus": "Complete",
+      "codingStatus": "In Progress",
+      "memoStatus": "In Progress",
+      "notes": "合成工作流记录，不是转录资料"
+    },
+    {
+      "id": "demo-interview-F02-R1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "participantAlias": "F02-B",
+      "fieldSiteId": "demo-site",
+      "interviewDate": "2000-01-01",
+      "status": "Completed",
+      "transcriptStatus": "Complete",
+      "codingStatus": "In Progress",
+      "memoStatus": "In Progress",
+      "notes": "合成工作流记录，不是转录资料"
+    },
+    {
+      "id": "demo-interview-F03-R1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "participantAlias": "F03-C",
+      "fieldSiteId": "demo-site",
+      "interviewDate": "2000-01-01",
+      "status": "Completed",
+      "transcriptStatus": "Complete",
+      "codingStatus": "In Progress",
+      "memoStatus": "In Progress",
+      "notes": "合成工作流记录，不是转录资料"
+    }
+  ],
+  "fieldVisits": [],
+  "datasets": [],
+  "analysisRuns": [],
+  "evidence": [
+    {
+      "id": "demo-evidence-support",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "claim": "旧文本字段原样保留",
+      "evidenceType": "Interview",
+      "source": "F01匿名引用",
+      "locator": "T01-v2，14—20行",
+      "finding": "合成资料登记劳动安排与照料协商的联系",
+      "supportLevel": "Moderate",
+      "limitations": "仅用于验证来源关系，不是实际研究证据",
+      "manuscriptLocation": "旧位置文字保留"
+    },
+    {
+      "id": "demo-evidence-counter",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "claim": "旧文本字段原样保留",
+      "evidenceType": "Interview",
+      "source": "F03匿名引用",
+      "locator": "T01-v1，16—20行",
+      "finding": "合成反例登记预算边界和计划未推进",
+      "supportLevel": "Contradictory",
+      "limitations": "仅用于验证来源关系，不是实际研究证据",
+      "manuscriptLocation": "旧位置文字保留"
+    }
+  ],
+  "researchLogs": [],
+  "manuscripts": [
+    {
+      "id": "demo-manuscript-family",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "title": "合成家庭分析稿件",
+      "targetJournal": "合成期刊占位",
+      "status": "Drafting",
+      "wordCount": 0,
+      "nextAction": "仅用于锚点验收"
+    }
+  ],
+  "submissions": [],
+  "reviewerComments": [],
+  "claimRevisions": [
+    {
+      "id": "demo-claim-family-r1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "claimId": "demo-claim-family",
+      "snapshot": {
+        "text": "在合成比较中，时间安排与照料承诺为家庭计划提供可执行性线索。",
+        "status": "active",
+        "notes": "构造情境中的分析判断，不是现实经验结论"
+      }
+    },
+    {
+      "id": "demo-claim-family-r2",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 2,
+      "previousRevisionId": "demo-claim-family-r1",
+      "changeReason": "合成关系演示",
+      "claimId": "demo-claim-family",
+      "snapshot": {
+        "text": "在合成比较中，时间安排与照料承诺的联系具有条件性；预算边界构成需要保留的竞争解释。",
+        "status": "active",
+        "notes": "构造情境中的分析判断，不是现实经验结论"
+      }
+    }
+  ],
+  "evidenceRevisions": [
+    {
+      "id": "demo-evidence-support-r1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "evidenceId": "demo-evidence-support",
+      "snapshot": {
+        "claim": "旧文本字段原样保留",
+        "evidenceType": "Interview",
+        "source": "F01匿名引用",
+        "locator": "T01-v1，12—18行",
+        "finding": "合成资料登记劳动安排与照料协商的联系",
+        "supportLevel": "Moderate",
+        "limitations": "仅用于验证来源关系，不是实际研究证据",
+        "manuscriptLocation": "旧位置文字保留"
+      }
+    },
+    {
+      "id": "demo-evidence-support-r2",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 2,
+      "previousRevisionId": "demo-evidence-support-r1",
+      "changeReason": "合成关系演示",
+      "evidenceId": "demo-evidence-support",
+      "snapshot": {
+        "claim": "旧文本字段原样保留",
+        "evidenceType": "Interview",
+        "source": "F01匿名引用",
+        "locator": "T01-v2，14—20行",
+        "finding": "合成资料登记劳动安排与照料协商的联系",
+        "supportLevel": "Moderate",
+        "limitations": "仅用于验证来源关系，不是实际研究证据",
+        "manuscriptLocation": "旧位置文字保留"
+      }
+    },
+    {
+      "id": "demo-evidence-counter-r1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "evidenceId": "demo-evidence-counter",
+      "snapshot": {
+        "claim": "旧文本字段原样保留",
+        "evidenceType": "Interview",
+        "source": "F03匿名引用",
+        "locator": "T01-v1，16—20行",
+        "finding": "合成反例登记预算边界和计划未推进",
+        "supportLevel": "Contradictory",
+        "limitations": "仅用于验证来源关系，不是实际研究证据",
+        "manuscriptLocation": "旧位置文字保留"
+      }
+    }
+  ],
+  "evidenceClaimLinks": [
+    {
+      "id": "demo-evidence-claim-support",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "evidenceRevisionId": "demo-evidence-support-r2",
+      "claimRevisionId": "demo-claim-family-r2",
+      "supportLevel": "Moderate",
+      "rationale": "合成条件性判断的观察线索",
+      "limitations": "保留范围和竞争解释"
+    },
+    {
+      "id": "demo-evidence-claim-counter",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "evidenceRevisionId": "demo-evidence-counter-r1",
+      "claimRevisionId": "demo-claim-family-r2",
+      "supportLevel": "Contradictory",
+      "rationale": "反驳单条件即足以推进计划的预期",
+      "limitations": "保留范围和竞争解释"
+    },
+    {
+      "id": "demo-evidence-claim-old",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "evidenceRevisionId": "demo-evidence-support-r1",
+      "claimRevisionId": "demo-claim-family-r1",
+      "supportLevel": "Weak",
+      "rationale": "旧主张保留为历史使用",
+      "limitations": "旧解释未经后续反例限定"
+    }
+  ],
+  "evidenceSourceLinks": [
+    {
+      "id": "demo-evidence-source-support",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "evidenceRevisionId": "demo-evidence-support-r2",
+      "origin": {
+        "kind": "sourceSegmentRevision",
+        "segmentRevisionId": "demo-segment-F01-S1-v2"
+      },
+      "role": "primary"
+    },
+    {
+      "id": "demo-evidence-source-counter",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "evidenceRevisionId": "demo-evidence-counter-r1",
+      "origin": {
+        "kind": "sourceSegmentRevision",
+        "segmentRevisionId": "demo-segment-F03-S2-v1"
+      },
+      "role": "primary"
+    },
+    {
+      "id": "demo-evidence-source-care",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "evidenceRevisionId": "demo-evidence-support-r2",
+      "origin": {
+        "kind": "sourceSegmentRevision",
+        "segmentRevisionId": "demo-segment-F01-S2-v1"
+      },
+      "role": "corroborating"
+    },
+    {
+      "id": "demo-evidence-source-old",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "evidenceRevisionId": "demo-evidence-support-r1",
+      "origin": {
+        "kind": "sourceSegmentRevision",
+        "segmentRevisionId": "demo-segment-F01-S1-v1"
+      },
+      "role": "primary"
+    }
+  ],
+  "manuscriptAnchors": [
+    {
+      "id": "demo-anchor-family-p03",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "manuscriptId": "demo-manuscript-family",
+      "kind": "paragraph",
+      "currentRevisionId": "demo-anchor-family-p03-v2",
+      "state": "active"
+    }
+  ],
+  "manuscriptAnchorRevisions": [
+    {
+      "id": "demo-anchor-family-p03-v1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "anchorId": "demo-anchor-family-p03",
+      "documentVersion": "D1",
+      "sectionPath": [
+        "4",
+        "4.2"
+      ],
+      "paragraphLabel": "P03",
+      "bookmarkToken": "spd-anchor:demo-anchor-family-p03",
+      "externalReferenceToken": "DEMO-DOC-D1",
+      "locatorVerifiedAt": "2000-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "demo-anchor-family-p03-v2",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 2,
+      "previousRevisionId": "demo-anchor-family-p03-v1",
+      "changeReason": "合成关系演示",
+      "anchorId": "demo-anchor-family-p03",
+      "documentVersion": "D2",
+      "sectionPath": [
+        "4",
+        "4.3"
+      ],
+      "paragraphLabel": "P04",
+      "bookmarkToken": "spd-anchor:demo-anchor-family-p03",
+      "externalReferenceToken": "DEMO-DOC-D2",
+      "locatorVerifiedAt": "2000-01-01T00:00:00.000Z"
+    }
+  ],
+  "claimManuscriptLinks": [
+    {
+      "id": "demo-claim-manuscript-1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "claimRevisionId": "demo-claim-family-r1",
+      "anchorRevisionId": "demo-anchor-family-p03-v1",
+      "purpose": "assertion"
+    },
+    {
+      "id": "demo-claim-manuscript-2",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "claimRevisionId": "demo-claim-family-r2",
+      "anchorRevisionId": "demo-anchor-family-p03-v2",
+      "purpose": "assertion"
+    }
+  ],
+  "evidenceUsages": [
+    {
+      "id": "demo-usage-old",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "evidenceClaimLinkId": "demo-evidence-claim-old",
+      "claimManuscriptLinkId": "demo-claim-manuscript-1",
+      "useKind": "summary",
+      "note": "D1历史使用"
+    },
+    {
+      "id": "demo-usage-support",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "evidenceClaimLinkId": "demo-evidence-claim-support",
+      "claimManuscriptLinkId": "demo-claim-manuscript-2",
+      "useKind": "summary",
+      "note": "D2支持与反证并列"
+    },
+    {
+      "id": "demo-usage-counter",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "evidenceClaimLinkId": "demo-evidence-claim-counter",
+      "claimManuscriptLinkId": "demo-claim-manuscript-2",
+      "useKind": "summary",
+      "note": "D2支持与反证并列"
+    }
+  ],
+  "samplingDimensions": [
+    {
+      "id": "demo-dimension-schedule",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "label": "劳动安排类别",
+      "unit": "household",
+      "categories": [
+        {
+          "id": "demo-category-predictable",
+          "label": "可预期",
+          "retired": false
+        },
+        {
+          "id": "demo-category-variable",
+          "label": "临时安排",
+          "retired": false
+        }
+      ],
+      "state": "active"
+    }
+  ],
+  "researchCases": [
+    {
+      "id": "demo-case-F01",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "alias": "F01",
+      "unit": "household",
+      "attributes": [
+        {
+          "dimensionId": "demo-dimension-schedule",
+          "categoryId": "demo-category-predictable"
+        }
+      ],
+      "state": "active"
+    },
+    {
+      "id": "demo-case-F02",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "alias": "F02",
+      "unit": "household",
+      "attributes": [
+        {
+          "dimensionId": "demo-dimension-schedule",
+          "categoryId": "demo-category-variable"
+        }
+      ],
+      "state": "active"
+    },
+    {
+      "id": "demo-case-F03",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "alias": "F03",
+      "unit": "household",
+      "attributes": [
+        {
+          "dimensionId": "demo-dimension-schedule",
+          "categoryId": "demo-category-predictable"
+        }
+      ],
+      "state": "active"
+    }
+  ],
+  "interviewCaseLinks": [
+    {
+      "id": "demo-case-link-F01-R1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "interviewId": "demo-interview-F01-R1",
+      "caseId": "demo-case-F01",
+      "role": "primary"
+    },
+    {
+      "id": "demo-case-link-F01-R2",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "interviewId": "demo-interview-F01-R2",
+      "caseId": "demo-case-F01",
+      "role": "primary"
+    },
+    {
+      "id": "demo-case-link-F02-R1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "interviewId": "demo-interview-F02-R1",
+      "caseId": "demo-case-F02",
+      "role": "primary"
+    },
+    {
+      "id": "demo-case-link-F03-R1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "interviewId": "demo-interview-F03-R1",
+      "caseId": "demo-case-F03",
+      "role": "primary"
+    }
+  ],
+  "sourceReferences": [
+    {
+      "id": "demo-source-F01-R1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "alias": "F01-R1匿名转录引用",
+      "sourceKind": "transcript",
+      "owners": [
+        {
+          "kind": "interview",
+          "interviewId": "demo-interview-F01-R1"
+        }
+      ],
+      "currentRevisionId": "demo-source-F01-R1-v2",
+      "state": "active"
+    },
+    {
+      "id": "demo-source-F01-R2",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "alias": "F01-R2匿名转录引用",
+      "sourceKind": "transcript",
+      "owners": [
+        {
+          "kind": "interview",
+          "interviewId": "demo-interview-F01-R2"
+        }
+      ],
+      "currentRevisionId": "demo-source-F01-R2-v1",
+      "state": "active"
+    },
+    {
+      "id": "demo-source-F02-R1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "alias": "F02-R1匿名转录引用",
+      "sourceKind": "transcript",
+      "owners": [
+        {
+          "kind": "interview",
+          "interviewId": "demo-interview-F02-R1"
+        }
+      ],
+      "currentRevisionId": "demo-source-F02-R1-v1",
+      "state": "active"
+    },
+    {
+      "id": "demo-source-F03-R1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "alias": "F03-R1匿名转录引用",
+      "sourceKind": "transcript",
+      "owners": [
+        {
+          "kind": "interview",
+          "interviewId": "demo-interview-F03-R1"
+        }
+      ],
+      "currentRevisionId": "demo-source-F03-R1-v1",
+      "state": "active"
+    }
+  ],
+  "sourceRevisions": [
+    {
+      "id": "demo-source-F01-R1-v1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "sourceReferenceId": "demo-source-F01-R1",
+      "versionLabel": "T01-v1",
+      "externalRef": {
+        "kind": "local-token",
+        "token": "REF:F01/R1/T01-v1"
+      },
+      "researcherVerification": "verified"
+    },
+    {
+      "id": "demo-source-F01-R2-v1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "sourceReferenceId": "demo-source-F01-R2",
+      "versionLabel": "T01-v1",
+      "externalRef": {
+        "kind": "local-token",
+        "token": "REF:F01/R2/T01-v1"
+      },
+      "researcherVerification": "verified"
+    },
+    {
+      "id": "demo-source-F02-R1-v1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "sourceReferenceId": "demo-source-F02-R1",
+      "versionLabel": "T01-v1",
+      "externalRef": {
+        "kind": "qda-reference",
+        "provider": "nvivo",
+        "projectToken": "DEMO-QDA-P01",
+        "sourceToken": "DEMO-SRC-F02",
+        "objectToken": "DEMO-NODE-01"
+      },
+      "researcherVerification": "verified"
+    },
+    {
+      "id": "demo-source-F03-R1-v1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "sourceReferenceId": "demo-source-F03-R1",
+      "versionLabel": "T01-v1",
+      "externalRef": {
+        "kind": "local-token",
+        "token": "REF:F03/R1/T01-v1"
+      },
+      "researcherVerification": "verified"
+    },
+    {
+      "id": "demo-source-F01-R1-v2",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 2,
+      "previousRevisionId": "demo-source-F01-R1-v1",
+      "changeReason": "合成关系演示",
+      "sourceReferenceId": "demo-source-F01-R1",
+      "versionLabel": "T01-v2",
+      "externalRef": {
+        "kind": "local-token",
+        "token": "REF:F01/R1/T01-v2"
+      },
+      "researcherVerification": "verified"
+    }
+  ],
+  "sourceSegments": [
+    {
+      "id": "demo-segment-F01-S1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "sourceReferenceId": "demo-source-F01-R1",
+      "label": "劳动安排的合成分析标签",
+      "currentRevisionId": "demo-segment-F01-S1-v2",
+      "state": "active"
+    },
+    {
+      "id": "demo-segment-F01-S2",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "sourceReferenceId": "demo-source-F01-R2",
+      "label": "照料协商的合成分析标签",
+      "currentRevisionId": "demo-segment-F01-S2-v1",
+      "state": "active"
+    },
+    {
+      "id": "demo-segment-F02-S1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "sourceReferenceId": "demo-source-F02-R1",
+      "label": "条件性承诺的合成分析标签",
+      "currentRevisionId": "demo-segment-F02-S1-v1",
+      "state": "active"
+    },
+    {
+      "id": "demo-segment-F03-S1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "sourceReferenceId": "demo-source-F03-R1",
+      "label": "稳定排班的合成分析标签",
+      "currentRevisionId": "demo-segment-F03-S1-v1",
+      "state": "active"
+    },
+    {
+      "id": "demo-segment-F03-S2",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "sourceReferenceId": "demo-source-F03-R1",
+      "label": "预算边界的合成分析标签",
+      "currentRevisionId": "demo-segment-F03-S2-v1",
+      "state": "active"
+    }
+  ],
+  "sourceSegmentRevisions": [
+    {
+      "id": "demo-segment-F01-S1-v1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "segmentId": "demo-segment-F01-S1",
+      "sourceRevisionId": "demo-source-F01-R1-v1",
+      "primaryLocator": {
+        "kind": "lineRange",
+        "start": 12,
+        "end": 18
+      },
+      "alternateLocators": [],
+      "verification": "verified"
+    },
+    {
+      "id": "demo-segment-F01-S2-v1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "segmentId": "demo-segment-F01-S2",
+      "sourceRevisionId": "demo-source-F01-R2-v1",
+      "primaryLocator": {
+        "kind": "lineRange",
+        "start": 20,
+        "end": 25
+      },
+      "alternateLocators": [],
+      "verification": "verified"
+    },
+    {
+      "id": "demo-segment-F02-S1-v1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "segmentId": "demo-segment-F02-S1",
+      "sourceRevisionId": "demo-source-F02-R1-v1",
+      "primaryLocator": {
+        "kind": "lineRange",
+        "start": 6,
+        "end": 11
+      },
+      "alternateLocators": [],
+      "verification": "verified"
+    },
+    {
+      "id": "demo-segment-F03-S1-v1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "segmentId": "demo-segment-F03-S1",
+      "sourceRevisionId": "demo-source-F03-R1-v1",
+      "primaryLocator": {
+        "kind": "lineRange",
+        "start": 8,
+        "end": 12
+      },
+      "alternateLocators": [],
+      "verification": "verified"
+    },
+    {
+      "id": "demo-segment-F03-S2-v1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "segmentId": "demo-segment-F03-S2",
+      "sourceRevisionId": "demo-source-F03-R1-v1",
+      "primaryLocator": {
+        "kind": "lineRange",
+        "start": 16,
+        "end": 20
+      },
+      "alternateLocators": [],
+      "verification": "verified"
+    },
+    {
+      "id": "demo-segment-F01-S1-v2",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 2,
+      "previousRevisionId": "demo-segment-F01-S1-v1",
+      "changeReason": "合成关系演示",
+      "segmentId": "demo-segment-F01-S1",
+      "sourceRevisionId": "demo-source-F01-R1-v2",
+      "primaryLocator": {
+        "kind": "lineRange",
+        "start": 14,
+        "end": 20
+      },
+      "alternateLocators": [],
+      "verification": "verified"
+    }
+  ],
+  "qualitativeCodes": [
+    {
+      "id": "demo-code-schedule",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "currentRevisionId": "demo-code-schedule-r2",
+      "state": "active"
+    },
+    {
+      "id": "demo-code-care",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "currentRevisionId": "demo-code-care-r1",
+      "state": "active"
+    },
+    {
+      "id": "demo-code-budget",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "currentRevisionId": "demo-code-budget-r1",
+      "state": "active"
+    },
+    {
+      "id": "demo-code-executable",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "currentRevisionId": "demo-code-executable-r1",
+      "state": "active"
+    }
+  ],
+  "qualitativeCodeRevisions": [
+    {
+      "id": "demo-code-schedule-r1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "codeId": "demo-code-schedule",
+      "label": "排班可预期",
+      "stage": "initial",
+      "definition": "可预期的劳动时间安排",
+      "inclusion": "有明确可重复安排",
+      "exclusion": "仅一次偶然空闲"
+    },
+    {
+      "id": "demo-code-care-r1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "codeId": "demo-code-care",
+      "label": "照料承诺附带条件",
+      "stage": "initial",
+      "definition": "照料安排依赖协商条件",
+      "inclusion": "注明承诺的约束",
+      "exclusion": "未涉及照料安排"
+    },
+    {
+      "id": "demo-code-budget-r1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "codeId": "demo-code-budget",
+      "label": "预算约束",
+      "stage": "initial",
+      "definition": "合成案例中登记的预算边界",
+      "inclusion": "明确预算边界标签",
+      "exclusion": "泛化的成本评论"
+    },
+    {
+      "id": "demo-code-executable-r1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "codeId": "demo-code-executable",
+      "label": "计划可执行性协商",
+      "stage": "theme",
+      "definition": "劳动安排及照料承诺共同进入计划判断",
+      "inclusion": "有相关初始码及比较说明",
+      "exclusion": "单一条件即自动推出计划"
+    },
+    {
+      "id": "demo-code-schedule-r2",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 2,
+      "previousRevisionId": "demo-code-schedule-r1",
+      "changeReason": "合成关系演示",
+      "codeId": "demo-code-schedule",
+      "label": "排班可预期",
+      "stage": "initial",
+      "definition": "可预期且能在协商期内持续落实的劳动安排",
+      "inclusion": "明确重复安排及持续协商条件",
+      "exclusion": "一次性空闲或尚未落实的承诺"
+    }
+  ],
+  "codeRelations": [
+    {
+      "id": "demo-groups-schedule",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "fromCodeRevisionId": "demo-code-executable-r1",
+      "toCodeRevisionId": "demo-code-schedule-r2",
+      "kind": "groups",
+      "rationale": "合成主题聚合"
+    },
+    {
+      "id": "demo-groups-care",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "fromCodeRevisionId": "demo-code-executable-r1",
+      "toCodeRevisionId": "demo-code-care-r1",
+      "kind": "groups",
+      "rationale": "合成主题聚合"
+    }
+  ],
+  "codingAssignments": [
+    {
+      "id": "demo-assignment-F01-v1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "segmentRevisionId": "demo-segment-F01-S1-v1",
+      "codeRevisionId": "demo-code-schedule-r1",
+      "researcherAlias": "DEMO-R01",
+      "state": "superseded",
+      "rationale": "合成研究者编码判断"
+    },
+    {
+      "id": "demo-assignment-F01-v2",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "segmentRevisionId": "demo-segment-F01-S1-v2",
+      "codeRevisionId": "demo-code-schedule-r2",
+      "researcherAlias": "DEMO-R01",
+      "state": "active",
+      "previousAssignmentId": "demo-assignment-F01-v1",
+      "rationale": "合成研究者编码判断"
+    },
+    {
+      "id": "demo-assignment-care-F01",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "segmentRevisionId": "demo-segment-F01-S2-v1",
+      "codeRevisionId": "demo-code-care-r1",
+      "researcherAlias": "DEMO-R01",
+      "state": "active",
+      "rationale": "合成研究者编码判断"
+    },
+    {
+      "id": "demo-assignment-care-F02",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "segmentRevisionId": "demo-segment-F02-S1-v1",
+      "codeRevisionId": "demo-code-care-r1",
+      "researcherAlias": "DEMO-R01",
+      "state": "active",
+      "rationale": "合成研究者编码判断"
+    },
+    {
+      "id": "demo-assignment-schedule-F03",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "segmentRevisionId": "demo-segment-F03-S1-v1",
+      "codeRevisionId": "demo-code-schedule-r1",
+      "researcherAlias": "DEMO-R01",
+      "state": "active",
+      "rationale": "合成研究者编码判断"
+    },
+    {
+      "id": "demo-assignment-budget-F03",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "segmentRevisionId": "demo-segment-F03-S2-v1",
+      "codeRevisionId": "demo-code-budget-r1",
+      "researcherAlias": "DEMO-R01",
+      "state": "active",
+      "rationale": "合成研究者编码判断"
+    }
+  ],
+  "analyticalMemoFacets": [
+    {
+      "id": "demo-memo-facet-family",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "theoryMemoId": "demo-memo-family",
+      "currentRevisionId": "demo-memo-family-r2",
+      "analysisKind": "case-comparison",
+      "state": "active"
+    }
+  ],
+  "theoryMemoRevisions": [
+    {
+      "id": "demo-memo-family-r1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 1,
+      "changeReason": "合成关系演示",
+      "theoryMemoId": "demo-memo-family",
+      "snapshot": {
+        "memoType": "mechanism",
+        "title": "计划可执行性的合成比较",
+        "content": "合成比较提出劳动安排和照料协商进入计划判断的线索。该判断需要反例检验。",
+        "relatedQuestionIds": [
+          "demo-question-family"
+        ],
+        "relatedClaimIds": [
+          "demo-claim-family"
+        ],
+        "relatedLiteratureIds": []
+      }
+    },
+    {
+      "id": "demo-memo-family-r2",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "revisionNo": 2,
+      "previousRevisionId": "demo-memo-family-r1",
+      "changeReason": "合成关系演示",
+      "theoryMemoId": "demo-memo-family",
+      "snapshot": {
+        "memoType": "mechanism",
+        "title": "计划可执行性的合成比较",
+        "content": "合成案例F03保留计划未推进的反例，并记录预算边界作为竞争解释。劳动安排与照料承诺的联系需要条件化表述。",
+        "relatedQuestionIds": [
+          "demo-question-family"
+        ],
+        "relatedClaimIds": [
+          "demo-claim-family"
+        ],
+        "relatedLiteratureIds": []
+      }
+    }
+  ],
+  "memoMaterialLinks": [
+    {
+      "id": "demo-memo-material-old",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "memoRevisionId": "demo-memo-family-r1",
+      "material": {
+        "kind": "codingAssignment",
+        "assignmentId": "demo-assignment-F01-v1"
+      },
+      "role": "observation",
+      "note": "保留旧定义判断"
+    },
+    {
+      "id": "demo-memo-material-new",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "memoRevisionId": "demo-memo-family-r2",
+      "material": {
+        "kind": "codingAssignment",
+        "assignmentId": "demo-assignment-F01-v2"
+      },
+      "role": "observation",
+      "note": "明确人工重新编码"
+    },
+    {
+      "id": "demo-memo-material-compare",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "memoRevisionId": "demo-memo-family-r2",
+      "material": {
+        "kind": "comparisonRun",
+        "comparisonRunId": "demo-comparison-family"
+      },
+      "role": "interpretation",
+      "note": "冻结口径"
+    },
+    {
+      "id": "demo-memo-material-counter",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "memoRevisionId": "demo-memo-family-r2",
+      "material": {
+        "kind": "segmentRevision",
+        "segmentRevisionId": "demo-segment-F03-S2-v1"
+      },
+      "role": "rival",
+      "note": "保留预算边界的合成竞争解释"
+    }
+  ],
+  "claimDerivationLinks": [
+    {
+      "id": "demo-derivation-1",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "claimRevisionId": "demo-claim-family-r1",
+      "memoRevisionId": "demo-memo-family-r1",
+      "rationale": "研究者基于合成比较修订判断"
+    },
+    {
+      "id": "demo-derivation-2",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "state": "active",
+      "claimRevisionId": "demo-claim-family-r2",
+      "memoRevisionId": "demo-memo-family-r2",
+      "rationale": "研究者基于合成比较修订判断"
+    }
+  ],
+  "comparisonRuns": [
+    {
+      "id": "demo-comparison-family",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "title": "三户四访谈的固定口径比较",
+      "frozenAt": "2000-01-01T00:00:00.000Z",
+      "researcherAlias": "DEMO-R01",
+      "caseSnapshots": [
+        {
+          "id": "demo-case-F01",
+          "alias": "F01",
+          "unit": "household",
+          "attributes": [
+            {
+              "dimensionId": "demo-dimension-schedule",
+              "categoryId": "demo-category-predictable"
+            }
+          ]
+        },
+        {
+          "id": "demo-case-F02",
+          "alias": "F02",
+          "unit": "household",
+          "attributes": [
+            {
+              "dimensionId": "demo-dimension-schedule",
+              "categoryId": "demo-category-variable"
+            }
+          ]
+        },
+        {
+          "id": "demo-case-F03",
+          "alias": "F03",
+          "unit": "household",
+          "attributes": [
+            {
+              "dimensionId": "demo-dimension-schedule",
+              "categoryId": "demo-category-predictable"
+            }
+          ]
+        }
+      ],
+      "codeRevisionIds": [
+        "demo-code-schedule-r2",
+        "demo-code-care-r1",
+        "demo-code-budget-r1"
+      ],
+      "eligibleInterviewIds": [
+        "demo-interview-F01-R1",
+        "demo-interview-F01-R2",
+        "demo-interview-F02-R1",
+        "demo-interview-F03-R1"
+      ],
+      "caseInterviewPairs": [
+        {
+          "caseId": "demo-case-F01",
+          "interviewId": "demo-interview-F01-R1"
+        },
+        {
+          "caseId": "demo-case-F01",
+          "interviewId": "demo-interview-F01-R2"
+        },
+        {
+          "caseId": "demo-case-F02",
+          "interviewId": "demo-interview-F02-R1"
+        },
+        {
+          "caseId": "demo-case-F03",
+          "interviewId": "demo-interview-F03-R1"
+        }
+      ],
+      "assignmentStatesAtFreeze": [
+        {
+          "assignmentId": "demo-assignment-F01-v2",
+          "state": "active"
+        },
+        {
+          "assignmentId": "demo-assignment-care-F01",
+          "state": "active"
+        },
+        {
+          "assignmentId": "demo-assignment-care-F02",
+          "state": "active"
+        },
+        {
+          "assignmentId": "demo-assignment-budget-F03",
+          "state": "active"
+        }
+      ],
+      "rule": {
+        "unit": "household",
+        "deduplicateBy": "caseId",
+        "includeSuperseded": false
+      },
+      "cells": [
+        {
+          "caseId": "demo-case-F01",
+          "codeRevisionId": "demo-code-schedule-r2",
+          "state": "present",
+          "assignmentIds": [
+            "demo-assignment-F01-v2"
+          ],
+          "reviewedSegmentRevisionIds": []
+        },
+        {
+          "caseId": "demo-case-F01",
+          "codeRevisionId": "demo-code-care-r1",
+          "state": "present",
+          "assignmentIds": [
+            "demo-assignment-care-F01"
+          ],
+          "reviewedSegmentRevisionIds": []
+        },
+        {
+          "caseId": "demo-case-F01",
+          "codeRevisionId": "demo-code-budget-r1",
+          "state": "not-examined",
+          "assignmentIds": [],
+          "reviewedSegmentRevisionIds": []
+        },
+        {
+          "caseId": "demo-case-F02",
+          "codeRevisionId": "demo-code-schedule-r2",
+          "state": "absent-reviewed",
+          "assignmentIds": [],
+          "reviewedSegmentRevisionIds": [
+            "demo-segment-F02-S1-v1"
+          ],
+          "reviewNote": "只核验所列合成材料范围，没有该新版编码应用；不表示全案不存在。"
+        },
+        {
+          "caseId": "demo-case-F02",
+          "codeRevisionId": "demo-code-care-r1",
+          "state": "present",
+          "assignmentIds": [
+            "demo-assignment-care-F02"
+          ],
+          "reviewedSegmentRevisionIds": []
+        },
+        {
+          "caseId": "demo-case-F02",
+          "codeRevisionId": "demo-code-budget-r1",
+          "state": "not-examined",
+          "assignmentIds": [],
+          "reviewedSegmentRevisionIds": []
+        },
+        {
+          "caseId": "demo-case-F03",
+          "codeRevisionId": "demo-code-schedule-r2",
+          "state": "not-examined",
+          "assignmentIds": [],
+          "reviewedSegmentRevisionIds": []
+        },
+        {
+          "caseId": "demo-case-F03",
+          "codeRevisionId": "demo-code-care-r1",
+          "state": "not-examined",
+          "assignmentIds": [],
+          "reviewedSegmentRevisionIds": []
+        },
+        {
+          "caseId": "demo-case-F03",
+          "codeRevisionId": "demo-code-budget-r1",
+          "state": "present",
+          "assignmentIds": [
+            "demo-assignment-budget-F03"
+          ],
+          "reviewedSegmentRevisionIds": []
+        }
+      ]
+    }
+  ],
+  "qualitativeChangeEvents": [
+    {
+      "id": "demo-event-recode",
+      "createdAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "isDemo": true,
+      "projectId": "demo-project-family",
+      "operation": "recode",
+      "affected": [
+        {
+          "collection": "codingAssignments",
+          "id": "demo-assignment-F01-v1"
+        },
+        {
+          "collection": "codingAssignments",
+          "id": "demo-assignment-F01-v2"
+        }
+      ],
+      "reason": "新版定位及定义经研究者重新核验",
+      "researcherAlias": "DEMO-R01"
+    }
+  ]
+}

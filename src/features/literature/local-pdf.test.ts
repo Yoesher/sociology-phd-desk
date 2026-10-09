@@ -2,6 +2,8 @@ import Dexie from 'dexie'
 import { webcrypto } from 'node:crypto'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { createDemoWorkspace } from '../../models/demo'
+import { PROVENANCE_COLLECTION_KEYS, type ProvenanceCollectionKey } from '../../models/provenance'
+import type { WorkspaceData } from '../../models/domain'
 import { importWorkspaceJson, exportWorkspaceJson, validateWorkspace } from '../../utils/workspace-transfer'
 import { SociologyPhdDeskDatabase } from '../../db/database'
 import { StandardWorkspaceRepository } from '../../db/workspaceRepository'
@@ -55,10 +57,11 @@ describe('local literature PDF persistence', () => {
 
   it('upgrades v5 without rewriting existing research records or inventing PDFs', () => {
     const workspace = createDemoWorkspace(anchor)
-    const { fieldMaps: _fieldMaps, ...v6Workspace } = workspace
+    const { fieldMaps: _fieldMaps, ...current } = workspace
+    const v6Workspace = Object.fromEntries(Object.entries(current).filter(([key]) => !PROVENANCE_COLLECTION_KEYS.includes(key as ProvenanceCollectionKey))) as Omit<WorkspaceData, 'fieldMaps' | ProvenanceCollectionKey>
     const historical = { ...v6Workspace, version: 5 }
     const migrated = importWorkspaceJson(JSON.stringify(historical))
-    expect(migrated.version).toBe(7)
+    expect(migrated.version).toBe(9)
     expect(migrated.literature).toEqual(workspace.literature)
     expect(migrated.literatureExternalReferences).toEqual(workspace.literatureExternalReferences)
     expect(migrated.projects).toEqual(workspace.projects)
@@ -93,12 +96,12 @@ describe('local literature PDF persistence', () => {
     expect((await openEncryptedBackup(backup, passphrase)).literature[0]!.localPdf).toEqual(pdf)
   })
 
-  it('authenticates existing v5 encrypted backups before upgrading to v7', async () => {
+  it('authenticates existing v5 encrypted backups before upgrading to v9', async () => {
     const workspace = createDemoWorkspace(anchor)
     const backup = await createSyntheticLegacyV5Backup(workspace, passphrase)
     const opened = await openEncryptedBackup(backup, passphrase)
     expect(inspectBackupProtectedHeader(backup).payloadVersion).toBe(5)
-    expect(opened.version).toBe(7)
+    expect(opened.version).toBe(9)
     expect(opened.literature).toEqual(workspace.literature)
     expect(opened.literatureExternalReferences).toEqual(workspace.literatureExternalReferences)
     await expect(openEncryptedBackup(backup, 'wrong synthetic passphrase')).rejects.toThrow()

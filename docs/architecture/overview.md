@@ -164,3 +164,7 @@ Every release revision must run lint, type checking, tests, and production build
 - Optional AI suggestion services isolated from source evidence and the offline core.
 
 Extension points are not promises of compatibility until an implementation and migration are documented.
+
+## Qualitative provenance candidate
+
+The unpublished0.6.0-rc.1 branch adds metadata-only analysis in fieldwork and shared provenance in evidence. Project projections filter all44 collections; writes, deletion previews, backups and validators operate on the complete workspace. All normal old/new form mutations reconcile immutable history before the existing CAS queue. Both repository adapters use one complete collection registry. Readonly legacy singleton probing follows physical version1–9 and copies without upgrading or deleting its source. See [the schema and graph contract](qualitative-provenance.md).

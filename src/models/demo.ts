@@ -1,4 +1,5 @@
-import { WORKSPACE_APPLICATION, WORKSPACE_SCHEMA_VERSION } from './domain'
+import { migrateWorkspaceV7ToV8, migrateWorkspaceV8ToV9 } from '../utils/provenance-schema'
+import { WORKSPACE_APPLICATION } from './domain'
 import type {
   AnalysisRun,
   Claim,
@@ -498,9 +499,9 @@ function createDemoWorkspaceFixture(now: Date, includeTheory: boolean): Workspac
     },
   ]
 
-  return {
+  return migrateWorkspaceV8ToV9(migrateWorkspaceV7ToV8({
     application: WORKSPACE_APPLICATION,
-    version: WORKSPACE_SCHEMA_VERSION,
+    version: 7,
     exportedAt: timestamp,
     workspace: {
       ...entityMetadata,
@@ -535,7 +536,7 @@ function createDemoWorkspaceFixture(now: Date, includeTheory: boolean): Workspac
     manuscripts,
     submissions,
     reviewerComments,
-  }
+  })) as WorkspaceData
 }
 
 export function createDemoWorkspace(now: Date = new Date()): WorkspaceData {

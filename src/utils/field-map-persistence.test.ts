@@ -3,6 +3,8 @@ import Dexie from 'dexie'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { createDemoWorkspace } from '../models/demo'
 import { isPristineDemoWorkspace } from '../models/demo'
+import { PROVENANCE_COLLECTION_KEYS, type ProvenanceCollectionKey } from '../models/provenance'
+import type { WorkspaceData } from '../models/domain'
 import { SociologyPhdDeskDatabase } from '../db/database'
 import { StandardWorkspaceRepository, buildMergedWorkspace } from '../db/workspaceRepository'
 import { createEncryptedBackup, openEncryptedBackup, inspectBackupProtectedHeader } from '../crypto'
@@ -24,7 +26,8 @@ function workspaceWithMap() {
 }
 
 function historicalV6(workspace = createDemoWorkspace(anchor)) {
-  const { fieldMaps: _fieldMaps, ...legacy } = workspace
+  const { fieldMaps: _fieldMaps, ...current } = workspace
+  const legacy = Object.fromEntries(Object.entries(current).filter(([key]) => !PROVENANCE_COLLECTION_KEYS.includes(key as ProvenanceCollectionKey))) as Omit<WorkspaceData, 'fieldMaps' | ProvenanceCollectionKey>
   return { ...legacy, version: 6 }
 }
 
@@ -52,7 +55,7 @@ describe('local research-map durable contract', () => {
     const imported = importWorkspaceJson(JSON.stringify(legacy))
     expect(imported).toEqual({ ...workspace, fieldMaps: [] })
     expect(legacy).toEqual(original)
-    expect(preflightPortableWorkspaceText(JSON.stringify(legacy)).migrationSteps).toEqual(['v6 → v7'])
+    expect(preflightPortableWorkspaceText(JSON.stringify(legacy)).migrationSteps).toEqual(['v6 → v7', 'v7 → v8', 'v8 → v9'])
     expect(migrateWorkspaceV6ToV7({ ...legacy, fieldMaps: [] })).toEqual({ ...legacy, fieldMaps: [] })
     expect(validateWorkspace({ ...legacy, fieldMaps: [] }).success).toBe(false)
     const v5 = historicalV6(createDemoWorkspace(anchor))
@@ -95,7 +98,7 @@ describe('local research-map durable contract', () => {
     let repository = new StandardWorkspaceRepository(new SociologyPhdDeskDatabase(name))
     try {
       await repository.initializeWorkspace(workspace)
-      expect(repository.database.tables).toHaveLength(20)
+      expect(repository.database.tables).toHaveLength(45)
       const changed = structuredClone(workspace)
       changed.tasks[0]!.notes = 'SYNTHETIC unrelated task edit'
       await repository.replaceWorkspace(changed, 0)
@@ -140,7 +143,7 @@ describe('local research-map durable contract', () => {
   it('authenticates maps inside encrypted backup and preserves actual v6 PDF bytes during migration', async () => {
     const workspace = workspaceWithMap()
     const backup = await createEncryptedBackup(workspace, passphrase)
-    expect(inspectBackupProtectedHeader(backup).payloadVersion).toBe(7)
+    expect(inspectBackupProtectedHeader(backup).payloadVersion).toBe(9)
     expect(backup).not.toContain(workspace.fieldMaps[0]!.image.fileName)
     expect(backup).not.toContain(workspace.fieldMaps[0]!.image.base64)
     expect((await openEncryptedBackup(backup, passphrase)).fieldMaps).toEqual(workspace.fieldMaps)
@@ -159,7 +162,7 @@ describe('local research-map durable contract', () => {
     expect(validateWorkspace(workspace).success).toBe(true)
     const legacy = historicalV6(workspace)
     const migrated = importWorkspaceJson(JSON.stringify(legacy))
-    expect(migrated.version).toBe(7)
+    expect(migrated.version).toBe(9)
     expect(migrated.fieldMaps).toEqual([])
     expect(migrated.researchLogs).toEqual(workspace.researchLogs)
     expect(migrated.literature).toEqual(workspace.literature)

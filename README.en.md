@@ -1,3 +1,5 @@
+> **0.6.0-rc.1 qualitative analysis and provenance candidate**: see [candidate notes](docs/releases/v0.6.0-rc.1.md) for the workflows, 44 collections and v7→v8→v9 compatibility. Publication evidence belongs in [PR #64](https://github.com/Yoesher/sociology-phd-desk/pull/64) and the [prerelease](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.6.0-rc.1); the website's actual build identifies its deployed version.
+
 [简体中文](README.md) · **English**
 
 ![Sociology PhD Desk academic research workstation](docs/assets/readme-header.svg)
@@ -8,9 +10,9 @@
 
 A local-first workstation for sociology doctoral researchers. No account required. Chinese by default, with a complete English interface. Use your browser or install the PWA.
 
-**[Open the desk →](https://yoesher.github.io/sociology-phd-desk/)** · **[Releases](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[Get started](docs/en/getting-started.md)** · **[0.5.0 update notes](docs/releases/v0.5.0.md)**
+**[Open the desk →](https://yoesher.github.io/sociology-phd-desk/)** · **[Releases](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[Get started](docs/en/getting-started.md)** · **[0.6.0-rc.1 candidate notes](docs/releases/v0.6.0-rc.1.md)**
 
-`App 0.5.0` · `Data format v7` · `Local-first` · `Offline-capable`
+`App candidate 0.6.0-rc.1` · `Data format v9` · `Local-first` · `Offline-capable`
 
 **0.5.0: Research navigator.** Use the desktop or phone magnifier to search 17 record types, filter projects/types, read details and follow saved relationships. Project overview shows actual work queues and research objects, without a quality score. Queries stay in memory in the unlocked workspace, with no history or upload. Local maps link to field sites, visits and interviews through existing IDs; free evidence prose does not create inferred claim links. **[Complete correction plan and 20-tool comparison](docs/research-workstation-review-2026-10-04.md)** · [Usage notes](docs/releases/v0.5.0.md)
 
@@ -33,7 +35,7 @@ A local-first workstation for sociology doctoral researchers. No account require
 | **Local field annotations** | Import an entitled PNG/JPEG map or sketch and link same-project field sites by image percentages, with related visits/interviews. Use clicks, keyboard or percentage entry; removing a marker keeps original records. |
 | **Private workspaces and backups** | Isolate multiple local workspaces, optionally use encrypted storage, lock and `.sociologydesk` encrypted backups. Both ordinary and encrypted backups include all projects, PDFs, images and markers. |
 
-The app connects research questions, literature, datasets or interviews, analysis, evidence, claims, manuscripts and revision work; it complements specialist tools such as Zotero, Word, Stata, R, Python and NVivo. Complete explicit Evidence↔Claim↔Manuscript tracing remains separate [Issue #2](https://github.com/Yoesher/sociology-phd-desk/issues/2) work, and edit/delete support is not yet uniform across modules.
+The app connects research questions, literature, datasets or interviews, analysis, evidence, claims, manuscripts and revision work; it complements specialist tools such as Zotero, Word, Stata, R, Python and NVivo. 0.6.0-rc.1 adds explicit versioned Evidence↔Claim↔Manuscript tracing and actual paragraph-use records. [Issue #2](https://github.com/Yoesher/sociology-phd-desk/issues/2) and [Issue #4](https://github.com/Yoesher/sociology-phd-desk/issues/4) remain open for candidate feedback; edit/delete support is not yet uniform across modules.
 
 ## Inside the desk
 
@@ -119,7 +121,7 @@ After a successful first load and caching, the app's static resources can start 
 
 Existing valid over-budget workspaces remain readable/migratable and permit writes that do not increase serialized size. Complete encrypted preservation remains available within the original encryption and attachment bounds. More substantial PDF support requires independent attachment storage and chunked authenticated backup, neither implemented yet; keep your original files.
 
-Current portable workspace, standard database and authenticated encrypted payload are **v7**; container, vault database and registry database remain **v1**. v6 → v7 keeps records and adds only an empty local-map collection, without inventing images or coordinates. The older 0.3.1 app cannot read v7 backups; keep/test an original-version backup before moving versions. Review import previews; replacement requires explicit confirmation. Encrypted restore authenticates and validates before creating a new isolated workspace; wrong passwords or damaged ciphertext write no destination.
+Current portable workspace, standard database and authenticated encrypted payload are **v9**; container, vault database and registry database remain **v1**. Guarded v7 → v8 → v9 migration retains old records, stable IDs, PDFs, maps and research goals; it creates only mechanical revision snapshots and empty qualitative collections, without inferring research relationships. The old 0.5.0 app cannot read v9 backups or databases; retain and verify a complete v7 backup before upgrading. Previously exported files are not rewritten. Review import previews; replacement requires explicit confirmation. Encrypted restore authenticates and validates before creating a new isolated workspace; wrong passwords or damaged ciphertext write no destination.
 
 See the [local-map/storage guide with English brief](docs/local-field-maps-and-storage-2026-10-04.md) and [data portability](docs/data-portability.md).
 

@@ -1,3 +1,5 @@
+import type { SharedProvenanceCollections, QualitativeCollections } from './provenance'
+
 /**
  * Durable domain contracts for the local Sociology PhD Desk workspace.
  *
@@ -8,7 +10,7 @@ export type EntityId = string
 export type ISODate = string
 export type ISODateTime = string
 
-export const WORKSPACE_SCHEMA_VERSION = 7 as const
+export const WORKSPACE_SCHEMA_VERSION = 9 as const
 export const WORKSPACE_APPLICATION = 'sociology-phd-desk' as const
 
 export const RESEARCH_METHODS = [
@@ -390,7 +392,7 @@ export interface ReviewerComment extends EntityMetadata {
  * Complete, portable workspace snapshot. Every persisted collection is included;
  * files referred to by local paths are never embedded in the JSON.
  */
-export interface WorkspaceData {
+export interface WorkspaceData extends SharedProvenanceCollections, QualitativeCollections {
   application: typeof WORKSPACE_APPLICATION
   version: typeof WORKSPACE_SCHEMA_VERSION
   exportedAt: ISODateTime
