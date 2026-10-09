@@ -6,6 +6,8 @@ At this source checkpoint the final gates are still being executed. Finish the o
 
 After the release is verified, the next work is RC feedback on Issues #2/#4, physical-phone/screen-reader/installed-PWA usability checks, large-comparison UI performance and a separately reviewed identity-purge workflow. Do not start automatic transcription, AI coding, cloud sync or native QDA project parsing as release repairs.
 
+Latest 1c67 checkpoint: all original seven non-browser local commands and CodeQL passed, but complete local E2E was 43/44 and both Linux workflows were 42/44 because historical-source details overflowed their desktop/touch viewports. Repair long-identifier/grid wrapping, preserve the full readable identifiers and original layout assertions, and rerun exact-head gates before merge. These failures remain historical even after a later passing fix.
+
 ## Historical publication gates — 2026-10-08
 
 - [x] Verify package digest/132 members, real upstream state, safe isolated branch, and exact 87-file patch application.
