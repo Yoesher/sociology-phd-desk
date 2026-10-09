@@ -1,9 +1,3 @@
-# Unreleased —0.6.0-rc.1 candidate
-
-- Add versioned qualitative source locators, reusable researcher codes, analytical TheoryMemo facets, frozen case comparisons and negative cases.
-- Add the shared Evidence–Claim–Manuscript explicit provenance interface and actual paragraph usage, reusing canonical research objects.
-- Preserve schema7 data through guarded7→8→9 migrations and complete44-collection ordinary/authenticated backups. Published0.5.0 remains unchanged.
-
 # Changelog
 
 All notable user-visible changes to Sociology PhD Desk will be documented here.
@@ -11,6 +5,13 @@ All notable user-visible changes to Sociology PhD Desk will be documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and public releases follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.6.0-rc.1] - 2026-10-09 (release candidate)
+
+- Add versioned qualitative source locators, reusable researcher codes, analytical TheoryMemo facets, frozen case comparisons and negative cases.
+- Add the shared Evidence–Claim–Manuscript explicit provenance interface and actual paragraph usage, reusing canonical research objects.
+- Preserve schema7 data through guarded 7→8→9 migrations and complete 44-collection ordinary/authenticated backups. Retain independently verified original v7 files; old 0.5.0 cannot read v9. Existing formal releases/tags and Zotero 0.1.0 assets remain unchanged.
+- Update only the transitive source-map-js lock entry to 1.2.2 to repair the actual high-severity audit failure. Preserve original security/test gates and record browser fixture failures and repairs without removing assertions. [Candidate notes](docs/releases/v0.6.0-rc.1.md), [actual checkpoint](PROJECT_STATE.md) and [publication acceptance](https://github.com/Yoesher/sociology-phd-desk/pull/64) identify the completed gates and any remaining limits; this source entry does not predeclare deployment.
 
 ## [0.5.0] - 2026-10-04
 

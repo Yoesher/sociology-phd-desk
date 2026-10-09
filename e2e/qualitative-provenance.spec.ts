@@ -98,7 +98,13 @@ async function exportJson(page: Page): Promise<WorkspaceData> {
   return snapshot
 }
 function expectCollectionsEqual(actual: WorkspaceData, expected: WorkspaceData) {
-  for (const key of WORKSPACE_COLLECTION_KEYS) expect(actual[key], key).toEqual(expected[key])
+  // IndexedDB reads collections in primary-key order, while command fixtures
+  // retain insertion order. Compare every complete record by stable ID; nested
+  // arrays, duplicate records and all fields remain part of deep equality.
+  const byId = (a: { id: string }, b: { id: string }) => a.id.localeCompare(b.id)
+  for (const key of WORKSPACE_COLLECTION_KEYS) {
+    expect([...actual[key]].sort(byId), key).toEqual([...expected[key]].sort(byId))
+  }
 }
 async function persistFingerprint(page: Page) {
   return page.evaluate(async () => {
@@ -195,12 +201,18 @@ test('synthetic coding revisions, counterexamples and historical sources survive
   const revised = await exportJson(page)
   const oldSegment = initial.sourceSegments.find(item => item.id === 'synthetic-qda-segment-a')!.currentRevisionId
   const oldSource = initial.sourceReferences.find(item => item.id === 'synthetic-qda-source-a')!.currentRevisionId
-  expect(revised.codingAssignments[0]!.segmentRevisionId).toBe(oldSegment)
-  expect(revised.codingAssignments[0]!.codeRevisionId).toBe(initial.codingAssignments[0]!.codeRevisionId)
+  const originalRevisedAssignment = revised.codingAssignments.find(item => item.id === 'synthetic-qda-assignment')!
+  expect(originalRevisedAssignment).toBeDefined()
+  expect(originalRevisedAssignment.segmentRevisionId).toBe(oldSegment)
+  expect(originalRevisedAssignment.codeRevisionId).toBe(initial.codingAssignments.find(item => item.id === 'synthetic-qda-assignment')!.codeRevisionId)
   expect(revised.codingAssignments).toHaveLength(2)
   const reusedCode = revised.qualitativeCodes.find(item => item.id === 'synthetic-qda-code')!
-  expect(revised.codingAssignments[1]!.codeRevisionId).toBe(reusedCode.currentRevisionId)
-  expect(revised.sourceReferences.find(item => item.alias === `${prefix} T03`)!.owners).toEqual([{ kind: 'interview', interviewId: 'synthetic-qda-I02' }])
+  const reusedSource = revised.sourceReferences.find(item => item.alias === `${prefix} T03`)!
+  const reusedSegment = revised.sourceSegments.find(item => item.sourceReferenceId === reusedSource.id)!
+  const reusedAssignment = revised.codingAssignments.find(item => item.segmentRevisionId === reusedSegment.currentRevisionId)!
+  expect(reusedAssignment).toBeDefined()
+  expect(reusedAssignment.codeRevisionId).toBe(reusedCode.currentRevisionId)
+  expect(reusedSource.owners).toEqual([{ kind: 'interview', interviewId: 'synthetic-qda-I02' }])
   await qualitative(page, `&segmentRevision=${encodeURIComponent(oldSegment)}`)
   await expect(page.locator('.qualitative-trace').getByText('L12–18', { exact: true })).toBeVisible()
   await expect(page.locator('.qualitative-trace').getByText('L14–20', { exact: true })).toHaveCount(0)
@@ -300,7 +312,7 @@ test('authenticated backup restores all 44 collections into a vault and wrong pa
   await restore.getByRole('button', { name: '取消', exact: true }).click()
   await closeCenter(page, reopenedCenter)
   expectCollectionsEqual(await exportJson(page), fixture)
-  await qualitative(page, `&segmentRevision=${encodeURIComponent(fixture.sourceSegments[0]!.currentRevisionId)}`)
+  await qualitative(page, `&segmentRevision=${encodeURIComponent(fixture.sourceSegments.find(item => item.id === 'synthetic-qda-segment-a')!.currentRevisionId)}`)
   await expect(page.locator('.qualitative-trace').getByText('L12–18', { exact: true })).toBeVisible()
   await expectNoHorizontalOverflow(page)
   expect(diagnostics).toEqual({ pageErrors: [], consoleProblems: [] })

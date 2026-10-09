@@ -1,6 +1,6 @@
 export const releaseMetadata = Object.freeze({
   version: '0.6.0-rc.1',
-  releaseDate: '2026-10-08',
+  releaseDate: '2026-10-09',
   releaseUrl: 'https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.6.0-rc.1',
   summary: {
     en: [

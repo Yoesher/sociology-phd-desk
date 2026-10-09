@@ -1,4 +1,4 @@
-> This branch is the **0.6.0-rc.1 qualitative provenance candidate**, not a published release. The public site retains its deployed version. See [candidate notes](docs/releases/v0.6.0-rc.1.md).
+> **0.6.0-rc.1 qualitative analysis and provenance candidate**: see [candidate notes](docs/releases/v0.6.0-rc.1.md) for the workflows, 44 collections and v7→v8→v9 compatibility. Publication evidence belongs in [PR #64](https://github.com/Yoesher/sociology-phd-desk/pull/64) and the [prerelease](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.6.0-rc.1); the website's actual build identifies its deployed version.
 
 [简体中文](README.md) · **English**
 
@@ -35,7 +35,7 @@ A local-first workstation for sociology doctoral researchers. No account require
 | **Local field annotations** | Import an entitled PNG/JPEG map or sketch and link same-project field sites by image percentages, with related visits/interviews. Use clicks, keyboard or percentage entry; removing a marker keeps original records. |
 | **Private workspaces and backups** | Isolate multiple local workspaces, optionally use encrypted storage, lock and `.sociologydesk` encrypted backups. Both ordinary and encrypted backups include all projects, PDFs, images and markers. |
 
-The app connects research questions, literature, datasets or interviews, analysis, evidence, claims, manuscripts and revision work; it complements specialist tools such as Zotero, Word, Stata, R, Python and NVivo. Complete explicit Evidence↔Claim↔Manuscript tracing remains separate [Issue #2](https://github.com/Yoesher/sociology-phd-desk/issues/2) work, and edit/delete support is not yet uniform across modules.
+The app connects research questions, literature, datasets or interviews, analysis, evidence, claims, manuscripts and revision work; it complements specialist tools such as Zotero, Word, Stata, R, Python and NVivo. 0.6.0-rc.1 adds explicit versioned Evidence↔Claim↔Manuscript tracing and actual paragraph-use records. [Issue #2](https://github.com/Yoesher/sociology-phd-desk/issues/2) and [Issue #4](https://github.com/Yoesher/sociology-phd-desk/issues/4) remain open for candidate feedback; edit/delete support is not yet uniform across modules.
 
 ## Inside the desk
 

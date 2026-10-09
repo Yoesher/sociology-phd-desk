@@ -1,4 +1,4 @@
-> 本分支为 **0.6.0-rc.1 定性分析追溯候选**，尚未发布；公开网站仍以实际部署版本为准。新增界面、44集合及 v7→v8→v9 兼容说明见[候选说明](docs/releases/v0.6.0-rc.1.md)。
+> **0.6.0-rc.1 定性分析与证据追溯候选**：新增界面、44 集合及 v7→v8→v9 兼容说明见[候选说明](docs/releases/v0.6.0-rc.1.md)。发布验收记录见 [PR #64](https://github.com/Yoesher/sociology-phd-desk/pull/64) 与[候选发行版](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.6.0-rc.1)；网站版本以实际构建身份为准。
 
 **简体中文** · [English](README.en.md)
 
@@ -35,7 +35,7 @@
 | **本地田野标注** | 导入自己有权使用的 PNG/JPEG 地图或草图，以图内百分比关联同项目田野点，查看关联访问与访谈。支持点击、键盘及百分比输入；移除标注不删除原记录。 |
 | **私密工作台与备份** | 隔离多个本地工作台，可选择加密存储、锁定与 `.sociologydesk` 加密备份。普通和加密备份均包含所有项目、PDF、图像与标注。 |
 
-应用连接研究问题、文献、数据集或访谈、分析、证据、主张、论文与修回工作；它补充 Zotero、Word、Stata、R、Python 和 NVivo 等专业工具。Evidence↔Claim↔Manuscript 的完整显式追踪仍是独立的 [Issue #2](https://github.com/Yoesher/sociology-phd-desk/issues/2)，各模块编辑/删除能力尚未完全一致。
+应用连接研究问题、文献、数据集或访谈、分析、证据、主张、论文与修回工作；它补充 Zotero、Word、Stata、R、Python 和 NVivo 等专业工具。0.6.0-rc.1 增加显式、带版本的 Evidence↔Claim↔Manuscript 追溯与实际论文使用登记。[Issue #2](https://github.com/Yoesher/sociology-phd-desk/issues/2) 与 [Issue #4](https://github.com/Yoesher/sociology-phd-desk/issues/4) 保持开放，等待候选反馈；各模块编辑/删除能力尚未完全一致。
 
 ## 看看工作台
 

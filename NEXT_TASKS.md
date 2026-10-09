@@ -1,4 +1,12 @@
-# Current 0.6.0-rc.1 publication gates — 2026-10-08
+# 0.6.0-rc.1 handoff — 2026-10-09
+
+The real upstream branch and [PR #64](https://github.com/Yoesher/sociology-phd-desk/pull/64) exist. Candidate integrity and independent exact-head P0/P1 review passed. The dependency audit failure was repaired by updating only the transitive source-map-js lock entry to 1.2.2. Browser fixtures now target actual labels and stable IDs; full-record comparisons must preserve every field and collection even when durable reads order rows by ID. Actual prior failures and local resource timeouts remain in the [verification history](docs/qualitative-provenance-validation-2026-10-08.md).
+
+At this source checkpoint the final gates are still being executed. Finish the original eight commands and exact-head push/PR CI/CodeQL; complete genuine synthetic v0.5.0→candidate waiting updates with retained verified v7 files; merge only the reviewed passing head; then independently verify final main CI/CodeQL/Pages, public SHA, 44-collection ordinary/encrypted restore and zero-write failures. Create only the authorized new annotated RC tag/prerelease after acceptance, verify notes/source archives, and preserve all official Zotero 0.1.0 assets and old releases. Final completed identities belong in PR #64, the [prerelease](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.6.0-rc.1) and the external ledger, avoiding a self-referential extra commit solely to insert its own SHA. Never use an earlier successful run for a new final main.
+
+After the release is verified, the next work is RC feedback on Issues #2/#4, physical-phone/screen-reader/installed-PWA usability checks, large-comparison UI performance and a separately reviewed identity-purge workflow. Do not start automatic transcription, AI coding, cloud sync or native QDA project parsing as release repairs.
+
+## Historical publication gates — 2026-10-08
 
 - [x] Verify package digest/132 members, real upstream state, safe isolated branch, and exact 87-file patch application.
 - [ ] Original eight local commands and exact pushed-head push/PR CI plus CodeQL.
