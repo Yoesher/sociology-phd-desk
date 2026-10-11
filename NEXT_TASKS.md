@@ -4,7 +4,7 @@
 - [x] User authorized a stable release; update only release/version/document metadata to 0.6.0 with no research/schema/dependency/test configuration changes.
 - [ ] Run all original commands against the formal revision; verify its push/PR CI and CodeQL before expected-head merge.
 - [ ] Verify exact final main CI/CodeQL/Pages and public fullSHA/version, all44 ordinary/encrypted desktop/touch restore and genuine retained RC→formal waiting update.
-- [ ] Create only a new annotated v0.6.0/formal Release after acceptance, make it latest stable, verify UTF8/API/archive readback, preserve RC and every old Zotero asset, and safely sync the original clean checkout. Final SHA-linked completion is recorded in that PR/Release and the external handoff ledger.
+- [ ] Create only a new annotated v0.6.0/formal Release after acceptance, make it latest stable, verify UTF8/API/archive readback, preserve RC and every old Zotero asset, and safely sync the original clean checkout. Final SHA-linked completion is recorded in [PR #65](https://github.com/Yoesher/sociology-phd-desk/pull/65)/Release and the external handoff ledger.
 
 Next research work remains researcher feedback on Issues #2/#4, dedicated merge/split usability, large-comparison performance, physical-device/accessibility/installed-PWA validation and separately reviewed identity-purge work. Do not implement extra features as release promotion repairs.
 
