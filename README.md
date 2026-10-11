@@ -1,4 +1,4 @@
-> **0.6.0-rc.1 定性分析与证据追溯候选**：新增界面、44 集合及 v7→v8→v9 兼容说明见[候选说明](docs/releases/v0.6.0-rc.1.md)。发布验收记录见 [PR #64](https://github.com/Yoesher/sociology-phd-desk/pull/64) 与[候选发行版](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.6.0-rc.1)；网站版本以实际构建身份为准。
+> **0.6.0 定性分析与证据追溯正式版**：由已验收的 0.6.0-rc.1 接续发布，研究功能与 schema v9 保持一致。见[正式版说明](docs/releases/v0.6.0.md)及[正式发行版](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.6.0)；实际部署身份与验收记录见[项目状态](PROJECT_STATE.md)。
 
 **简体中文** · [English](README.en.md)
 
@@ -10,9 +10,9 @@
 
 面向社会学博士研究者的本地优先工作站。无需账号，中文优先并提供完整英文界面；浏览器即可使用，也可安装为 PWA。
 
-**[打开工作站 →](https://yoesher.github.io/sociology-phd-desk/)** · **[发行版](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[开始使用](docs/zh-CN/getting-started.md)** · **[0.6.0-rc.1 候选说明](docs/releases/v0.6.0-rc.1.md)**
+**[打开工作站 →](https://yoesher.github.io/sociology-phd-desk/)** · **[发行版](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[开始使用](docs/zh-CN/getting-started.md)** · **[0.6.0 正式版说明](docs/releases/v0.6.0.md)**
 
-`应用候选 0.6.0-rc.1` · `数据格式 v9` · `本地优先` · `可离线使用`
+`应用 0.6.0` · `数据格式 v9` · `本地优先` · `可离线使用`
 
 **0.5.0：研究导航。** 桌面与手机的放大镜可检索17类研究记录，按项目与类型筛选，查看笔记详情和已登记关系；项目概览显示真实任务队列、问题与资料积累。查询只在当前已解锁工作台内存中运行，不保存历史、不上传。地图、田野点、访问与访谈可沿稳定ID互相回看；证据文字不会被猜成主张链接。**[完整修正方案与20工具比较](docs/research-workstation-review-2026-10-04.md)** · [使用说明](docs/releases/v0.5.0.md)
 
@@ -35,7 +35,7 @@
 | **本地田野标注** | 导入自己有权使用的 PNG/JPEG 地图或草图，以图内百分比关联同项目田野点，查看关联访问与访谈。支持点击、键盘及百分比输入；移除标注不删除原记录。 |
 | **私密工作台与备份** | 隔离多个本地工作台，可选择加密存储、锁定与 `.sociologydesk` 加密备份。普通和加密备份均包含所有项目、PDF、图像与标注。 |
 
-应用连接研究问题、文献、数据集或访谈、分析、证据、主张、论文与修回工作；它补充 Zotero、Word、Stata、R、Python 和 NVivo 等专业工具。0.6.0-rc.1 增加显式、带版本的 Evidence↔Claim↔Manuscript 追溯与实际论文使用登记。[Issue #2](https://github.com/Yoesher/sociology-phd-desk/issues/2) 与 [Issue #4](https://github.com/Yoesher/sociology-phd-desk/issues/4) 保持开放，等待候选反馈；各模块编辑/删除能力尚未完全一致。
+应用连接研究问题、文献、数据集或访谈、分析、证据、主张、论文与修回工作；它补充 Zotero、Word、Stata、R、Python 和 NVivo 等专业工具。0.6.0 提供显式、带版本的 Evidence↔Claim↔Manuscript 追溯与实际论文使用登记。[Issue #2](https://github.com/Yoesher/sociology-phd-desk/issues/2) 与 [Issue #4](https://github.com/Yoesher/sociology-phd-desk/issues/4) 保持开放，收集研究者使用反馈；各模块编辑/删除能力尚未完全一致。
 
 ## 看看工作台
 
