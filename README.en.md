@@ -1,4 +1,4 @@
-> **0.6.0-rc.1 qualitative analysis and provenance candidate**: see [candidate notes](docs/releases/v0.6.0-rc.1.md) for the workflows, 44 collections and v7→v8→v9 compatibility. Publication evidence belongs in [PR #64](https://github.com/Yoesher/sociology-phd-desk/pull/64) and the [prerelease](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.6.0-rc.1); the website's actual build identifies its deployed version.
+> **0.6.0 qualitative analysis and provenance**: the stable release continues the accepted 0.6.0-rc.1 workflows and schema v9 unchanged. See [stable notes](docs/releases/v0.6.0.md), the [formal Release](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.6.0), and [verified publication state](PROJECT_STATE.md).
 
 [简体中文](README.md) · **English**
 
@@ -10,9 +10,9 @@
 
 A local-first workstation for sociology doctoral researchers. No account required. Chinese by default, with a complete English interface. Use your browser or install the PWA.
 
-**[Open the desk →](https://yoesher.github.io/sociology-phd-desk/)** · **[Releases](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[Get started](docs/en/getting-started.md)** · **[0.6.0-rc.1 candidate notes](docs/releases/v0.6.0-rc.1.md)**
+**[Open the desk →](https://yoesher.github.io/sociology-phd-desk/)** · **[Releases](https://github.com/Yoesher/sociology-phd-desk/releases)** · **[Get started](docs/en/getting-started.md)** · **[0.6.0 stable release notes](docs/releases/v0.6.0.md)**
 
-`App candidate 0.6.0-rc.1` · `Data format v9` · `Local-first` · `Offline-capable`
+`App 0.6.0` · `Data format v9` · `Local-first` · `Offline-capable`
 
 **0.5.0: Research navigator.** Use the desktop or phone magnifier to search 17 record types, filter projects/types, read details and follow saved relationships. Project overview shows actual work queues and research objects, without a quality score. Queries stay in memory in the unlocked workspace, with no history or upload. Local maps link to field sites, visits and interviews through existing IDs; free evidence prose does not create inferred claim links. **[Complete correction plan and 20-tool comparison](docs/research-workstation-review-2026-10-04.md)** · [Usage notes](docs/releases/v0.5.0.md)
 
@@ -35,7 +35,7 @@ A local-first workstation for sociology doctoral researchers. No account require
 | **Local field annotations** | Import an entitled PNG/JPEG map or sketch and link same-project field sites by image percentages, with related visits/interviews. Use clicks, keyboard or percentage entry; removing a marker keeps original records. |
 | **Private workspaces and backups** | Isolate multiple local workspaces, optionally use encrypted storage, lock and `.sociologydesk` encrypted backups. Both ordinary and encrypted backups include all projects, PDFs, images and markers. |
 
-The app connects research questions, literature, datasets or interviews, analysis, evidence, claims, manuscripts and revision work; it complements specialist tools such as Zotero, Word, Stata, R, Python and NVivo. 0.6.0-rc.1 adds explicit versioned Evidence↔Claim↔Manuscript tracing and actual paragraph-use records. [Issue #2](https://github.com/Yoesher/sociology-phd-desk/issues/2) and [Issue #4](https://github.com/Yoesher/sociology-phd-desk/issues/4) remain open for candidate feedback; edit/delete support is not yet uniform across modules.
+The app connects research questions, literature, datasets or interviews, analysis, evidence, claims, manuscripts and revision work; it complements specialist tools such as Zotero, Word, Stata, R, Python and NVivo. 0.6.0 provides explicit versioned Evidence↔Claim↔Manuscript tracing and actual paragraph-use records. [Issue #2](https://github.com/Yoesher/sociology-phd-desk/issues/2) and [Issue #4](https://github.com/Yoesher/sociology-phd-desk/issues/4) remain open for researcher feedback; edit/delete support is not yet uniform across modules.
 
 ## Inside the desk
 

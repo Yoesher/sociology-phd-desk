@@ -347,3 +347,8 @@ Normal updates pass through reconciliation of old form edits; no version or owne
 Portable/standard/authenticated payload progress 7→8→9; container/vault/registry remain1. Fixed historical Dexie versions, authentication-before-migration, guarded count/serialization budgets and rollback preserve source data on failure. No transcript/audio blobs, identity registry, native QDA parser, AI coding or transcription were added. External anonymous reference metadata stays local and is copied only on request.
 
 See docs/architecture/qualitative-provenance.md and the candidate verification record. Public CI/CodeQL, exact-head deployment and genuine PWA upgrade acceptance are separate release gates and were not implied by the local implementation.
+
+
+### ADR-031 publication-state note — 2026-10-11
+
+The older unpublished status records feature preparation. The RC is verified through PR #64, finalmain2796622b9d77be68916138797497b595c9762851 and annotated v0.6.0-rc.1/Release407485931; its final gates and 339-file official archives passed. The user now explicitly authorizes stable 0.6.0 promotion. It changes application release metadata only, retains all44/schema9 and the implemented semantics, and preserves the RC and official Zotero assets. Stable publication remains subject to its own exact-head/main/public/PWA gates and a new immutable tag; no prior SHA success validates the new revision.

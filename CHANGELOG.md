@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-11
+
+- Promote the verified qualitative-analysis/provenance RC to the separately authorized stable application release. Update application/package/lock/citation/update metadata and bilingual release presentation to 0.6.0; preserve the RC tag/Release and every existing Zotero asset.
+- Research behavior, schema9/44 collections, v7 compatibility, attachment limits and all original test assertions remain unchanged. Exact-head/main and public/PWA acceptance are required again for this version. [Stable release notes](docs/releases/v0.6.0.md) and [publication state](PROJECT_STATE.md) distinguish verified RC history from final formal-release evidence.
+
 ## [0.6.0-rc.1] - 2026-10-09 (release candidate)
 
 - Add versioned qualitative source locators, reusable researcher codes, analytical TheoryMemo facets, frozen case comparisons and negative cases.

@@ -1,3 +1,15 @@
+# 0.6.0 stable-release continuation — 2026-10-11
+
+The user explicitly authorized a formal release after the completed RC. This branch promotes the same implemented workflows to application 0.6.0, retaining schema9/44 and container/vault/registry1, research behavior, limits and effective tests. Existing RC and official Zotero tags/assets stay immutable.
+
+The verified RC is PR #64 / main 2796622b9d77be68916138797497b595c9762851: main CI 37879493153, CodeQL 37879493173, Pages 37879493076 / deployment6952264991 passed; 589 unit, 8 Zotero, 44 browser and fresh all44 nonempty ordinary/authenticated acceptance plus genuine v0.5.0 waiting updates passed. Its annotated v0.6.0-rc.1 / Release407485931 is preserved. October11 readback and both automatic archives passed 339-file Git-byte equality. This resolves the older RC checkpoint gates below without rewriting their failure history.
+
+At this source checkpoint, the new stable revision still requires all original commands, exact-head push/PR CI+CodeQL, expected-head merge, exact-main CI/CodeQL/Pages, public fullSHA/version, fresh desktop/touch ordinary/authenticated acceptance and genuine held RC→stable waiting updates. The new annotated v0.6.0 formal Release may be created only after acceptance. Final verified identities belong in the publishing PR, [v0.6.0 Release](https://github.com/Yoesher/sociology-phd-desk/releases/tag/v0.6.0) and publication ledger, without an extra source commit solely to insert its own SHA.
+
+Keep verified original v7 backups: v0.5.0 cannot read v9. The RC and formal release use the same v9 data format. Metadata/locator-only limits, no full-text editor/transcription/AI coding, one-click merge/split and large-comparison performance future work, physical-phone/screen-reader/installed-PWA unverified boundaries remain. Issues #2/#4 stay open. No real browser profile or research database is used for acceptance.
+
+## Historical RC source checkpoint
+
 # 0.6.0-rc.1 publication checkpoint — 2026-10-09
 
 The candidate has been applied to real upstream ancestry and pushed through [PR #64](https://github.com/Yoesher/sociology-phd-desk/pull/64). Current execution approvals have permitted the authorized GitHub operations; the older never-approval connector rejection below remains historical. No user's research database or browser profile was read. The candidate package, original patch and old v7 synthetic backup files remain intact.

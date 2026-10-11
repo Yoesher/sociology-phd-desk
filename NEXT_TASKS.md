@@ -1,3 +1,15 @@
+# 0.6.0 stable-release handoff — 2026-10-11
+
+- [x] RC publishing PR #64, exact main2796622b9d77be68916138797497b595c9762851, all local/remote/public/PWA gates, annotated RC/Release407485931 and official 339-file source archives are independently verified; previous pending RC boxes below are historical.
+- [x] User authorized a stable release; update only release/version/document metadata to 0.6.0 with no research/schema/dependency/test configuration changes.
+- [ ] Run all original commands against the formal revision; verify its push/PR CI and CodeQL before expected-head merge.
+- [ ] Verify exact final main CI/CodeQL/Pages and public fullSHA/version, all44 ordinary/encrypted desktop/touch restore and genuine retained RC→formal waiting update.
+- [ ] Create only a new annotated v0.6.0/formal Release after acceptance, make it latest stable, verify UTF8/API/archive readback, preserve RC and every old Zotero asset, and safely sync the original clean checkout. Final SHA-linked completion is recorded in that PR/Release and the external handoff ledger.
+
+Next research work remains researcher feedback on Issues #2/#4, dedicated merge/split usability, large-comparison performance, physical-device/accessibility/installed-PWA validation and separately reviewed identity-purge work. Do not implement extra features as release promotion repairs.
+
+## Historical RC handoff
+
 # 0.6.0-rc.1 handoff — 2026-10-09
 
 The real upstream branch and [PR #64](https://github.com/Yoesher/sociology-phd-desk/pull/64) exist. Candidate integrity and independent exact-head P0/P1 review passed. The dependency audit failure was repaired by updating only the transitive source-map-js lock entry to 1.2.2. Browser fixtures now target actual labels and stable IDs; full-record comparisons must preserve every field and collection even when durable reads order rows by ID. Actual prior failures and local resource timeouts remain in the [verification history](docs/qualitative-provenance-validation-2026-10-08.md).
